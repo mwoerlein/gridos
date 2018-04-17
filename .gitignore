@@ -1,0 +1,7 @@
+.idea
+
+*.[oas]
+*.bin
+*.block
+
+/img/bootdisk.img

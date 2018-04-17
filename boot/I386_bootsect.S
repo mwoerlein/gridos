@@ -2,7 +2,7 @@
  */
 
 /* Konstanten */
-#include "I386_config.asm"
+#include "I386_bootsect_config.s"
 BOOTSEG		= 0x07C0
 INITSEG		= 0x7000
 

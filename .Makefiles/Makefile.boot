@@ -3,7 +3,7 @@ include ./.Makefiles/Makefile.inc
 LDHEAD =# $(shell g++ --print-file-name=crti.o && g++ --print-file-name=crtbegin.o)
 LDTAIL =# $(shell g++ --print-file-name=crtend.o && g++ --print-file-name=crtn.o)
 
-$(BOOTDIR)/$(MASCHINE)_config.asm $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block: $(BOOTDIR)/Kernel-TEXT.bin $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin
+$(BOOTDIR)/$(MASCHINE)_bootsect_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block: $(BOOTDIR)/Kernel-TEXT.bin $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin
 	echo "#define BOOTDEVICE       0" > $@ #FD0 =0 FD1=1 ... HD0=128 HD1=129 ...
 	echo "#define DISK_HEADS       2" >> $@
 	echo "#define DISK_TRACKS      80" >> $@
@@ -29,7 +29,7 @@ $(BOOTDIR)/$(MASCHINE)_config.asm $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOO
 	echo "#define TEXT_OFFSET      0" >> $@
 	echo "" >> $@
 
-$(BOOTDIR)/$(MASCHINE)_bootsect.s: $(BOOTDIR)/$(MASCHINE)_bootsect.S $(BOOTDIR)/$(MASCHINE)_config.asm
+$(BOOTDIR)/$(MASCHINE)_bootsect.s: $(BOOTDIR)/$(MASCHINE)_bootsect.S $(BOOTDIR)/$(MASCHINE)_bootsect_config.s
 	$(CC) -E -traditional -S -o $@ $<
 
 $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.s: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.S
@@ -58,4 +58,4 @@ $(LIBDIR)/%.a:
 	$(MAKELIB) LIB=$@ $@
 
 clean:
-	@rm -rf $(addprefix $(BOOTDIR)/, *_config.asm *.bin *.block *.o *.s *.OStream)
+	@rm -rf $(addprefix $(BOOTDIR)/, *.bin *.block *.o *.s *.OStream)
