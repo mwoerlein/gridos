@@ -9,13 +9,13 @@
 class I386MemoryList: public MemoryList {
     private:
 	memlist *ml;
-//	I386KernelTextIStream kt;
-//	I386OStreamKernel osk;
+	I386KernelTextIStream kt;
+	I386OStreamKernel osk;
     public:
 	I386MemoryList(memlist *ml);
 	virtual ~I386MemoryList();
-//	virtual IStream &getKernelText();
-//	virtual OStreamKernel &getOStreamKernel();
+	virtual IStream &getKernelText();
+	virtual OStreamKernel &getOStreamKernel();
 	virtual int getStackSpace();
 	virtual int getMemSize();
 	virtual void printBuffers(DebugSystem &ds);

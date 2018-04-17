@@ -1,9 +1,11 @@
 #include "I386/I386MemoryList.hpp"
+#include "I386/I386IO_Port.hpp"
+#include "I386/I386IntTypes.hpp"
 
-I386MemoryList::I386MemoryList(memlist *ml):ml(ml)/*,kt(ml->mem[1]),osk(ml->mem[3])*/{};
+I386MemoryList::I386MemoryList(memlist *ml):ml(ml),kt(ml->mem[1]),osk(ml->mem[3]){};
 I386MemoryList::~I386MemoryList(){};
-//IStream &I386MemoryList::getKernelText(){ return kt; };
-//OStreamKernel &I386MemoryList::getOStreamKernel(){ return osk; };
+IStream &I386MemoryList::getKernelText(){ return kt; };
+OStreamKernel &I386MemoryList::getOStreamKernel(){ return osk; };
 int I386MemoryList::getStackSpace(){
     int esp;
     __asm__ __volatile__ ("movl %%esp, %0":"=r"(esp):);

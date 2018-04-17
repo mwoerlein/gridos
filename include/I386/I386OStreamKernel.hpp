@@ -13,8 +13,8 @@ class I386OStreamKernel: public OStreamKernel{
 	void delay(){};
 	inline void empty_8042(){ 
 	    while (I386IO_Port(0x64).inb()&3) {
-		delay();
-		I386IO_Port(0x60).inb(); 
+    		delay();
+    		I386IO_Port(0x60).inb(); 
 	    }
 	};
     public:
@@ -41,7 +41,7 @@ class I386OStreamKernel: public OStreamKernel{
 	    vt.activate();
 	    __asm__("sti");
 	    
-	    __asm__ __volatile__ ("jmp *%0" : : "a"(mem.buf));
+	    //__asm__ __volatile__ ("jmp *%0" : : "a"(mem.buf));
 	};
 };
 

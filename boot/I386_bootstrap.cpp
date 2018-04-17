@@ -16,20 +16,16 @@ void bootstrap(memlist *ml){
     I386DebugSystem ds;
     I386MemoryList memory(ml);
     
-//    memory.printBuffers(ds);
-    
     OStream &out=ds.getOStream();
 
 //    String test((char*)("Hallo"));
     int x=0;
-//    KernelJIT jit(memory,ds);
+    KernelJIT jit(memory,ds);
     out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<'\n';
-//    Kernel &k=jit.kernel_compile();
+    Kernel &k=jit.kernel_compile();
     out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
-//    while (1) {
-//        k.run();
-//	__asm__("hlt");
-//    };
+    k.run();
+    while (1) { __asm__("hlt"); };
 }
 //*/
 

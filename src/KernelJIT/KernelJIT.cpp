@@ -9,7 +9,7 @@ Kernel &KernelJIT::kernel_compile(){
     int x=0;
     char c=255;
     int ackblock=0;
-/*    
+    
     IStream &in=ml.getKernelText();
     OStream &out=ds.getOStream();
     OStream &kout=ml.getOStreamKernel();
@@ -41,6 +41,6 @@ Kernel &KernelJIT::kernel_compile(){
     out<<'S'<<'t'<<'a'<<'c'<<'k'<<':'<<' '<<(void*)(int32_t) ml.getStackSpace()<<'\n';
 
     return ml.getOStreamKernel();
-*/
+
 }
 

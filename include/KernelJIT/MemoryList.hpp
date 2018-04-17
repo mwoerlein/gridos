@@ -8,8 +8,8 @@
 class MemoryList{
     public:
 	virtual ~MemoryList(){};
-//    virtual IStream &getKernelText()=0;
-//    virtual OStreamKernel &getOStreamKernel()=0;
+    virtual IStream &getKernelText()=0;
+    virtual OStreamKernel &getOStreamKernel()=0;
 	virtual int getStackSpace()=0;
 	virtual int getMemSize()=0;
 	virtual void printBuffers(DebugSystem &ds)=0;
