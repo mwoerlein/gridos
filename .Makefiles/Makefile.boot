@@ -7,7 +7,7 @@ $(BOOTDIR)/$(MASCHINE)_bootsect_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.bloc
 	echo "#define BOOTDEVICE       0" > $@ #FD0 =0 FD1=1 ... HD0=128 HD1=129 ...
 	echo "#define DISK_HEADS       2" >> $@
 	echo "#define DISK_TRACKS      80" >> $@
-	echo "#define DISK_SECTORS     18" >> $@
+	echo "#define DISK_SECTORS     36" >> $@
 	echo "#define STACK_SIZE       0x3000" >> $@
 	echo "" >> $@
 	echo "#define LOADMESSAGE      \"Loading \"" >> $@
@@ -46,6 +46,7 @@ $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.o $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE).a
 	echo "creating $@"
 	ld -e _bootstrap -Ttext 0x70200 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LDTAIL)
+#	bash -c 'for c in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do printf "$$c%.0s" {1..512}; done' > $@
 #	dd if=/dev/zero bs=512 count=500 >> $@
 
 $(BOOTDIR)/$(MASCHINE)_bootstrap.o: $(BOOTDIR)/$(MASCHINE)_bootstrap.s

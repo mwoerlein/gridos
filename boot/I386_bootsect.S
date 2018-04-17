@@ -142,7 +142,7 @@ load_loop:
 	jne	load_loop
 
 load_now:
-	push	%ax
+	pushw	%ax
 	movb	last_head, %dh
 	movb	last_track, %ch
 	movb	last_sector, %cl
@@ -151,10 +151,11 @@ load_now:
 	movw	last_offset, %bx
 	movb	$0x02, %ah			# read sectors
 	int	$0x13
+	jc read_error
 	
 	movw    $0x0e2e, %ax            # draw dot
 	int     $0x10                   #
-	pop	%ax
+	popw	%ax
 	
 	movb	$0x00, %ah
 	subw	%ax, to_load
@@ -200,6 +201,11 @@ step_memory:
 
 step_end:
 	ret
+read_error:
+	movw	$0x0e40, %ax        # ein Leerzeichen zeichen
+	int	$0x10                   #
+dead:
+    jmp dead
 
 /* Messages */
 loadmsg:	.ascii LOADMESSAGE
