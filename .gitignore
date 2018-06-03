@@ -5,3 +5,6 @@
 *.block
 
 /img/bootdisk.img
+/multiboot_example/multiboot2.kernel
+/img/disk
+/img/disk.img
