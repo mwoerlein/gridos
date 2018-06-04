@@ -1,6 +1,6 @@
 include ./.Makefiles/Makefile.inc
 
-BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_bootsect.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block $(BOOTDIR)/Kernel-TEXT.block
+BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block $(BOOTDIR)/Kernel-TEXT.block
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
@@ -30,7 +30,7 @@ $(BOOTDIR)/$(MASCHINE)_%:
 	@$(MAKEBOOT) $@
 
 clean:
-	@rm -rf $(IMGDIR) $(OBJDIR) $(LIBDIR) ./linuxtest
+	@rm -rf $(OBJDIR) $(LIBDIR) ./linuxtest
 	@$(MAKEBOOT) $@
 	
 $(LIBDIR)/%.a:
