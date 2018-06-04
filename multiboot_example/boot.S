@@ -37,7 +37,7 @@
 
      .text
 
-     .globl  start, _start
+     .globl  start, _start, multiboot_header, address_tag, entry_address_tag
 start:
 _start:
      jmp     multiboot_entry
@@ -55,6 +55,7 @@ multiboot_header:
      .long   multiboot_header_end - multiboot_header
      /*  checksum */
      .long   -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT_ARCHITECTURE_I386 + (multiboot_header_end - multiboot_header))
+address_tag:
 address_tag_start:
      .short MULTIBOOT_HEADER_TAG_ADDRESS
      .short MULTIBOOT_HEADER_TAG_OPTIONAL
@@ -69,6 +70,7 @@ address_tag_start:
      .long   _end
 address_tag_end:
      .align  8
+entry_address_tag:
 entry_address_tag_start:
      .short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS
      .short MULTIBOOT_HEADER_TAG_OPTIONAL

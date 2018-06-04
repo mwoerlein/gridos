@@ -40,6 +40,9 @@ static volatile unsigned char *video;
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern struct multiboot_header multiboot_header;
+extern struct multiboot_header_tag_address address_tag;
+extern struct multiboot_header_tag_entry_address entry_address_tag;
 
 /*  Forward declarations. */
 void cmain (unsigned long magic, unsigned long addr);
@@ -82,11 +85,12 @@ I386CgaOStream cout;
 
 /*  Clear the screen. */
 cout.clear ();
+cout << "\n";
 
 /*  Am I booted by a Multiboot-compliant boot loader? */
 if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
  {
-   cout << "Invalid magic number: " << (unsigned) magic << "\n";
+   cout << "Invalid magic number: " << (unsigned long long) magic << "\n";
    return;
  }
 
@@ -95,9 +99,27 @@ if (addr & 7)
    cout << "Unaligned mbi: " << addr << "\n";
    return;
  }
+cout << "multiboot header: " << &multiboot_header
+ << " magic: " << (void *) multiboot_header.magic 
+ << " architecture: " << (void *) multiboot_header.architecture 
+ << " header_length: " << (void *) multiboot_header.header_length 
+ << " checksum: " << (void *) multiboot_header.checksum 
+ << "\n";
+
+cout << "address tag: " << &address_tag
+ << " header: " << (void *) address_tag.header_addr 
+ << " load: " << (void *) address_tag.load_addr 
+ << " load end: " << (void *) address_tag.load_end_addr 
+ << " bss end: " << (void *) address_tag.bss_end_addr
+ << "\n";
+
+cout << "address entry tag: " << &entry_address_tag
+ << " entry addr: " << (void *) entry_address_tag.entry_addr
+ << "\n"; 
 
 size = *(unsigned int *) addr;
 cout << "Announced mbi size: " << size << "\n";
+
 for (tag = (struct multiboot_tag *) (addr + 8);
     tag->type != MULTIBOOT_TAG_TYPE_END;
     tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
