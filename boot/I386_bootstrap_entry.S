@@ -2,7 +2,7 @@
 .text
 .global _bootstrap
 _bootstrap:
-	pushl %eax                   # arg *memlist
+	pushl %ecx                   # arg *memlist
 	call _Z9bootstrapP7memlist
 _halt:
 	hlt

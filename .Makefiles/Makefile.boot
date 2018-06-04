@@ -26,7 +26,9 @@ $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block 
 	echo "#define TEXT_TRACK       ((((JIT_SECTOR+JIT_BLOCKS-1)/DISK_SECTORS)/DISK_HEADS)%DISK_TRACKS)" >> $@
 	echo "#define TEXT_SECTOR      ((JIT_SECTOR+JIT_BLOCKS-1)%DISK_SECTORS)+1" >> $@
 	echo "#define TEXT_SEGMENT     (JIT_SEGMENT+(JIT_BLOCKS << 5))" >> $@
-	echo "#define TEXT_OFFSET      0" >> $@
+#	echo "#define TEXT_SEGMENT     0x7000" >> $@
+	echo "#define TEXT_OFFSET      0x0000" >> $@
+	echo "#define TEXT_ADDR        ((TEXT_SEGMENT << 4) + TEXT_OFFSET)" >> $@
 	echo "" >> $@
 
 $(BOOTDIR)/$(MASCHINE)_loader.s: $(BOOTDIR)/$(MASCHINE)_loader.S $(BOOTDIR)/$(MASCHINE)_loader_config.s

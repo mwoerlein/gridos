@@ -153,8 +153,43 @@ modules_sectors:
 .word TEXT_OFFSET   # destination offset
 
 /* mbi-structures */
-# TODO build correct MBI
-
+.align 8
+mbi:
+mbi_size:
+    .long   mbi_end - mbi # size (will be fixed after memory-detection)
+    .long   0 #reserved
+mbi_tag_name:
+    .long   2
+    .long   mbi_tag_name_end - mbi_tag_name
+    .asciz  GRIDOS_LOADER_NAME
+.align 8
+mbi_tag_name_end:
+mbi_tag_modules:
+    .long   3
+    .long   mbi_tag_modules_end - mbi_tag_modules
+    .long   TEXT_ADDR
+    .long   TEXT_ADDR + TEXT_SIZE
+    .asciz  "TEXT"
+.align 8
+mbi_tag_modules_end:
+mbi_tag_mmap:
+    .long   6
+mbi_tag_mmap_size:
+    .long   mbi_tag_mmap_end - mbi_tag_mmap # size (will be fixed after memory-detection)
+    .long   24  # entry_size
+    .long   0   # entry_version
+mbi_tag_mmap_entries:
+    .rep GRIDOS_LOADER_MAX_MMAP_ENTRIES
+    .long   0,0
+    .long   0,0
+    .long   2,0   # type & reserved
+    .endr
+.align 8
+mbi_tag_mmap_end:
+mbi_tag_end:
+    .long   0
+    .long   8
+mbi_end:
 
 /* Speichernutzungstabelle memlist */
 memlist:
@@ -220,6 +255,42 @@ loader_stage1:
     
     NL()
 
+/* initialize mbi-structures */
+    movw    $mbi_tag_mmap_entries, %bp
+
+# TODO fill with bios data
+    movl    $0x12345678, (%bp)
+    movl    $0x9abcdef0, 4(%bp)
+    movl    $0xfedcba98, 8(%bp)
+    movl    $0x76543210, 12(%bp)
+    movl    $6, 16(%bp)
+    addw    $24, %bp
+    
+    movw    $0x1234, (%bp)
+    movw    $0x5678, 2(%bp)
+    movw    $0x9abc, 4(%bp)
+    movw    $0xdef0, 6(%bp)
+    movw    $0xfedc, 8(%bp)
+    movw    $0xba98, 10(%bp)
+    movw    $0x7654, 12(%bp)
+    movw    $0x3210, 14(%bp)
+    addw    $24, %bp
+
+/* adjust mbi_tag_mmap_size */
+    movw    %bp, %ax
+    subw    $mbi_tag_mmap, %ax
+    movl    %eax, mbi_tag_mmap_size
+    
+/* generate new end tag
+    movl    $0, (%bp)
+    movl    $8, 4(%bp)
+    addw    $8, %bp
+    
+/* adjust mbi_size */
+    movw    %bp, %ax
+    subw    $mbi, %ax
+    movl    %eax, mbi_size
+	
 /* activate A20 gate */
 	inb	$0x92, %al
 	orb	$2, %al
@@ -236,9 +307,6 @@ loader_stage1:
 	lidtl	idt_48
 	lgdtl	gdt_48
 
-/* initialize mbi-structures */
-# TODO
-	
 /* real to prod */
     movw    $1, %ax # protected mode (PE) bit
     lmsw    %ax     # This is it!
@@ -260,9 +328,9 @@ loader_stage2:
     pushl   $0
     popf
     
-# TODO: movl $GRIDOS_MULTIBOOT2_LOADER_MAGIC, %eax
-# TODO: movl mbi-reference, %ebx
-	movl	$(GRIDOS_LOADER_ADDR+memlist), %eax
+    movl $GRIDOS_MULTIBOOT2_LOADER_MAGIC, %eax
+    movl $(GRIDOS_LOADER_ADDR+mbi), %ebx
+	movl $(GRIDOS_LOADER_ADDR+memlist), %ecx
 
 /* jmp to kernel */
 	jmpl    $0x08, $(JIT_SEGMENT*0x10)

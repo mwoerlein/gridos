@@ -1,7 +1,10 @@
 #ifndef GRIDOS_LOADER_HEADER
 #define GRIDOS_LOADER_HEADER 1
 
-/*  start of the master partition table */
+/* name/version of the loader */
+#define GRIDOS_LOADER_NAME "GridOS Loader 0.1"
+ 
+/* start of the master partition table */
 #define GRIDOS_LOADER_MPT_START 0x1be
 
 /* end of the master partition table */
@@ -25,10 +28,13 @@
 /* Size of loader */
 #define GRIDOS_LOADER_SECTORS ((loader_end-loader_start) >> 9)
 
-/*  The magic field should contain this. */
+/* The magic field should contain this. */
 #define GRIDOS_MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 
-/*  This should be in %eax. */
+/* This should be in %eax. */
 #define GRIDOS_MULTIBOOT2_LOADER_MAGIC 0x36d76289
+
+/* static limit for mmap entries */
+#define GRIDOS_LOADER_MAX_MMAP_ENTRIES 20
 
 #endif /* GRIDOS_LOADER_HEADER */
