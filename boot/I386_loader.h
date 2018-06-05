@@ -31,6 +31,9 @@
 /* The magic field should contain this. */
 #define GRIDOS_MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 
+/* I386 architecture */
+#define GRIDOS_MULTIBOOT2_HEADER_ARCH_I386 0
+
 /* This should be in %eax. */
 #define GRIDOS_MULTIBOOT2_LOADER_MAGIC 0x36d76289
 

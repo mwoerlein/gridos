@@ -11,6 +11,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "KernelJIT/KernelJIT.hpp"
 #include "sys/OStream.hpp"
 //#include "sys/String.hpp"
+extern "C" {
 
 void bootstrap(memlist *ml){
     I386DebugSystem ds;
@@ -26,6 +27,8 @@ void bootstrap(memlist *ml){
     out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
     k.run();
     while (1) { __asm__("hlt"); };
+}
+
 }
 //*/
 

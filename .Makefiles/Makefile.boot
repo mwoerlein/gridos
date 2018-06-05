@@ -47,8 +47,8 @@ $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 
 $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.o $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE).a
 	echo "creating $@"
-	ld -e _bootstrap -Ttext 0x60000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LDTAIL)
-#	cp $(BOOTDIR)/../multiboot_example/multiboot2.kernel $@
+#	ld -e bootstrap_start -Ttext 0x60000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LDTAIL)
+	cp $(BOOTDIR)/../multiboot_example/multiboot2.kernel $@
 #	bash -c 'for c in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do printf "$$c%.0s" {1..512}; done' > $@
 #	dd if=/dev/zero bs=512 count=500 >> $@
 
