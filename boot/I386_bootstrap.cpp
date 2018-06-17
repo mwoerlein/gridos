@@ -9,16 +9,26 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386IO_Port.hpp"
 #include "KernelJIT/KernelJIT.hpp"
+#include "multiboot2/multiboot2.h"
+#include "multiboot2/BootInformation.hpp"
 #include "sys/OStream.hpp"
 //#include "sys/String.hpp"
 extern "C" {
 
-void bootstrap(memlist *ml){
+void bootstrap(memlist *ml, unsigned long magic, void *mbi, void *mbh){
     I386DebugSystem ds;
+    OStream &out=ds.getOStream();
+    /*  Am I booted by a Multiboot-compliant boot loader? */
+    if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
+    {
+        out<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
+        while (1) { __asm__("hlt"); };
+    }
+    
+    BootInformation boot(mbi);
+
     I386MemoryList memory(ml);
     
-    OStream &out=ds.getOStream();
-
 //    String test((char*)("Hallo"));
     int x=0;
     KernelJIT jit(memory,ds);

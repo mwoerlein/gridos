@@ -326,6 +326,12 @@ mbi_tag_name:
     .asciz  GRIDOS_LOADER_NAME
 .align 8
 mbi_tag_name_end:
+mbi_tag_command_line:
+    .long   1
+    .long   mbi_tag_command_line_end - mbi_tag_command_line
+    .asciz  "jit.i386"
+.align 8
+mbi_tag_command_line_end:
 mbi_tag_modules:
     .long   3
     .long   mbi_tag_modules_end - mbi_tag_modules
