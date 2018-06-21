@@ -1,3 +1,5 @@
+#define ASM_FILE
+#include "../include/multiboot2/multiboot2.h"
 #include "I386_loader.h"
 #include "I386_loader_config.s"
 
@@ -210,7 +212,7 @@ e820_ignore:
     movl    %eax, mbi_tag_mmap_size
     
 /* generate new end tag */
-    movl    $0, (%di)
+    movl    $MULTIBOOT_TAG_TYPE_END, (%di)
     movl    $8, 4(%di)
     addw    $8, %di
     
@@ -242,21 +244,10 @@ e820_ignore:
     
 .code32
 loader_stage2:
-/* init segment- and stack-pointer */
-    movl    $0x10, %eax
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %fs
-    movw    %ax, %gs
-    movw    %ax, %ss
-    movl    $((TEXT_SEGMENT << 4)+STACK_SIZE), %ebp
-    movl    %ebp, %esp
-    
-/*  Reset EFLAGS. */
-    pushl   $0
-    popf
-    
-    movl    $GRIDOS_MULTIBOOT2_LOADER_MAGIC, %eax
+    lidtl   idt_48
+    lgdtl   gdt_48
+
+    movl    $MULTIBOOT2_BOOTLOADER_MAGIC, %eax
     movl    $(GRIDOS_LOADER_ADDR+mbi), %ebx
     movl    $(GRIDOS_LOADER_ADDR+memlist), %ecx
     
@@ -272,16 +263,16 @@ mems:
     .long   (JIT_SEGMENT << 4)+JIT_OFFSET
     .long   JIT_SIZE
     
+#hier liegt der Stack
+    .long   0
+    .long   STACK_SIZE
+    
 #hier liegt der Kernel-Code
     .long   (TEXT_SEGMENT << 4)+TEXT_OFFSET
     .long   TEXT_SIZE
     
-#hier liegt der Stack
-    .long   (TEXT_SEGMENT << 4)+TEXT_OFFSET+TEXT_SIZE
-    .long   STACK_SIZE-TEXT_SIZE
-    
 #hierhin soll der JIT den kompilierten Kernel schreiben
-    .long   (JIT_SEGMENT << 4)+JIT_OFFSET+JIT_SIZE
+    .long   (TEXT_SEGMENT << 4)+TEXT_OFFSET+TEXT_SIZE
     .long   0x10000
     
 #hier liegt der BootSector
@@ -315,33 +306,33 @@ gdt_48:
     .long   GRIDOS_LOADER_ADDR+gdt  # gdt base (filled in later)
     
 /* mbi-structures */
-.align 8
+.align MULTIBOOT_TAG_ALIGN
 mbi:
 mbi_size:
     .long   0 # size (will be filled after memory-detection)
     .long   0 #reserved
 mbi_tag_name:
-    .long   2
+    .long   MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME
     .long   mbi_tag_name_end - mbi_tag_name
     .asciz  GRIDOS_LOADER_NAME
-.align 8
+.align MULTIBOOT_TAG_ALIGN
 mbi_tag_name_end:
 mbi_tag_command_line:
-    .long   1
+    .long   MULTIBOOT_TAG_TYPE_CMDLINE
     .long   mbi_tag_command_line_end - mbi_tag_command_line
     .asciz  "jit.i386"
-.align 8
+.align MULTIBOOT_TAG_ALIGN
 mbi_tag_command_line_end:
 mbi_tag_modules:
-    .long   3
+    .long   MULTIBOOT_TAG_TYPE_MODULE
     .long   mbi_tag_modules_end - mbi_tag_modules
     .long   TEXT_ADDR
     .long   TEXT_ADDR + TEXT_SIZE
     .asciz  "kernel.pool"
-.align 8
+.align MULTIBOOT_TAG_ALIGN
 mbi_tag_modules_end:
 mbi_tag_mmap:
-    .long   6
+    .long   MULTIBOOT_TAG_TYPE_MMAP
 mbi_tag_mmap_size:
     .long   0   # size (will be filled after memory-detection)
     .long   24  # entry_size

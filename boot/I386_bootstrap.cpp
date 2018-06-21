@@ -17,14 +17,18 @@ extern "C" {
 
 void bootstrap(memlist *ml, unsigned long magic, void *mbi, void *mbh){
     I386DebugSystem ds;
-    OStream &out=ds.getOStream();
-    /*  Am I booted by a Multiboot-compliant boot loader? */
+    OStream &out = ds.getOStream();
+    
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
     {
         out<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
-        while (1) { __asm__("hlt"); };
+        return;
     }
-    
+    if ((unsigned long)mbi & 7)
+    {
+        out<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
+        return;
+    }
     BootInformation boot(mbi);
 
     I386MemoryList memory(ml);
@@ -36,7 +40,6 @@ void bootstrap(memlist *ml, unsigned long magic, void *mbi, void *mbh){
     Kernel &k=jit.kernel_compile();
     out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
     k.run();
-    while (1) { __asm__("hlt"); };
 }
 
 }

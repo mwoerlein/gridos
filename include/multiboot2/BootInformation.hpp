@@ -5,6 +5,7 @@
 
 class BootInformation{
     public:
+    void *raw;
 	struct multiboot_tag_string *commandline;
 	struct multiboot_tag_string *bootloader;
 	struct multiboot_tag_basic_meminfo *meminfo;

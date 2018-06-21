@@ -9,6 +9,7 @@ $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block 
 	echo "#define DISK_TRACKS      80" >> $@
 	echo "#define DISK_SECTORS     36" >> $@
 	echo "#define STACK_SIZE       0x3000" >> $@
+	echo "#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x4000" >> $@
 	echo "" >> $@
 	echo "#define LOADMESSAGE      \"Loading \"" >> $@
 	echo "" >> $@
@@ -19,13 +20,15 @@ $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block 
 	echo "#define JIT_SECTOR       (GRIDOS_LOADER_SECTORS + 1)" >> $@
 	echo "#define JIT_SEGMENT      0x6000" >> $@
 	echo "#define JIT_OFFSET       0x0000" >> $@
+	echo "#define BSS_SEGMENT      (JIT_SEGMENT+((JIT_BLOCKS >> 3) << 8) + 0x200)" >> $@
+	echo "#define BSS_SIZE         (GRIDOS_BOOTSTRAP_STACK_SIZE + 0x100)" >> $@
 	echo "" >> $@
 	echo "#define TEXT_BLOCKS      `dd if=$(BOOTDIR)/Kernel-TEXT.bin of=$(BOOTDIR)/Kernel-TEXT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`">> $@
 	echo "#define TEXT_SIZE        (TEXT_BLOCKS << 9)" >> $@
 	echo "#define TEXT_HEAD        (((JIT_SECTOR+JIT_BLOCKS-1)/DISK_SECTORS)%DISK_HEADS)" >> $@
 	echo "#define TEXT_TRACK       ((((JIT_SECTOR+JIT_BLOCKS-1)/DISK_SECTORS)/DISK_HEADS)%DISK_TRACKS)" >> $@
 	echo "#define TEXT_SECTOR      ((JIT_SECTOR+JIT_BLOCKS-1)%DISK_SECTORS)+1" >> $@
-	echo "#define TEXT_SEGMENT     (JIT_SEGMENT+(JIT_BLOCKS << 5))" >> $@
+	echo "#define TEXT_SEGMENT     (BSS_SEGMENT + (BSS_SIZE >> 4))" >> $@
 #	echo "#define TEXT_SEGMENT     0x7000" >> $@
 	echo "#define TEXT_OFFSET      0x0000" >> $@
 	echo "#define TEXT_ADDR        ((TEXT_SEGMENT << 4) + TEXT_OFFSET)" >> $@

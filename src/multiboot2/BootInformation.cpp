@@ -1,6 +1,7 @@
 #include "multiboot2/BootInformation.hpp"
 
 BootInformation::BootInformation(void *mbi){
+    raw = mbi;
     modulesCount = 0;
     struct multiboot_tag *tag;
     for (
