@@ -1,7 +1,7 @@
 #ifndef MEMORYTYPE_HPP_LOCK
 #define MEMORYTYPE_HPP_LOCK
 
-typedef int size_t;
+typedef unsigned int size_t;
 
 typedef struct memory {
     char* buf;
