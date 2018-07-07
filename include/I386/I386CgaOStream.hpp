@@ -9,14 +9,12 @@ class I386CgaOStream: public OStream {
 	enum { maxx = 80, maxy = 25};
 	char* screen;
 	int pos,base;
-	OStream &printint(int i,int base=10,int count=1);
     public:
 	I386CgaOStream(char* scr=(char*)cga_ram, int x=0, int y=0);
 	virtual ~I386CgaOStream();
 	virtual OStream &operator<<(char c);
 	virtual OStream &operator<<(int i);
-	virtual OStream &operator<<(void *ptr);
-//	virtual OStream &operator<<(String &str);
+	virtual OStream &operator<<(unsigned int i);
 	virtual void clear();
 };
 

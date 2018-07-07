@@ -36,29 +36,8 @@ OStream &I386CgaOStream::operator<<(char c){
     I386IO_Port(data_port).outb((pos/2)%256);
     return *this;
 };
-OStream &I386CgaOStream::printint(int i,int base, int count){
-    char c;
-    while (count<=i/base) count*=base; 
-    while (count>0){
-	c=(char) (((int)i/count)%base);
-	if (c<10) *this<<(char)('0'+c);
-	else *this<<(char)('a'+c-10);
-	count/=base;
-    }
-    return *this;
-};
-OStream &I386CgaOStream::operator<<(int i){ return printint(i,base,1); }
-OStream &I386CgaOStream::operator<<(void *ptr){
-    char c; int count;
-    *this<<'0'<<'x';
-/*    for (count=28;count>=0;count-=4){
-	c=(char) (((int32_t)ptr>>count)%16);
-	if (c<10) *this<<(char)('0'+c);
-	else *this<<(char)('a'+c-10);
-    }
-    return *this;*/
-    return printint((unsigned long)ptr,16,0x10000000);
-};
+OStream &I386CgaOStream::operator<<(int i){ return printint(i, base); }
+OStream &I386CgaOStream::operator<<(unsigned int i){ return printuint(i, base); }
 /*
 OStream &I386CgaOStream::operator<<(String &str){
     char* ack=(char*) ack;
