@@ -2,7 +2,7 @@
 #define BOOTINFORMATION_HPP_LOCK
 
 #include "multiboot2/multiboot2.h"
-#include "KernelJIT/MemoryRegistry.hpp"
+#include "memory/MemoryRegistry.hpp"
 
 class BootInformation{
     public:

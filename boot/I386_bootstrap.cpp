@@ -5,11 +5,11 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #endif
 
 #include "I386/I386MemoryList.hpp"
-#include "I386/I386MemoryRegistry.hpp"
 #include "I386/I386DebugSystem.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386IO_Port.hpp"
 #include "KernelJIT/KernelJIT.hpp"
+#include "memory/MemoryRegistry.hpp"
 #include "multiboot2/multiboot2.h"
 #include "multiboot2/BootInformation.hpp"
 #include "sys/OStream.hpp"
@@ -32,7 +32,7 @@ void bootstrap(memlist *ml, unsigned long magic, void *mbi, void *mbh){
     }
 
     BootInformation boot(mbi, mbh);
-    I386MemoryRegistry memReg(ds);
+    MemoryRegistry memReg(out);
     boot.registerMemory(memReg);
     
     memReg.dump();

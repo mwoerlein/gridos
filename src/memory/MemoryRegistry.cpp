@@ -1,15 +1,11 @@
-#include "I386/I386MemoryRegistry.hpp"
+#include "memory/MemoryRegistry.hpp"
 
-I386MemoryRegistry::I386MemoryRegistry(I386DebugSystem &ds):ds(ds),entriesCounter(0){};
-I386MemoryRegistry::~I386MemoryRegistry(){};
-
-void I386MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
+void MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
     if (len == 0) {
         return;
     }
     if (reserved.next || used.next) {
-        OStream &out = ds.getOStream();
-        out<<'I'<<'g'<<'n'<<'o'<<'r'<<'e'<<' '<<'a'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'<<' '<<(void *) mem<<':'<<(void*)len<<'\n';
+        log<<'I'<<'g'<<'n'<<'o'<<'r'<<'e'<<' '<<'a'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'<<' '<<(void *) mem<<':'<<(void*)len<<'\n';
         return;
     }
     MemoryListEntry *newEntry = &entries[entriesCounter++];
@@ -25,7 +21,7 @@ void I386MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
     available.prev = available.prev->next = newEntry;
 };
 
-void I386MemoryRegistry::registerReservedMemory(void * mem, size_t len){
+void MemoryRegistry::registerReservedMemory(void * mem, size_t len){
     if (len == 0) {
         return;
     }
@@ -44,7 +40,7 @@ void I386MemoryRegistry::registerReservedMemory(void * mem, size_t len){
     reserved.prev = reserved.prev->next = newEntry;
 };
 
-void I386MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner){
+void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner){
     if (len == 0) {
         return;
     }
@@ -64,29 +60,28 @@ void I386MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner
     used.prev = used.prev->next = newEntry;
 };
 
-bool I386MemoryRegistry::isAvailable(void * mem, size_t len){
+bool MemoryRegistry::isAvailable(void * mem, size_t len){
     // TODO: search in available entries
     return false;
 };
 
-void I386MemoryRegistry::dump(){
-    OStream &out = ds.getOStream();
-    out<<'D'<<'u'<<'m'<<'p'<<' '<<'r'<<'e'<<'g'<<'i'<<'s'<<'t'<<'r'<<'y'<<' '<<(void *) this<<' '<<'('<<'n'<<'e'<<'x'<<'t'<<' '<<'#'<<entriesCounter<<')'<<'\n';
+void MemoryRegistry::dump(){
+    log<<'D'<<'u'<<'m'<<'p'<<' '<<'r'<<'e'<<'g'<<'i'<<'s'<<'t'<<'r'<<'y'<<' '<<(void *) this<<' '<<'('<<'n'<<'e'<<'x'<<'t'<<' '<<'#'<<entriesCounter<<')'<<'\n';
     
     MemoryListEntry *e;
     if (available.next) {
         for (e = available.next; e != &available; e = e->next) {
-            out<<'A'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
+            log<<'A'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
         }
     }
     if (reserved.next) {
         for (e = reserved.next; e != &reserved; e = e->next) {
-            out<<'R'<<'e'<<'s'<<'e'<<'r'<<'v'<<'e'<<'d'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
+            log<<'R'<<'e'<<'s'<<'e'<<'r'<<'v'<<'e'<<'d'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
         }
     }
     if (used.next) {
         for (e = used.next; e != &used; e = e->next) {
-            out<<'U'<<'s'<<'e'<<'d'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<' '<<'b'<<'y'<<' '<< e->owner <<'\n';
+            log<<'U'<<'s'<<'e'<<'d'<<' '<<(void *) e->buf<<':'<<(void *) e->len<<' '<<'('<<'#'<<(e-entries)<<')'<<' '<<'b'<<'y'<<' '<< e->owner <<'\n';
         }
     }
 }
