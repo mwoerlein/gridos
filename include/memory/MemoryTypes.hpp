@@ -3,6 +3,10 @@
 
 #define MEMORY_INFO_MAGIC 0xE3E0
 
+#define memoryEnd(buf, len) ((void *) ((size_t) (buf) + (len)))
+#define memoryDiff(mem1, mem2) ((size_t) (mem2) - (size_t) (mem1))
+#define entryEnd(entry) ((void *) ((size_t) (entry)->buf + (entry)->len))
+
 typedef unsigned int size_t;
 
 typedef struct {
