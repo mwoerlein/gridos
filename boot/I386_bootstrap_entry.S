@@ -47,10 +47,9 @@ multiboot_header_end:
     
 bootstrap_entry:
 /* initialize IDT and GDT*/
-# TODO: why does this fail?
-#    lidtl   idt_48
-#    lgdtl   gdt_48
-
+    lidtl   idt_48
+    lgdtl   gdt_48
+    
 /* init segment- and stack-pointer */
     movl    $0x10, %edx
     movw    %dx, %ds
@@ -65,13 +64,9 @@ bootstrap_entry:
     pushl   $0
     popf
     
-    movl $stack, 16(%ecx)
-    movl $GRIDOS_BOOTSTRAP_STACK_SIZE, 20(%ecx)
-
     pushl $multiboot_header # arg *mbh
     pushl %ebx              # arg *mbi
     pushl %eax              # arg magic
-	pushl %ecx              # arg *memlist
 	call bootstrap
 _halt:
 	hlt

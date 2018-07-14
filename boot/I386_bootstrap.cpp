@@ -16,7 +16,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 //#include "sys/String.hpp"
 extern "C" {
 
-void bootstrap(memlist *ml, unsigned long magic, void *mbi, void *mbh){
+void bootstrap(unsigned long magic, void *mbi, void *mbh){
     I386DebugSystem ds;
     OStream &out = ds.getOStream();
     

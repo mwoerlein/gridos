@@ -244,40 +244,19 @@ e820_ignore:
     
 .code32
 loader_stage2:
-    lidtl   idt_48
-    lgdtl   gdt_48
-
+/* init segment-pointer */
+    movl    $0x10, %edx
+    movw    %dx, %ds
+    movw    %dx, %es
+    movw    %dx, %fs
+    movw    %dx, %gs
+    movw    %dx, %ss
+    
     movl    $MULTIBOOT2_BOOTLOADER_MAGIC, %eax
     movl    $(GRIDOS_LOADER_ADDR+mbi), %ebx
-    movl    $(GRIDOS_LOADER_ADDR+memlist), %ecx
     
 /* jmp to kernel */
     jmpl    $0x08, $(JIT_SEGMENT*0x10)
-    
-/* Speichernutzungstabelle memlist */
-memlist:
-    .long   4
-    .long   (GRIDOS_LOADER_SEG << 4)+mems
-mems:
-#hier liegt der JIT-Code
-    .long   (JIT_SEGMENT << 4)+JIT_OFFSET
-    .long   JIT_SIZE
-    
-#hier liegt der Stack
-    .long   0
-    .long   STACK_SIZE
-    
-#hier liegt der Kernel-Code
-    .long   (TEXT_SEGMENT << 4)+TEXT_OFFSET
-    .long   TEXT_SIZE
-    
-#hierhin soll der JIT den kompilierten Kernel schreiben
-    .long   (TEXT_SEGMENT << 4)+TEXT_OFFSET+TEXT_SIZE
-    .long   0x10000
-    
-#hier liegt der BootSector
-    .long   (GRIDOS_LOADER_SEG << 4)
-    .long   (GRIDOS_LOADER_SECTORS << 9)
     
 /* descriptor tables */
 .p2align 5
