@@ -37,6 +37,7 @@ class MemoryRegistry {
 //	virtual int availableCount();
 //	virtual int reservedCount();
 //	virtual int usedCount();
+	virtual MemoryInfo &info(void * mem);
 	virtual void dump();
 };
 

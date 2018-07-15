@@ -199,6 +199,13 @@ void MemoryRegistry::freeEntry(MemoryListEntry * entry){
 }
 
 // debug
+MemoryInfo &MemoryRegistry::info(void * mem){
+    MemoryListEntry * entry = findEntry(&used, mem);
+    if (entryEnd(entry) <= mem) {
+        return *((MemoryInfo *)0);
+    }
+    return *((MemoryInfo *)entry);
+}
 
 void MemoryRegistry::dump(){
     log<<'D'<<'u'<<'m'<<'p'<<' '<<'r'<<'e'<<'g'<<'i'<<'s'<<'t'<<'r'<<'y'<<' '<<(void *) this<<' '<<'('<<'n'<<'e'<<'x'<<'t'<<' '<<'#'<<entriesCounter<<')'<<'\n';

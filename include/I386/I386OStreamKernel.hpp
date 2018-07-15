@@ -5,10 +5,12 @@
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386PIC.hpp"
 #include "I386/I386Keyboard.hpp"
+#include "memory/MemoryTypes.hpp"
+#include "KernelJIT/OStreamKernel.hpp"
 
 class I386OStreamKernel: public OStreamKernel{
     private:
-	Memory &mem;
+	MemoryInfo &mem;
 	size_t pos;
 	void delay(){};
 	inline void empty_8042(){ 
@@ -18,9 +20,9 @@ class I386OStreamKernel: public OStreamKernel{
 	    }
 	};
     public:
-	inline I386OStreamKernel(Memory &m):mem(m),pos(0){};
+	inline I386OStreamKernel(MemoryInfo &m):mem(m),pos(0){};
 	inline virtual ~I386OStreamKernel(){};
-	inline virtual OStream &operator<<(char c){mem.buf[pos++]=c;};
+	inline virtual OStream &operator<<(char c){((char*)mem.buf)[pos++]=c;};
 	inline virtual OStream &operator<<(int i){};
 	inline virtual OStream &operator<<(void *ptr){};
 //	inline virtual OStream &operator<<(String &str){};
@@ -41,7 +43,7 @@ class I386OStreamKernel: public OStreamKernel{
 	    vt.activate();
 	    __asm__("sti");
 	    
-	    //__asm__ __volatile__ ("jmp *%0" : : "a"(mem.buf));
+	    __asm__ __volatile__ ("jmp *%0" : : "a"(mem.buf));
 	};
 };
 

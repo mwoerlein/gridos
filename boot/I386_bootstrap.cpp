@@ -4,10 +4,11 @@ __attribute__((weak)) void operator delete(void * ptr, unsigned int) { ::operato
 __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::operator delete(ptr); }
 #endif
 
-#include "I386/I386MemoryList.hpp"
 #include "I386/I386DebugSystem.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386IO_Port.hpp"
+#include "I386/I386KernelTextIStream.hpp"
+#include "I386/I386OStreamKernel.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "memory/MemoryRegistry.hpp"
 #include "multiboot2/multiboot2.h"
@@ -35,16 +36,23 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     MemoryRegistry memReg(out);
     boot.registerMemory(memReg);
     
+    MemoryInfo kernelTextInfo = memReg.info((void*)boot.modules[0]->mod_start);
+    I386KernelTextIStream in(kernelTextInfo);
+    
+    // TODO: "malloc" kernel output space
+    memReg.registerUsedMemory((void*)0, 0x10000, (void*) bootstrap);
+    MemoryInfo kernelOutInfo = memReg.info((void*)0);
+    I386OStreamKernel osk(kernelOutInfo);
+    
     memReg.dump();
     
 //    String test((char*)("Hallo"));
 //    int x=0;
-//    I386MemoryList memory(ml);
-//    KernelJIT jit(memory,ds);
-//    out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<'\n';
-//    Kernel &k=jit.kernel_compile();
-//    out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
-//    k.run();
+    KernelJIT jit(in,osk,ds);
+    out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<'\n';
+    Kernel &k=jit.kernel_compile();
+    out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
+    k.run();
 }
 
 }
