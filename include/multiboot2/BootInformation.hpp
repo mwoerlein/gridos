@@ -19,6 +19,7 @@ class BootInformation{
 	
 	BootInformation(void *mbi, void *mbh);
 	virtual ~BootInformation(){};
+	virtual void initialize();
 	virtual void registerMemory(MemoryRegistry &reg);
 };
 

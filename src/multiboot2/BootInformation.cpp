@@ -1,7 +1,8 @@
 #include "multiboot2/BootInformation.hpp"
 
-BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh){
-    modulesCount = 0;
+BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh),modulesCount(0){};
+
+void BootInformation::initialize(){
     struct multiboot_tag *tag;
     for (
         tag = (struct multiboot_tag *) ((unsigned long)mbi + 8);
@@ -40,8 +41,7 @@ BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh){
                 address = (struct multiboot_header_tag_address *)htag;
                 break;
         }
-    }
-    
+    }    
 }
 
 void BootInformation::registerMemory(MemoryRegistry &reg){
