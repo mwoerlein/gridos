@@ -1,4 +1,5 @@
 #include "I386/I386Bootstrap.hpp"
+#include "memory/MemoryManager.hpp"
 
 I386Bootstrap::I386Bootstrap(unsigned long magic, void *mbi, void *mbh):valid(true), ds(),bootInformation(mbi, mbh),memoryRegistry(ds.getOStream())
 {
@@ -26,21 +27,21 @@ bool I386Bootstrap::isValid(){
     return valid;
 };
 
-DebugSystem &I386Bootstrap::getDebugSystem(){
+DebugSystem & I386Bootstrap::getDebugSystem(){
     return ds;
 };
 
-MemoryInfo &I386Bootstrap::getKernelTextInfo(){
+MemoryInfo & I386Bootstrap::getKernelTextInfo(){
     // TODO: get information from memory manager
     return memoryRegistry.info((void*)bootInformation.modules[0]->mod_start);
 };
 
-MemoryInfo &I386Bootstrap::getKernelOutInfo(){
+MemoryInfo & I386Bootstrap::getKernelOutInfo(){
     // TODO: "malloc" kernel output space later in JIT
     return memoryRegistry.info((void*)0);
 };
 
-Environment *I386Bootstrap::buildEnvironment(){
+Environment & I386Bootstrap::buildEnvironment(){
     bootInformation.initialize();
     
     // TODO: create and fill registry on stack 
@@ -48,9 +49,15 @@ Environment *I386Bootstrap::buildEnvironment(){
     
     // TODO: "malloc" kernel output space later in JIT
     memoryRegistry.registerUsedMemory((void*)0, 0x10000, (void*) this);
-    memoryRegistry.dump();
+
+    Environment staticEnv(memoryRegistry);
+    
+    MemoryManager &mm = staticEnv.create<MemoryManager, OStream&, void *>(ds.getOStream(), (void*) 0x10200);
+    Environment &env = staticEnv.create<Environment, MemoryAllocator&>(mm);
+
+//    memoryRegistry.dump();
     
     // TODO: register and create memory manager on heap
     // TODO: create and initialize environment on heap    
-    return (Environment *) 0;
+    return env;
 };

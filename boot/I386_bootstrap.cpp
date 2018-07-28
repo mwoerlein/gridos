@@ -4,12 +4,12 @@ __attribute__((weak)) void operator delete(void * ptr, unsigned int) { ::operato
 __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::operator delete(ptr); }
 #endif
 
-#include "Environment.hpp"
 #include "I386/I386Bootstrap.hpp"
 #include "I386/I386KernelTextIStream.hpp"
 #include "I386/I386OStreamKernel.hpp"
 #include "KernelJIT/DebugSystem.hpp"
 #include "KernelJIT/KernelJIT.hpp"
+#include "sys/Environment.hpp"
 #include "sys/OStream.hpp"
 
 extern "C" {
@@ -21,17 +21,19 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     }
     
     // TODO: fill and use environment instead of bs furthermore
-    Environment *env = bs.buildEnvironment();
+    Environment &env = bs.buildEnvironment();
     
     DebugSystem &ds = bs.getDebugSystem();
     OStream &out = ds.getOStream();
     
     I386KernelTextIStream in(bs.getKernelTextInfo());
     I386OStreamKernel osk(bs.getKernelOutInfo());
+    KernelJIT &jit = env.create<KernelJIT, IStream&, OStreamKernel&, DebugSystem&>(in, osk, ds);
     
-    KernelJIT jit(in,osk,ds);
-    out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<'\n';
+    out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<' '<<'w'<<'i'<<'t'<<'h'<<' '<<&jit<<'\n';
     Kernel &k=jit.kernel_compile();
+    env.destroy(jit);
+    
     out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
     k.run();
 }
