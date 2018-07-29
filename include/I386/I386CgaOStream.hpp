@@ -16,6 +16,7 @@ class I386CgaOStream: public OStream {
 	virtual OStream &operator<<(int i);
 	virtual OStream &operator<<(unsigned int i);
 	virtual void clear();
+	virtual void sync();
 };
 
 #endif //I386CGAOSTREAM_HPP_LOCK

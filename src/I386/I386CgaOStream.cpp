@@ -2,12 +2,15 @@
 #include "I386/I386IO_Port.hpp"
 
 I386CgaOStream::I386CgaOStream(char* scr,int x,int y):screen(scr),base(10){
+    sync();
+};
+I386CgaOStream::~I386CgaOStream(){};
+void I386CgaOStream::sync() {
     I386IO_Port(index_port).outb(14);
     pos=I386IO_Port(data_port).inb()*512;
     I386IO_Port(index_port).outb(15);
     pos+=I386IO_Port(data_port).inb()*2;
 };
-I386CgaOStream::~I386CgaOStream(){};
 OStream &I386CgaOStream::operator<<(char c){
     switch (c) {
 	case '\n':

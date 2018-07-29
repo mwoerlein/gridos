@@ -13,30 +13,36 @@ void I386Bootstrap::trickCompiler() {
 }
 
 Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
+    I386CgaOStream bsOut;
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
     {
-        out()<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
+        bsOut<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
         return *((Environment *) 0x0);
     }
     if ((unsigned long)mbi & 7)
     {
-        out()<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
+        bsOut<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
         return *((Environment *) 0x0);
     }
 
     BootInformation bootInformation(mbi, mbh);
 
     bootInformation.initialize();
-    MemoryRegistry memoryRegistry(out());
+    MemoryRegistry memoryRegistry(bsOut);
     bootInformation.registerMemory(memoryRegistry);
     
     // TODO: "malloc" kernel output space later in JIT
     memoryRegistry.registerUsedMemory((void*)0, 0x10000, (void*) this);
 
-    Environment staticEnv(memoryRegistry, out());
+    Environment staticEnv(memoryRegistry, bsOut);
     OStream &stdO = staticEnv._create<I386CgaOStream>();
     MemoryManager &mm = staticEnv._create<MemoryManager, OStream&, void *>(stdO, (void*) 0x10200);
     Environment &env = staticEnv._create<Environment, MemoryAllocator&, OStream&>(mm, stdO);
+    
+    memoryRegistry.dump();
+
+    // keep in sync with bsOut
+    ((I386CgaOStream&)stdO).sync();
     
     ModuleInfo * next = (ModuleInfo *) 0;
     for (int i = bootInformation.modulesCount-1; i>=0; i--) {
@@ -48,7 +54,5 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     }
     env.setModules(next);
 
-//    memoryRegistry.dump();
-    
     return env;
 };
