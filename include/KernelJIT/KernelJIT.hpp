@@ -2,18 +2,16 @@
 #define KERNELJIT_HPP_LOCK
 
 #include "KernelJIT/Kernel.hpp"
-#include "KernelJIT/OStreamKernel.hpp"
-#include "KernelJIT/DebugSystem.hpp"
+#include "sys/Environment.hpp"
 #include "sys/IStream.hpp"
+#include "sys/Object.hpp"
 
-class KernelJIT{
+class KernelJIT: public Object{
     private:
-	IStream &in;
-	OStreamKernel &osk;
-	DebugSystem &ds;
     public:
-	KernelJIT(IStream &in,OStreamKernel &osk,DebugSystem &ds);
-	virtual Kernel &kernel_compile();
+	KernelJIT(Environment &env);
+	virtual ~KernelJIT() {}
+	virtual Kernel &kernel_compile(IStream &in);
 };
 
 #endif //KERNELJIT_HPP_LOCK

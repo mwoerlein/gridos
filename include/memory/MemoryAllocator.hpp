@@ -10,6 +10,7 @@ class MemoryAllocator {
     // TODO: add alignment
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) = 0;
     virtual void free(void * ptr) = 0;
+    virtual MemoryInfo & info(void * ptr) = 0;
 };
 
 #endif //MEMORYALLOCATOR_HPP_LOCK

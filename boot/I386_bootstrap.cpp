@@ -5,36 +5,36 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #endif
 
 #include "I386/I386Bootstrap.hpp"
-#include "I386/I386KernelTextIStream.hpp"
-#include "I386/I386OStreamKernel.hpp"
-#include "KernelJIT/DebugSystem.hpp"
 #include "KernelJIT/KernelJIT.hpp"
+#include "memory/MemoryIStream.hpp"
 #include "sys/Environment.hpp"
-#include "sys/OStream.hpp"
 
 extern "C" {
 
+Environment & bootstrapEnvironment(unsigned long magic, void *mbi, void *mbh) {
+    I386Bootstrap bs;
+    return bs.buildEnvironment(magic, mbi, mbh);
+}
+
 void bootstrap(unsigned long magic, void *mbi, void *mbh){
-    I386Bootstrap bs(magic, mbi, mbh);
-    if (!bs.isValid()) {
+    // create environment
+    Environment &env = bootstrapEnvironment(magic, mbi, mbh);
+    if (!&env) {
         return;
     }
     
-    // TODO: fill and use environment instead of bs furthermore
-    Environment &env = bs.buildEnvironment();
+    // compile kernel from modules
+    MemoryIStream &in = env._create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
+    KernelJIT &jit = env.create<KernelJIT>();
+
+    env.getStdO()<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<' '<<'w'<<'i'<<'t'<<'h'<<' '<<&jit<<'\n';
+    Kernel &k = jit.kernel_compile(in);
     
-    DebugSystem &ds = bs.getDebugSystem();
-    OStream &out = ds.getOStream();
-    
-    I386KernelTextIStream in(bs.getKernelTextInfo());
-    I386OStreamKernel osk(bs.getKernelOutInfo());
-    KernelJIT &jit = env.create<KernelJIT, IStream&, OStreamKernel&, DebugSystem&>(in, osk, ds);
-    
-    out<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<' '<<'w'<<'i'<<'t'<<'h'<<' '<<&jit<<'\n';
-    Kernel &k=jit.kernel_compile();
     env.destroy(jit);
-    
-    out<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
+    env.destroy(in);
+
+    // run compiled kernel    
+    env.getStdO()<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
     k.run();
 }
 

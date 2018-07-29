@@ -19,3 +19,8 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 void MemoryManager::free(void * ptr) {
     log<<'f'<<'r'<<'e'<<'e'<<' '<<ptr<<'\n';
 }
+
+MemoryInfo & MemoryManager::info(void * ptr) {
+    log<<'i'<<'n'<<'f'<<'o'<<' '<<ptr<<'\n';
+    return *((MemoryInfo *)0);
+}

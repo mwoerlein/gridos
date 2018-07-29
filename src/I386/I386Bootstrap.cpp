@@ -1,63 +1,54 @@
 #include "I386/I386Bootstrap.hpp"
-#include "memory/MemoryManager.hpp"
+#include "I386/I386CgaOStream.hpp"
+#include "I386/I386InterruptVectorTable.hpp"
 
-I386Bootstrap::I386Bootstrap(unsigned long magic, void *mbi, void *mbh):valid(true), ds(),bootInformation(mbi, mbh),memoryRegistry(ds.getOStream())
-{
-    OStream &out = ds.getOStream();
-    
+#include "KernelJIT/ModuleInfo.hpp"
+#include "memory/MemoryManager.hpp"
+#include "memory/MemoryRegistry.hpp"
+#include "multiboot2/BootInformation.hpp"
+
+void I386Bootstrap::trickCompiler() {
+    // force compiler to initiate static parts of I386InterruptVectorTable
+    I386InterruptVectorTable vt;
+}
+
+Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
     {
-        out<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
-        valid = false;
-        return;
+        out()<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
+        return *((Environment *) 0x0);
     }
     if ((unsigned long)mbi & 7)
     {
-        out<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
-        valid = false;
-        return;
+        out()<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
+        return *((Environment *) 0x0);
     }
-};
 
-I386Bootstrap::~I386Bootstrap(){
-    // free BootInformation and further memory
-};
+    BootInformation bootInformation(mbi, mbh);
 
-bool I386Bootstrap::isValid(){
-    return valid;
-};
-
-DebugSystem & I386Bootstrap::getDebugSystem(){
-    return ds;
-};
-
-MemoryInfo & I386Bootstrap::getKernelTextInfo(){
-    // TODO: get information from memory manager
-    return memoryRegistry.info((void*)bootInformation.modules[0]->mod_start);
-};
-
-MemoryInfo & I386Bootstrap::getKernelOutInfo(){
-    // TODO: "malloc" kernel output space later in JIT
-    return memoryRegistry.info((void*)0);
-};
-
-Environment & I386Bootstrap::buildEnvironment(){
     bootInformation.initialize();
-    
-    // TODO: create and fill registry on stack 
+    MemoryRegistry memoryRegistry(out());
     bootInformation.registerMemory(memoryRegistry);
     
     // TODO: "malloc" kernel output space later in JIT
     memoryRegistry.registerUsedMemory((void*)0, 0x10000, (void*) this);
 
-    Environment staticEnv(memoryRegistry);
+    Environment staticEnv(memoryRegistry, out());
+    OStream &stdO = staticEnv._create<I386CgaOStream>();
+    MemoryManager &mm = staticEnv._create<MemoryManager, OStream&, void *>(stdO, (void*) 0x10200);
+    Environment &env = staticEnv._create<Environment, MemoryAllocator&, OStream&>(mm, stdO);
     
-    MemoryManager &mm = staticEnv.create<MemoryManager, OStream&, void *>(ds.getOStream(), (void*) 0x10200);
-    Environment &env = staticEnv.create<Environment, MemoryAllocator&>(mm);
+    ModuleInfo * next = (ModuleInfo *) 0;
+    for (int i = bootInformation.modulesCount-1; i>=0; i--) {
+        next = &env.create<ModuleInfo, MemoryInfo, char *, ModuleInfo *>(
+            memoryRegistry.info((void*)bootInformation.modules[i]->mod_start),
+            bootInformation.modules[i]->cmdline,
+            next
+        );
+    }
+    env.setModules(next);
 
 //    memoryRegistry.dump();
     
-    // TODO: register and create memory manager on heap
-    // TODO: create and initialize environment on heap    
     return env;
 };

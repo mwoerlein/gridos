@@ -29,6 +29,8 @@ class MemoryRegistry: public MemoryAllocator {
 	    available.next = available.prev = &available;
 	    reserved.next = reserved.prev = &reserved;
 	    used.next = used.prev = &used;
+	    available.buf = reserved.buf = used.buf = (void *) 0;
+	    available.len = reserved.len = used.len = 0;
 	};
 	virtual ~MemoryRegistry(){};
 	virtual void registerAvailableMemory(void * mem, size_t len);
@@ -36,9 +38,9 @@ class MemoryRegistry: public MemoryAllocator {
 	virtual void registerUsedMemory(void * mem, size_t len, void * owner = 0);
 	virtual bool isAvailable(void * mem, size_t len);
     
-	virtual MemoryInfo & info(void * mem);
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
+	virtual MemoryInfo & info(void * ptr) override;
 	
 	// debug
 	virtual void dump();

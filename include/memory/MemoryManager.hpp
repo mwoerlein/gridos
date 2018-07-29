@@ -15,6 +15,7 @@ class MemoryManager: public MemoryAllocator {
 	
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
+	virtual MemoryInfo & info(void * ptr) override;
 };
 
 #endif //MEMORYMANAGER_HPP_LOCK

@@ -82,14 +82,6 @@ bool MemoryRegistry::isAvailable(void * mem, size_t len){
     return (size_t) mem + len <= (size_t) entry->buf + entry->len;
 };
 
-MemoryInfo & MemoryRegistry::info(void * mem){
-    MemoryListEntry * entry = findEntry(&used, mem);
-    if (entryEnd(entry) <= mem) {
-        return *((MemoryInfo *)0);
-    }
-    return *((MemoryInfo *)entry);
-}
-
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     log<<'s'<<'t'<<'a'<<'t'<<'i'<<'c'<<' '<<'a'<<'l'<<'l'<<'o'<<'c'<<'a'<<'t'<<'e'<<' '<<len<<' '<<owner<<'\n';
     
@@ -114,6 +106,14 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
 
 void MemoryRegistry::free(void * ptr) {
     log<<'f'<<'r'<<'e'<<'e'<<' '<<ptr<<'\n';
+}
+
+MemoryInfo & MemoryRegistry::info(void * ptr) {
+    MemoryListEntry * entry = findEntry(&used, ptr);
+    if (entryEnd(entry) <= ptr) {
+        return *((MemoryInfo *)0);
+    }
+    return *((MemoryInfo *)entry);
 }
 
 
