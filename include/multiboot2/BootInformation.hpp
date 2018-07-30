@@ -3,6 +3,7 @@
 
 #include "multiboot2/multiboot2.h"
 #include "memory/MemoryRegistry.hpp"
+#include "sys/Environment.hpp"
 
 class BootInformation{
     public:
@@ -19,8 +20,8 @@ class BootInformation{
 	
 	BootInformation(void *mbi, void *mbh);
 	virtual ~BootInformation(){};
-	virtual void initialize();
 	virtual void registerMemory(MemoryRegistry &reg);
+	virtual void registerModules(Environment &env, MemoryRegistry &reg);
 };
 
 #endif //BOOTINFORMATION_HPP_LOCK

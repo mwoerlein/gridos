@@ -1,8 +1,8 @@
 #include "multiboot2/BootInformation.hpp"
 
-BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh),modulesCount(0){};
+#include "KernelJIT/ModuleInfo.hpp"
 
-void BootInformation::initialize(){
+BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh),modulesCount(0){
     struct multiboot_tag *tag;
     for (
         tag = (struct multiboot_tag *) ((unsigned long)mbi + 8);
@@ -89,4 +89,16 @@ void BootInformation::registerMemory(MemoryRegistry &reg){
     }
     /* register mbi */
     reg.registerUsedMemory(mbi, (size_t) (*(unsigned int *) mbi), this);
+}
+
+void BootInformation::registerModules(Environment &env, MemoryRegistry &reg){
+    ModuleInfo * next = (ModuleInfo *) 0;
+    for (int i = modulesCount-1; i >= 0; i--) {
+        next = &env.create<ModuleInfo, MemoryInfo, char *, ModuleInfo *>(
+            reg.info((void*)modules[i]->mod_start),
+            modules[i]->cmdline,
+            next
+        );
+    }
+    env.setModules(next);
 }

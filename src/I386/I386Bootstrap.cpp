@@ -2,7 +2,6 @@
 #include "I386/I386CgaOStream.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 
-#include "KernelJIT/ModuleInfo.hpp"
 #include "memory/MemoryManager.hpp"
 #include "memory/MemoryRegistry.hpp"
 #include "multiboot2/BootInformation.hpp"
@@ -43,15 +42,7 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     // keep in sync with bsOut
     ((I386CgaOStream&)stdO).sync();
     
-    ModuleInfo * next = (ModuleInfo *) 0;
-    for (int i = bootInformation.modulesCount-1; i>=0; i--) {
-        next = &env.create<ModuleInfo, MemoryInfo, char *, ModuleInfo *>(
-            memoryRegistry.info((void*)bootInformation.modules[i]->mod_start),
-            bootInformation.modules[i]->cmdline,
-            next
-        );
-    }
-    env.setModules(next);
+    bootInformation.registerModules(env, memoryRegistry);
 
     return env;
 };
