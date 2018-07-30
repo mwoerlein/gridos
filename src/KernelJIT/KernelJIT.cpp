@@ -33,15 +33,15 @@ Kernel &KernelJIT::kernel_compile(IStream & in){
     
     OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(zeroInfo);
     
-    out<<'c'<<'o'<<'p'<<'y'<<'i'<<'n'<<'g'<<' ';
+    out<<"copying ";
     while (!in.empty()){
     	in>>c;
     	//	out<<c;
     	osk<<c;
     	x++;
     }
-    out<<x<<' '<<'b'<<'y'<<'t'<<'e'<<'\n';
-    out<<'r'<<'e'<<'a'<<'d'<<'y'<<'!'<<'\n';
+    out<<x<<" bytes"<<'\n';
+    out<<"ready!"<<'\n';
 
     return osk;
 }

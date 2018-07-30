@@ -20,14 +20,12 @@ class I386OStreamKernel: public OStreamKernel{
 	    }
 	};
     public:
-	inline I386OStreamKernel(MemoryInfo &m):mem(m),pos(0){};
-	inline virtual ~I386OStreamKernel(){};
-	inline virtual OStream &operator<<(char c){((char*)mem.buf)[pos++]=c;};
-	inline virtual OStream &operator<<(int i){};
-	inline virtual OStream &operator<<(void *ptr){};
-//	inline virtual OStream &operator<<(String &str){};
-	inline virtual void clear(){ pos=0; };
-	inline virtual void run(){
+    using OStream::operator<<;
+	I386OStreamKernel(MemoryInfo &m):mem(m),pos(0){};
+	virtual ~I386OStreamKernel(){};
+	virtual OStream &operator<<(char c){((char*)mem.buf)[pos++]=c;};
+	virtual void clear(){ pos=0; };
+	virtual void run(){
 	    I386InterruptVectorTable vt;
 	    I386PIC pic;
 	    I386Keyboard kbd(pic);

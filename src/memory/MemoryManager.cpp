@@ -3,7 +3,7 @@
 // public
 
 MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
-    log<<'a'<<'l'<<'l'<<'o'<<'c'<<'a'<<'t'<<'e'<<' '<<len<<' '<<owner<<'\n';
+    log<<"allocate "<<len<<' '<<owner<<'\n';
     
     MemoryInfo * ret = (MemoryInfo *) head;
     ret->buf = memoryEnd(ret, sizeof(MemoryInfo));
@@ -17,10 +17,10 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 }
 
 void MemoryManager::free(void * ptr) {
-    log<<'f'<<'r'<<'e'<<'e'<<' '<<ptr<<'\n';
+    log<<"free "<<ptr<<'\n';
 }
 
 MemoryInfo & MemoryManager::info(void * ptr) {
-    log<<'i'<<'n'<<'f'<<'o'<<' '<<ptr<<'\n';
+    log<<"info "<<ptr<<'\n';
     return *((MemoryInfo *)0);
 }

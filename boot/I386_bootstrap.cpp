@@ -27,14 +27,14 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     MemoryIStream &in = env._create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
-    env.getStdO()<<'C'<<'o'<<'m'<<'p'<<'i'<<'l'<<'i'<<'n'<<'g'<<' '<<'.'<<'.'<<'.'<<' '<<'w'<<'i'<<'t'<<'h'<<' '<<&jit<<'\n';
+    env.getStdO()<<"Compiling ... with "<<&jit<<'\n';
     Kernel &k = jit.kernel_compile(in);
     
     env.destroy(jit);
     env.destroy(in);
 
     // run compiled kernel    
-    env.getStdO()<<'S'<<'t'<<'a'<<'r'<<'t'<<'i'<<'n'<<'g'<<' '<<'k'<<'e'<<'r'<<'n'<<'e'<<'l'<<' '<<'.'<<'.'<<'.'<<'\n';
+    env.getStdO()<<"Starting kernel ...\n";
     k.run();
 }
 

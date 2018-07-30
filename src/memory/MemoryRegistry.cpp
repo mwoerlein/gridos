@@ -7,7 +7,7 @@ void MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
         return;
     }
     if (!isEmptyList(&reserved) || !isEmptyList(&used)) {
-        log<<'I'<<'g'<<'n'<<'o'<<'r'<<'e'<<' '<<'a'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'<<' '<<(void *) mem<<':'<<(void*)len<<'\n';
+        log<<"Ignore available "<<(void *) mem<<':'<<(void*)len<<'\n';
         return;
     }
     
@@ -83,12 +83,12 @@ bool MemoryRegistry::isAvailable(void * mem, size_t len){
 };
 
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
-    log<<'s'<<'t'<<'a'<<'t'<<'i'<<'c'<<' '<<'a'<<'l'<<'l'<<'o'<<'c'<<'a'<<'t'<<'e'<<' '<<len<<' '<<owner<<'\n';
+    log<<"static allocate "<<len<<' '<<owner<<'\n';
     
     size_t required = len + sizeof(MemoryInfo);
     MemoryListEntry * from = findEntry(&available, required);
     if (from == &available) {
-        log<<'b'<<'a'<<'d'<<' '<<'a'<<'l'<<'l'<<'o'<<'c'<<'a'<<'t'<<'e'<<'\n';
+        log<<"bad allocate\n";
         return *((MemoryInfo *) 0x0);
     }
     
@@ -105,7 +105,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
 }
 
 void MemoryRegistry::free(void * ptr) {
-    log<<'f'<<'r'<<'e'<<'e'<<' '<<ptr<<'\n';
+    log<<"free "<<ptr<<'\n';
 }
 
 MemoryInfo & MemoryRegistry::info(void * ptr) {
@@ -241,23 +241,22 @@ void MemoryRegistry::freeEntry(MemoryListEntry * entry){
 
 // debug
 void MemoryRegistry::dump(){
-    log<<'D'<<'u'<<'m'<<'p'<<' '<<'r'<<'e'<<'g'<<'i'<<'s'<<'t'<<'r'<<'y'<<' '<<(void *) this<<' '<<'('<<'n'<<'e'<<'x'<<'t'<<' '<<'#'<<entriesCounter<<')'<<'\n';
+    log<<"Dump registry "<<(void *) this<<" (next #"<<entriesCounter<<")\n";
     
     MemoryListEntry *e;
     for (e = available.next; e != &available; e = e->next) {
-        log<<'A'<<'v'<<'a'<<'i'<<'l'<<'a'<<'b'<<'l'<<'e'
-           <<' '<<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-           <<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
+        log<<"Available "
+           <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
+           <<" (#"<<(e-entries)<<")\n";
     }
     for (e = reserved.next; e != &reserved; e = e->next) {
-        log<<'R'<<'e'<<'s'<<'e'<<'r'<<'v'<<'e'<<'d'
-           <<' '<<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-           <<' '<<'('<<'#'<<(e-entries)<<')'<<'\n';
+        log<<"Reserved "
+           <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
+           <<" (#"<<(e-entries)<<")\n";
     }
     for (e = used.next; e != &used; e = e->next) {
-        log<<'U'<<'s'<<'e'<<'d'
-           <<' '<<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-           <<' '<<'('<<'#'<<(e-entries)<<')'
-           <<' '<<'b'<<'y'<<' '<< e->owner <<'\n';
+        log<<"Used "
+           <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
+           <<" (#"<<(e-entries)<<") by "<< e->owner <<'\n';
     }
 }

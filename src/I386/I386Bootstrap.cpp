@@ -16,18 +16,17 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     I386CgaOStream bsOut;
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
     {
-        bsOut<<'I'<<'n'<<'v'<<'a'<<'l'<<'i'<<'d'<<' '<<'m'<<'a'<<'g'<<'i'<<'c'<<' '<<'n'<<'u'<<'m'<<'b'<<'e'<<'r'<<':'<<' '<<(void *) magic<<'\n';
+        bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
         return *((Environment *) 0x0);
     }
     if ((unsigned long)mbi & 7)
     {
-        bsOut<<'U'<<'n'<<'a'<<'l'<<'i'<<'g'<<'n'<<'e'<<'d'<<' '<<'m'<<'b'<<'i'<<':'<<' '<<mbi<<'\n';
+        bsOut<<"Unaligned mbi: "<<mbi<<'\n';
         return *((Environment *) 0x0);
     }
 
     BootInformation bootInformation(mbi, mbh);
-
-    bootInformation.initialize();
+    bsOut<<"loaded via "<<bootInformation.bootloader->string<<'\n';
     MemoryRegistry memoryRegistry(bsOut);
     bootInformation.registerMemory(memoryRegistry);
     

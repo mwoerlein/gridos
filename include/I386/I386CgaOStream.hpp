@@ -8,14 +8,13 @@ class I386CgaOStream: public OStream {
 	enum { index_port = 0x3d4, data_port = 0x3d5 , cga_ram = 0xB8000};
 	enum { maxx = 80, maxy = 25};
 	char* screen;
-	int pos,base;
+	int pos, base;
     public:
-	I386CgaOStream(char* scr=(char*)cga_ram, int x=0, int y=0);
+    using OStream::operator<<;
+	I386CgaOStream(char* scr = (char*) cga_ram, int x = 0, int y = 0);
 	virtual ~I386CgaOStream();
-	virtual OStream &operator<<(char c);
-	virtual OStream &operator<<(int i);
-	virtual OStream &operator<<(unsigned int i);
-	virtual void clear();
+	virtual OStream &operator<<(char c) override;
+	virtual void clear() override;
 	virtual void sync();
 };
 
