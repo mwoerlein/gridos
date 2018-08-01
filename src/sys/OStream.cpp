@@ -30,29 +30,23 @@ OStream & OStream::operator<<(const char * c) {
 // protected
 
 OStream & OStream::printint(int d, int base, int pad) {
+    /*  If D is minus, put `-' in the head. */
     if (d < 0) {
         *this << '-';
         d = -d;
     }
-    printuint((unsigned int) d, base, pad);
+    return printuint((unsigned int) d, base, pad);
 }
 
 OStream & OStream::printuint(unsigned int d, int base, int pad) {
     char buf[20];
     char *p = buf;
-    unsigned long ud = d;
 
-    /*  If D is minus, put `-' in the head. */
-    if (d < 0) {
-        *this << '-';
-        ud = -d;
-    }
-
-    /*  Divide UD by BASE until UD == 0. */
+    /*  Divide D by BASE until D == 0. */
     do {
-        int remainder = ud % base;
+        int remainder = d % base;
         *p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
-    } while (ud /= base);
+    } while (d /= base);
     while (buf+pad > p) {
         *p++ = '0';
     }
