@@ -24,10 +24,10 @@ multiboot_header_address_tag:
      .short MULTIBOOT_HEADER_TAG_ADDRESS
      .short MULTIBOOT_HEADER_TAG_OPTIONAL
      .long multiboot_header_address_tag_end - multiboot_header_address_tag
-     .long   multiboot_header
-     .long   bootstrap_start
-     .long   _edata
-     .long   _end
+     .long multiboot_header
+     .long bootstrap_start
+     .long _edata
+     .long _end
 multiboot_header_address_tag_end:
 
 .align MULTIBOOT_TAG_ALIGN

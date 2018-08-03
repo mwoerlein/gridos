@@ -1,10 +1,9 @@
 #ifndef KERNEL_HPP_LOCK
 #define KERNEL_HPP_LOCK
 
-class Kernel{
+class Kernel {
     public:
-	virtual void run()=0;
+    virtual void run() = 0;
 };
 
 #endif //KERNEL_HPP_LOCK
-

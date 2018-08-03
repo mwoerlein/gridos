@@ -19,13 +19,13 @@
 #endif
 
 
-class HaltKernel: public Kernel{
-    private:
+class HaltKernel: public Kernel {
     public:
-	virtual void run(){
-	    while (1) {__asm__("hlt");}
-	};
+    virtual void run() {
+        while (1) {
+            __asm__("hlt");
+        }
+    }
 };
 
 #endif //HALTKERNEL_HPP_LOCK
-

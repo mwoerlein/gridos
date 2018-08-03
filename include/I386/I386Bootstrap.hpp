@@ -5,12 +5,12 @@
 
 class I386Bootstrap {
     private:
-	void trickCompiler();
+    void trickCompiler();
+    
     public:
-    I386Bootstrap(){};
-	virtual ~I386Bootstrap(){};
-	Environment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
+    I386Bootstrap() {}
+    virtual ~I386Bootstrap() {}
+    Environment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
 };
 
 #endif //I386BOOTSTRAP_HPP_LOCK
-

@@ -7,34 +7,35 @@
 
 void* operator new (size_t size, void* location);
 
-class Environment{
+class Environment {
     private:
     MemoryAllocator & ma;
     OStream & stdO;
     ModuleInfo * modules;
     
     public:
-	Environment(MemoryAllocator &ma, OStream &stdO):ma(ma),stdO(stdO){}
-	virtual ~Environment(){}
-	/*
-	InStream &getStdIn();
-	OutStream &getStdOut();
-	*/
-	OStream &getStdO() {
-	    return stdO;
-	}
-	
-	void setModules(ModuleInfo * mods) {
-	    modules = mods;
-	}
-	
-	ModuleInfo * getModules() {
-	    return modules;
-	}
-	
-	MemoryAllocator & getAllocator() {
-	    return ma;
-	}
+    Environment(MemoryAllocator &ma, OStream &stdO):ma(ma),stdO(stdO) {}
+    virtual ~Environment() {}
+    /*
+    InStream &getStdIn();
+    OutStream &getStdOut();
+    */
+    
+    OStream &getStdO() {
+        return stdO;
+    }
+    
+    void setModules(ModuleInfo * mods) {
+        modules = mods;
+    }
+    
+    ModuleInfo * getModules() {
+        return modules;
+    }
+    
+    MemoryAllocator & getAllocator() {
+        return ma;
+    }
 
     template <class C> C & create() {
         MemoryInfo &mi = ma.allocate(sizeof(C), this);

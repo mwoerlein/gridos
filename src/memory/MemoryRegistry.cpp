@@ -1,8 +1,15 @@
 #include "memory/MemoryRegistry.hpp"
 
 // public
+MemoryRegistry::MemoryRegistry(OStream &log):log(log),entriesCounter(0) {
+    available.next = available.prev = &available;
+    reserved.next = reserved.prev = &reserved;
+    used.next = used.prev = &used;
+    available.buf = reserved.buf = used.buf = (void *) 0;
+    available.len = reserved.len = used.len = 0;
+}
 
-void MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
+void MemoryRegistry::registerAvailableMemory(void * mem, size_t len) {
     if (len == 0) {
         return;
     }
@@ -28,9 +35,9 @@ void MemoryRegistry::registerAvailableMemory(void * mem, size_t len){
             removeEntry(entry->next);
         }
     }
-};
+}
 
-void MemoryRegistry::registerReservedMemory(void * mem, size_t len){
+void MemoryRegistry::registerReservedMemory(void * mem, size_t len) {
     if (len == 0) {
         return;
     }
@@ -55,9 +62,9 @@ void MemoryRegistry::registerReservedMemory(void * mem, size_t len){
             removeEntry(entry->next);
         }
     }
-};
+}
 
-void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner){
+void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner) {
     if (len == 0) {
         return;
     }
@@ -72,15 +79,15 @@ void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner){
         MemoryListEntry * entry = findEntry(&used, mem);
         insertAfterEntry(entry, newUsedEntry(mem, len, owner));
     }
-};
+}
 
-bool MemoryRegistry::isAvailable(void * mem, size_t len){
+bool MemoryRegistry::isAvailable(void * mem, size_t len) {
     if (isEmptyList(&available)) {
         return false;
     }
     MemoryListEntry * entry = findEntry(&available, mem);
     return (size_t) mem + len <= (size_t) entry->buf + entry->len;
-};
+}
 
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     log<<"static allocate "<<len<<' '<<owner<<'\n';
@@ -119,31 +126,31 @@ MemoryInfo & MemoryRegistry::info(void * ptr) {
 
 // private
 
-MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, size_t required){
+MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, size_t required) {
     MemoryListEntry * cur;
     for (cur = list; cur->next != list && cur->len < required; cur = cur->next);
     return cur;
 }
 
-MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, void * buf){
+MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, void * buf) {
     MemoryListEntry * cur;
     for (cur = list; cur->next != list && cur->next->buf <= buf; cur = cur->next);
     return cur;
 }
 
-void MemoryRegistry::insertAfterEntry(MemoryListEntry * entry, MemoryListEntry * newEntry){
+void MemoryRegistry::insertAfterEntry(MemoryListEntry * entry, MemoryListEntry * newEntry) {
     newEntry->prev = entry;
     newEntry->next = entry->next;
     newEntry->prev->next = newEntry->next->prev = newEntry;
 }
 
-void MemoryRegistry::removeEntry(MemoryListEntry * entry){
+void MemoryRegistry::removeEntry(MemoryListEntry * entry) {
     entry->prev->next = entry->next;
     entry->next->prev = entry->prev;
     freeEntry(entry);
 }
 
-void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t len){
+void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t len) {
     if (isEmptyList(list)) {
         return;
     }
@@ -212,7 +219,7 @@ void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t l
     }
 }
 
-MemoryListEntry * MemoryRegistry::newEntry(void * mem, size_t len){
+MemoryListEntry * MemoryRegistry::newEntry(void * mem, size_t len) {
     MemoryListEntry *entry = &entries[entriesCounter++];
     entry->buf = mem;
     entry->len = len;
@@ -220,27 +227,27 @@ MemoryListEntry * MemoryRegistry::newEntry(void * mem, size_t len){
     return entry;
 }
 
-MemoryListEntry * MemoryRegistry::newReservedEntry(void * mem, size_t len){
+MemoryListEntry * MemoryRegistry::newReservedEntry(void * mem, size_t len) {
     MemoryListEntry *entry = newEntry(mem, len);
     entry->flags.reserved = 1;
     return entry;
 }
 
-MemoryListEntry * MemoryRegistry::newUsedEntry(void * mem, size_t len, void * owner){
+MemoryListEntry * MemoryRegistry::newUsedEntry(void * mem, size_t len, void * owner) {
     MemoryListEntry *entry = newEntry(mem, len);
     entry->flags.used = 1;
     entry->owner = owner;
     return entry;
 }
 
-void MemoryRegistry::freeEntry(MemoryListEntry * entry){
+void MemoryRegistry::freeEntry(MemoryListEntry * entry) {
     entry->next = entry->prev = (MemoryListEntry *) 0;
     entry->owner = (void *) 0;
     entry->flags.magic = entry->flags.reserved = entry->flags.used = 0;
 }
 
 // debug
-void MemoryRegistry::dump(){
+void MemoryRegistry::dump() {
     log<<"Dump registry "<<(void *) this<<" (next #"<<entriesCounter<<")\n";
     
     MemoryListEntry *e;

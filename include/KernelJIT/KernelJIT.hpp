@@ -6,13 +6,11 @@
 #include "sys/IStream.hpp"
 #include "sys/Object.hpp"
 
-class KernelJIT: public Object{
-    private:
+class KernelJIT: public Object {
     public:
-	KernelJIT(Environment &env);
-	virtual ~KernelJIT() {}
-	virtual Kernel &kernel_compile(IStream &in);
+    KernelJIT(Environment &env):Object(env) {}
+    virtual ~KernelJIT() {}
+    virtual Kernel &kernel_compile(IStream &in);
 };
 
 #endif //KERNELJIT_HPP_LOCK
-

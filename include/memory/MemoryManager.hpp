@@ -6,16 +6,16 @@
 
 class MemoryManager: public MemoryAllocator {
     private:
-	OStream &log;
+    OStream &log;
     void *head;
     
     public:
-	MemoryManager(OStream &log, void* head):log(log),head(head){};
-	virtual ~MemoryManager(){};
-	
+    MemoryManager(OStream &log, void* head):log(log),head(head) {}
+    virtual ~MemoryManager() {}
+    
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
-	virtual MemoryInfo & info(void * ptr) override;
+    virtual MemoryInfo & info(void * ptr) override;
 };
 
 #endif //MEMORYMANAGER_HPP_LOCK

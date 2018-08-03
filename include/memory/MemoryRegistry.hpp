@@ -8,11 +8,11 @@
 
 class MemoryRegistry: public MemoryAllocator {
     private:
-	MemoryListEntry entries[100];
-	int entriesCounter;
-	MemoryListEntry available, reserved, used;
-	OStream &log;
-	
+    MemoryListEntry entries[100];
+    int entriesCounter;
+    MemoryListEntry available, reserved, used;
+    OStream &log;
+    
     void removeFromList(MemoryListEntry * list, void * mem, size_t len);
     MemoryListEntry * findEntry(MemoryListEntry * list, void * buf);
     MemoryListEntry * findEntry(MemoryListEntry * list, size_t len);
@@ -25,25 +25,20 @@ class MemoryRegistry: public MemoryAllocator {
     void freeEntry(MemoryListEntry * entry);
     
     public:
-	MemoryRegistry(OStream &log):log(log),entriesCounter(0){
-	    available.next = available.prev = &available;
-	    reserved.next = reserved.prev = &reserved;
-	    used.next = used.prev = &used;
-	    available.buf = reserved.buf = used.buf = (void *) 0;
-	    available.len = reserved.len = used.len = 0;
-	};
-	virtual ~MemoryRegistry(){};
-	virtual void registerAvailableMemory(void * mem, size_t len);
-	virtual void registerReservedMemory(void * mem, size_t len);
-	virtual void registerUsedMemory(void * mem, size_t len, void * owner = 0);
-	virtual bool isAvailable(void * mem, size_t len);
+    MemoryRegistry(OStream &log);
+    virtual ~MemoryRegistry() {}
+    
+    virtual void registerAvailableMemory(void * mem, size_t len);
+    virtual void registerReservedMemory(void * mem, size_t len);
+    virtual void registerUsedMemory(void * mem, size_t len, void * owner = 0);
+    virtual bool isAvailable(void * mem, size_t len);
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
-	virtual MemoryInfo & info(void * ptr) override;
-	
-	// debug
-	virtual void dump();
+    virtual MemoryInfo & info(void * ptr) override;
+    
+    // debug
+    virtual void dump();
 };
 
 #endif //MEMORYREGISTRY_HPP_LOCK

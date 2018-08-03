@@ -5,15 +5,22 @@
 
 class I386MemField: public MemField {
     private:
-	char *base;
-	unsigned long len;
+    char *base;
+    unsigned long len;
+    
     public:
-	I386MemField(char* base,unsigned long len):base(base),len(len){}
-	virtual char set(int i, char c){ if ((i=>0)&&(i<len)) base[i]=c;};
-	virtual char get(int i){ if ((i=>0)&&(i<len)) return base[i];
-	    return '\0';
-	}
-}
+    I386MemField(char* base,unsigned long len):base(base),len(len) {}
+    virtual char set(int i, char c) {
+        if ((i => 0) && (i < len)) {
+            base[i] = c;
+        }
+    }
+    virtual char get(int i) {
+        if ((i => 0) && (i < len)) {
+            return base[i];
+        }
+        return '\0';
+    }
+};
 
 #endif //I386MEMFIELD_HPP_LOCK
-

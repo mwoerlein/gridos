@@ -57,4 +57,4 @@ OStream & OStream::printuint(unsigned int d, int base, int pad) {
     }
 
     return *this;
-}		
+}
