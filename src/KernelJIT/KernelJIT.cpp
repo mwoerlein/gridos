@@ -5,6 +5,10 @@
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386OStreamKernel.hpp"
 
+#include "I386ASM/Halt.hpp"
+#include "I386ASM/Jump.hpp"
+#include "I386ASM/Mov.hpp"
+
 Kernel &KernelJIT::kernel_compile(IStream & in) {
     int x = 0;
     char c = 255;
@@ -32,6 +36,13 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     
     OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(zeroInfo);
     
+    osk
+        << env().create<Mov>()
+        << env().create<Halt>()
+        << env().create<Jump>()
+    ;
+    
+    /*
     out<<"copying ";
     while (!in.empty()) {
         in>>c;
@@ -39,6 +50,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         x++;
     }
     out<<x<<" bytes"<<'\n';
+    */
     out<<"ready!"<<'\n';
 
     return osk;
