@@ -28,6 +28,7 @@ class I386OStreamKernel: public OStreamKernel {
     
     virtual OStream &operator<<(char c) {
         ((char*)mem.buf)[pos++] = c;
+        return *this;
     }
     
     virtual void clear() {
