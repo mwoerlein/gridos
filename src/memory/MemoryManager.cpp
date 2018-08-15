@@ -27,19 +27,21 @@ MemoryInfo & MemoryManager::info(void * ptr) {
     if (isMemoryInfo(ptr)) {
         return *((MemoryInfo *) ptr);
     }
-    void * info = memoryEnd(ptr, -sizeof(MemoryInfo));
-    if (isMemoryInfo(info)) {
-        return *((MemoryInfo *) info);
+    if ((size_t) ptr >= sizeof(MemoryInfo)) {
+        void * info = memoryEnd(ptr, -sizeof(MemoryInfo));
+        if (isMemoryInfo(info)) {
+            return *((MemoryInfo *) info);
+        }
     }
     for (int i = 0; i < used->size; i++) {
         MemoryInfo * info = &used->elements[i];
-        if (info->buf == ptr) {
+        if (info->buf == ptr && info->flags.used == 1) {
             return *info;
         }
     }
     for (int i = 0; i < reserved->size; i++) {
         MemoryInfo * info = &reserved->elements[i];
-        if (info->buf == ptr) {
+        if (info->buf == ptr && info->flags.reserved == 1) {
             return *info;
         }
     }
