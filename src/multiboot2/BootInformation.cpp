@@ -95,7 +95,7 @@ void BootInformation::registerModules(Environment &env) {
     MemoryAllocator &ma = env.getAllocator();
     ModuleInfo * next = (ModuleInfo *) 0;
     for (int i = modulesCount-1; i >= 0; i--) {
-        next = &env.create<ModuleInfo, MemoryInfo, char *, ModuleInfo *>(
+        next = &env.create<ModuleInfo, MemoryInfo &, char *, ModuleInfo *>(
             ma.info((void*)modules[i]->mod_start),
             modules[i]->cmdline,
             next

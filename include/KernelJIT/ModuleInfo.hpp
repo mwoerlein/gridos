@@ -7,11 +7,11 @@
 class ModuleInfo: public Object {
     public:
     ModuleInfo * next;
-    MemoryInfo memoryInfo;
+    MemoryInfo & memoryInfo;
     // TODO: use String
     char * cmd;
     
-    ModuleInfo(Environment & env, MemoryInfo mi, char * cmd, ModuleInfo * next = 0):
+    ModuleInfo(Environment & env, MemoryInfo & mi, char * cmd, ModuleInfo * next = 0):
         Object(env), memoryInfo(mi), cmd(cmd), next(next) {}
     virtual ~ModuleInfo() {}
 };
