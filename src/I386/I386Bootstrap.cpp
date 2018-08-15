@@ -26,6 +26,8 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
 
     BootInformation bootInformation(mbi, mbh);
     bsOut<<"loaded via "<<bootInformation.bootloader->string<<'\n';
+    
+    // collect memory information on stack
     MemoryRegistry memoryRegistry(bsOut);
     bootInformation.registerMemory(memoryRegistry);
     
@@ -33,19 +35,17 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     memoryRegistry.registerUsedMemory((void*)0, 0x10000, (void*) this);
 
     Environment staticEnv(memoryRegistry, bsOut);
+    
+    // create "heap"-based environment and memory management
     OStream &stdO = staticEnv._create<I386CgaOStream>();
     MemoryManager &mm = staticEnv._create<MemoryManager, OStream&, void *>(stdO, (void*) 0x10200);
     Environment &env = staticEnv._create<Environment, MemoryAllocator&, OStream&>(mm, stdO);
     
     memoryRegistry.transfer(mm);
-//    memoryRegistry.dump();
-
-    // keep in sync with bsOut
-    ((I386CgaOStream&)stdO).sync();
-    
-//    mm.dump();
-    
     bootInformation.registerModules(env);
+
+    // keep stdO in sync with bsOut
+    ((I386CgaOStream&)stdO).sync();
 
     return env;
 }

@@ -27,22 +27,15 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     } while (ackblock > 0);
 
     // TODO: "malloc" kernel output space
-    MemoryInfo &zeroInfo = env()._create<MemoryInfo>();
-    zeroInfo.buf = (void*)0;
-    zeroInfo.len = 0x10000;
-    zeroInfo.flags.magic = MEMORY_INFO_MAGIC;
-    zeroInfo.flags.used = 1;
-    zeroInfo.owner = this;
-    
-    OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(zeroInfo);
-    
+    OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(env().getAllocator().info((void *) 0));
+    //*/
     osk
         << env().create<Mov>()
         << env().create<Halt>()
         << env().create<Jump>()
     ;
     
-    /*
+    /*/
     out<<"copying ";
     while (!in.empty()) {
         in>>c;
@@ -50,7 +43,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         x++;
     }
     out<<x<<" bytes"<<'\n';
-    */
+    //*/
     out<<"ready!"<<'\n';
 
     return osk;
