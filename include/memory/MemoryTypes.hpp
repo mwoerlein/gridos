@@ -9,6 +9,16 @@
 #define isMemoryInfo(ptr) (((MemoryInfo *) ptr)->flags.magic == MEMORY_INFO_MAGIC)
 #define hasFollowingBuffer(ptr) (((MemoryInfo *) ptr)->buf == memoryEnd(ptr, sizeof(MemoryInfo)))
 
+#define isEmptyList(list) ((list)->next == (list))
+#define initEmptyList(list) \
+    (list)->next = (list)->prev = (list);\
+    (list)->buf = (void *) 0;\
+    (list)->len = 0;\
+    (list)->owner = (list);\
+    (list)->flags.reserved = 0;\
+    (list)->flags.used = 0;\
+    (list)->flags.magic = MEMORY_INFO_MAGIC;
+
 typedef unsigned int size_t;
 
 typedef struct {
@@ -18,12 +28,14 @@ typedef struct {
     unsigned long magic     : 16;
 } MemoryFlags;
 
+/*
 typedef struct {
     void* buf;
     size_t len;
     MemoryFlags flags;
     void* owner;
 } MemoryInfo;
+*/
 
 typedef struct MemoryListEntry {
     void* buf;
@@ -33,6 +45,8 @@ typedef struct MemoryListEntry {
     struct MemoryListEntry* prev;
     struct MemoryListEntry* next;
 } MemoryListEntry;
+
+typedef MemoryListEntry MemoryInfo;
 
 typedef struct MemoryInfoArray {
     int size;
