@@ -21,7 +21,7 @@ class BootInformation{
     BootInformation(void *mbi, void *mbh);
     virtual ~BootInformation() {}
     virtual void registerMemory(MemoryRegistry &reg);
-    virtual void registerModules(Environment &env, MemoryRegistry &reg);
+    virtual void registerModules(Environment &env);
 };
 
 #endif //BOOTINFORMATION_HPP_LOCK

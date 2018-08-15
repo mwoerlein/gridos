@@ -24,19 +24,37 @@ void MemoryManager::free(void * ptr) {
 }
 
 MemoryInfo & MemoryManager::info(void * ptr) {
-    log<<"info "<<ptr<<'\n';
+    if (isMemoryInfo(ptr)) {
+        return *((MemoryInfo *) ptr);
+    }
+    void * info = memoryEnd(ptr, -sizeof(MemoryInfo));
+    if (isMemoryInfo(info)) {
+        return *((MemoryInfo *) info);
+    }
+    for (int i = 0; i < used->size; i++) {
+        MemoryInfo * info = &used->elements[i];
+        if (info->buf == ptr) {
+            return *info;
+        }
+    }
+    for (int i = 0; i < reserved->size; i++) {
+        MemoryInfo * info = &reserved->elements[i];
+        if (info->buf == ptr) {
+            return *info;
+        }
+    }
     return *((MemoryInfo *)0);
 }
 
 // debug
 void MemoryManager::dump() {
     log<<"dump reserved\n";
-    for (int i = 0; i< reserved->size; i++) {
+    for (int i = 0; i < reserved->size; i++) {
         MemoryInfo * info = &reserved->elements[i];
         log<<info<<':'<<info->buf<<' '<<(int)info->flags.used<<(int)info->flags.reserved<<'\n';
     }
     log<<"dump used\n";
-    for (int i = 0; i< used->size; i++) {
+    for (int i = 0; i < used->size; i++) {
         MemoryInfo * info = &used->elements[i];
         log<<info<<':'<<info->buf<<' '<<(int)info->flags.used<<(int)info->flags.reserved<<'\n';
     }

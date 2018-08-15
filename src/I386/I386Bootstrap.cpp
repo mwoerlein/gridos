@@ -45,7 +45,7 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     
 //    mm.dump();
     
-    bootInformation.registerModules(env, memoryRegistry);
+    bootInformation.registerModules(env);
 
     return env;
 }

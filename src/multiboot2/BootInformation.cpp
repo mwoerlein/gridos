@@ -91,11 +91,12 @@ void BootInformation::registerMemory(MemoryRegistry &reg) {
     reg.registerUsedMemory(mbi, (size_t) (*(unsigned int *) mbi), this);
 }
 
-void BootInformation::registerModules(Environment &env, MemoryRegistry &reg) {
+void BootInformation::registerModules(Environment &env) {
+    MemoryAllocator &ma = env.getAllocator();
     ModuleInfo * next = (ModuleInfo *) 0;
     for (int i = modulesCount-1; i >= 0; i--) {
         next = &env.create<ModuleInfo, MemoryInfo, char *, ModuleInfo *>(
-            reg.info((void*)modules[i]->mod_start),
+            ma.info((void*)modules[i]->mod_start),
             modules[i]->cmdline,
             next
         );
