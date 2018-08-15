@@ -37,10 +37,13 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     MemoryManager &mm = staticEnv._create<MemoryManager, OStream&, void *>(stdO, (void*) 0x10200);
     Environment &env = staticEnv._create<Environment, MemoryAllocator&, OStream&>(mm, stdO);
     
+    memoryRegistry.transfer(mm);
 //    memoryRegistry.dump();
 
     // keep in sync with bsOut
     ((I386CgaOStream&)stdO).sync();
+    
+//    mm.dump();
     
     bootInformation.registerModules(env, memoryRegistry);
 

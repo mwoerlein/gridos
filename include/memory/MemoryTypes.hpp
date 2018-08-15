@@ -6,6 +6,8 @@
 #define memoryEnd(buf, len) ((void *) ((size_t) (buf) + (len)))
 #define memoryDiff(mem1, mem2) ((size_t) (mem2) - (size_t) (mem1))
 #define entryEnd(entry) ((void *) ((size_t) (entry)->buf + (entry)->len))
+#define isMemoryInfo(ptr) (((MemoryInfo *) ptr)->flags.magic == MEMORY_INFO_MAGIC)
+#define hasFollowingBuffer(ptr) (((MemoryInfo *) ptr)->buf == memoryEnd(ptr, sizeof(MemoryInfo)))
 
 typedef unsigned int size_t;
 
@@ -32,4 +34,8 @@ typedef struct MemoryListEntry {
     struct MemoryListEntry* next;
 } MemoryListEntry;
 
+typedef struct MemoryInfoArray {
+    int size;
+    MemoryInfo elements[0];
+} MemoryInfoArray;
 #endif //MEMORYTYPES_HPP_LOCK

@@ -1,12 +1,12 @@
 #include "memory/MemoryRegistry.hpp"
 
+#include "memory/MemoryManager.hpp"
+
 // public
 MemoryRegistry::MemoryRegistry(OStream &log):log(log),entriesCounter(0) {
-    available.next = available.prev = &available;
-    reserved.next = reserved.prev = &reserved;
-    used.next = used.prev = &used;
-    available.buf = reserved.buf = used.buf = (void *) 0;
-    available.len = reserved.len = used.len = 0;
+    initEmptyList(&available);
+    initEmptyList(&reserved);
+    initEmptyList(&used);
 }
 
 void MemoryRegistry::registerAvailableMemory(void * mem, size_t len) {
@@ -90,7 +90,9 @@ bool MemoryRegistry::isAvailable(void * mem, size_t len) {
 }
 
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
-    log<<"static allocate "<<len<<' '<<owner<<'\n';
+    if (len < sizeof(MemoryListEntry) - sizeof(MemoryInfo)) {
+        len = sizeof(MemoryListEntry) - sizeof(MemoryInfo);
+    }
     
     size_t required = len + sizeof(MemoryInfo);
     MemoryListEntry * from = findEntry(&available, required);
@@ -112,7 +114,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
 }
 
 void MemoryRegistry::free(void * ptr) {
-    log<<"free "<<ptr<<'\n';
+    // no static free abailable
 }
 
 MemoryInfo & MemoryRegistry::info(void * ptr) {
@@ -121,6 +123,12 @@ MemoryInfo & MemoryRegistry::info(void * ptr) {
         return *((MemoryInfo *)0);
     }
     return *((MemoryInfo *)entry);
+}
+
+void MemoryRegistry::transfer(MemoryManager & memoryManager) {
+    memoryManager.reserved = memoryListToArray(&reserved);
+    memoryManager.used = memoryListToArray(&used, true);
+    memoryManager.available = memoryListToInplaceList(&available);
 }
 
 
@@ -244,6 +252,48 @@ void MemoryRegistry::freeEntry(MemoryListEntry * entry) {
     entry->next = entry->prev = (MemoryListEntry *) 0;
     entry->owner = (void *) 0;
     entry->flags.magic = entry->flags.reserved = entry->flags.used = 0;
+}
+
+MemoryInfoArray * MemoryRegistry::memoryListToArray(MemoryListEntry * list, bool filterFollowingBuffer) {
+    MemoryListEntry * cur;
+    int count = 0;
+    for (cur = list->next; cur != list; cur = cur->next) {
+        if (filterFollowingBuffer && isMemoryInfo(cur->buf) && hasFollowingBuffer(cur->buf)) {
+            continue;
+        }
+        count++;
+    }
+    
+    MemoryInfo & arrayInfo = allocate(sizeof(MemoryInfoArray) + count*sizeof(MemoryInfo), (void*) this);
+    MemoryInfoArray * infoArray = (MemoryInfoArray *) arrayInfo.buf;
+    
+    infoArray->size = 0;
+    for (cur = list->next; cur != list; cur = cur->next) {
+        if (filterFollowingBuffer && isMemoryInfo(cur->buf) && hasFollowingBuffer(cur->buf)) {
+            continue;
+        }
+        MemoryInfo * info = &infoArray->elements[infoArray->size++];
+        info->buf = cur->buf;
+        info->len = cur->len;
+        info->flags = cur->flags;
+        info->owner = cur->owner;
+    }
+    return infoArray;
+}
+
+MemoryListEntry * MemoryRegistry::memoryListToInplaceList(MemoryListEntry * original) {
+    MemoryInfo & listInfo = allocate(sizeof(MemoryListEntry), (void*) this);
+    MemoryListEntry * list = (MemoryListEntry *) listInfo.buf;
+    initEmptyList(list);
+    
+    for (MemoryListEntry * cur = original->next; cur != original; cur = cur->next) {
+        MemoryListEntry * entry = (MemoryListEntry *) cur->buf;
+        entry->buf = cur->buf;
+        entry->len = cur->len;
+        entry->flags = cur->flags;
+        entry->owner = cur->owner;
+        insertAfterEntry(list->prev, entry);
+    }
 }
 
 // debug

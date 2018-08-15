@@ -5,6 +5,16 @@
 #include "sys/OStream.hpp"
 
 #define isEmptyList(list) ((list)->next == (list))
+#define initEmptyList(list) \
+    (list)->next = (list)->prev = (list);\
+    (list)->buf = (void *) 0;\
+    (list)->len = 0;\
+    (list)->owner = (list);\
+    (list)->flags.reserved = 0;\
+    (list)->flags.used = 0;\
+    (list)->flags.magic = MEMORY_INFO_MAGIC;
+
+class MemoryManager;
 
 class MemoryRegistry: public MemoryAllocator {
     private:
@@ -24,6 +34,9 @@ class MemoryRegistry: public MemoryAllocator {
     MemoryListEntry * newUsedEntry(void * mem, size_t len, void * owner);
     void freeEntry(MemoryListEntry * entry);
     
+    MemoryInfoArray * memoryListToArray(MemoryListEntry * list, bool filterFollowingBuffer = false);
+    MemoryListEntry * memoryListToInplaceList(MemoryListEntry * list);
+    
     public:
     MemoryRegistry(OStream &log);
     virtual ~MemoryRegistry() {}
@@ -36,6 +49,8 @@ class MemoryRegistry: public MemoryAllocator {
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
     virtual MemoryInfo & info(void * ptr) override;
+    
+    void transfer(MemoryManager & memoryManager);
     
     // debug
     virtual void dump();
