@@ -38,7 +38,7 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     
     // create "heap"-based environment and memory management
     OStream &stdO = staticEnv._create<I386CgaOStream>();
-    MemoryManager &mm = staticEnv._create<MemoryManager, OStream&, void *>(stdO, (void*) 0x10200);
+    MemoryManager &mm = staticEnv._create<MemoryManager, OStream&>(stdO);
     Environment &env = staticEnv._create<Environment, MemoryAllocator&, OStream&>(mm, stdO);
     
     memoryRegistry.transfer(mm);

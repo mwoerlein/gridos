@@ -8,14 +8,12 @@
 class MemoryManager: public MemoryAllocator {
     private:
     OStream &log;
-    void *head;
-    MemoryListEntry * available;
-    MemoryInfoArray * used;
-    MemoryInfoArray * reserved;
+    MemoryListEntry available, reserved, used;
+    MemoryInfoArray * nonEmbeddedEntries;
     friend void MemoryRegistry::transfer(MemoryManager &);
     
     public:
-    MemoryManager(OStream &log, void* head):log(log),head(head) {}
+    MemoryManager(OStream &log);
     virtual ~MemoryManager() {}
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
@@ -23,7 +21,7 @@ class MemoryManager: public MemoryAllocator {
     virtual MemoryInfo & info(void * ptr) override;
     
     // debug
-    virtual void dump();
+    virtual void dump(bool all = false);
 };
 
 #endif //MEMORYMANAGER_HPP_LOCK

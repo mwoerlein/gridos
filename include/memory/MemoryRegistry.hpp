@@ -4,16 +4,6 @@
 #include "memory/MemoryAllocator.hpp"
 #include "sys/OStream.hpp"
 
-#define isEmptyList(list) ((list)->next == (list))
-#define initEmptyList(list) \
-    (list)->next = (list)->prev = (list);\
-    (list)->buf = (void *) 0;\
-    (list)->len = 0;\
-    (list)->owner = (list);\
-    (list)->flags.reserved = 0;\
-    (list)->flags.used = 0;\
-    (list)->flags.magic = MEMORY_INFO_MAGIC;
-
 class MemoryManager;
 
 class MemoryRegistry: public MemoryAllocator {
@@ -34,8 +24,8 @@ class MemoryRegistry: public MemoryAllocator {
     MemoryListEntry * newUsedEntry(void * mem, size_t len, void * owner);
     void freeEntry(MemoryListEntry * entry);
     
-    MemoryInfoArray * memoryListToArray(MemoryListEntry * list, bool filterFollowingBuffer = false);
-    MemoryListEntry * memoryListToInplaceList(MemoryListEntry * list);
+    int countNonEmbeddedEntries(MemoryListEntry * list);
+    void transferMemoryList(MemoryListEntry * srcList, MemoryListEntry * destList, MemoryInfoArray * buffer = (MemoryInfoArray *) 0);
     
     public:
     MemoryRegistry(OStream &log);
@@ -53,7 +43,7 @@ class MemoryRegistry: public MemoryAllocator {
     void transfer(MemoryManager & memoryManager);
     
     // debug
-    virtual void dump();
+    virtual void dump(bool all = false);
 };
 
 #endif //MEMORYREGISTRY_HPP_LOCK
