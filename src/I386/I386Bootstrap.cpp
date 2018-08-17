@@ -47,6 +47,9 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     ((I386CgaOStream&)stdO).sync();
     
     bootInformation.registerModules(env);
+    
+    // TODO: free mbi after all required information is transfered to heap
+    // mm.free(mbi);
 
     return env;
 }

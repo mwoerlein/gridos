@@ -64,12 +64,20 @@ void MemoryManager::free(void * ptr) {
     entry->owner = (void *) 0;
     unlinkEntry(entry);
 
-    if (!hasFollowingBuffer(entry)) {
-        MemoryListEntry * inlineEntry = (MemoryListEntry *) entry->buf;
-        inlineEntry->buf = memoryEnd(entry->buf, sizeof(MemoryInfo));
-        inlineEntry->len = entry->len - sizeof(MemoryInfo);
-        initEmptyList(entry);
-        entry = inlineEntry; 
+    // create inline entry
+    if (hasFollowingBuffer(entry)) {
+        entry->buf = entry;
+        entry->len += sizeof(MemoryInfo);
+    }  else {
+        MemoryListEntry * nonEmbeddedEntry = entry;
+        entry = (MemoryListEntry *) nonEmbeddedEntry->buf;
+        entry->buf = nonEmbeddedEntry->buf;
+        entry->len = nonEmbeddedEntry->len;
+        entry->flags = nonEmbeddedEntry->flags;
+        entry->owner = nonEmbeddedEntry->owner;
+        
+        // clear non-embedded entry
+        initEmptyList(nonEmbeddedEntry);
     }
 
     // insert into available
