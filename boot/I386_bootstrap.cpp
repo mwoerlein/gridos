@@ -7,6 +7,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "memory/MemoryIStream.hpp"
+//#include "memory/MemoryManager.hpp"
 #include "sys/Environment.hpp"
 
 extern "C" {
@@ -35,8 +36,8 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     env.destroy(in);
     env.destroy(ktext);
     
-    //MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
-    //ma.dump();
+//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
+//    ma.dump();
 
     // run compiled kernel    
     env.getStdO()<<"Starting kernel ...\n";
@@ -44,7 +45,6 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
 }
 
 }
-//*/
 
 // braucht c++
 __asm__(".globl __stack_chk_fail");

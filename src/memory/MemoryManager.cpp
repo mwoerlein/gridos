@@ -18,7 +18,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     for (from = &available; from->next != &available && from->len < required; from = from->next);
 
     if (from->len < required) {
-        log<<"bad allocate\n";
+        log<<"bad allocate "<<len<<"\n";
         return *((MemoryInfo *) 0x0);
     }
     
@@ -55,7 +55,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 void MemoryManager::free(void * ptr) {
     MemoryListEntry * entry = (MemoryListEntry*) &info(ptr);
     if (isNotAnInfo(entry) || !entry->flags.used) {
-        log<<"bad free"<<ptr<<"\n";
+        log<<"bad free "<<ptr<<"\n";
         return;
     }
     
