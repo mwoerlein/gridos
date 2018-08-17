@@ -16,13 +16,11 @@ class MemoryRegistry: public MemoryAllocator {
     void removeFromList(MemoryListEntry * list, void * mem, size_t len);
     MemoryListEntry * findEntry(MemoryListEntry * list, void * buf);
     MemoryListEntry * findEntry(MemoryListEntry * list, size_t len);
-    void insertAfterEntry(MemoryListEntry * entry, MemoryListEntry * newEntry);
     void removeEntry(MemoryListEntry * entry);
     
     MemoryListEntry * newEntry(void * mem, size_t len);
     MemoryListEntry * newReservedEntry(void * mem, size_t len);
     MemoryListEntry * newUsedEntry(void * mem, size_t len, void * owner);
-    void freeEntry(MemoryListEntry * entry);
     
     int countNonEmbeddedEntries(MemoryListEntry * list);
     void transferMemoryList(MemoryListEntry * srcList, MemoryListEntry * destList, MemoryInfoArray * buffer = (MemoryInfoArray *) 0);

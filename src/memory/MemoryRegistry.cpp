@@ -20,14 +20,14 @@ void MemoryRegistry::registerAvailableMemory(void * mem, size_t len) {
     
     // insert/merge into available entries
     if (isEmptyList(&available)) {
-        insertAfterEntry(&available, newEntry(mem, len));
+        insertEntryAfter(&available, newEntry(mem, len));
     } else {
         void * memEnd = memoryEnd(mem, len);
         MemoryListEntry * entry = findEntry(&available, mem);
         if (entryEnd(entry) >= mem) {
             entry->len = memoryDiff(entry->buf, memEnd);
         } else {
-            insertAfterEntry(entry, newEntry(mem, len));
+            insertEntryAfter(entry, newEntry(mem, len));
             entry = entry->next;
         }
         while (entry->next != &available && entryEnd(entry) >= entry->next->buf) {
@@ -47,14 +47,14 @@ void MemoryRegistry::registerReservedMemory(void * mem, size_t len) {
     
     // insert/merge into reserved entries
     if (isEmptyList(&reserved)) {
-        insertAfterEntry(&reserved, newReservedEntry(mem, len));
+        insertEntryAfter(&reserved, newReservedEntry(mem, len));
     } else {
         void * memEnd = memoryEnd(mem, len);
         MemoryListEntry * entry = findEntry(&reserved, mem);
         if (entryEnd(entry) >= mem) {
             entry->len = memoryDiff(entry->buf, memEnd);
         } else {
-            insertAfterEntry(entry, newReservedEntry(mem, len));
+            insertEntryAfter(entry, newReservedEntry(mem, len));
             entry = entry->next;
         }
         while (entry->next != &reserved && entryEnd(entry) >= entry->next->buf) {
@@ -74,10 +74,10 @@ void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner) {
     
     // insert into used entries
     if (isEmptyList(&used)) {
-        insertAfterEntry(&used, newUsedEntry(mem, len, owner));
+        insertEntryAfter(&used, newUsedEntry(mem, len, owner));
     } else {
         MemoryListEntry * entry = findEntry(&used, mem);
-        insertAfterEntry(entry, newUsedEntry(mem, len, owner));
+        insertEntryAfter(entry, newUsedEntry(mem, len, owner));
     }
 }
 
@@ -97,7 +97,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     size_t required = len + sizeof(MemoryInfo);
     MemoryListEntry * from = findEntry(&available, required);
     if (from->len < required) {
-        log<<"bad allocate\n";
+        log<<"bad static allocate\n";
         return *((MemoryInfo *) 0x0);
     }
     
@@ -114,13 +114,14 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
 }
 
 void MemoryRegistry::free(void * ptr) {
-    // no static free abailable
+    // no static free available
+    log<<"bad static free\n";
 }
 
 MemoryInfo & MemoryRegistry::info(void * ptr) {
     MemoryListEntry * entry = findEntry(&used, ptr);
     if (entryEnd(entry) <= ptr) {
-        return *((MemoryInfo *)0);
+        return notAnInfo;
     }
     return *((MemoryInfo *)entry);
 }
@@ -160,16 +161,11 @@ MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, void * buf) 
     return cur;
 }
 
-void MemoryRegistry::insertAfterEntry(MemoryListEntry * entry, MemoryListEntry * newEntry) {
-    newEntry->prev = entry;
-    newEntry->next = entry->next;
-    newEntry->prev->next = newEntry->next->prev = newEntry;
-}
-
 void MemoryRegistry::removeEntry(MemoryListEntry * entry) {
-    entry->prev->next = entry->next;
-    entry->next->prev = entry->prev;
-    freeEntry(entry);
+    unlinkEntry(entry);
+    entry->next = entry->prev = entry;
+    entry->owner = (void *) 0;
+    entry->flags.magic = entry->flags.reserved = entry->flags.used = 0;
 }
 
 void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t len) {
@@ -207,7 +203,7 @@ void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t l
         }
         // area is inside of firstEntry
         firstEntry->len = memoryDiff(firstEntry->buf, mem);
-        insertAfterEntry(firstEntry, newEntry(memEnd, memoryDiff(memEnd, firstEntryEnd)));
+        insertEntryAfter(firstEntry, newEntry(memEnd, memoryDiff(memEnd, firstEntryEnd)));
     } else {
         // area covers multiple entries
 
@@ -262,12 +258,6 @@ MemoryListEntry * MemoryRegistry::newUsedEntry(void * mem, size_t len, void * ow
     return entry;
 }
 
-void MemoryRegistry::freeEntry(MemoryListEntry * entry) {
-    entry->next = entry->prev = (MemoryListEntry *) 0;
-    entry->owner = (void *) 0;
-    entry->flags.magic = entry->flags.reserved = entry->flags.used = 0;
-}
-
 int MemoryRegistry::countNonEmbeddedEntries(MemoryListEntry * list) {
     int count = 0;
     for (MemoryListEntry * cur = list->next; cur != list; cur = cur->next) {
@@ -291,7 +281,7 @@ void MemoryRegistry::transferMemoryList(MemoryListEntry * srcList, MemoryListEnt
             entry->flags = cur->flags;
             entry->owner = cur->owner;
         } // else use pre-initialized entry as-is (used by allocate)
-        insertAfterEntry(destList->prev, entry);
+        insertEntryAfter(destList->prev, entry);
     }
 }
 

@@ -11,7 +11,6 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     if (len < sizeof(MemoryListEntry) - sizeof(MemoryInfo)) {
         len = sizeof(MemoryListEntry) - sizeof(MemoryInfo);
     }
-    log<<"allocate "<<len<<' '<<owner<<'\n';
     
     size_t required = len + sizeof(MemoryInfo);
     // find available memory
@@ -27,16 +26,9 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
         // use whole entry
         from->buf = memoryEnd(from, sizeof(MemoryInfo));
         from->len -= sizeof(MemoryInfo);
-        from->flags.used = 1;
-        from->owner = owner;
         
         // remove from available
-        from->next->prev = from->prev;
-        from->prev->next = from->next;
-        // append to used
-        from->next = &used;
-        from->prev = used.prev;
-        from->next->prev = from->prev->next = from;
+        unlinkEntry(from);
     } else {
         // split entry
         MemoryInfo * n = (MemoryInfo *) memoryEnd(from, required);
@@ -46,24 +38,58 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 
         from->buf = memoryEnd(from, sizeof(MemoryInfo));
         from->len = len;
-        from->flags.used = 1;
-        from->owner = owner;
 
-        // replace from by n available
+        // replace from by n in available
         n->next = from->next;
         n->prev = from->prev;
         n->next->prev = n->prev->next = n;
-        // append to used
-        from->next = &used;
-        from->prev = used.prev;
-        from->next->prev = from->prev->next = from;
     }
+    // append to used
+    from->flags.used = 1;
+    from->owner = owner;
+    insertEntryAfter(used.prev, from);
     
     return *from;
 }
 
 void MemoryManager::free(void * ptr) {
-    log<<"free "<<ptr<<'\n';
+    MemoryListEntry * entry = (MemoryListEntry*) &info(ptr);
+    if (isNotAnInfo(entry) || !entry->flags.used) {
+        log<<"bad free"<<ptr<<"\n";
+        return;
+    }
+    
+    // remove from used
+    entry->flags.used = 0;
+    entry->owner = (void *) 0;
+    unlinkEntry(entry);
+
+    if (!hasFollowingBuffer(entry)) {
+        MemoryListEntry * inlineEntry = (MemoryListEntry *) entry->buf;
+        inlineEntry->buf = memoryEnd(entry->buf, sizeof(MemoryInfo));
+        inlineEntry->len = entry->len - sizeof(MemoryInfo);
+        initEmptyList(entry);
+        entry = inlineEntry; 
+    }
+
+    // insert into available
+    MemoryListEntry * cur;
+    for (cur = &available; cur->next != &available && cur->next->buf <= entry->buf; cur = cur->next);
+    // insert into available
+    insertEntryAfter(cur, entry);
+    
+    if (entryEnd(entry) == entry->next) {
+        // merge right
+        entry->next->flags.magic = 0;
+        entry->len = memoryDiff(entry->buf, entryEnd(entry->next)); 
+        unlinkEntry(entry->next);
+    }
+    if (entry->prev != &available && entryEnd(entry->prev) == entry) {
+        // merge left
+        entry->flags.magic = 0;
+        entry->prev->len = memoryDiff(entry->prev->buf, entryEnd(entry)); 
+        unlinkEntry(entry);
+    }
 }
 
 MemoryInfo & MemoryManager::info(void * ptr) {
@@ -85,7 +111,7 @@ MemoryInfo & MemoryManager::info(void * ptr) {
             return *info;
         }
     }
-    return *((MemoryInfo *)0);
+    return notAnInfo;
 }
 
 // debug
