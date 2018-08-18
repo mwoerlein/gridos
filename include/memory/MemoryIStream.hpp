@@ -4,12 +4,12 @@
 #include "memory/MemoryTypes.hpp"
 #include "sys/IStream.hpp"
 
-class MemoryIStream: public IStream {
+class MemoryIStream: public IStream, public Object {
     private:
     MemoryInfo &mem;
     size_t pos;
     public:
-    MemoryIStream(MemoryInfo &m):mem(m),pos(0) {}
+    MemoryIStream(Environment &env, MemoryInfo &m):Object(env),mem(m),pos(0) {}
     virtual ~MemoryIStream() {}
     
     virtual IStream &operator>>(char &c) {

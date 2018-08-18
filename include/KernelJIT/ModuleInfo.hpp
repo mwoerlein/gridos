@@ -13,7 +13,9 @@ class ModuleInfo: public Object {
     
     ModuleInfo(Environment & env, MemoryInfo & mi, char * cmd, ModuleInfo * next = 0):
         Object(env), memoryInfo(mi), cmd(cmd), next(next) {}
-    virtual ~ModuleInfo() {}
+    virtual ~ModuleInfo() {
+        env().destroy(memoryInfo);
+    }
 };
 
 #endif //MODULEINFO_HPP_LOCK

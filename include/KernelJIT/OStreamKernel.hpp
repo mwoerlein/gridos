@@ -6,7 +6,7 @@
 
 class OStreamKernel: public Kernel, public OStream{
     public:
-    ~OStreamKernel() {}
+    virtual ~OStreamKernel() {}
 };
 
 #endif //OSTREAMKERNEL_HPP_LOCK

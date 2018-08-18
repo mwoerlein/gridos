@@ -26,14 +26,20 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         }
     } while (ackblock > 0);
 
-    // TODO: "malloc" kernel output space
-    OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(env().getAllocator().memInfo((void *) 0));
+    // TODO: reserve correct size
+    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(0x1000);
     //*/
+    Mov & m  = env().create<Mov>();
+    Halt & h = env().create<Halt>();
+    Jump & j = env().create<Jump>();
     osk
-        << env().create<Mov>()
-        << env().create<Halt>()
-        << env().create<Jump>()
+        << m
+        << h
+        << j
     ;
+    env().destroy(m);
+    env().destroy(h);
+    env().destroy(j);
     
     /*/
     out<<"copying ";

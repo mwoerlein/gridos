@@ -31,9 +31,6 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     MemoryRegistry memoryRegistry(bsOut);
     bootInformation.registerMemory(memoryRegistry);
     
-    // TODO: "malloc" kernel output space later in JIT
-    memoryRegistry.registerUsedMemory((void*)0, 0x10000, (void*) this);
-
     Environment staticEnv(memoryRegistry, bsOut);
     
     // create "heap"-based environment and memory management
@@ -49,7 +46,7 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     bootInformation.registerModules(env);
     
     // TODO: free mbi after all required information is transfered to heap
-    // mm.free(mbi);
+    //mm.free(mbi);
 
     return env;
 }

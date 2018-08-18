@@ -8,7 +8,7 @@
 #include "memory/MemoryTypes.hpp"
 #include "KernelJIT/OStreamKernel.hpp"
 
-class I386OStreamKernel: public OStreamKernel {
+class I386OStreamKernel: public OStreamKernel, public Object {
     private:
     MemoryInfo &mem;
     size_t pos;
@@ -23,8 +23,10 @@ class I386OStreamKernel: public OStreamKernel {
     
     public:
     using OStream::operator<<;
-    I386OStreamKernel(MemoryInfo &m):mem(m),pos(0) {}
-    virtual ~I386OStreamKernel() {}
+    I386OStreamKernel(Environment &env, size_t size):Object(env),mem(env.getAllocator().allocate(size)),pos(0) {}
+    virtual ~I386OStreamKernel() {
+        env().destroy(mem);
+    }
     
     virtual OStream &operator<<(char c) {
         ((char*)mem.buf)[pos++] = c;

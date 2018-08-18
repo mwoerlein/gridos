@@ -27,6 +27,7 @@ class I386PIC {
         I386IO_Port(0xa1).outb(0x01);
         set(mask);
     }
+    virtual ~I386PIC() {}
     
     void activate(int nr) {
         mask &= ~(1<<nr);

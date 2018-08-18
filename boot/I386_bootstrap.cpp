@@ -23,10 +23,10 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     if (!&env) {
         return;
     }
+//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
     
     // compile kernel from modules
-    MemoryInfo & ktext = env.getModules()->memoryInfo;
-    MemoryIStream &in = env._create<MemoryIStream, MemoryInfo&>(ktext);
+    IStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
     env.getStdO()<<"Compiling ... with "<<&jit<<'\n';
@@ -34,14 +34,19 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     
     env.destroy(jit);
     env.destroy(in);
-    env.destroy(ktext);
     
-//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
-//    ma.dump();
-
+/*/
+    for (ModuleInfo * module = env.getModules(); module; module = module->next) {
+        env.destroy(*module);
+    }
+//*/
+//    ma.dump(true);
+    
     // run compiled kernel    
     env.getStdO()<<"Starting kernel ...\n";
     k.run();
+
+//    env.destroy(k);
 }
 
 }

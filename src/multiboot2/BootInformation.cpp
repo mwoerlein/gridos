@@ -94,6 +94,14 @@ void BootInformation::registerMemory(MemoryRegistry &reg) {
 void BootInformation::registerModules(Environment &env) {
     MemoryAllocator &ma = env.getAllocator();
     ModuleInfo * next = (ModuleInfo *) 0;
+/*
+    ModuleInfo * kernel = &env.create<ModuleInfo, MemoryInfo &, char *, ModuleInfo *>(
+        ma.memInfo((void *)address->load_addr),
+        commandline->string,
+        next
+    );
+    next = kernel;
+*/
     for (int i = modulesCount-1; i >= 0; i--) {
         next = &env.create<ModuleInfo, MemoryInfo &, char *, ModuleInfo *>(
             ma.memInfo((void*)modules[i]->mod_start),

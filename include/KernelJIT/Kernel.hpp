@@ -3,6 +3,7 @@
 
 class Kernel {
     public:
+    virtual ~Kernel() {}
     virtual void run() = 0;
 };
 

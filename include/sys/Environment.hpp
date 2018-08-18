@@ -1,12 +1,12 @@
 #ifndef ENVIRONMENT_HPP_LOCK
 #define ENVIRONMENT_HPP_LOCK
 
-#include "KernelJIT/ModuleInfo.hpp"
 #include "memory/MemoryAllocator.hpp"
 #include "sys/OStream.hpp"
 
 void* operator new (size_t size, void* location);
 
+class ModuleInfo;
 class Environment {
     private:
     MemoryAllocator & ma;
@@ -58,9 +58,12 @@ class Environment {
     }
     
     template <class C> void destroy(C &c) {
+        delete &c;
         ma.free(&c);
     }
 };
+
+#include "KernelJIT/ModuleInfo.hpp"
 
 #endif //ENVIRONMENT_HPP_LOCK
 

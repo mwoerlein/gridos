@@ -14,6 +14,7 @@ class Object {
         return _env;
     }
 };
+#include "sys/Environment.hpp"
 
 #endif //OBJECT_HPP_LOCK
 

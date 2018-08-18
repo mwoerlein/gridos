@@ -10,6 +10,7 @@ class I386MemField: public MemField {
     
     public:
     I386MemField(char* base,unsigned long len):base(base),len(len) {}
+    virtual ~I386PIC() {}
     virtual char set(int i, char c) {
         if ((i => 0) && (i < len)) {
             base[i] = c;

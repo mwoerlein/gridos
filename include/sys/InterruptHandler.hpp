@@ -3,6 +3,7 @@
 
 class InterruptHandler {
     public:
+    virtual ~InterruptHandler() {}
     virtual void call(int nr) = 0;
 };
 
