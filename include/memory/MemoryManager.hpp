@@ -8,8 +8,8 @@
 class MemoryManager: public MemoryAllocator {
     private:
     OStream &log;
-    MemoryListEntry available, reserved, used;
-    MemoryInfoArray * nonEmbeddedEntries;
+    MemoryInfo available, reserved, used;
+    MemoryInfoArray * nonEmbeddedInfos;
     friend void MemoryRegistry::transfer(MemoryManager &);
     
     public:
@@ -18,7 +18,7 @@ class MemoryManager: public MemoryAllocator {
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
     virtual void free(void * ptr) override;
-    virtual MemoryInfo & info(void * ptr) override;
+    virtual MemoryInfo & memInfo(void * ptr) override;
     
     // debug
     virtual void dump(bool all = false);

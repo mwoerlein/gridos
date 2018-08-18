@@ -4,13 +4,27 @@
 #include "memory/MemoryTypes.hpp"
 
 class MemoryAllocator {
+    protected:
+    
+    inline MemoryInfo * findInfo(MemoryInfo * list, void * buf) {
+        MemoryInfo * cur;
+        for (cur = list; cur->next != list && cur->next->buf <= buf; cur = cur->next);
+        return cur;
+    }
+    
+    inline MemoryInfo * findInfo(MemoryInfo * list, size_t required) {
+        MemoryInfo * cur;
+        for (cur = list; cur->next != list && cur->len < required; cur = cur->next);
+        return cur;
+    }
+        
     public:
     virtual ~MemoryAllocator() {}
     
-    // TODO: add alignment
+    // TODO: add alignment?
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) = 0;
     virtual void free(void * ptr) = 0;
-    virtual MemoryInfo & info(void * ptr) = 0;
+    virtual MemoryInfo & memInfo(void * ptr) = 0;
 };
 
 #endif //MEMORYALLOCATOR_HPP_LOCK

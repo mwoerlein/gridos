@@ -1,38 +1,41 @@
 #include "memory/MemoryRegistry.hpp"
 
+#include "memory/MemoryInfoHelper.hpp"
 #include "memory/MemoryManager.hpp"
 
 // public
-MemoryRegistry::MemoryRegistry(OStream &log):log(log),entriesCounter(0) {
-    initEmptyList(&available);
-    initEmptyList(&reserved);
-    initEmptyList(&used);
+MemoryRegistry::MemoryRegistry(OStream &log):log(log),infosCounter(0) {
+    initMemoryInfoList(&available);
+    initMemoryInfoList(&reserved);
+    initMemoryInfoList(&used);
 }
 
 void MemoryRegistry::registerAvailableMemory(void * mem, size_t len) {
     if (len == 0) {
         return;
     }
-    if (!isEmptyList(&reserved) || !isEmptyList(&used)) {
+    if (!isEmptyMemoryInfoList(&reserved) || !isEmptyMemoryInfoList(&used)) {
         log<<"Ignore available "<<(void *) mem<<':'<<(void*)len<<'\n';
         return;
     }
     
-    // insert/merge into available entries
-    if (isEmptyList(&available)) {
-        insertEntryAfter(&available, newEntry(mem, len));
+    // insert/merge into available infos
+    if (isEmptyMemoryInfoList(&available)) {
+        MemoryInfo * n = newInfo(mem, len);
+        appendMemoryInfo(&available, n);
     } else {
         void * memEnd = memoryEnd(mem, len);
-        MemoryListEntry * entry = findEntry(&available, mem);
-        if (entryEnd(entry) >= mem) {
-            entry->len = memoryDiff(entry->buf, memEnd);
+        MemoryInfo * info = findInfo(&available, mem);
+        if (memoryInfoEnd(info) >= mem) {
+            info->len = memoryDiff(info->buf, memEnd);
         } else {
-            insertEntryAfter(entry, newEntry(mem, len));
-            entry = entry->next;
+            MemoryInfo * n = newInfo(mem, len);
+            appendMemoryInfo(info, n);
+            info = info->next;
         }
-        while (entry->next != &available && entryEnd(entry) >= entry->next->buf) {
-            entry->len = memoryDiff(entry->buf, entryEnd(entry->next));
-            removeEntry(entry->next);
+        while (info->next != &available && memoryInfoEnd(info) >= info->next->buf) {
+            info->len = memoryDiff(info->buf, memoryInfoEnd(info->next));
+            removeInfo(info->next);
         }
     }
 }
@@ -45,21 +48,23 @@ void MemoryRegistry::registerReservedMemory(void * mem, size_t len) {
     // remove from available
     removeFromList(&available, mem, len);
     
-    // insert/merge into reserved entries
-    if (isEmptyList(&reserved)) {
-        insertEntryAfter(&reserved, newReservedEntry(mem, len));
+    // insert/merge into reserved infos
+    if (isEmptyMemoryInfoList(&reserved)) {
+        MemoryInfo * n = newReservedInfo(mem, len);
+        appendMemoryInfo(&reserved, n);
     } else {
         void * memEnd = memoryEnd(mem, len);
-        MemoryListEntry * entry = findEntry(&reserved, mem);
-        if (entryEnd(entry) >= mem) {
-            entry->len = memoryDiff(entry->buf, memEnd);
+        MemoryInfo * info = findInfo(&reserved, mem);
+        if (memoryInfoEnd(info) >= mem) {
+            info->len = memoryDiff(info->buf, memEnd);
         } else {
-            insertEntryAfter(entry, newReservedEntry(mem, len));
-            entry = entry->next;
+            MemoryInfo * n = newReservedInfo(mem, len);
+            appendMemoryInfo(info, n);
+            info = info->next;
         }
-        while (entry->next != &reserved && entryEnd(entry) >= entry->next->buf) {
-            entry->len = memoryDiff(entry->buf, entryEnd(entry->next));
-            removeEntry(entry->next);
+        while (info->next != &reserved && memoryInfoEnd(info) >= info->next->buf) {
+            info->len = memoryDiff(info->buf, memoryInfoEnd(info->next));
+            removeInfo(info->next);
         }
     }
 }
@@ -72,42 +77,35 @@ void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner) {
     // remove from available
     removeFromList(&available, mem, len);
     
-    // insert into used entries
-    if (isEmptyList(&used)) {
-        insertEntryAfter(&used, newUsedEntry(mem, len, owner));
+    // insert into used infos
+    MemoryInfo * n = newUsedInfo(mem, len, owner);
+    if (isEmptyMemoryInfoList(&used)) {
+        appendMemoryInfo(&used, n);
     } else {
-        MemoryListEntry * entry = findEntry(&used, mem);
-        insertEntryAfter(entry, newUsedEntry(mem, len, owner));
+        MemoryInfo * info = findInfo(&used, mem);
+        appendMemoryInfo(info, n);
     }
-}
-
-bool MemoryRegistry::isAvailable(void * mem, size_t len) {
-    if (isEmptyList(&available)) {
-        return false;
-    }
-    MemoryListEntry * entry = findEntry(&available, mem);
-    return (size_t) mem + len <= (size_t) entry->buf + entry->len;
 }
 
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
-    if (len < sizeof(MemoryListEntry) - sizeof(MemoryInfo)) {
-        len = sizeof(MemoryListEntry) - sizeof(MemoryInfo);
-    }
-    
     size_t required = len + sizeof(MemoryInfo);
-    MemoryListEntry * from = findEntry(&available, required);
-    if (from->len < required) {
+    
+    // find available memory
+    MemoryInfo * avail = findInfo(&available, required);
+    if (avail->len < required) {
         log<<"bad static allocate\n";
-        return *((MemoryInfo *) 0x0);
+        return *notAnInfo;
     }
     
-    MemoryInfo * ret = (MemoryInfo *) from->buf;
+    // create inline info
+    MemoryInfo * ret = (MemoryInfo *) avail->buf;
     ret->buf = memoryEnd(ret, sizeof(MemoryInfo));
     ret->len = len;
     ret->flags.magic = MEMORY_INFO_MAGIC;
     ret->flags.used = 1;
     ret->owner = owner;
     
+    // mark as used
     registerUsedMemory(ret, required, owner);
     
     return *ret;
@@ -118,17 +116,17 @@ void MemoryRegistry::free(void * ptr) {
     log<<"bad static free\n";
 }
 
-MemoryInfo & MemoryRegistry::info(void * ptr) {
-    MemoryListEntry * entry = findEntry(&used, ptr);
-    if (entryEnd(entry) <= ptr) {
-        return notAnInfo;
+MemoryInfo & MemoryRegistry::memInfo(void * ptr) {
+    MemoryInfo * info = findInfo(&used, ptr);
+    if (memoryInfoEnd(info) <= ptr) {
+        return *notAnInfo;
     }
-    return *((MemoryInfo *)entry);
+    return *info;
 }
 
 void MemoryRegistry::transfer(MemoryManager & memoryManager) {
-    // create buffer for non-embedded entries
-    int nonEmbeddedCount = countNonEmbeddedEntries(&reserved) + countNonEmbeddedEntries(&used);
+    // create buffer for non-embedded infos
+    int nonEmbeddedCount = countNonEmbeddedInfos(&reserved) + countNonEmbeddedInfos(&used);
     MemoryInfo & arrayInfo = allocate(sizeof(MemoryInfoArray) + nonEmbeddedCount*sizeof(MemoryInfo), (void*) &memoryManager);
     MemoryInfoArray * buffer = (MemoryInfoArray *) arrayInfo.buf;
     buffer->size = 0;
@@ -137,130 +135,119 @@ void MemoryRegistry::transfer(MemoryManager & memoryManager) {
     transferMemoryList(&reserved, &(memoryManager.reserved), buffer);
     transferMemoryList(&used, &(memoryManager.used), buffer);
     transferMemoryList(&available, &(memoryManager.available));
-    memoryManager.nonEmbeddedEntries = buffer;
+    memoryManager.nonEmbeddedInfos = buffer;
     
     // clear registry    
-    initEmptyList(&available);
-    initEmptyList(&reserved);
-    initEmptyList(&used);
-    entriesCounter = 0;
+    initMemoryInfoList(&available);
+    initMemoryInfoList(&reserved);
+    initMemoryInfoList(&used);
+    infosCounter = 0;
 }
 
 
 // private
 
-MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, size_t required) {
-    MemoryListEntry * cur;
-    for (cur = list; cur->next != list && cur->len < required; cur = cur->next);
-    return cur;
+void MemoryRegistry::removeInfo(MemoryInfo * info) {
+    unlinkMemoryInfo(info);
+    info->next = info->prev = info;
+    info->owner = (void *) 0;
+    info->flags.magic = info->flags.reserved = info->flags.used = 0;
 }
 
-MemoryListEntry * MemoryRegistry::findEntry(MemoryListEntry * list, void * buf) {
-    MemoryListEntry * cur;
-    for (cur = list; cur->next != list && cur->next->buf <= buf; cur = cur->next);
-    return cur;
-}
-
-void MemoryRegistry::removeEntry(MemoryListEntry * entry) {
-    unlinkEntry(entry);
-    entry->next = entry->prev = entry;
-    entry->owner = (void *) 0;
-    entry->flags.magic = entry->flags.reserved = entry->flags.used = 0;
-}
-
-void MemoryRegistry::removeFromList(MemoryListEntry * list, void * mem, size_t len) {
-    if (isEmptyList(list)) {
+void MemoryRegistry::removeFromList(MemoryInfo * list, void * mem, size_t len) {
+    if (isEmptyMemoryInfoList(list)) {
         return;
     }
     void * memEnd = memoryEnd(mem, len);
-    MemoryListEntry * firstEntry = findEntry(list, mem);
-    MemoryListEntry * lastEntry = findEntry(list, memEnd);
-    if (firstEntry == lastEntry) {
-        if (firstEntry == list) {
+    MemoryInfo * firstInfo = findInfo(list, mem);
+    MemoryInfo * lastInfo = findInfo(list, memEnd);
+    if (firstInfo == lastInfo) {
+        if (firstInfo == list) {
             // area fully before whole list
             return;
         }
-        void * firstEntryEnd = entryEnd(firstEntry);
-        if (firstEntryEnd < mem) {
-            // area fully after firstEntry
+        void * firstInfoEnd = memoryInfoEnd(firstInfo);
+        if (firstInfoEnd < mem) {
+            // area fully after firstInfo
             return;
         }
-        if (firstEntry->buf == mem && firstEntry->len <= len) {
-            // area fully covers firstEntry
-            removeEntry(firstEntry);
+        if (firstInfo->buf == mem && firstInfo->len <= len) {
+            // area fully covers firstInfo
+            removeInfo(firstInfo);
             return;
         }
-        if (firstEntry->buf == mem) {
-            // area is begin of firstEntry
-            firstEntry->buf = memEnd;
-            firstEntry->len = memoryDiff(memEnd, firstEntryEnd);
+        if (firstInfo->buf == mem) {
+            // area is begin of firstInfo
+            firstInfo->buf = memEnd;
+            firstInfo->len = memoryDiff(memEnd, firstInfoEnd);
             return;
         }
-        if (firstEntryEnd <= memEnd) {
-            // area is end of firstEntry
-            firstEntry->len = memoryDiff(firstEntry->buf, mem);
+        if (firstInfoEnd <= memEnd) {
+            // area is end of firstInfo
+            firstInfo->len = memoryDiff(firstInfo->buf, mem);
             return;
         }
-        // area is inside of firstEntry
-        firstEntry->len = memoryDiff(firstEntry->buf, mem);
-        insertEntryAfter(firstEntry, newEntry(memEnd, memoryDiff(memEnd, firstEntryEnd)));
+        // area is inside of firstInfo
+        firstInfo->len = memoryDiff(firstInfo->buf, mem);
+        MemoryInfo * n = newInfo(memEnd, memoryDiff(memEnd, firstInfoEnd));
+        appendMemoryInfo(firstInfo, n);
     } else {
-        // area covers multiple entries
+        // area covers multiple infos
 
-        // remove fully covered entries    
-        while(firstEntry->next != lastEntry) {
-            removeEntry(firstEntry->next);
+        // remove fully covered infos    
+        while(firstInfo->next != lastInfo) {
+            removeInfo(firstInfo->next);
         }
         
-        if (firstEntry != list) {
-            void * firstEntryEnd = entryEnd(firstEntry);
-            if (firstEntryEnd < mem) {
-                // area fully after firstEntry
-            } else if (firstEntry->buf == mem) {
-                // area fully covers firstEntry
-                removeEntry(firstEntry);
+        if (firstInfo != list) {
+            void * firstInfoEnd = memoryInfoEnd(firstInfo);
+            if (firstInfoEnd < mem) {
+                // area fully after firstInfo
+            } else if (firstInfo->buf == mem) {
+                // area fully covers firstInfo
+                removeInfo(firstInfo);
             } else {
-                // area is end of first Entry
-                firstEntry->len = memoryDiff(firstEntry->buf, mem);
+                // area is end of first Info
+                firstInfo->len = memoryDiff(firstInfo->buf, mem);
             }
         }
         
-        void * lastEntryEnd = entryEnd(lastEntry);
-        if (lastEntryEnd == memEnd) {
-            // area fully covers lastEntry
-            removeEntry(lastEntry);
+        void * lastInfoEnd = memoryInfoEnd(lastInfo);
+        if (lastInfoEnd == memEnd) {
+            // area fully covers lastInfo
+            removeInfo(lastInfo);
         } else {
-            // area is begin of lastEntry
-            lastEntry->buf = memEnd;
-            lastEntry->len = memoryDiff(memEnd, lastEntryEnd);
+            // area is begin of lastInfo
+            lastInfo->buf = memEnd;
+            lastInfo->len = memoryDiff(memEnd, lastInfoEnd);
         }
     }
 }
 
-MemoryListEntry * MemoryRegistry::newEntry(void * mem, size_t len) {
-    MemoryListEntry *entry = &entries[entriesCounter++];
-    entry->buf = mem;
-    entry->len = len;
-    entry->flags.magic = MEMORY_INFO_MAGIC;
-    return entry;
+MemoryInfo * MemoryRegistry::newInfo(void * mem, size_t len) {
+    MemoryInfo *info = &infos[infosCounter++];
+    info->buf = mem;
+    info->len = len;
+    info->flags.magic = MEMORY_INFO_MAGIC;
+    return info;
 }
 
-MemoryListEntry * MemoryRegistry::newReservedEntry(void * mem, size_t len) {
-    MemoryListEntry *entry = newEntry(mem, len);
-    entry->flags.reserved = 1;
-    return entry;
+MemoryInfo * MemoryRegistry::newReservedInfo(void * mem, size_t len) {
+    MemoryInfo *info = newInfo(mem, len);
+    info->flags.reserved = 1;
+    return info;
 }
 
-MemoryListEntry * MemoryRegistry::newUsedEntry(void * mem, size_t len, void * owner) {
-    MemoryListEntry *entry = newEntry(mem, len);
-    entry->flags.used = 1;
-    entry->owner = owner;
-    return entry;
+MemoryInfo * MemoryRegistry::newUsedInfo(void * mem, size_t len, void * owner) {
+    MemoryInfo *info = newInfo(mem, len);
+    info->flags.used = 1;
+    info->owner = owner;
+    return info;
 }
 
-int MemoryRegistry::countNonEmbeddedEntries(MemoryListEntry * list) {
+int MemoryRegistry::countNonEmbeddedInfos(MemoryInfo * list) {
     int count = 0;
-    for (MemoryListEntry * cur = list->next; cur != list; cur = cur->next) {
+    for (MemoryInfo * cur = list->next; cur != list; cur = cur->next) {
         if (!isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf)) {
             count++;
         }
@@ -268,43 +255,43 @@ int MemoryRegistry::countNonEmbeddedEntries(MemoryListEntry * list) {
     return count;
 }
 
-void MemoryRegistry::transferMemoryList(MemoryListEntry * srcList, MemoryListEntry * destList, MemoryInfoArray * buffer) {
-    for (MemoryListEntry * cur = srcList->next; cur != srcList; cur = cur->next) {
-        MemoryListEntry * entry = (MemoryListEntry *) cur->buf;
+void MemoryRegistry::transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer) {
+    for (MemoryInfo * cur = srcList->next; cur != srcList; cur = cur->next) {
+        MemoryInfo * info = (MemoryInfo *) cur->buf;
         if (!buffer || !isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf)) {
             if (buffer) {
-                // initialize entry from buffer (reserved, used)
-                entry = (MemoryListEntry *) &buffer->elements[buffer->size++];
-            } // else initialize entry inline (available)
-            entry->buf = cur->buf;
-            entry->len = cur->len;
-            entry->flags = cur->flags;
-            entry->owner = cur->owner;
-        } // else use pre-initialized entry as-is (used by allocate)
-        insertEntryAfter(destList->prev, entry);
+                // initialize info from buffer (reserved, used)
+                info = (MemoryInfo *) &buffer->elements[buffer->size++];
+            } // else initialize info inline (available)
+            info->buf = cur->buf;
+            info->len = cur->len;
+            info->flags = cur->flags;
+            info->owner = cur->owner;
+        } // else use pre-initialized info as-is (used by allocate)
+        appendMemoryInfo(destList->prev, info);
     }
 }
 
 // debug
 void MemoryRegistry::dump(bool all) {
-    log<<"Dump registry "<<(void *) this<<" (next #"<<entriesCounter<<")\n";
+    log<<"Dump registry "<<(void *) this<<" (next #"<<infosCounter<<")\n";
     
-    MemoryListEntry *e;
+    MemoryInfo *e;
     for (e = available.next; e != &available; e = e->next) {
         log<<"Available "
            <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-           <<" (#"<<(e-entries)<<")\n";
+           <<" (#"<<(e-infos)<<")\n";
     }
     if (all) {
         for (e = reserved.next; e != &reserved; e = e->next) {
             log<<"Reserved "
                <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-               <<" (#"<<(e-entries)<<")\n";
+               <<" (#"<<(e-infos)<<")\n";
         }
         for (e = used.next; e != &used; e = e->next) {
             log<<"Used "
                <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'
-               <<" (#"<<(e-entries)<<") by "<< e->owner <<'\n';
+               <<" (#"<<(e-infos)<<") by "<< e->owner <<'\n';
         }
     }
 }

@@ -27,7 +27,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     } while (ackblock > 0);
 
     // TODO: "malloc" kernel output space
-    OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(env().getAllocator().info((void *) 0));
+    OStreamKernel &osk = env()._create<I386OStreamKernel, MemoryInfo&>(env().getAllocator().memInfo((void *) 0));
     //*/
     osk
         << env().create<Mov>()
