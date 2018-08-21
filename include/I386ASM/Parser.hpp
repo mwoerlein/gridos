@@ -18,8 +18,8 @@ class Parser: public Object {
     bool fillBuffer(size_t need, IStream & input);
     
     public:
-    Parser(Environment &env):Object(env) {}
-    virtual ~Parser() {}
+    Parser(Environment &env);
+    virtual ~Parser();
     
     virtual ASMInstructionList & parse(IStream & input);
 };
