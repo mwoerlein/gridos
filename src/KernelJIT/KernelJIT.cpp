@@ -5,6 +5,8 @@
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386OStreamKernel.hpp"
 
+#include "I386ASM/Parser.hpp"
+#include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/Halt.hpp"
 #include "I386ASM/Jump.hpp"
 #include "I386ASM/Mov.hpp"
@@ -25,6 +27,9 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
             default: out<<c;
         }
     } while (ackblock > 0);
+    
+    Parser &parser = env().create<Parser>();
+    ASMInstructionList &list = parser.parse(in);
 
     // TODO: reserve correct size
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(0x1000);
@@ -50,6 +55,10 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     }
     out<<x<<" bytes"<<'\n';
     //*/
+    
+    env().destroy(list);
+    env().destroy(parser);
+    
     out<<"ready!"<<'\n';
 
     return osk;
