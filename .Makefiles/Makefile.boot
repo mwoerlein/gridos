@@ -4,20 +4,15 @@ LDHEAD =# $(shell g++ --print-file-name=crti.o && g++ --print-file-name=crtbegin
 LDTAIL =# $(shell g++ --print-file-name=crtend.o && g++ --print-file-name=crtn.o)
 
 $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block: $(BOOTDIR)/Kernel-TEXT.bin $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin
-	echo "#define BOOTDEVICE       0" > $@ #FD0 =0 FD1=1 ... HD0=128 HD1=129 ...
 	echo "#define DISK_HEADS       2" >> $@
 	echo "#define DISK_TRACKS      80" >> $@
 	echo "#define DISK_SECTORS     36" >> $@
-	echo "#define STACK_SIZE       0x3000" >> $@
-	echo "#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x4000" >> $@
 	echo "" >> $@
-	echo "#define LOADMESSAGE      \"Loading \"" >> $@
+	echo "#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x4000" >> $@
 	echo "" >> $@
 	echo "#define JIT_BLOCKS       `dd if=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin of=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`" >> $@
 	echo "#define JIT_SIZE         (JIT_BLOCKS << 9)" >> $@
-	echo "#define JIT_HEAD         0" >> $@
-	echo "#define JIT_TRACK        0" >> $@
-	echo "#define JIT_SECTOR       (GRIDOS_LOADER_SECTORS + 1)" >> $@
+	echo "#define JIT_LBA          (GRIDOS_LOADER_SECTORS)" >> $@
 	echo "#define JIT_SEGMENT      0x6000" >> $@
 	echo "#define JIT_OFFSET       0x0000" >> $@
 	echo "#define BSS_SEGMENT      (JIT_SEGMENT+((JIT_BLOCKS >> 3) << 8) + 0x200)" >> $@
@@ -25,11 +20,8 @@ $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block 
 	echo "" >> $@
 	echo "#define TEXT_BLOCKS      `dd if=$(BOOTDIR)/Kernel-TEXT.bin of=$(BOOTDIR)/Kernel-TEXT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`">> $@
 	echo "#define TEXT_SIZE        (TEXT_BLOCKS << 9)" >> $@
-	echo "#define TEXT_HEAD        (((JIT_SECTOR+JIT_BLOCKS-1)/DISK_SECTORS)%DISK_HEADS)" >> $@
-	echo "#define TEXT_TRACK       ((((JIT_SECTOR+JIT_BLOCKS-1)/DISK_SECTORS)/DISK_HEADS)%DISK_TRACKS)" >> $@
-	echo "#define TEXT_SECTOR      ((JIT_SECTOR+JIT_BLOCKS-1)%DISK_SECTORS)+1" >> $@
+	echo "#define TEXT_LBA         (JIT_LBA+JIT_BLOCKS)" >> $@
 	echo "#define TEXT_SEGMENT     (BSS_SEGMENT + (BSS_SIZE >> 4))" >> $@
-#	echo "#define TEXT_SEGMENT     0x7000" >> $@
 	echo "#define TEXT_OFFSET      0x0000" >> $@
 	echo "#define TEXT_ADDR        ((TEXT_SEGMENT << 4) + TEXT_OFFSET)" >> $@
 	echo "" >> $@

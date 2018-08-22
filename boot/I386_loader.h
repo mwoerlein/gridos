@@ -20,7 +20,7 @@
 #define GRIDOS_BIOS_BOOTSECTOR_SEG 0x07C0
 
 /* The loader segment */
-#define GRIDOS_LOADER_SEG 0x8000
+#define GRIDOS_LOADER_SEG 0x2000
 
 /* The loader address */
 #define GRIDOS_LOADER_ADDR (GRIDOS_LOADER_SEG << 4)
