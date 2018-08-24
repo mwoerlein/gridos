@@ -54,11 +54,15 @@ ASMInstructionList & Parser::parse(IStream & input) {
     // reset parsing buffer
     token = current = marker = ctxmarker = limit = buffer + SIZE;
     
+    char *o1, *o2, *o3, *o4, *o5, *o6, *o7, *o8;
+    
     log << "parse input\n";
     
     for (;;) {
         token = current;
+/*!stags:re2c format = 'char *@@;'; */
 /*!re2c
+        re2c:flags:T = 1;
         re2c:define:YYCTYPE = char;
         re2c:define:YYCURSOR = current;
         re2c:define:YYMARKER = marker;
@@ -69,12 +73,12 @@ ASMInstructionList & Parser::parse(IStream & input) {
         
         end     = "\x00";
         eol     = "\n";
-        wsp     = [ \t]*;
+        wsp     = [ \t\n]*;
 
-        bin     = "0"[bB][01]+;
-        oct     = "0"[0-7]+;
-        dec     = "0" | [1-9][0-9]*; 
-        hex     = "0"[xX][0-9a-fA-F]+;
+        bin     = "-"? "0"[bB][01]+;
+        oct     = "-"? "0"[0-7]+;
+        dec     = "0" | "-"? [1-9][0-9]*; 
+        hex     = "-"? "0"[xX][0-9a-fA-F]+;
         number  = bin | oct | dec | hex;
 
         mov     = [mM][oO][vV][bBwWlL]?;
@@ -85,29 +89,84 @@ ASMInstructionList & Parser::parse(IStream & input) {
         jmp     = [jJ][mM][pP];
         reg     = "%" ( [eE]?[aAbBcCdD][xX] | [eE]?[dDsS][iI] | [eE]?[bBiIsS][pP] | [aAbBcCdD][hHlL] | [cCdDeEsS][sS]);
         
-        id      = [a-zA-Z0-9_]+;
+        id          = [a-zA-Z0-9_]+;
+        comma       = ",";
+        semicolon   = ";";
+        colon       = ":";
+        assign      = ":=";
         
-        inst0   = hlt;
-        inst1   = jmp | mul;
-        inst2   = mov | add | sub | mul;
-        inst3   = mul;
-        arg     = reg | id | number | (number wsp)? "(" wsp reg ( wsp "," wsp reg ( wsp "," wsp [1,2,4,8] )? )? wsp ")";
+        inst        = hlt | jmp | mov | add | sub | mul;
+        arg         = reg | id | number | ((number | id) wsp)? "(" wsp reg ( wsp comma wsp reg ( wsp comma wsp [1,2,4,8] )? )? wsp ")";
+        semi_end    = wsp semicolon | wsp eol ;
 
         end       { break; }
-        wsp | eol { continue; }
+        wsp       { continue; }
+        ( "//" | "#" ) @o1 [^\n]* @o2 eol {
+                    log << "linec: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue;
+                  }
+        "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" {
+                    log << "mlcom: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue;
+                  }
 
-        id ":"    { log << "label: "; for (char * cur = token; cur < current - 1; cur++) { log << *cur; }; log << '\n'; continue; }
-        inst0 {
-                    log << "inst0: "; for (char * cur = token; cur < current; cur++) { log << *cur; }; log << '\n'; continue;
+        @o1 id @o2 wsp colon {
+                    log << "label: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue; }
+        @o1 id @o2 wsp assign wsp @o3 number @o4 semi_end {
+                    log << "defin: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n'; continue;
                   }
-        inst1 wsp arg {
-                    log << "inst1: "; for (char * cur = token; cur < current; cur++) { log << *cur; }; log << '\n'; continue;
+        @o1 id @o2 wsp assign wsp @o3 number @o4 wsp / ( "//" | "#" | "/*" ) {
+                    log << "defin: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n'; continue;
                   }
-        inst2 wsp arg wsp "," wsp arg {
-                    log << "inst2: "; for (char * cur = token; cur < current; cur++) { log << *cur; }; log << '\n'; continue;
+        @o1 inst @o2 semi_end {
+                    log << "inst0: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
                   }
-        inst3 wsp arg wsp "," wsp arg wsp "," wsp arg {
-                    log << "inst3: "; for (char * cur = token; cur < current; cur++) { log << *cur; }; log << '\n'; continue;
+        @o1 inst @o2 wsp / ( "//" | "#" | "/*" ) {
+                    log << "inst0: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 semi_end {
+                    log << "inst1: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 wsp / ( "//" | "#" | "/*" ) {
+                    log << "inst1: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 semi_end {
+                    log << "inst2: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 wsp / ( "//" | "#" | "/*" ) {
+                    log << "inst2: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 wsp comma wsp @o7 arg @o8 semi_end {
+                    log << "inst3: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
+                  }
+        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 wsp comma wsp @o7 arg @o8 wsp / ( "//" | "#" | "/*" ) {
+                    log << "inst3: ";
+                    for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
+                    for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
+                    log << '\n'; continue;
                   }
         *         { log << "error: " << *token << '\n'; break; }
 */
