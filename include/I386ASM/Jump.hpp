@@ -10,7 +10,7 @@ class Jump: public ASMInstruction {
     Jump(Environment &env):ASMInstruction(env) {}
     virtual ~Jump() {}
     
-    virtual int getSizeInByte();
+    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
 };
 

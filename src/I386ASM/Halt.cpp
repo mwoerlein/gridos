@@ -1,7 +1,7 @@
 #include "I386ASM/Halt.hpp"
 
 // public
-int Halt::getSizeInByte() {
+size_t Halt::getSizeInBytes() {
     return 1;
 }
 

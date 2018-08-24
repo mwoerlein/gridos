@@ -1,7 +1,7 @@
 #include "I386ASM/Mov.hpp"
 
 // public
-int Mov::getSizeInByte() {
+size_t Mov::getSizeInBytes() {
     return 20;
 }
 

@@ -12,7 +12,7 @@ class ASMInstruction: public Object {
     ASMInstruction(Environment &env):Object(env) {}
     virtual ~ASMInstruction() {}
     
-    virtual int getSizeInByte() = 0;
+    virtual size_t getSizeInBytes() = 0;
     virtual void writeToStream(OStream &stream) = 0;
     
     friend OStream & operator<< (OStream & out, ASMInstruction &instruction);

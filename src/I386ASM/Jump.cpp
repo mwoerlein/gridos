@@ -1,7 +1,7 @@
 #include "I386ASM/Jump.hpp"
 
 // public
-int Jump::getSizeInByte() {
+size_t Jump::getSizeInBytes() {
     return 2;
 }
 

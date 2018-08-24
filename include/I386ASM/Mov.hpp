@@ -10,7 +10,7 @@ class Mov: public ASMInstruction {
     Mov(Environment &env):ASMInstruction(env) {}
     virtual ~Mov() {}
     
-    virtual int getSizeInByte();
+    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
 };
 

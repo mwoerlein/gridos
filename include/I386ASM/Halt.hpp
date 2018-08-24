@@ -10,7 +10,7 @@ class Halt: public ASMInstruction {
     Halt(Environment &env):ASMInstruction(env) {}
     virtual ~Halt() {}
     
-    virtual int getSizeInByte();
+    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
 };
 
