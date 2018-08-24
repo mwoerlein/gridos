@@ -7,9 +7,6 @@
 
 #include "I386ASM/Parser.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
-#include "I386ASM/Halt.hpp"
-#include "I386ASM/Jump.hpp"
-#include "I386ASM/Mov.hpp"
 
 Kernel &KernelJIT::kernel_compile(IStream & in) {
     int x = 0;
@@ -34,22 +31,13 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, line);
     
-    // TODO: reserve correct size
-    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(0x1000);
-    //*/
-    Mov & m  = env().create<Mov>();
-    Halt & h = env().create<Halt>();
-    Jump & j = env().create<Jump>();
-    osk
-        << m
-        << h
-        << j
-    ;
-    env().destroy(m);
-    env().destroy(h);
-    env().destroy(j);
+    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
+    list.writeToStream(osk);
+    env().destroy(list);
+    env().destroy(parser);
     
-    /*/
+    // TODO: parse meta information of TEXT block and switch between copy and compile
+    /*
     out<<"copying ";
     while (!in.empty()) {
         in>>c;
@@ -57,10 +45,8 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         x++;
     }
     out<<x<<" bytes"<<'\n';
-    //*/
+    */
     
-    env().destroy(list);
-    env().destroy(parser);
     
     out<<"ready!"<<'\n';
 
