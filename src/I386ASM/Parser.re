@@ -3,17 +3,19 @@
 /*!max:re2c*/
 #define SIZE 500
 
-Parser::Parser(Environment &env, int line, int column):
+Parser::Parser(Environment &env):
     Object(env),
     buffer((char*) env.getAllocator().allocate(SIZE + YYMAXFILL).buf),
-    linesBuffer((int*) env.getAllocator().allocate(SIZE * sizeof(int) + YYMAXFILL).buf),
-    columnsBuffer((int*) env.getAllocator().allocate(SIZE * sizeof(int) + YYMAXFILL).buf),
-    currentLine(line),
-    currentColumn(column) {
+    linesBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),
+    columnsBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),
+    currentLine(1),
+    currentColumn(1) {
 }
 
-Parser:: ~Parser() {
+Parser::~Parser() {
     env().getAllocator().free(buffer);
+    env().getAllocator().free(linesBuffer);
+    env().getAllocator().free(columnsBuffer);
 }
 
 bool Parser::freeBuffer(size_t need) {
@@ -64,12 +66,14 @@ bool Parser::fillBuffer(size_t need, IStream & input)
 };
 
 // public
-ASMInstructionList & Parser::parse(IStream & input) {
+ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
     OStream & log = env().getStdO();
     ASMInstructionList & list = env().create<ASMInstructionList>();
     
     // reset parsing buffer
     token = current = marker = ctxmarker = limit = buffer + SIZE;
+    currentLine = line;
+    currentColumn = column;
     
     char *o1, *o2, *o3, *o4, *o5, *o6, *o7, *o8;
     

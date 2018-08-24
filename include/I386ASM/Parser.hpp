@@ -23,10 +23,10 @@ class Parser: public Object {
     bool fillBuffer(size_t need, IStream & input);
     
     public:
-    Parser(Environment &env, int line = 1, int column = 1);
+    Parser(Environment &env);
     virtual ~Parser();
     
-    virtual ASMInstructionList & parse(IStream & input);
+    virtual ASMInstructionList & parse(IStream & input, int line = 1, int column = 1);
 };
 
 #endif //I386ASMPARSER_HPP_LOCK

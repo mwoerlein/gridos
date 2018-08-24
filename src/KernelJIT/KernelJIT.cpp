@@ -31,9 +31,9 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         }
     } while (ackblock > 0);
     
-    Parser &parser = env().create<Parser, int>(line);
-    ASMInstructionList &list = parser.parse(in);
-
+    Parser &parser = env().create<Parser>();
+    ASMInstructionList &list = parser.parse(in, line);
+    
     // TODO: reserve correct size
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(0x1000);
     //*/
