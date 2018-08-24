@@ -14,11 +14,16 @@ class Parser: public Object {
     char *marker;
     char *ctxmarker;
     
+    int *linesBuffer;
+    int *columnsBuffer;
+    int currentLine;
+    int currentColumn;
+    
     bool freeBuffer(size_t need);
     bool fillBuffer(size_t need, IStream & input);
     
     public:
-    Parser(Environment &env);
+    Parser(Environment &env, int line = 1, int column = 1);
     virtual ~Parser();
     
     virtual ASMInstructionList & parse(IStream & input);

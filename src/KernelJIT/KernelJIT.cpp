@@ -15,7 +15,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     int x = 0;
     char c = 255;
     int ackblock = 0;
-    
+    int line = 1;
     OStream &out = env().getStdO();
     if (!in.empty()) do {
         in>>c;
@@ -23,12 +23,15 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
             case '>': ackblock += 2;
             case '<': ackblock--;
                 while(c!='\n') in>>c; //Rest der Zeile ueberlesen
+                line++;
                 break;
+            case '\n':
+                line++;
             default: out<<c;
         }
     } while (ackblock > 0);
     
-    Parser &parser = env().create<Parser>();
+    Parser &parser = env().create<Parser, int>(line);
     ASMInstructionList &list = parser.parse(in);
 
     // TODO: reserve correct size

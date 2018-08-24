@@ -3,9 +3,13 @@
 /*!max:re2c*/
 #define SIZE 500
 
-Parser::Parser(Environment &env):
+Parser::Parser(Environment &env, int line, int column):
     Object(env),
-    buffer((char*) env.getAllocator().allocate(SIZE + YYMAXFILL).buf) {
+    buffer((char*) env.getAllocator().allocate(SIZE + YYMAXFILL).buf),
+    linesBuffer((int*) env.getAllocator().allocate(SIZE * sizeof(int) + YYMAXFILL).buf),
+    columnsBuffer((int*) env.getAllocator().allocate(SIZE * sizeof(int) + YYMAXFILL).buf),
+    currentLine(line),
+    currentColumn(column) {
 }
 
 Parser:: ~Parser() {
@@ -14,11 +18,14 @@ Parser:: ~Parser() {
 
 bool Parser::freeBuffer(size_t need) {
     const size_t free = token - buffer;
+    const size_t filled = limit - token;
     if (free < need) {
         return false;
     }
-    for (char *src = token, *dest = buffer; src < limit; src++, dest++) {
-        *dest = *src;
+    for (int i = 0; i < filled; i++) {
+        buffer[i] = buffer[i + free];
+        linesBuffer[i] = linesBuffer[i + free];
+        columnsBuffer[i] = columnsBuffer[i + free];
     }
     limit -= free;
     current -= free;
@@ -33,13 +40,23 @@ bool Parser::fillBuffer(size_t need, IStream & input)
     if (input.empty() || !freeBuffer(need)) {
         return false;
     }
+    char current;
     while (!input.empty() && (limit < buffer + SIZE)) {
-        input >> *limit++;
+        input >> current;
+        linesBuffer[limit - buffer] = currentLine;
+        columnsBuffer[limit - buffer] = currentColumn++;
+        *limit++ = current;
+        if (current == '\n') {
+            currentLine++;
+            currentColumn = 1;
+        }
     }
     if (limit < buffer + SIZE) {
         // clear lookahead after end of stream
         char * maxfill = limit + YYMAXFILL;
         while (limit < maxfill) {
+            linesBuffer[limit - buffer] = 0;
+            columnsBuffer[limit - buffer] = 0;
             *limit++ = (char) 0;
         }
     }
@@ -140,7 +157,7 @@ ASMInstructionList & Parser::parse(IStream & input) {
                     for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
                     log << '\n'; continue;
                   }
-        *         { log << "error: " << *token << '\n'; break; }
+        *         { log << "error: " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n'; break; }
 */
     }
     
