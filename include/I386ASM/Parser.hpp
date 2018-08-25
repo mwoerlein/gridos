@@ -1,9 +1,9 @@
 #ifndef I386ASMPARSER_HPP_LOCK
 #define I386ASMPARSER_HPP_LOCK
 
+#include "sys/Object.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 #include "sys/IStream.hpp"
-#include "sys/Object.hpp"
 
 class Parser: virtual public Object {
     private:

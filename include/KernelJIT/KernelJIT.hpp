@@ -1,10 +1,9 @@
 #ifndef KERNELJIT_HPP_LOCK
 #define KERNELJIT_HPP_LOCK
 
-#include "KernelJIT/Kernel.hpp"
-#include "sys/Environment.hpp"
-#include "sys/IStream.hpp"
 #include "sys/Object.hpp"
+#include "KernelJIT/Kernel.hpp"
+#include "sys/IStream.hpp"
 
 class KernelJIT: virtual public Object {
     public:

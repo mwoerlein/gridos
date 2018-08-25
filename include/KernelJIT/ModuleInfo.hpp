@@ -1,7 +1,6 @@
 #ifndef MODULEINFO_HPP_LOCK
 #define MODULEINFO_HPP_LOCK
 
-#include "memory/MemoryTypes.hpp"
 #include "sys/Object.hpp"
 
 class ModuleInfo: virtual public Object {

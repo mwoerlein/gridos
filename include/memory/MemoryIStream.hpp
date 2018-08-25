@@ -1,11 +1,9 @@
 #ifndef MEMORYISTREAM_HPP_LOCK
 #define MEMORYISTREAM_HPP_LOCK
 
-#include "memory/MemoryTypes.hpp"
-#include "sys/Object.hpp"
 #include "sys/IStream.hpp"
 
-class MemoryIStream: public IStream, virtual public Object {
+class MemoryIStream: public IStream {
     private:
     size_t pos;
     

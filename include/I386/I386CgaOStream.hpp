@@ -8,15 +8,14 @@ class I386CgaOStream: public OStream {
     enum { index_port = 0x3d4, data_port = 0x3d5, cga_ram = 0xB8000 };
     enum { maxx = 80, maxy = 25 };
     char* screen;
-    int pos, base;
+    int pos;
     
     public:
     using OStream::operator<<;
-    I386CgaOStream(char* scr = (char*) cga_ram, int x = 0, int y = 0);
+    I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr = (char*) cga_ram);
     virtual ~I386CgaOStream();
     virtual OStream &operator<<(char c) override;
     virtual void clear() override;
-    virtual void sync();
 };
 
 #endif //I386CGAOSTREAM_HPP_LOCK

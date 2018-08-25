@@ -1,8 +1,8 @@
 #ifndef MEMORYREGISTRY_HPP_LOCK
 #define MEMORYREGISTRY_HPP_LOCK
 
+#include "sys/Object.hpp"
 #include "memory/MemoryAllocator.hpp"
-#include "sys/OStream.hpp"
 
 class MemoryManager;
 
@@ -11,7 +11,6 @@ class MemoryRegistry: public MemoryAllocator {
     MemoryInfo infos[100];
     int infosCounter;
     MemoryInfo available, reserved, used;
-    OStream &log;
     
     void removeFromList(MemoryInfo * list, void * mem, size_t len);
     void removeInfo(MemoryInfo * info);
@@ -24,7 +23,7 @@ class MemoryRegistry: public MemoryAllocator {
     void transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer = (MemoryInfoArray *) 0);
     
     public:
-    MemoryRegistry(OStream &log);
+    MemoryRegistry(Environment &env, MemoryInfo &mi);
     virtual ~MemoryRegistry() {}
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;

@@ -1,7 +1,9 @@
 #ifndef OSTREAM_HPP_LOCK
 #define OSTREAM_HPP_LOCK
 
-class OStream {
+#include "sys/Object.hpp"
+
+class OStream: virtual public Object {
     protected:
     OStream &printint(int d, int base = 10, int pad = 0);
     OStream &printuint(unsigned int d, int base = 10, int pad = 0);

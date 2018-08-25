@@ -1,19 +1,18 @@
 #ifndef MEMORYMANAGER_HPP_LOCK
 #define MEMORYMANAGER_HPP_LOCK
 
+#include "sys/Object.hpp"
 #include "memory/MemoryAllocator.hpp"
 #include "memory/MemoryRegistry.hpp"
-#include "sys/OStream.hpp"
 
 class MemoryManager: public MemoryAllocator {
     private:
-    OStream &log;
     MemoryInfo available, reserved, used;
     MemoryInfoArray * nonEmbeddedInfos;
     friend void MemoryRegistry::transfer(MemoryManager &);
     
     public:
-    MemoryManager(OStream &log);
+    MemoryManager(Environment &env, MemoryInfo &mi);
     virtual ~MemoryManager() {}
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;

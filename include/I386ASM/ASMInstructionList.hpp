@@ -1,8 +1,8 @@
 #ifndef I386ASMINSTRUCTIONLIST_HPP_LOCK
 #define I386ASMINSTRUCTIONLIST_HPP_LOCK
 
-#include "I386ASM/ASMInstruction.hpp"
 #include "sys/Object.hpp"
+#include "I386ASM/ASMInstruction.hpp"
 
 class ASMInstructionList: virtual public Object {
     private:

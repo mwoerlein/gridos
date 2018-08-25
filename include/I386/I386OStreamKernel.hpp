@@ -1,12 +1,11 @@
 #ifndef I386OSTREAMKERNEL_HPP_LOCK
 #define I386OSTREAMKERNEL_HPP_LOCK
 
+#include "KernelJIT/OStreamKernel.hpp"
 #include "I386/I386IO_Port.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386PIC.hpp"
 #include "I386/I386Keyboard.hpp"
-#include "memory/MemoryTypes.hpp"
-#include "KernelJIT/OStreamKernel.hpp"
 
 class I386OStreamKernel: public OStreamKernel {
     private:

@@ -1,9 +1,9 @@
 #ifndef MEMORYALLOCATOR_HPP_LOCK
 #define MEMORYALLOCATOR_HPP_LOCK
 
-#include "memory/MemoryTypes.hpp"
+#include "sys/Object.hpp"
 
-class MemoryAllocator {
+class MemoryAllocator: virtual public Object {
     protected:
     
     inline MemoryInfo * findInfo(MemoryInfo * list, void * buf) {

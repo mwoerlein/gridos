@@ -12,14 +12,14 @@ void I386Bootstrap::trickCompiler() {
 }
 
 Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
-    I386CgaOStream bsOut;
-    if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
-    {
+    Environment bsEnv;
+    I386CgaOStream bsOut(bsEnv, *notAnInfo);
+    bsEnv.setStdO(bsOut);
+    if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
         return *((Environment *) 0x0);
     }
-    if ((unsigned long)mbi & 7)
-    {
+    if ((unsigned long)mbi & 7) {
         bsOut<<"Unaligned mbi: "<<mbi<<'\n';
         return *((Environment *) 0x0);
     }
@@ -28,20 +28,20 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     bsOut<<"loaded via "<<bootInformation.bootloader->string<<'\n';
     
     // collect memory information on stack
-    MemoryRegistry memoryRegistry(bsOut);
+    MemoryRegistry memoryRegistry(bsEnv, *notAnInfo);
     bootInformation.registerMemory(memoryRegistry);
     
-    Environment staticEnv(memoryRegistry, bsOut);
-    
     // create "heap"-based environment and memory management
-    OStream &stdO = staticEnv.createNonObject<I386CgaOStream>();
-    MemoryManager &mm = staticEnv.createNonObject<MemoryManager, OStream&>(stdO);
-    Environment &env = staticEnv.createNonObject<Environment, MemoryAllocator&, OStream&>(mm, stdO);
+    MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(Environment), this);
+    Environment &env = *(new (envInfo.buf) Environment(memoryRegistry, bsOut));
     
+    MemoryManager &mm = env.create<MemoryManager>();
     memoryRegistry.transfer(mm);
+    env.setAllocator(mm);
 
-    // keep stdO in sync with bsOut
-    ((I386CgaOStream&)stdO).sync();
+    // create "heap"-based stdOut
+    OStream &stdO = env.create<I386CgaOStream>(); 
+    env.setStdO(stdO);
     
     bootInformation.registerModules(env);
     

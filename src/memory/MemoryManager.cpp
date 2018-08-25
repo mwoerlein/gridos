@@ -3,7 +3,7 @@
 #include "memory/MemoryInfoHelper.hpp"
 
 // public
-MemoryManager::MemoryManager(OStream &log):log(log) {
+MemoryManager::MemoryManager(Environment &env, MemoryInfo &mi): Object(env, mi) {
     initMemoryInfoList(&available);
     initMemoryInfoList(&reserved);
     initMemoryInfoList(&used);
@@ -15,7 +15,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     // find available memory
     MemoryInfo * avail = findInfo(&available, required);
     if (avail->len < required) {
-        log<<"bad allocate "<<len<<"\n";
+        env().getStdO()<<"bad allocate "<<len<<"\n";
         return *notAnInfo;
     }
     
@@ -54,7 +54,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 void MemoryManager::free(void * ptr) {
     MemoryInfo * info = (MemoryInfo*) &memInfo(ptr);
     if ((info == notAnInfo) || !info->flags.used) {
-        log<<"bad free "<<ptr<<"\n";
+        env().getStdO()<<"bad free "<<ptr<<"\n";
         return;
     }
     
@@ -121,6 +121,7 @@ MemoryInfo & MemoryManager::memInfo(void * ptr) {
 
 // debug
 void MemoryManager::dump(bool all) {
+    OStream &log = env().getStdO();
     for (MemoryInfo * e = available.next; e != &available; e = e->next) {
         log<<"Available "
            <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'

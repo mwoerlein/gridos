@@ -8,7 +8,6 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "KernelJIT/KernelJIT.hpp"
 #include "memory/MemoryIStream.hpp"
 //#include "memory/MemoryManager.hpp"
-#include "sys/Environment.hpp"
 
 extern "C" {
 
@@ -26,7 +25,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
 //    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
     
     // compile kernel from modules
-    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
+    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules().memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
     env.getStdO()<<"Compiling ... with "<<&jit<<'\n';
@@ -36,7 +35,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     env.destroy(in);
     
 /*/
-    for (ModuleInfo * module = env.getModules(); module; module = module->next) {
+    for (ModuleInfo * module = &env.getModules(); module; module = module->next) {
         env.destroy(*module);
     }
 //*/

@@ -1,9 +1,8 @@
 #ifndef I386ASMINSTRUCTION_HPP_LOCK
 #define I386ASMINSTRUCTION_HPP_LOCK
 
-#include "sys/Environment.hpp"
-#include "sys/OStream.hpp"
 #include "sys/Object.hpp"
+#include "sys/OStream.hpp"
 
 class ASMInstruction: virtual public Object {
     private:

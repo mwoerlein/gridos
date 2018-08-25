@@ -1,7 +1,9 @@
 #ifndef ISTREAM_HPP_LOCK
 #define ISTREAM_HPP_LOCK
 
-class IStream {
+#include "sys/Object.hpp"
+
+class IStream: virtual public Object {
     public:
     virtual ~IStream() {}
     virtual IStream &operator>>(char &c) = 0;

@@ -109,5 +109,5 @@ void BootInformation::registerModules(Environment &env) {
             next
         );
     }
-    env.setModules(next);
+    env.setModules(*next);
 }

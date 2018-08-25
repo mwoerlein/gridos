@@ -1,18 +1,14 @@
 #include "I386/I386CgaOStream.hpp"
 #include "I386/I386IO_Port.hpp"
 
-I386CgaOStream::I386CgaOStream(char* scr, int x, int y):screen(scr),base(10) {
-    sync();
-}
-
-I386CgaOStream::~I386CgaOStream() {}
-
-void I386CgaOStream::sync() {
+I386CgaOStream::I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr): Object(env, mi), screen(scr), pos(0) {
     I386IO_Port(index_port).outb(14);
     pos = I386IO_Port(data_port).inb()*512;
     I386IO_Port(index_port).outb(15);
     pos += I386IO_Port(data_port).inb()*2;
 }
+
+I386CgaOStream::~I386CgaOStream() {}
 
 OStream &I386CgaOStream::operator<<(char c) {
     switch (c) {
