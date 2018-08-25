@@ -7,7 +7,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "memory/MemoryIStream.hpp"
-#include "memory/MemoryManager.hpp"
+//#include "memory/MemoryManager.hpp"
 #include "sys/Environment.hpp"
 
 extern "C" {
@@ -23,17 +23,17 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     if (!&env) {
         return;
     }
-    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
+//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
     
     // compile kernel from modules
-    IStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
+    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
     env.getStdO()<<"Compiling ... with "<<&jit<<'\n';
     Kernel &k = jit.kernel_compile(in);
     
     env.destroy(jit);
-    ma.free(&in);
+    env.destroy(in);
     
 /*/
     for (ModuleInfo * module = env.getModules(); module; module = module->next) {
