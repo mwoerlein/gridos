@@ -15,11 +15,11 @@ class MemoryIStream: public IStream {
     virtual ~MemoryIStream() {}
     
     using IStream::operator>>;
-    virtual IStream &operator>>(char &c) {
+    virtual IStream &operator>>(char &c) override {
         c = ((char*)mem.buf)[pos++];
     }
     
-    virtual bool empty() {
+    virtual bool empty() override {
         return (pos == mem.len);
     }
     

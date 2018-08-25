@@ -15,12 +15,12 @@ class MemoryOStream: public OStream {
     virtual ~MemoryOStream() {}
     
     using OStream::operator<<;
-    virtual OStream &operator<<(char c) {
+    virtual OStream &operator<<(char c) override {
         ((char*)mem.buf)[pos++] = c;
         return *this;
     }
     
-    virtual void clear() {
+    virtual void clear() override {
         pos = 0;
     }
 };
