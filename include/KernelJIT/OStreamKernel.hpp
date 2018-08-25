@@ -1,12 +1,15 @@
 #ifndef OSTREAMKERNEL_HPP_LOCK
 #define OSTREAMKERNEL_HPP_LOCK
 
-#include "sys/OStream.hpp"
+#include "memory/MemoryOStream.hpp"
 #include "KernelJIT/Kernel.hpp"
 
-class OStreamKernel: public Kernel, public OStream{
+class OStreamKernel: public Kernel, public MemoryOStream {
     public:
-    virtual ~OStreamKernel() {}
+    OStreamKernel(Environment &env, MemoryInfo &mi, size_t size): MemoryOStream(env, mi, env.getAllocator().allocate(size)) {}
+    virtual ~OStreamKernel() {
+        env().getAllocator().free(&mem);
+    }
 };
 
 #endif //OSTREAMKERNEL_HPP_LOCK

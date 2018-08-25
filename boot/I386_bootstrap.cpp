@@ -23,7 +23,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     if (!&env) {
         return;
     }
-//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
+    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
     
     // compile kernel from modules
     IStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules()->memoryInfo);
@@ -33,7 +33,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     Kernel &k = jit.kernel_compile(in);
     
     env.destroy(jit);
-    env.destroy(in);
+    ma.free(&in);
     
 /*/
     for (ModuleInfo * module = env.getModules(); module; module = module->next) {

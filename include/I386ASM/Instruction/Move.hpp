@@ -7,7 +7,7 @@ class Move: public ASMInstruction {
     private:
     
     public:
-    Move(Environment &env):ASMInstruction(env) {}
+    Move(Environment &env, MemoryInfo &mi):Object(env, mi) {}
     virtual ~Move() {}
     
     virtual size_t getSizeInBytes();

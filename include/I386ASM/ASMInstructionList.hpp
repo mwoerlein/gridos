@@ -4,22 +4,22 @@
 #include "I386ASM/ASMInstruction.hpp"
 #include "sys/Object.hpp"
 
-class ASMInstructionList: public Object {
+class ASMInstructionList: virtual public Object {
     private:
-    class InstructionElem: public Object {
+    class InstructionElem: virtual public Object {
         public:
         InstructionElem * next;
         ASMInstruction &inst;
         size_t pos;
         
-        InstructionElem(Environment &env, ASMInstruction &inst, size_t pos):Object(env),inst(inst),pos(pos),next(0) {}
+        InstructionElem(Environment &env, MemoryInfo &mi, ASMInstruction &inst, size_t pos):Object(env, mi),inst(inst),pos(pos),next(0) {}
         virtual ~InstructionElem() {}
     };
     size_t pos;
     InstructionElem *first, *last;
     
     public:
-    ASMInstructionList(Environment &env);
+    ASMInstructionList(Environment &env, MemoryInfo &mi);
     virtual ~ASMInstructionList();
     
     //virtual void addLabel(String &label);

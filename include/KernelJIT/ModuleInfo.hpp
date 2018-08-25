@@ -4,17 +4,17 @@
 #include "memory/MemoryTypes.hpp"
 #include "sys/Object.hpp"
 
-class ModuleInfo: public Object {
+class ModuleInfo: virtual public Object {
     public:
     ModuleInfo * next;
     MemoryInfo & memoryInfo;
     // TODO: use String
     char * cmd;
     
-    ModuleInfo(Environment & env, MemoryInfo & mi, char * cmd, ModuleInfo * next = 0):
-        Object(env), memoryInfo(mi), cmd(cmd), next(next) {}
+    ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo, char * cmd, ModuleInfo * next = 0):
+        Object(env, mi), memoryInfo(memoryInfo), cmd(cmd), next(next) {}
     virtual ~ModuleInfo() {
-        env().destroy(memoryInfo);
+        env().getAllocator().free(&memoryInfo);
     }
 };
 

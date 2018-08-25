@@ -2,19 +2,20 @@
 #define ENVIRONMENT_HPP_LOCK
 
 #include "memory/MemoryAllocator.hpp"
+#include "sys/Object.hpp"
 #include "sys/OStream.hpp"
 
 void* operator new (size_t size, void* location);
 
 class ModuleInfo;
-class Environment {
+class Environment: virtual public Object {
     private:
     MemoryAllocator & ma;
     OStream & stdO;
     ModuleInfo * modules;
     
     public:
-    Environment(MemoryAllocator &ma, OStream &stdO):ma(ma),stdO(stdO) {}
+    Environment(MemoryAllocator &ma, OStream &stdO):Object(*this, ma.memInfo(this)),ma(ma),stdO(stdO) {}
     virtual ~Environment() {}
     /*
     InStream &getStdIn();
@@ -39,12 +40,12 @@ class Environment {
 
     template <class C> C & create() {
         MemoryInfo &mi = ma.allocate(sizeof(C), this);
-        return *(new (mi.buf) C(*this));
+        return *(new (mi.buf) C(*this, mi));
     }
     
     template <class C, typename... Args> C & create(Args... args) {
         MemoryInfo &mi = ma.allocate(sizeof(C), this);
-        return *(new (mi.buf) C(*this, args...));
+        return *(new (mi.buf) C(*this, mi, args...));
     }
 
     template <class C> C & _create() {
@@ -57,9 +58,9 @@ class Environment {
         return *(new (mi.buf) C(args...));
     }
     
-    template <class C> void destroy(C &c) {
+    void destroy(Object &c) {
         delete &c;
-        ma.free(&c);
+        ma.free(&c._memory_info);
     }
 };
 

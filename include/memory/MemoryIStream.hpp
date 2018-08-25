@@ -2,16 +2,21 @@
 #define MEMORYISTREAM_HPP_LOCK
 
 #include "memory/MemoryTypes.hpp"
+#include "sys/Object.hpp"
 #include "sys/IStream.hpp"
 
-class MemoryIStream: public IStream, public Object {
+class MemoryIStream: public IStream, virtual public Object {
     private:
-    MemoryInfo &mem;
     size_t pos;
+    
+    protected:
+    MemoryInfo &mem;
+    
     public:
-    MemoryIStream(Environment &env, MemoryInfo &m):Object(env),mem(m),pos(0) {}
+    MemoryIStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),pos(0) {}
     virtual ~MemoryIStream() {}
     
+    using IStream::operator>>;
     virtual IStream &operator>>(char &c) {
         c = ((char*)mem.buf)[pos++];
     }

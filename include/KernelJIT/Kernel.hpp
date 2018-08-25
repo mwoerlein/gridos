@@ -1,7 +1,9 @@
 #ifndef KERNEL_HPP_LOCK
 #define KERNEL_HPP_LOCK
 
-class Kernel {
+#include "sys/Object.hpp"
+
+class Kernel: virtual public Object {
     public:
     virtual ~Kernel() {}
     virtual void run() = 0;

@@ -5,11 +5,10 @@
 #include "sys/OStream.hpp"
 #include "sys/Object.hpp"
 
-class ASMInstruction: public Object {
+class ASMInstruction: virtual public Object {
     private:
     
     public:
-    ASMInstruction(Environment &env):Object(env) {}
     virtual ~ASMInstruction() {}
     
     virtual size_t getSizeInBytes() = 0;

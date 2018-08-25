@@ -7,7 +7,7 @@ class Jump: public ASMInstruction {
     private:
     
     public:
-    Jump(Environment &env):ASMInstruction(env) {}
+    Jump(Environment &env, MemoryInfo &mi):Object(env, mi) {}
     virtual ~Jump() {}
     
     virtual size_t getSizeInBytes();

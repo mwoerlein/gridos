@@ -8,11 +8,8 @@
 #include "memory/MemoryTypes.hpp"
 #include "KernelJIT/OStreamKernel.hpp"
 
-class I386OStreamKernel: public OStreamKernel, public Object {
+class I386OStreamKernel: public OStreamKernel {
     private:
-    MemoryInfo &mem;
-    size_t pos;
-    
     void delay() {}
     inline void empty_8042() { 
         while (I386IO_Port(0x64).inb()&3) {
@@ -22,20 +19,7 @@ class I386OStreamKernel: public OStreamKernel, public Object {
     }
     
     public:
-    using OStream::operator<<;
-    I386OStreamKernel(Environment &env, size_t size):Object(env),mem(env.getAllocator().allocate(size)),pos(0) {}
-    virtual ~I386OStreamKernel() {
-        env().destroy(mem);
-    }
-    
-    virtual OStream &operator<<(char c) {
-        ((char*)mem.buf)[pos++] = c;
-        return *this;
-    }
-    
-    virtual void clear() {
-        pos = 0;
-    }
+    I386OStreamKernel(Environment &env, MemoryInfo &mi, size_t size):OStreamKernel(env, mi, size), Object(env, mi) {}
     
     virtual void run() {
         I386InterruptVectorTable vt;

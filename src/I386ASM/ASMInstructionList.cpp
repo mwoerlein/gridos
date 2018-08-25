@@ -1,7 +1,7 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
-ASMInstructionList::ASMInstructionList(Environment &env): Object(env), pos(0) {}
+ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), pos(0) {}
 ASMInstructionList::~ASMInstructionList() {
     InstructionElem * cur = first;
     while (cur) {

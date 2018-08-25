@@ -5,7 +5,7 @@
 #include "sys/IStream.hpp"
 #include "sys/Object.hpp"
 
-class Parser: public Object {
+class Parser: virtual public Object {
     private:
     char *buffer;
     char *limit;
@@ -23,7 +23,7 @@ class Parser: public Object {
     bool fillBuffer(size_t need, IStream & input);
     
     public:
-    Parser(Environment &env);
+    Parser(Environment &env, MemoryInfo &mi);
     virtual ~Parser();
     
     virtual ASMInstructionList & parse(IStream & input, int line = 1, int column = 1);

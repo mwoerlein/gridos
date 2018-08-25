@@ -7,8 +7,8 @@
 /*!max:re2c*/
 #define SIZE 500
 
-Parser::Parser(Environment &env):
-    Object(env),
+Parser::Parser(Environment &env, MemoryInfo &mi):
+    Object(env, mi),
     buffer((char*) env.getAllocator().allocate(SIZE + YYMAXFILL).buf),
     linesBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),
     columnsBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),

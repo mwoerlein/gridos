@@ -6,9 +6,9 @@
 #include "sys/IStream.hpp"
 #include "sys/Object.hpp"
 
-class KernelJIT: public Object {
+class KernelJIT: virtual public Object {
     public:
-    KernelJIT(Environment &env):Object(env) {}
+    KernelJIT(Environment &env, MemoryInfo &mi):Object(env, mi) {}
     virtual ~KernelJIT() {}
     virtual Kernel &kernel_compile(IStream &in);
 };
