@@ -17,7 +17,7 @@ OStream &I386CgaOStream::operator<<(char c) {
         pos += 2*maxx;
         break;
     case '\t':
-        while (pos%16) *this<<(' ');
+        do { *this<<(' '); } while (pos%16);
         return *this;
     case '\0':
         break;
