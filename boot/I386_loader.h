@@ -14,13 +14,13 @@
 #define GRIDOS_LOADER_MBR_SIGNATURE 0xaa55
 
 /* The loader real stack */
-#define GRIDOS_STACK_ADDR 0x2000
+#define GRIDOS_STACK_ADDR 0x1000
 
 /* The bios loaded MBR initially to this segment */
 #define GRIDOS_BIOS_BOOTSECTOR_SEG 0x07C0
 
 /* The loader segment */
-#define GRIDOS_LOADER_SEG 0x2000
+#define GRIDOS_LOADER_SEG 0x1000
 
 /* The loader address */
 #define GRIDOS_LOADER_ADDR (GRIDOS_LOADER_SEG << 4)
@@ -39,5 +39,8 @@
 
 /* static limit for mmap entries */
 #define GRIDOS_LOADER_MAX_MMAP_ENTRIES 20
+
+/* The kernel stack size */ 
+#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x3000
 
 #endif /* GRIDOS_LOADER_HEADER */

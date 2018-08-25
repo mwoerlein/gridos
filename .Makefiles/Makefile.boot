@@ -8,12 +8,10 @@ $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block 
 	echo "#define DISK_TRACKS      80" >> $@
 	echo "#define DISK_SECTORS     36" >> $@
 	echo "" >> $@
-	echo "#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x4000" >> $@
-	echo "" >> $@
 	echo "#define JIT_BLOCKS       `dd if=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin of=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`" >> $@
 	echo "#define JIT_SIZE         (JIT_BLOCKS << 9)" >> $@
 	echo "#define JIT_LBA          (GRIDOS_LOADER_SECTORS)" >> $@
-	echo "#define JIT_SEGMENT      0x6000" >> $@
+	echo "#define JIT_SEGMENT      0x2000" >> $@
 	echo "#define JIT_OFFSET       0x0000" >> $@
 	echo "#define BSS_SEGMENT      (JIT_SEGMENT+((JIT_BLOCKS >> 3) << 8) + 0x200)" >> $@
 	echo "#define BSS_SIZE         (GRIDOS_BOOTSTRAP_STACK_SIZE + 0x100)" >> $@
@@ -42,7 +40,7 @@ $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 
 $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.o $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/$(MASCHINE)ASM.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a $(LIBDIR)/multiboot2.a 
 	echo "creating $@"
-	ld -e bootstrap_start -Ttext 0x60000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE)ASM.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a $(LIBDIR)/multiboot2.a $(LDTAIL)
+	ld -e bootstrap_start -Ttext 0x20000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE)ASM.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a $(LIBDIR)/multiboot2.a $(LDTAIL)
 #	cp $(BOOTDIR)/../multiboot_example/multiboot2.kernel $@
 #	bash -c 'for c in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do printf "$$c%.0s" {1..512}; done' > $@
 #	dd if=/dev/zero bs=512 count=500 >> $@

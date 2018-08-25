@@ -1,7 +1,6 @@
 #define ASM_FILE
 #include "../include/multiboot2/multiboot2.h"
 #include "I386_loader.h"
-#define GRIDOS_BOOTSTRAP_STACK_SIZE 0x4000
 
 .extern bootstrap
 .text
