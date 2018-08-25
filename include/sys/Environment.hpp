@@ -15,52 +15,38 @@ class Environment: virtual public Object {
     ModuleInfo * modules;
     
     public:
-    Environment(MemoryAllocator &ma, OStream &stdO):Object(*this, ma.memInfo(this)),ma(ma),stdO(stdO) {}
-    virtual ~Environment() {}
-    /*
-    InStream &getStdIn();
-    OutStream &getStdOut();
-    */
+    Environment(MemoryAllocator &ma, OStream &stdO);
+    virtual ~Environment();
     
-    OStream &getStdO() {
-        return stdO;
-    }
+    OStream &getStdO();
+//    InStream &getStdIn();
+//    OutStream &getStdOut();
     
-    void setModules(ModuleInfo * mods) {
-        modules = mods;
-    }
+    // TODO: access modules/kernel information via ids
+    void setModules(ModuleInfo * mods);
+    ModuleInfo * getModules();
     
-    ModuleInfo * getModules() {
-        return modules;
-    }
+    MemoryAllocator & getAllocator();
+    void destroy(Object &obj);
     
-    MemoryAllocator & getAllocator() {
-        return ma;
-    }
-
-    template <class C> C & create() {
-        MemoryInfo &mi = ma.allocate(sizeof(C), this);
-        return *(new (mi.buf) C(*this, mi));
+    template <class Obj> Obj & create() {
+        MemoryInfo &mi = ma.allocate(sizeof(Obj), this);
+        return *(new (mi.buf) Obj(*this, mi));
     }
     
-    template <class C, typename... Args> C & create(Args... args) {
-        MemoryInfo &mi = ma.allocate(sizeof(C), this);
-        return *(new (mi.buf) C(*this, mi, args...));
+    template <class Obj, typename... Args> Obj & create(Args... args) {
+        MemoryInfo &mi = ma.allocate(sizeof(Obj), this);
+        return *(new (mi.buf) Obj(*this, mi, args...));
     }
-
-    template <class C> C & _create() {
+    
+    template <class C> C & createNonObject() {
         MemoryInfo &mi = ma.allocate(sizeof(C), this);
         return *(new (mi.buf) C);
     }
     
-    template <class C, typename... Args> C & _create(Args... args) {
+    template <class C, typename... Args> C & createNonObject(Args... args) {
         MemoryInfo &mi = ma.allocate(sizeof(C), this);
         return *(new (mi.buf) C(args...));
-    }
-    
-    void destroy(Object &c) {
-        delete &c;
-        ma.free(&c._memory_info);
     }
 };
 

@@ -7,7 +7,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "memory/MemoryIStream.hpp"
-//#include "memory/MemoryManager.hpp"
+#include "memory/MemoryManager.hpp"
 #include "sys/Environment.hpp"
 
 extern "C" {
