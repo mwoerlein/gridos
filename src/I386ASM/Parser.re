@@ -1,8 +1,8 @@
 #include "I386ASM/Parser.hpp"
 
-#include "I386ASM/Halt.hpp"
-#include "I386ASM/Jump.hpp"
-#include "I386ASM/Mov.hpp"
+#include "I386ASM/Instruction/Halt.hpp"
+#include "I386ASM/Instruction/Jump.hpp"
+#include "I386ASM/Instruction/Move.hpp"
 
 /*!max:re2c*/
 #define SIZE 500
@@ -170,7 +170,7 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
     }
     
     // TODO: fill list via re2c
-    list.addInstruction(env().create<Mov>());
+    list.addInstruction(env().create<Move>());
     list.addInstruction(env().create<Halt>());
     list.addInstruction(env().create<Jump>());
     log << "parse input done\n";

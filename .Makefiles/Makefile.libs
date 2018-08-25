@@ -4,7 +4,7 @@ include ./.Makefiles/Makefile.inc
 #LIB=none
 #endif
 LIBNAME=$(patsubst $(dir $(LIB))%.a,%,$(LIB))
-LIBSRC=$(wildcard $(SRCDIR)/$(LIBNAME)/*.cpp)
+LIBSRC=$(shell find $(SRCDIR)/$(LIBNAME)/ -type f -name '*.cpp')
 LIBOBJS=$(patsubst $(SRCDIR)/$(LIBNAME)/%.cpp,$(OBJDIR)/$(LIBNAME)/%.o,$(LIBSRC))
 
 .PHONY: all none
@@ -23,6 +23,7 @@ $(SRCDIR)/$(LIBNAME)/%.cpp: $(SRCDIR)/$(LIBNAME)/%.re
 
 $(OBJDIR)/$(LIBNAME)/%.o: $(SRCDIR)/$(LIBNAME)/%.cpp $(OBJDIR)/$(LIBNAME) 
 	echo "creating $@"
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 	
 $(OBJDIR)/$(LIBNAME) $(LIBDIR):

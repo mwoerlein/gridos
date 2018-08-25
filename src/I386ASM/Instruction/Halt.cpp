@@ -1,4 +1,4 @@
-#include "I386ASM/Halt.hpp"
+#include "I386ASM/Instruction/Halt.hpp"
 
 // public
 size_t Halt::getSizeInBytes() {

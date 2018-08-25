@@ -1,11 +1,11 @@
-#include "I386ASM/Mov.hpp"
+#include "I386ASM/Instruction/Move.hpp"
 
 // public
-size_t Mov::getSizeInBytes() {
+size_t Move::getSizeInBytes() {
     return 20;
 }
 
-void Mov::writeToStream(OStream & stream) {
+void Move::writeToStream(OStream & stream) {
     stream
     
         <<(char)0xb8 // movl eax

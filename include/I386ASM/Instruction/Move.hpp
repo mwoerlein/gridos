@@ -3,12 +3,12 @@
 
 #include "I386ASM/ASMInstruction.hpp"
 
-class Mov: public ASMInstruction {
+class Move: public ASMInstruction {
     private:
     
     public:
-    Mov(Environment &env):ASMInstruction(env) {}
-    virtual ~Mov() {}
+    Move(Environment &env):ASMInstruction(env) {}
+    virtual ~Move() {}
     
     virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);

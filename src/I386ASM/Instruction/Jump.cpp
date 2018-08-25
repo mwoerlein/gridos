@@ -1,4 +1,4 @@
-#include "I386ASM/Jump.hpp"
+#include "I386ASM/Instruction/Jump.hpp"
 
 // public
 size_t Jump::getSizeInBytes() {
