@@ -8,3 +8,4 @@
 /multiboot_example/multiboot2.kernel
 /img/disk
 /img/disk.img
+/src/I386ASM/Parser.cpp
