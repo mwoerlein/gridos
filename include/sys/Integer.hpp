@@ -8,32 +8,30 @@ class Integer: public Comparable<Integer> {
     int _i;
     
     public:
-    Integer(Environment &env, MemoryInfo &mi = *notAnInfo, int i = 0): Object(env, mi), _i(i) {}
-    Integer(Environment &env, MemoryInfo &mi, Integer &i): Object(env, mi), _i((int) i) {}
-    virtual ~Integer() {}
+    Integer(Environment &env, MemoryInfo &mi = *notAnInfo, int i = 0);
+    Integer(Environment &env, MemoryInfo &mi, Integer &i);
+    virtual ~Integer();
     
-    operator int() { return _i; }
-    virtual Integer & operator =(int i) { _i = i; }
-    virtual Integer & operator =(Integer &i) { _i = (int) i; }
+    operator int();
+    virtual Integer & operator =(int i);
+    virtual Integer & operator =(Integer &i);
 
-    virtual Integer & operator ++() { ++_i; }
-    virtual Integer & operator --() { --_i; }
+    virtual Integer & operator ++();
+    virtual Integer & operator --();
     
-    virtual Integer & operator +=(int i) { _i += i; return *this; }
-    virtual Integer & operator -=(int i) { _i -= i; return *this; }
-    virtual Integer & operator *=(int i) { _i *= i; return *this; }
-    virtual Integer & operator /=(int i) { _i /= i; return *this; }
-    virtual Integer & operator %=(int i) { _i %= i; return *this; }
+    virtual Integer & operator +=(int i);
+    virtual Integer & operator -=(int i);
+    virtual Integer & operator *=(int i);
+    virtual Integer & operator /=(int i);
+    virtual Integer & operator %=(int i);
     
-    virtual Integer & operator +=(Integer &i) { _i += (int) i; return *this; }
-    virtual Integer & operator -=(Integer &i) { _i -= (int) i; return *this; }
-    virtual Integer & operator *=(Integer &i) { _i *= (int) i; return *this; }
-    virtual Integer & operator /=(Integer &i) { _i /= (int) i; return *this; }
-    virtual Integer & operator %=(Integer &i) { _i %= (int) i; return *this; }
+    virtual Integer & operator +=(Integer &i);
+    virtual Integer & operator -=(Integer &i);
+    virtual Integer & operator *=(Integer &i);
+    virtual Integer & operator /=(Integer &i);
+    virtual Integer & operator %=(Integer &i);
     
-    virtual int compareTo(Integer &i) override {
-        return _i - (int) i;
-    }
+    virtual int compareTo(Integer &i) override;
         
     // TODO #6: implement RTTI correctly
     virtual RTTI rtti() override { return integer; }

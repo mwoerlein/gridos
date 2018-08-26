@@ -14,6 +14,11 @@ template <class Obj> class Comparable: virtual public Object {
     inline bool operator > (Obj &obj) { return compareTo(obj) >  0; }
     inline bool operator >=(Obj &obj) { return compareTo(obj) >= 0; }
 
+    virtual int hash() override {
+        // has to be adjusted in final class to match equals
+        return 0;
+    }
+    
     virtual bool equals(Object &o) override {
         if (Obj *obj = env().as<Obj>(o, rtti())) {
             return *this == *obj;

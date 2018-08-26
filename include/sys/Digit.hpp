@@ -24,14 +24,15 @@ class Digit: public Char {
     }
     
     public:
-    Digit(Environment &env, MemoryInfo &mi = *notAnInfo, int d = 0): Char(env, mi, itod(d)), Object(env, mi) {}
-    Digit(Environment &env, MemoryInfo &mi, Integer &d): Char(env, mi, itod((int) d)), Object(env, mi) {}
+    Digit(Environment &env, MemoryInfo &mi = *notAnInfo, int d = 0);
+    Digit(Environment &env, MemoryInfo &mi, Integer &d);
+    virtual ~Digit();
     
-    operator int() { return ctoi(_c); }
-    virtual Digit & operator =(char c) override { Char::_c = ctod(c); return *this; }
-    virtual Digit & operator =(Char &c) override { Char::_c = ctod((char) c); return *this; }
-    virtual Digit & operator =(int d) { Char::_c = itod(d); return *this; }
-    virtual Digit & operator =(Integer &d) { Char::_c = itod((int) d); return *this; }
+    operator int();
+    virtual Digit & operator =(char c) override;
+    virtual Digit & operator =(Char &c) override;
+    virtual Digit & operator =(int d);
+    virtual Digit & operator =(Integer &d);
 };
 
 #endif //DIGIT_HPP_LOCK
