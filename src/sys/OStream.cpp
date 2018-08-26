@@ -1,4 +1,6 @@
 #include "sys/OStream.hpp"
+#include "sys/Char.hpp"
+#include "sys/Integer.hpp"
 
 // public
 
@@ -24,6 +26,14 @@ OStream & OStream::operator <<(char * c) {
 
 OStream & OStream::operator <<(const char * c) {
     return *this<<(char *) c;
+}
+
+OStream & OStream::operator <<(Char &c) {
+    return *this<<(char) c;
+}
+
+OStream & OStream::operator <<(Integer &i) {
+    return *this<<(int) i;
 }
 
 

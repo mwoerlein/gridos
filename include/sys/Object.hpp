@@ -4,6 +4,9 @@
 #include "memory/MemoryTypes.hpp"
 class Environment;
 
+// TODO #6: implement RTTI correctly
+enum RTTI { object, character, integer };
+
 class Object {
     private:
     Environment &_environment;
@@ -17,6 +20,8 @@ class Object {
     Environment &env();
     virtual int hash();
     virtual bool equals(Object &o);
+    // TODO #6: implement RTTI correctly
+    virtual RTTI rtti() { return object; };
 };
 
 #include "sys/Environment.hpp"

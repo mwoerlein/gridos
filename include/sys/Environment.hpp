@@ -44,6 +44,14 @@ class Environment: virtual public Object {
         MemoryInfo &mi = ma->allocate(sizeof(Obj), this);
         return *(new (mi.buf) Obj(*this, mi, args...));
     }
+    
+    /*
+     * evil runtime cast which fails if obj is not primary derived from As!
+     * TODO #6: implement RTTI correctly
+     */
+    template <class As> As * as(Object &obj, RTTI rtti) {
+        return (As *) ((obj.rtti() == rtti) ? obj._memory_info->buf : 0);
+    }
 };
 
 #include "KernelJIT/ModuleInfo.hpp"

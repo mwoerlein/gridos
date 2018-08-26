@@ -3,6 +3,8 @@
 
 #include "sys/Object.hpp"
 
+class Char;
+class Integer;
 class OStream: virtual public Object {
     protected:
     OStream &printint(int d, int base = 10, int pad = 0);
@@ -10,12 +12,17 @@ class OStream: virtual public Object {
     
     public:
     virtual ~OStream() {}
+    
     virtual OStream &operator <<(char c) = 0;
     virtual OStream &operator <<(int i);
     virtual OStream &operator <<(unsigned int i);
     virtual OStream &operator <<(void *ptr);
     virtual OStream &operator <<(char *c);
     virtual OStream &operator <<(const char *c);
+    
+    virtual OStream &operator <<(Char &i);
+    virtual OStream &operator <<(Integer &i);
+    
     virtual void clear() = 0;
 };
 
