@@ -10,12 +10,12 @@ class OStream: virtual public Object {
     
     public:
     virtual ~OStream() {}
-    virtual OStream &operator<<(char c) = 0;
-    virtual OStream &operator<<(int i);
-    virtual OStream &operator<<(unsigned int i);
-    virtual OStream &operator<<(void *ptr);
-    virtual OStream &operator<<(char *c);
-    virtual OStream &operator<<(const char *c);
+    virtual OStream &operator <<(char c) = 0;
+    virtual OStream &operator <<(int i);
+    virtual OStream &operator <<(unsigned int i);
+    virtual OStream &operator <<(void *ptr);
+    virtual OStream &operator <<(char *c);
+    virtual OStream &operator <<(const char *c);
     virtual void clear() = 0;
 };
 

@@ -14,8 +14,8 @@ class MemoryOStream: public OStream {
     MemoryOStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),pos(0) {}
     virtual ~MemoryOStream() {}
     
-    using OStream::operator<<;
-    virtual OStream &operator<<(char c) override {
+    using OStream::operator <<;
+    virtual OStream &operator <<(char c) override {
         ((char*)mem.buf)[pos++] = c;
         return *this;
     }

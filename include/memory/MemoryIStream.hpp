@@ -14,8 +14,8 @@ class MemoryIStream: public IStream {
     MemoryIStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),pos(0) {}
     virtual ~MemoryIStream() {}
     
-    using IStream::operator>>;
-    virtual IStream &operator>>(char &c) override {
+    using IStream::operator >>;
+    virtual IStream &operator >>(char &c) override {
         c = ((char*)mem.buf)[pos++];
     }
     
@@ -23,8 +23,8 @@ class MemoryIStream: public IStream {
         return (pos == mem.len);
     }
     
-//    virtual IStream &operator>>(int &i) = 0;
-//    virtual IStream &operator>>(void *ptr) = 0;
+//    virtual IStream &operator >>(int &i) = 0;
+//    virtual IStream &operator >>(void *ptr) = 0;
 };
 
 #endif //MEMORYISTREAM_HPP_LOCK

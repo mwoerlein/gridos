@@ -23,7 +23,7 @@ class MemoryRegistry: public MemoryAllocator {
     void transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer = (MemoryInfoArray *) 0);
     
     public:
-    MemoryRegistry(Environment &env, MemoryInfo &mi);
+    MemoryRegistry(Environment &env, MemoryInfo &mi = *notAnInfo);
     virtual ~MemoryRegistry() {}
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;

@@ -13,7 +13,7 @@ class ASMInstruction: virtual public Object {
     virtual size_t getSizeInBytes() = 0;
     virtual void writeToStream(OStream &stream) = 0;
     
-    friend OStream & operator<< (OStream & out, ASMInstruction &instruction);
+    friend OStream & operator << (OStream & out, ASMInstruction &instruction);
 };
 
 // http://sparksandflames.com/files/x86InstructionChart.html

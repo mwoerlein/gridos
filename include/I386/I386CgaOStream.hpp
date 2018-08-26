@@ -11,10 +11,10 @@ class I386CgaOStream: public OStream {
     int pos;
     
     public:
-    using OStream::operator<<;
-    I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr = (char*) cga_ram);
+    using OStream::operator <<;
+    I386CgaOStream(Environment &env, MemoryInfo &mi = *notAnInfo, char* scr = (char*) cga_ram);
     virtual ~I386CgaOStream();
-    virtual OStream &operator<<(char c) override;
+    virtual OStream &operator <<(char c) override;
     virtual void clear() override;
 };
 

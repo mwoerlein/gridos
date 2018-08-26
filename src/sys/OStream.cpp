@@ -2,27 +2,27 @@
 
 // public
 
-OStream & OStream::operator<<(int i) {
+OStream & OStream::operator <<(int i) {
     return printint(i);
 }
 
-OStream & OStream::operator<<(unsigned int i) {
+OStream & OStream::operator <<(unsigned int i) {
     return printuint(i);
 }
 
-OStream & OStream::operator<<(void * ptr) {
+OStream & OStream::operator <<(void * ptr) {
     *this<<'0'<<'x';
     return printuint((unsigned int)ptr, 16, 8);
 }
 
-OStream & OStream::operator<<(char * c) {
+OStream & OStream::operator <<(char * c) {
     while (*c) {
         *this<<*c++;
     }
     return *this;
 }
 
-OStream & OStream::operator<<(const char * c) {
+OStream & OStream::operator <<(const char * c) {
     return *this<<(char *) c;
 }
 

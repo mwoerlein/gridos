@@ -10,7 +10,7 @@ I386CgaOStream::I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr): Obj
 
 I386CgaOStream::~I386CgaOStream() {}
 
-OStream &I386CgaOStream::operator<<(char c) {
+OStream &I386CgaOStream::operator <<(char c) {
     switch (c) {
     case '\n':
         pos -= pos%(2*maxx);

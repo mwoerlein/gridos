@@ -13,7 +13,7 @@ void I386Bootstrap::trickCompiler() {
 
 Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
     Environment bsEnv;
-    I386CgaOStream bsOut(bsEnv, *notAnInfo);
+    I386CgaOStream bsOut(bsEnv);
     bsEnv.setStdO(bsOut);
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
@@ -28,7 +28,7 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     bsOut<<"loaded via "<<bootInformation.bootloader->string<<'\n';
     
     // collect memory information on stack
-    MemoryRegistry memoryRegistry(bsEnv, *notAnInfo);
+    MemoryRegistry memoryRegistry(bsEnv);
     bootInformation.registerMemory(memoryRegistry);
     
     // create "heap"-based environment and memory management

@@ -17,7 +17,6 @@ all: $(LIB)
 
 $(LIB): $(LIBOBJS)
 	echo "creating $@"
-	echo "creating $(LIBOBJS)"
 	mkdir -p $(LIBDIR)
 	$(AR) rcs $@ $(LIBOBJS)
 
