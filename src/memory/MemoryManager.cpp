@@ -100,6 +100,14 @@ void MemoryManager::free(void * ptr) {
     }
 }
 
+size_t MemoryManager::getAvailableBytes() {
+    size_t bytes = 0;
+    for (MemoryInfo *e = available.next; e != &available; e = e->next) {
+        bytes += e->len;
+    }
+    return bytes;
+}
+
 MemoryInfo & MemoryManager::memInfo(void * ptr) {
     if (isMemoryInfo(ptr)) {
         return *((MemoryInfo *) ptr);

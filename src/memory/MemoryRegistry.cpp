@@ -116,6 +116,14 @@ void MemoryRegistry::free(void * ptr) {
     env().getStdO()<<"bad static free\n";
 }
 
+size_t MemoryRegistry::getAvailableBytes() {
+    size_t bytes = 0;
+    for (MemoryInfo *e = available.next; e != &available; e = e->next) {
+        bytes += e->len;
+    }
+    return bytes;
+}
+
 MemoryInfo & MemoryRegistry::memInfo(void * ptr) {
     MemoryInfo * info = findInfo(&used, ptr);
     if (!info || memoryInfoEnd(info) <= ptr) {
@@ -125,11 +133,15 @@ MemoryInfo & MemoryRegistry::memInfo(void * ptr) {
 }
 
 void MemoryRegistry::transfer(MemoryManager & memoryManager) {
+    MemoryInfoArray * buffer = (MemoryInfoArray*)-1;
+    
     // create buffer for non-embedded infos
     int nonEmbeddedCount = countNonEmbeddedInfos(&reserved) + countNonEmbeddedInfos(&used);
-    MemoryInfo & arrayInfo = allocate(sizeof(MemoryInfoArray) + nonEmbeddedCount*sizeof(MemoryInfo), (void*) &memoryManager);
-    MemoryInfoArray * buffer = (MemoryInfoArray *) arrayInfo.buf;
-    buffer->size = 0;
+    if (nonEmbeddedCount) {
+        MemoryInfo & arrayInfo = allocate(sizeof(MemoryInfoArray) + nonEmbeddedCount*sizeof(MemoryInfo), (void*) &memoryManager);
+        buffer = (MemoryInfoArray *) arrayInfo.buf;
+        buffer->size = 0;
+    }
     
     // transfer registered lists to memory manager
     transferMemoryList(&reserved, &(memoryManager.reserved), buffer);
