@@ -6,6 +6,7 @@ void* operator new (size_t size, void* location) {
 
 Environment::Environment():Object(*this, *notAnInfo),ma(0),stdO(0) {}
 Environment::Environment(MemoryAllocator &ma, OStream &stdO):Object(*this, ma.memInfo(this)),ma(&ma),stdO(&stdO) {}
+Environment::Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &stdO):Object(*this, mi),ma(&ma),stdO(&stdO) {}
 Environment::~Environment() {}
 
 OStream & Environment::getStdO() {

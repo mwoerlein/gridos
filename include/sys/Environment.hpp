@@ -18,6 +18,7 @@ class Environment: virtual public Object {
     public:
     Environment();
     Environment(MemoryAllocator &ma, OStream &stdO);
+    Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &stdO);
     virtual ~Environment();
     
     OStream & getStdO();

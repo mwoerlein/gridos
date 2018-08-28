@@ -32,6 +32,7 @@ class Integer: public Comparable<Integer> {
     virtual Integer & operator %=(Integer &i);
     
     virtual int compareTo(Integer &i) override;
+    virtual int hash() override;
         
     // TODO #6: implement RTTI correctly
     virtual RTTI rtti() override { return integer; }

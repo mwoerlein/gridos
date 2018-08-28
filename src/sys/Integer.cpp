@@ -81,3 +81,7 @@ Integer & Integer::operator %=(Integer &i) {
 int Integer::compareTo(Integer &i) {
     return _i - (int) i;
 }
+
+int Integer::hash() {
+    return _i;
+}

@@ -24,15 +24,17 @@ class Digit: public Char {
     }
     
     public:
-    Digit(Environment &env, MemoryInfo &mi = *notAnInfo, int d = 0);
-    Digit(Environment &env, MemoryInfo &mi, Integer &d);
+    Digit(Environment &env, MemoryInfo &mi = *notAnInfo, char c = '0');
+    Digit(Environment &env, MemoryInfo &mi, Char &d);
+    Digit(Environment &env, MemoryInfo &mi, int i);
+    Digit(Environment &env, MemoryInfo &mi, Integer &i);
     virtual ~Digit();
     
     operator int();
     virtual Digit & operator =(char c) override;
     virtual Digit & operator =(Char &c) override;
-    virtual Digit & operator =(int d);
-    virtual Digit & operator =(Integer &d);
+    virtual Digit & operator =(int i);
+    virtual Digit & operator =(Integer &i);
 };
 
 #endif //DIGIT_HPP_LOCK

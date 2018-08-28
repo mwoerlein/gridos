@@ -20,7 +20,7 @@ class OStream: virtual public Object {
     virtual OStream &operator <<(char *c);
     virtual OStream &operator <<(const char *c);
     
-    virtual OStream &operator <<(Char &i);
+    virtual OStream &operator <<(Char &c);
     virtual OStream &operator <<(Integer &i);
     
     virtual void clear() = 0;
