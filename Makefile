@@ -13,8 +13,8 @@ disk: bootdisk
 
 bootdisk: $(IMGDIR) $(IMGDIR)/bootdisk.img
 
-tests: clean testsuite
-	@./testsuite
+tests: clean test/suite
+	@test/suite
 
 libs: 
 	@$(MAKE) $(MAKEOP) MASCHINE=$(MASCHINE) RLIBS="$(LIBS)" rlibs
@@ -33,7 +33,7 @@ $(BOOTDIR)/$(MASCHINE)_%:
 	@$(MAKEBOOT) $@
 
 clean:
-	@rm -rf $(OBJDIR) $(LIBDIR) ./linuxtest
+	@rm -rf $(OBJDIR) $(LIBDIR) ./linuxtest test/suite
 	@$(MAKEBOOT) $@
 	
 $(LIBDIR)/%.a:
@@ -64,8 +64,8 @@ kernel/ObjectKernel.s: kernel/Object_Test.S
 kernel/blinkingKernel.s: kernel/blinkingKernel.c
 	@gcc -S $< -o $@
 
-testsuite: test/suite.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
-	@echo "build testsuite"
+test/suite: test/suite.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
+	@echo "build test suite"
 	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
 
 CompTest: test/CompTest.cpp $(LIBDIR)/Linux.a $(LIBDIR)/sys.a $(LIBDIR)/Pool.a
