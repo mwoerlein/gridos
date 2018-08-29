@@ -4,7 +4,7 @@ BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
-.PHONY: all clean linux bootdisk libs rlibs disk kernel
+.PHONY: all clean linux bootdisk libs rlibs disk kernel tests
 
 all: bootdisk
 linux: linuxtest
@@ -12,6 +12,9 @@ disk: bootdisk
 	@dd if=$(IMGDIR)/bootdisk.img of=/dev/floppy/0
 
 bootdisk: $(IMGDIR) $(IMGDIR)/bootdisk.img
+
+tests: clean testsuite
+	@./testsuite
 
 libs: 
 	@$(MAKE) $(MAKEOP) MASCHINE=$(MASCHINE) RLIBS="$(LIBS)" rlibs
@@ -61,8 +64,9 @@ kernel/ObjectKernel.s: kernel/Object_Test.S
 kernel/blinkingKernel.s: kernel/blinkingKernel.c
 	@gcc -S $< -o $@
 
-envtest: test/envtest.cpp $(LIBDIR)/Linux.a $(LIBDIR)/sys.a $(LIBDIR)/Pool.a
-	$(CC) -DLINUX_ENV -I$(INCDIR) -o $@ $< $(LIBDIR)/Linux.a $(LIBDIR)/Pool.a $(LIBDIR)/sys.a
+testsuite: test/console.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
+	@echo "build testsuite"
+	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
 
 CompTest: test/CompTest.cpp $(LIBDIR)/Linux.a $(LIBDIR)/sys.a $(LIBDIR)/Pool.a
 	$(CC) -DLINUX_ENV -I$(INCDIR) -o $@ $< $(LIBDIR)/Linux.a $(LIBDIR)/Pool.a $(LIBDIR)/sys.a
