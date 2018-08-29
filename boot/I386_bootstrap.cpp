@@ -28,7 +28,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules().memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
-    env.getStdO()<<"Compiling ... with "<<&jit<<'\n';
+    env.out()<<"Compiling ... with "<<&jit<<'\n';
     Kernel &k = jit.kernel_compile(in);
     
     env.destroy(jit);
@@ -39,10 +39,10 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
         env.destroy(*module);
     }
 //*/
-//    ma.dump(true);
+//    ma.dump(env().out(), true);
     
     // run compiled kernel    
-    env.getStdO()<<"Starting kernel ...\n";
+    env.out()<<"Starting kernel ...\n";
     k.run();
 
 //    env.destroy(k);

@@ -15,7 +15,7 @@ void MemoryRegistry::registerAvailableMemory(void * mem, size_t len) {
         return;
     }
     if (!isEmptyMemoryInfoList(&reserved) || !isEmptyMemoryInfoList(&used)) {
-        env().getStdO()<<"Ignore available "<<(void *) mem<<':'<<(void*)len<<'\n';
+        env().out()<<"Ignore available "<<(void *) mem<<':'<<(void*)len<<'\n';
         return;
     }
     
@@ -93,7 +93,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     // find available memory
     MemoryInfo * avail = findInfo(&available, required);
     if (avail->len < required) {
-        env().getStdO()<<"bad static allocate\n";
+        env().err()<<"bad static allocate\n";
         return *notAnInfo;
     }
     
@@ -113,7 +113,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
 
 void MemoryRegistry::free(void * ptr) {
     // no static free available
-    env().getStdO()<<"bad static free\n";
+    env().err()<<"bad static free\n";
 }
 
 size_t MemoryRegistry::getAvailableBytes() {
@@ -285,8 +285,7 @@ void MemoryRegistry::transferMemoryList(MemoryInfo * srcList, MemoryInfo * destL
 }
 
 // debug
-void MemoryRegistry::dump(bool all) {
-    OStream &log = env().getStdO();
+void MemoryRegistry::dump(OStream &log, bool all) {
     log<<"Dump registry "<<(void *) this<<" (next #"<<infosCounter<<")\n";
     
     MemoryInfo *e;

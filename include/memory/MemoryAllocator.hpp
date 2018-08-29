@@ -2,6 +2,7 @@
 #define MEMORYALLOCATOR_HPP_LOCK
 
 #include "sys/Object.hpp"
+#include "sys/OStream.hpp"
 
 class MemoryAllocator: virtual public Object {
     protected:
@@ -26,7 +27,7 @@ class MemoryAllocator: virtual public Object {
     virtual void free(void * ptr) = 0;
     virtual size_t getAvailableBytes() = 0;
     virtual MemoryInfo & memInfo(void * ptr) = 0;
-    virtual void dump(bool all = false) = 0;
+    virtual void dump(OStream &log, bool all = false) = 0;
 };
 
 #endif //MEMORYALLOCATOR_HPP_LOCK

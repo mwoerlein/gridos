@@ -1,31 +1,29 @@
 #ifndef ENVIRONMENT_HPP_LOCK
 #define ENVIRONMENT_HPP_LOCK
 
+class ModuleInfo;
+class OStream;
 #include "sys/Object.hpp"
 #include "memory/MemoryAllocator.hpp"
 
 void* operator new (size_t size, void* location);
 
-class ModuleInfo;
-class OStream;
-
 class Environment: virtual public Object {
     private:
     MemoryAllocator * ma;
-    OStream * stdO;
+    OStream *_out, *_err;
     ModuleInfo * modules;
     
     public:
     Environment();
-    Environment(MemoryAllocator &ma, OStream &stdO);
-    Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &stdO);
+    Environment(MemoryAllocator &ma, OStream &out, OStream &err);
+    Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &out, OStream &err);
     virtual ~Environment();
     
-    OStream & getStdO();
-    OStream & setStdO(OStream & out);
-    
-//    InStream &getStdIn();
-//    OutStream &getStdOut();
+    OStream & out();
+    OStream & setOut(OStream & newOut);
+    OStream & err();
+    OStream & setErr(OStream & newErr);
     
     // TODO: access modules/kernel information via ids
     ModuleInfo & setModules(ModuleInfo & mods);

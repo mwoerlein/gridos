@@ -71,7 +71,7 @@ bool Parser::fillBuffer(size_t need, IStream & input)
 
 // public
 ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
-    OStream & log = env().getStdO();
+    OStream & log = env().out();
     ASMInstructionList & list = env().create<ASMInstructionList>();
     
     // reset parsing buffer

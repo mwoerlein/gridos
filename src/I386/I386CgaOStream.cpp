@@ -11,6 +11,10 @@ I386CgaOStream::I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr): Obj
 I386CgaOStream::~I386CgaOStream() {}
 
 OStream &I386CgaOStream::operator <<(char c) {
+    return printChar(c);
+}
+
+OStream &I386CgaOStream::printChar(char c, char format) {
     switch (c) {
     case '\n':
         pos -= pos%(2*maxx);
@@ -23,7 +27,7 @@ OStream &I386CgaOStream::operator <<(char c) {
         break;
     default:
         screen[pos++] = c;
-        screen[pos++] = 7;
+        screen[pos++] = format;
     }
     if (pos >= 2*maxx*maxy) {
         char* c1 = screen;
@@ -32,7 +36,7 @@ OStream &I386CgaOStream::operator <<(char c) {
             *c1++ = *c2++;
         }
         while (c1 < screen + 2*maxx*maxy) {
-            *c1++ = ' '; *c1++ = 7;
+            *c1++ = ' '; *c1++ = format;
         }
         pos -= 2*maxx;
     }
@@ -43,10 +47,10 @@ OStream &I386CgaOStream::operator <<(char c) {
     return *this;
 }
 
-void I386CgaOStream::clear() {
+void I386CgaOStream::clear(char format) {
     char* i = screen;
     while (i < screen + 2*maxx*maxy) {
-        *i++ = ' '; *i++ = 7;
+        *i++ = ' '; *i++ = format;
     }
 
     pos = 0;
@@ -54,4 +58,17 @@ void I386CgaOStream::clear() {
     I386IO_Port(data_port).outb(0);
     I386IO_Port(index_port).outb(15);
     I386IO_Port(data_port).outb(0);
+}
+
+OStream &I386CgaOStream::getFormattedOStream(char format) {
+    return env().create<FormattedOStream, I386CgaOStream&, char>(*this, format);
+}
+
+I386CgaOStream::FormattedOStream::FormattedOStream(Environment &env, MemoryInfo &mi, I386CgaOStream &cga, char format)
+    : Object(env, mi), cga(cga), format(format) {}
+I386CgaOStream::FormattedOStream::~FormattedOStream() {}
+
+OStream &I386CgaOStream::FormattedOStream::operator <<(char c) {
+    cga.printChar(c, format);
+    return *this;
 }

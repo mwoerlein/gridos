@@ -21,7 +21,7 @@ class MemoryManager: public MemoryAllocator {
     virtual MemoryInfo & memInfo(void * ptr) override;
     
     // debug
-    virtual void dump(bool all = false) override;
+    virtual void dump(OStream &log, bool all = false) override;
 };
 
 #endif //MEMORYMANAGER_HPP_LOCK

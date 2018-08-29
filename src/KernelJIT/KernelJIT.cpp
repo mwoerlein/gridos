@@ -13,7 +13,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     char c = 255;
     int ackblock = 0;
     int line = 1;
-    OStream &out = env().getStdO();
+    OStream &out = env().out();
     if (!in.empty()) do {
         in>>c;
         switch (c) {

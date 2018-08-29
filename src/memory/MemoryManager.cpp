@@ -15,7 +15,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     // find available memory
     MemoryInfo * avail = findInfo(&available, required);
     if (avail->len < required) {
-        env().getStdO()<<"bad allocate "<<len<<"\n";
+        env().err()<<"bad allocate "<<len<<"\n";
         return *notAnInfo;
     }
     
@@ -54,7 +54,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
 void MemoryManager::free(void * ptr) {
     MemoryInfo * info = (MemoryInfo*) &memInfo(ptr);
     if ((info == notAnInfo) || !info->flags.used) {
-        env().getStdO()<<"bad free "<<ptr<<"\n";
+        env().err()<<"bad free "<<ptr<<"\n";
         return;
     }
     
@@ -128,8 +128,7 @@ MemoryInfo & MemoryManager::memInfo(void * ptr) {
 }
 
 // debug
-void MemoryManager::dump(bool all) {
-    OStream &log = env().getStdO();
+void MemoryManager::dump(OStream &log, bool all) {
     for (MemoryInfo * e = available.next; e != &available; e = e->next) {
         log<<"Available "
            <<(void *) e->buf<<':'<<memoryEnd(e->buf, e->len)<<'['<<(void *) e->len<<']'

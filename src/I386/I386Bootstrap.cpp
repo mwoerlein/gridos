@@ -14,7 +14,8 @@ void I386Bootstrap::trickCompiler() {
 Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
     Environment bsEnv;
     I386CgaOStream bsOut(bsEnv);
-    bsEnv.setStdO(bsOut);
+    bsEnv.setOut(bsOut);
+    bsEnv.setErr(bsOut);
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
         return *((Environment *) 0x0);
@@ -33,15 +34,16 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     
     // create "heap"-based environment and memory management
     MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(Environment), this);
-    Environment &env = *(new (envInfo.buf) Environment(memoryRegistry, bsOut));
+    Environment &env = *(new (envInfo.buf) Environment(memoryRegistry, bsOut, bsOut));
     
     MemoryManager &mm = env.create<MemoryManager>();
     memoryRegistry.transfer(mm);
     env.setAllocator(mm);
 
     // create "heap"-based stdOut
-    OStream &stdO = env.create<I386CgaOStream>(); 
-    env.setStdO(stdO);
+    I386CgaOStream &cga = env.create<I386CgaOStream>(); 
+    env.setOut(cga);
+    env.setErr(cga.getFormattedOStream(12));
     
     bootInformation.registerModules(env);
     

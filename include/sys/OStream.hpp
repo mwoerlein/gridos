@@ -22,8 +22,6 @@ class OStream: virtual public Object {
     
     virtual OStream &operator <<(Char &c);
     virtual OStream &operator <<(Integer &i);
-    
-    virtual void clear() = 0;
 };
 
 #endif //OSTREAM_HPP_LOCK

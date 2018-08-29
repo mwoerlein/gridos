@@ -20,7 +20,7 @@ class MemoryOStream: public OStream {
         return *this;
     }
     
-    virtual void clear() override {
+    virtual void clear() {
         pos = 0;
     }
 };

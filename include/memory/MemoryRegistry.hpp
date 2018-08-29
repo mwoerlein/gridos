@@ -37,7 +37,7 @@ class MemoryRegistry: public MemoryAllocator {
     void transfer(MemoryManager & memoryManager);
     
     // debug
-    virtual void dump(bool all = false) override;
+    virtual void dump(OStream &log, bool all = false) override;
 };
 
 #endif //MEMORYREGISTRY_HPP_LOCK

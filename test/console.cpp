@@ -6,17 +6,24 @@
 #include "memory/MemoryInfoHelper.hpp"
 #include "test/TestSuite.hpp"
 
+static char normal[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
+static char red[] = { 0x1b, '[', '1', ';', '3', '1', 'm', 0 };
+
 class StdOStream: public OStream {
+    private:
+    std::ostream &out;
+    const char *format;
+    
     public:
     using OStream::operator <<;
-    StdOStream(Environment &env, MemoryInfo &mi = *notAnInfo): Object(env, mi) {};
+    StdOStream(Environment &env, MemoryInfo &mi, std::ostream &out, const char *format)
+        : Object(env, mi), out(out), format(format) {};
     virtual ~StdOStream() {}
     
     virtual OStream &operator <<(char c) override {
-        std::cout<<c;
+        out<<format<<c<<normal;
         return *this;
     }
-    virtual void clear() override {};
 };
 
 void operator delete(void * ptr) { /* do not free memory on delete */}
@@ -38,8 +45,8 @@ class MallocAllocator: public MemoryAllocator {
     }
     
     virtual void free(void * ptr) override {
-        void * info = memInfo(ptr);
-        if (info != *notAnInfo) {
+        MemoryInfo * info = &memInfo(ptr);
+        if (info != notAnInfo) {
             std::free(info);
         }
     }
@@ -56,13 +63,16 @@ class MallocAllocator: public MemoryAllocator {
     }
     
     virtual size_t getAvailableBytes() override { return 0; }
-    virtual void dump(bool all = false) override {}
+    virtual void dump(OStream &log, bool all = false) override {}
 };
 
 int main() {
+    
     Environment env;
-    StdOStream bsOut(env);
-    env.setStdO(bsOut);
+    StdOStream bsOut(env, *notAnInfo, std::cout, normal);
+    env.setOut(bsOut);
+    StdOStream bsErr(env, *notAnInfo, std::cerr, red);
+    env.setErr(bsErr);
     MallocAllocator bsMa(env);
     env.setAllocator(bsMa);
     
