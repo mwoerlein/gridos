@@ -64,7 +64,7 @@ kernel/ObjectKernel.s: kernel/Object_Test.S
 kernel/blinkingKernel.s: kernel/blinkingKernel.c
 	@gcc -S $< -o $@
 
-testsuite: test/console.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
+testsuite: test/suite.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
 	@echo "build testsuite"
 	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
 
