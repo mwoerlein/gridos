@@ -21,6 +21,11 @@ Digit & Digit::operator =(Char &c) {
     return *this;
 }
 
+Digit & Digit::operator =(Digit &d) {
+    Char::_c = (char) d;
+    return *this;
+}
+
 Digit & Digit::operator =(int i) {
     Char::_c = itod(i);
     return *this;

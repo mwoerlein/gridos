@@ -33,6 +33,7 @@ class Digit: public Char {
     operator int();
     virtual Digit & operator =(char c) override;
     virtual Digit & operator =(Char &c) override;
+    virtual Digit & operator =(Digit &c);
     virtual Digit & operator =(int i);
     virtual Digit & operator =(Integer &i);
 };
