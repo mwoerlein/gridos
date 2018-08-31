@@ -4,6 +4,7 @@
 #include "memory/MemoryManager.hpp"
 #include "KernelJIT/ModuleInfo.hpp"
 
+#include "test/sys/BoolTest.hpp"
 #include "test/sys/CharTest.hpp"
 #include "test/sys/DigitTest.hpp"
 #include "test/sys/IntegerTest.hpp"
@@ -13,6 +14,7 @@ TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
 TestSuite::~TestSuite() {};
 
 void TestSuite::runAll() {
+    run<BoolTest>();
     run<CharTest>();
     run<DigitTest>();
     run<IntegerTest>();

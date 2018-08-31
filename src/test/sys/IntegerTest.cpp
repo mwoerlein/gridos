@@ -44,6 +44,7 @@ bool IntegerTest::testHashAndEquals() {
     assert(i1.equals(i1), "Identity check");
     assert(i1.equals(i2), "Same int as different Integers are equal");
     assert(!i1.equals(i3), "Different ints are not equal");
+    assert(!i1.equals(env()), "Different Objects are not equal");
 
     env().destroy(i3);
     env().destroy(i2);

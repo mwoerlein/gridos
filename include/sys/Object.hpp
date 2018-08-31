@@ -5,7 +5,7 @@
 class Environment;
 
 // TODO #6: implement RTTI correctly
-enum RTTI { object, character, integer };
+enum RTTI { object, boolean, character, integer };
 
 class Object {
     private:

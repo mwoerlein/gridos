@@ -43,6 +43,7 @@ bool CharTest::testHashAndEquals() {
     assert(c1.equals(c1), "Identity check");
     assert(c1.equals(c2), "Same char as different Chars are equal");
     assert(!c1.equals(c3), "Different chars are not equal");
+    assert(!c1.equals(env()), "Different Objects are not equal");
     
     env().destroy(c3);
     env().destroy(c2);

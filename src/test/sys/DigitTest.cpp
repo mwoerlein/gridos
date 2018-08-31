@@ -101,6 +101,7 @@ bool DigitTest::testHashAndEquals() {
     assert(d1.equals(d1), "Identity check");
     assert(d1.equals(d2), "Same digit as different Digits are equal");
     assert(!d1.equals(d3), "Different digits are not equal");
+    assert(!d1.equals(env()), "Different Objects are not equal");
     assert(d4.equals(d5), "Invalid digits are equal");
     
     env().destroy(d5);
