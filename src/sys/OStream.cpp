@@ -1,6 +1,9 @@
 #include "sys/OStream.hpp"
+
 #include "sys/Char.hpp"
 #include "sys/Integer.hpp"
+#include "sys/String.hpp"
+#include "sys/IStream.hpp"
 
 // public
 
@@ -36,6 +39,21 @@ OStream & OStream::operator <<(Integer &i) {
     return *this<<(int) i;
 }
 
+OStream & OStream::operator <<(String &s) {
+    IStream &stream = s.toIStream();
+    *this<<stream;
+    stream.destroy();
+    return *this;
+}
+
+OStream & OStream::operator <<(IStream &stream) {
+    char tmp;
+    while (!stream.isEmpty()) {
+        stream>>tmp;
+        *this<<tmp;
+    }
+    return *this;
+}
 
 // protected
 

@@ -69,9 +69,16 @@ bool CharTest::testComparable() {
     assert(c4 >  c2, "C >  B");
     assert(c4 >= c2, "C >= B");
     assert(c4 != c2, "C != B");
+
+    assert(c1 != 'B', "A != B (char)");
+    assert(c1 <  'B', "A <  B (char)");
+    assert(c1 <= 'B', "A <= B (char)");
+    assert(c2 == 'B', "B == B (char)");
+    assert(c2 >= 'B', "B >= B (char)");
+    assert(c4 >  'B', "C >  B (char)");
     
     assertEquals(c1.compareTo(c4), -2, "distance A to C");
-    assertEquals(c4.compareTo(c1),  2, "distance C to A");
+    assertEquals(c4.compareTo('A'),  2, "distance C to A");
     
     c4.destroy();
     c3.destroy();

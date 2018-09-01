@@ -78,6 +78,10 @@ Integer & Integer::operator %=(Integer &i) {
     return *this;
 }
 
+int Integer::compareTo(int i) {
+    return _i - i;
+}
+
 int Integer::compareTo(Integer &i) {
     return _i - (int) i;
 }

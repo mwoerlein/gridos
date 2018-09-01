@@ -3,6 +3,22 @@
 
 #include "sys/Object.hpp"
 
+#define useComparableOperators(Obj) \
+    using Comparable<Obj>::operator ==;\
+    using Comparable<Obj>::operator !=;\
+    using Comparable<Obj>::operator <;\
+    using Comparable<Obj>::operator <=;\
+    using Comparable<Obj>::operator >;\
+    using Comparable<Obj>::operator >=;
+
+#define useComparableCOperators(T) \
+    using ComparableC<T>::operator ==;\
+    using ComparableC<T>::operator !=;\
+    using ComparableC<T>::operator <;\
+    using ComparableC<T>::operator <=;\
+    using ComparableC<T>::operator >;\
+    using ComparableC<T>::operator >=;
+
 template <class Obj> class Comparable: virtual public Object {
     public:
     virtual int compareTo(Obj &obj) = 0;

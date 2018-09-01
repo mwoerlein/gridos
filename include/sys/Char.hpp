@@ -4,7 +4,7 @@
 #include "sys/OStream.hpp"
 #include "sys/Comparable.hpp"
 
-class Char: public Comparable<Char> {
+class Char: public ComparableC<char>, public Comparable<Char> {
     protected:
     char _c;
     
@@ -17,6 +17,9 @@ class Char: public Comparable<Char> {
     virtual Char & operator =(char c);
     virtual Char & operator =(Char &c);
     
+    useComparableCOperators(char);
+    useComparableOperators(Char);
+    virtual int compareTo(char c) override;
     virtual int compareTo(Char &c) override;
     virtual int hash() override;
     

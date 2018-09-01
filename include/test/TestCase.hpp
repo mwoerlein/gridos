@@ -10,6 +10,7 @@
 #define assertNotEquals(value, expected, message) if ((value) == (expected)) {\
     env().err() << __PRETTY_FUNCTION__ << " failed: " << message << " (got not expected: " << (value) << ")\n"; return false;\
 }
+#define incomplete() env().err() << __PRETTY_FUNCTION__ << " incomplete!" << '\n'; return true;
 #define success() env().out() << __PRETTY_FUNCTION__ << " successful!" << '\n'; return true;
 
 class TestCase: public Object {

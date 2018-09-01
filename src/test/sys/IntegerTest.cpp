@@ -71,8 +71,15 @@ bool IntegerTest::testComparable() {
     assert(i4 >= i2, "4 >= 0");
     assert(i4 != i2, "4 != 0");
     
+    assert(i1 != 0, "-7 != 0 (int)");
+    assert(i1 <  0, "-7 <  0 (int)");
+    assert(i1 <= 0, "-7 <= 0 (int)");
+    assert(i2 == 0, "0 == 0 (int)");
+    assert(i2 >= 0, "0 >= 0 (int)");
+    assert(i4 >  0, "4 >  0 (int)");
+
     assertEquals(i1.compareTo(i4), -11, "distance -7 to 4");
-    assertEquals(i4.compareTo(i1), 11, "distance 4 to -7");
+    assertEquals(i4.compareTo(-7), 11, "distance 4 to -7");
     
     i4.destroy();
     i3.destroy();

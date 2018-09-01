@@ -5,6 +5,8 @@
 
 class Char;
 class Integer;
+class String;
+class IStream;
 class OStream: virtual public Object {
     protected:
     OStream &printint(int d, int base = 10, int pad = 0);
@@ -22,6 +24,8 @@ class OStream: virtual public Object {
     
     virtual OStream &operator <<(Char &c);
     virtual OStream &operator <<(Integer &i);
+    virtual OStream &operator <<(String &s);
+    virtual OStream &operator <<(IStream &stream);
 };
 
 #endif //OSTREAM_HPP_LOCK

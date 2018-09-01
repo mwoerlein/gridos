@@ -3,7 +3,7 @@
 
 #include "sys/Comparable.hpp"
 
-class Integer: public Comparable<Integer> {
+class Integer: public ComparableC<int>, public Comparable<Integer> {
     private:
     int _i;
     
@@ -31,6 +31,9 @@ class Integer: public Comparable<Integer> {
     virtual Integer & operator /=(Integer &i);
     virtual Integer & operator %=(Integer &i);
     
+    useComparableCOperators(int);
+    useComparableOperators(Integer);
+    virtual int compareTo(int i) override;
     virtual int compareTo(Integer &i) override;
     virtual int hash() override;
         

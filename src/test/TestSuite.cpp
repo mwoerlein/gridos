@@ -8,6 +8,7 @@
 #include "test/sys/CharTest.hpp"
 #include "test/sys/DigitTest.hpp"
 #include "test/sys/IntegerTest.hpp"
+#include "test/sys/StringTest.hpp"
 
 // public
 TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
@@ -18,6 +19,7 @@ void TestSuite::runAll() {
     run<CharTest>();
     run<DigitTest>();
     run<IntegerTest>();
+    run<StringTest>();
 }
 
 // private

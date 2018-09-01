@@ -19,6 +19,10 @@ Char & Char::operator =(Char &c) {
     return *this;
 }
 
+int Char::compareTo(char c) {
+    return _c - c;
+}
+
 int Char::compareTo(Char &c) {
     return _c - (char) c;
 }
