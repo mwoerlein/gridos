@@ -19,12 +19,9 @@ class MemoryIStream: public IStream {
         c = ((char*)mem.buf)[pos++];
     }
     
-    virtual bool empty() override {
+    virtual bool isEmpty() override {
         return (pos == mem.len);
     }
-    
-//    virtual IStream &operator >>(int &i) = 0;
-//    virtual IStream &operator >>(void *ptr) = 0;
 };
 
 #endif //MEMORYISTREAM_HPP_LOCK

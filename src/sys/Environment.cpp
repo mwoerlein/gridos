@@ -8,7 +8,7 @@ Environment::Environment():Object(*this, *notAnInfo),ma(0),_out(0),_err(0) {}
 Environment::Environment(MemoryAllocator &ma, OStream &out, OStream &err)
     :Object(*this, ma.memInfo(this)),ma(&ma),_out(&out),_err(&err) {}
 Environment::Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &out, OStream &err)
-    :Object(*this, mi),ma(&ma),_out(&out),_err(&err) {}
+    :Object(env, mi),ma(&ma),_out(&out),_err(&err) {}
 Environment::~Environment() {}
 
 OStream & Environment::out() {
@@ -51,11 +51,4 @@ MemoryAllocator & Environment::setAllocator(MemoryAllocator & allocator) {
     // refresh _memory_info from new allocator
     this->_memory_info = &ma->memInfo(this);
     return *old;
-}
-
-void Environment::destroy(Object &obj) {
-    // call destructors
-    delete &obj;
-    // free memory
-    ma->free(obj._memory_info);
 }

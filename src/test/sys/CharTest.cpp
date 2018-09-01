@@ -26,8 +26,8 @@ bool CharTest::testAssignment() {
     c1 = c2;
     assertEquals((char) c1, 'b', "Assign Char");
     
-    env().destroy(c2);
-    env().destroy(c1);
+    c2.destroy();
+    c1.destroy();
     success();
 }
 
@@ -45,9 +45,9 @@ bool CharTest::testHashAndEquals() {
     assert(!c1.equals(c3), "Different chars are not equal");
     assert(!c1.equals(env()), "Different Objects are not equal");
     
-    env().destroy(c3);
-    env().destroy(c2);
-    env().destroy(c1);
+    c3.destroy();
+    c2.destroy();
+    c1.destroy();
     success();
 }
 
@@ -73,9 +73,9 @@ bool CharTest::testComparable() {
     assertEquals(c1.compareTo(c4), -2, "distance A to C");
     assertEquals(c4.compareTo(c1),  2, "distance C to A");
     
-    env().destroy(c4);
-    env().destroy(c3);
-    env().destroy(c2);
-    env().destroy(c1);
+    c4.destroy();
+    c3.destroy();
+    c2.destroy();
+    c1.destroy();
     success();
 }

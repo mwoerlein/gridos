@@ -76,13 +76,13 @@ bool DigitTest::testAssignment() {
     assertEquals((char) d5, '?', "Assign invalid Integer (char)");
     assertEquals((int) d5, -1, "Assign invalid Integer (int)");
     
-    env().destroy(c);
-    env().destroy(i);
-    env().destroy(d5);
-    env().destroy(d4);
-    env().destroy(d3);
-    env().destroy(d2);
-    env().destroy(d1);
+    c.destroy();
+    i.destroy();
+    d5.destroy();
+    d4.destroy();
+    d3.destroy();
+    d2.destroy();
+    d1.destroy();
     success();
 }
 
@@ -104,11 +104,11 @@ bool DigitTest::testHashAndEquals() {
     assert(!d1.equals(env()), "Different Objects are not equal");
     assert(d4.equals(d5), "Invalid digits are equal");
     
-    env().destroy(d5);
-    env().destroy(d4);
-    env().destroy(d3);
-    env().destroy(d2);
-    env().destroy(d1);
+    d5.destroy();
+    d4.destroy();
+    d3.destroy();
+    d2.destroy();
+    d1.destroy();
     success();
 }
 
@@ -134,9 +134,9 @@ bool DigitTest::testComparable() {
     assertEquals(d1.compareTo(d4), ('6'-'c'), "distance 6 to c");
     assertEquals(d4.compareTo(d1), ('c'-'6'), "distance c to 6");
     
-    env().destroy(d4);
-    env().destroy(d3);
-    env().destroy(d2);
-    env().destroy(d1);
+    d4.destroy();
+    d3.destroy();
+    d2.destroy();
+    d1.destroy();
     success();
 }

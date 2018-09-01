@@ -37,17 +37,17 @@ Environment & TestSuite::createTestEnvironment(size_t memorySize) {
     return testEnv;
 }
 
-void TestSuite::destroyTestEnvironment(Environment &testEnv, bool checkMemory) {
-    ModuleInfo &testMemory = testEnv.getModules();
-    MemoryAllocator &ma = testEnv.getAllocator();
+void TestSuite::destroyTestEnvironment(Environment &testEnvironment, bool checkMemory) {
+    ModuleInfo &testMemoryModule = testEnvironment.getModules();
+    MemoryAllocator &testAllocator = testEnvironment.getAllocator();
     
-    if (checkMemory && testEnv.getAllocator().getAvailableBytes() != testMemory.memoryInfo.len) {
-        testEnv.err() << "memory hole detected!\n";
-        ma.dump(testEnv.err(), true);
+    if (checkMemory && testAllocator.getAvailableBytes() != testMemoryModule.memoryInfo.len) {
+        testEnvironment.err() << "memory hole detected!\n";
+        testAllocator.dump(testEnvironment.err(), true);
     }
     
     // cleanup test resources
-    env().destroy(ma);
-    env().destroy(testEnv);
-    env().destroy(testMemory); // implicit sandbox destruction
+    testEnvironment.destroy();
+    testAllocator.destroy();
+    testMemoryModule.destroy(); // implicit sandbox destruction
 }

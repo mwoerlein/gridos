@@ -14,7 +14,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     int ackblock = 0;
     int line = 1;
     OStream &out = env().out();
-    if (!in.empty()) do {
+    if (!in.isEmpty()) do {
         in>>c;
         switch (c) {
             case '>': ackblock += 2;
@@ -33,13 +33,13 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
     list.writeToStream(osk);
-    env().destroy(list);
-    env().destroy(parser);
+    list.destroy();
+    parser.destroy();
     
     // TODO: parse meta information of TEXT block and switch between copy and compile
     /*
     out<<"copying ";
-    while (!in.empty()) {
+    while (!in.isEmpty()) {
         in>>c;
         osk<<c;
         x++;

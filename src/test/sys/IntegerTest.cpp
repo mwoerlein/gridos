@@ -27,8 +27,8 @@ bool IntegerTest::testAssignment() {
     i1 = i2;
     assertEquals((int) i1, 99, "Assign Integer");
     
-    env().destroy(i2);
-    env().destroy(i1);
+    i2.destroy();
+    i1.destroy();
     success();
 }
 
@@ -46,9 +46,9 @@ bool IntegerTest::testHashAndEquals() {
     assert(!i1.equals(i3), "Different ints are not equal");
     assert(!i1.equals(env()), "Different Objects are not equal");
 
-    env().destroy(i3);
-    env().destroy(i2);
-    env().destroy(i1);
+    i3.destroy();
+    i2.destroy();
+    i1.destroy();
     success();
 }
 
@@ -74,10 +74,10 @@ bool IntegerTest::testComparable() {
     assertEquals(i1.compareTo(i4), -11, "distance -7 to 4");
     assertEquals(i4.compareTo(i1), 11, "distance 4 to -7");
     
-    env().destroy(i4);
-    env().destroy(i3);
-    env().destroy(i2);
-    env().destroy(i1);
+    i4.destroy();
+    i3.destroy();
+    i2.destroy();
+    i1.destroy();
     success();
 }
 
@@ -121,7 +121,7 @@ bool IntegerTest::testArithmetic() {
     i1 %= i2;
     assertEquals((int) i1, 1, "mod Integer");
     
-    env().destroy(i2);
-    env().destroy(i1);
+    i2.destroy();
+    i1.destroy();
     success();
 }

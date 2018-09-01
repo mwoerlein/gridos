@@ -5,10 +5,10 @@ ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object
 ASMInstructionList::~ASMInstructionList() {
     InstructionElem * cur = first;
     while (cur) {
-        InstructionElem * destroy = cur;
+        InstructionElem * kill = cur;
         cur = cur->next;
-        env().destroy(destroy->inst);
-        env().destroy(*destroy);
+        kill->inst.destroy();
+        kill->destroy();
     }
     last = first = 0;
     pos = 0;

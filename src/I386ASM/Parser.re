@@ -43,11 +43,11 @@ bool Parser::freeBuffer(size_t need) {
 
 bool Parser::fillBuffer(size_t need, IStream & input)
 {
-    if (input.empty() || !freeBuffer(need)) {
+    if (input.isEmpty() || !freeBuffer(need)) {
         return false;
     }
     char current;
-    while (!input.empty() && (limit < buffer + SIZE)) {
+    while (!input.isEmpty() && (limit < buffer + SIZE)) {
         input >> current;
         linesBuffer[limit - buffer] = currentLine;
         columnsBuffer[limit - buffer] = currentColumn++;

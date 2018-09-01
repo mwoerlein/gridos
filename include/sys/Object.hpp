@@ -16,6 +16,7 @@ class Object {
     public:
     Object(Environment &env, MemoryInfo &mi):_environment(env),_memory_info(&mi) {}
     virtual ~Object() {}
+    virtual void destroy();
     
     Environment &env();
     virtual int hash();

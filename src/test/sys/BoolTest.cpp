@@ -25,8 +25,8 @@ bool BoolTest::testAssignment() {
     b1 = b2;
     assertEquals((bool) b1, false, "Assign Bool");
     
-    env().destroy(b2);
-    env().destroy(b1);
+    b2.destroy();
+    b1.destroy();
     success();
 }
 
@@ -44,8 +44,8 @@ bool BoolTest::testHashAndEquals() {
     assert(!b1.equals(b3), "Different chars are not equal");
     assert(!b1.equals(env()), "Different Objects are not equal");
     
-    env().destroy(b3);
-    env().destroy(b2);
-    env().destroy(b1);
+    b3.destroy();
+    b2.destroy();
+    b1.destroy();
     success();
 }

@@ -32,7 +32,11 @@ class Environment: virtual public Object {
     MemoryAllocator & getAllocator();
     MemoryAllocator & setAllocator(MemoryAllocator & allocator);
     
-    void destroy(Object &obj);
+    using Object::destroy;
+    inline void destroy(Object &obj) {
+        delete &obj; // call destructors
+        ma->free(obj._memory_info); // free memory
+    }
     
     template <class Obj> Obj & create() {
         MemoryInfo &mi = ma->allocate(sizeof(Obj), this);
