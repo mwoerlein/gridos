@@ -2,6 +2,7 @@ include ./.Makefiles/Makefile.inc
 
 LDHEAD =# $(shell g++ --print-file-name=crti.o && g++ --print-file-name=crtbegin.o)
 LDTAIL =# $(shell g++ --print-file-name=crtend.o && g++ --print-file-name=crtn.o)
+KERNELLIBS = $(MASCHINE).a KernelJIT.a $(MASCHINE)ASM.a memory.a sys.a multiboot2.a
 
 $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block: $(BOOTDIR)/Kernel-TEXT.bin $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin
 	echo "#define DISK_HEADS       2" >> $@
@@ -38,9 +39,9 @@ $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 	echo "creating $@"
 	cp $< $@
 
-$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.o $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/$(MASCHINE)ASM.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a $(LIBDIR)/multiboot2.a 
+$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin: $(BOOTDIR)/$(MASCHINE)_bootstrap_entry.o $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(KERNELLIBS:%=$(LIBDIR)/%) 
 	echo "creating $@"
-	ld -e bootstrap_start -Ttext 0x20000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(LIBDIR)/$(MASCHINE).a $(LIBDIR)/KernelJIT.a $(LIBDIR)/$(MASCHINE)ASM.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a $(LIBDIR)/multiboot2.a $(LDTAIL)
+	ld -e bootstrap_start -Ttext 0x20000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_bootstrap.o $(LDHEAD) $(KERNELLIBS:%=$(LIBDIR)/%) $(LDTAIL)
 #	cp $(BOOTDIR)/../multiboot_example/multiboot2.kernel $@
 #	bash -c 'for c in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do printf "$$c%.0s" {1..512}; done' > $@
 #	dd if=/dev/zero bs=512 count=500 >> $@
