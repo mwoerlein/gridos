@@ -1,6 +1,7 @@
 #include "multiboot2/BootInformation.hpp"
 
 #include "KernelJIT/ModuleInfo.hpp"
+#include "sys/String.hpp"
 
 BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh),modulesCount(0) {
     struct multiboot_tag *tag;
@@ -94,18 +95,18 @@ void BootInformation::registerMemory(MemoryRegistry &reg) {
 void BootInformation::registerModules(Environment &env) {
     MemoryAllocator &ma = env.getAllocator();
     ModuleInfo * next = (ModuleInfo *) 0;
-/*
-    ModuleInfo * kernel = &env.create<ModuleInfo, MemoryInfo &, char *, ModuleInfo *>(
+    
+    ModuleInfo * kernel = &env.create<ModuleInfo, MemoryInfo &, String &, ModuleInfo *>(
         ma.memInfo((void *)address->load_addr),
-        commandline->string,
+        env.create<String, char*>(commandline->string),
         next
     );
     next = kernel;
-*/
+    
     for (int i = modulesCount-1; i >= 0; i--) {
-        next = &env.create<ModuleInfo, MemoryInfo &, char *, ModuleInfo *>(
+        next = &env.create<ModuleInfo, MemoryInfo &, String &, ModuleInfo *>(
             ma.memInfo((void*)modules[i]->mod_start),
-            modules[i]->cmdline,
+            env.create<String, char*>(modules[i]->cmdline),
             next
         );
     }

@@ -2,19 +2,16 @@
 #define MODULEINFO_HPP_LOCK
 
 #include "sys/Object.hpp"
+class String;
 
 class ModuleInfo: virtual public Object {
     public:
     ModuleInfo * next;
     MemoryInfo & memoryInfo;
-    // TODO: use String
-    char * cmd;
+    String & cmd;
     
-    ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo, char * cmd, ModuleInfo * next = 0):
-        Object(env, mi), memoryInfo(memoryInfo), cmd(cmd), next(next) {}
-    virtual ~ModuleInfo() {
-        env().getAllocator().free(&memoryInfo);
-    }
+    ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo, String & cmd, ModuleInfo * next = 0);
+    virtual ~ModuleInfo();
 };
 
 #endif //MODULEINFO_HPP_LOCK

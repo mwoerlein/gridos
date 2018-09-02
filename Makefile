@@ -4,6 +4,8 @@ BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
+TESTSUITELIBS = test.a KernelJIT.a memory.a sys.a
+
 .PHONY: all clean linux bootdisk libs rlibs disk kernel tests
 
 all: bootdisk
@@ -64,9 +66,9 @@ kernel/ObjectKernel.s: kernel/Object_Test.S
 kernel/blinkingKernel.s: kernel/blinkingKernel.c
 	@gcc -S $< -o $@
 
-test/suite: test/suite.cpp $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
+test/suite: test/suite.cpp $(TESTSUITELIBS:%=$(LIBDIR)/%)
 	@echo "build test suite"
-	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(LIBDIR)/test.a $(LIBDIR)/memory.a $(LIBDIR)/sys.a
+	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(TESTSUITELIBS:%=$(LIBDIR)/%)
 
 CompTest: test/CompTest.cpp $(LIBDIR)/Linux.a $(LIBDIR)/sys.a $(LIBDIR)/Pool.a
 	$(CC) -DLINUX_ENV -I$(INCDIR) -o $@ $< $(LIBDIR)/Linux.a $(LIBDIR)/Pool.a $(LIBDIR)/sys.a

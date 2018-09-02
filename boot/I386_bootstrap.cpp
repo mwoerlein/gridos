@@ -34,12 +34,12 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     env.destroy(jit);
     env.destroy(in);
     
-/*/
     for (ModuleInfo * module = &env.getModules(); module; module = module->next) {
-        env.destroy(*module);
+        module->destroy();
     }
-//*/
-//    ma.dump(env().out(), true);
+    
+//    env.out()<<&env<<' '<<&env.out()<<' '<<&env.err()<<' '<<&env.getAllocator()<<' '<<&k<<'\n';
+//    ma.dump(env.err(), true);
     
     // run compiled kernel    
     env.out()<<"Starting kernel ...\n";
