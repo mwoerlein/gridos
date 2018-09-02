@@ -12,6 +12,9 @@ class Jump: public ASMInstruction {
     
     virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
+    virtual void logToStream(OStream &stream) {
+        stream << "jmp" << ' ' << -3;
+    }
 };
 
 #endif //I386ASMJUMP_HPP_LOCK

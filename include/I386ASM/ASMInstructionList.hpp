@@ -6,17 +6,10 @@
 
 class ASMInstructionList: virtual public Object {
     private:
-    class InstructionElem: virtual public Object {
-        public:
-        InstructionElem * next;
-        ASMInstruction &inst;
-        size_t pos;
-        
-        InstructionElem(Environment &env, MemoryInfo &mi, ASMInstruction &inst, size_t pos):Object(env, mi),inst(inst),pos(pos),next(0) {}
-        virtual ~InstructionElem() {}
-    };
+    class _Elem;
+    
     size_t pos;
-    InstructionElem *first, *last;
+    _Elem *first, *last;
     
     public:
     ASMInstructionList(Environment &env, MemoryInfo &mi);
@@ -28,6 +21,7 @@ class ASMInstructionList: virtual public Object {
     virtual size_t getSizeInBytes();
     
     virtual void writeToStream(OStream &stream);
+    virtual void logToStream(OStream &stream);
 };
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK

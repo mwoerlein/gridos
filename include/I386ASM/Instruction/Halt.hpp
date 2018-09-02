@@ -12,6 +12,9 @@ class Halt: public ASMInstruction {
     
     virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
+    virtual void logToStream(OStream &stream) {
+        stream << "hlt";
+    }
 };
 
 #endif //I386ASMHALT_HPP_LOCK

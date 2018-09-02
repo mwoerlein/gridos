@@ -1,11 +1,22 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
+class ASMInstructionList::_Elem: virtual public Object {
+    public:
+    _Elem * next;
+    ASMInstruction &inst;
+    size_t pos;
+    
+    _Elem(Environment &env, MemoryInfo &mi, ASMInstruction &inst, size_t pos)
+        :Object(env, mi),inst(inst),pos(pos),next(0) {}
+    virtual ~_Elem() {}
+};
+
 // public
-ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), pos(0) {}
+ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), pos(0), first(0), last(0) {}
 ASMInstructionList::~ASMInstructionList() {
-    InstructionElem * cur = first;
+    _Elem * cur = first;
     while (cur) {
-        InstructionElem * kill = cur;
+        _Elem * kill = cur;
         cur = cur->next;
         kill->inst.destroy();
         kill->destroy();
@@ -15,7 +26,7 @@ ASMInstructionList::~ASMInstructionList() {
 }
 
 void ASMInstructionList::addInstruction(ASMInstruction &inst) {
-    InstructionElem * e = &env().create<InstructionElem, ASMInstruction&, size_t>(inst, pos);
+    _Elem * e = &env().create<_Elem, ASMInstruction&, size_t>(inst, pos);
     pos += inst.getSizeInBytes();
     if (!first) {
         first = last = e;
@@ -30,8 +41,14 @@ size_t ASMInstructionList::getSizeInBytes() {
     
 void ASMInstructionList::writeToStream(OStream &stream) {
     // TODO: resolve definitions;
-    for (InstructionElem * cur = first; cur ; cur = cur->next) {
+    for (_Elem * cur = first; cur ; cur = cur->next) {
         // TODO: resolve arguments;
-        stream << cur->inst;
+        cur->inst.writeToStream(stream);
+    }
+}
+
+void ASMInstructionList::logToStream(OStream &stream) {
+    for (_Elem * cur = first; cur ; cur = cur->next) {
+        stream << cur->inst << '\n';
     }
 }

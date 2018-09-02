@@ -2,6 +2,6 @@
 
 // public
 OStream & operator << (OStream & out, ASMInstruction &instruction) {
-    instruction.writeToStream(out);
+    instruction.logToStream(out);
     return out;
 }

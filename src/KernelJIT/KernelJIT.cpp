@@ -8,6 +8,8 @@
 #include "I386ASM/Parser.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
+#include "sys/String.hpp"
+
 Kernel &KernelJIT::kernel_compile(IStream & in) {
     int x = 0;
     char c = 255;
@@ -30,6 +32,17 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, line);
+
+    if (true) {
+        String pretty(env());
+        list.logToStream(pretty);
+        out<<pretty<<'\n';
+        IStream &prettyIn = pretty.toIStream();
+        ASMInstructionList &list2 = parser.parse(prettyIn);
+        list2.logToStream(out);
+        list2.destroy();
+        prettyIn.destroy();
+    }
     
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
     list.writeToStream(osk);

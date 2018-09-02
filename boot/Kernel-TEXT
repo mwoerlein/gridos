@@ -13,5 +13,5 @@ _start:
     addl    0x704, %eax
     ;
     movw    0x740, -2(%eax);  movw    0x73e, (%eax)
-_halt: hlt unused; _jmp_halt:
+_halt: hlt; _jmp_halt:
     jmp _halt;
