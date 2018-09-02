@@ -1,8 +1,16 @@
 #include "I386ASM/Parser.hpp"
 
+#include "sys/String.hpp"
+
 #include "I386ASM/Instruction/Halt.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
+#include "I386ASM/Instruction/Add.hpp"
+
+#include "I386ASM/Operand/Number.hpp"
+#include "I386ASM/Operand/Register.hpp"
+#include "I386ASM/Operand/Indirect.hpp"
+#include "I386ASM/Operand/Identifier.hpp"
 
 /*!max:re2c*/
 #define SIZE 500
@@ -73,6 +81,9 @@ bool Parser::fillBuffer(size_t need, IStream & input)
 ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
     OStream & log = env().out();
     ASMInstructionList & list = env().create<ASMInstructionList>();
+    String comments = env().create<String>();
+    
+    if (true) {
     
     // reset parsing buffer
     token = current = marker = ctxmarker = limit = buffer + SIZE;
@@ -97,8 +108,8 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         re2c:define:YYFILL:naked = 1;
         
         end     = "\x00";
-        eol     = "\n";
-        wsp     = [ \t\n]*;
+        eol     = "\r"? "\n" | "\r";
+        wsp     = [ \t\r\n]*;
 
         bin     = "-"? "0"[bB][01]+;
         oct     = "-"? "0"[0-7]+;
@@ -112,7 +123,7 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         mul     = [iI]?[mM][uU][lL][bBwWlL]?;
         hlt     = [hH][lL][tT];
         jmp     = [jJ][mM][pP];
-        reg     = "%" ( [eE]?[aAbBcCdD][xX] | [eE]?[dDsS][iI] | [eE]?[bBiIsS][pP] | [aAbBcCdD][hHlL] | [cCdDeEsS][sS]);
+        reg     = "%" ( [eE]?[aAbBcCdD][xX] | [eE]?[dDsS][iI] | [eE]?[bBiIsS][pP] | [aAbBcCdD][hHlL] | [cCdDeEfFgGsS][sS]);
         
         id          = [a-zA-Z0-9_]+;
         comma       = ",";
@@ -121,17 +132,23 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         assign      = ":=";
         
         inst        = hlt | jmp | mov | add | sub | mul;
-        arg         = reg | id | number | ((number | id) wsp)? "(" wsp reg ( wsp comma wsp reg ( wsp comma wsp [1,2,4,8] )? )? wsp ")";
+        operand     = reg | id | number | ((number | id) wsp)? "(" wsp reg ( wsp comma wsp reg ( wsp comma wsp [1,2,4,8] )? )? wsp ")";
         eoinst      = semicolon | eol | "//" | "#" | "/*" ;
 
         end       { break; }
         wsp       { continue; }
         semicolon { continue; }
         ( "//" | "#" ) @o1 [^\n]* @o2 eol {
-                    log << "linec: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue;
+                    String comment = env().create<String, char*, char*>(o1, o2);
+                    comments << "linec: " << comment << '\n';
+                    comment.destroy();
+                    continue;
                   }
         "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" {
-                    log << "mlcom: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue;
+                    String comment = env().create<String, char*, char*>(o1, o2);
+                    comments << "mlcom: " << comment << '\n';
+                    comment.destroy();
+                    continue;
                   }
 
         @o1 id @o2 wsp colon {
@@ -144,20 +161,20 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
                     for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                     log << '\n'; continue;
                   }
-        @o1 inst @o2 wsp @o3 arg @o4 wsp / eoinst {
+        @o1 inst @o2 wsp @o3 operand @o4 wsp / eoinst {
                     log << "inst1: ";
                     for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                     for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                     log << '\n'; continue;
                   }
-        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 wsp / eoinst {
+        @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp / eoinst {
                     log << "inst2: ";
                     for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                     for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                     for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
                     log << '\n'; continue;
                   }
-        @o1 inst @o2 wsp @o3 arg @o4 wsp comma wsp @o5 arg @o6 wsp comma wsp @o7 arg @o8 wsp / eoinst {
+        @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp comma wsp @o7 operand @o8 wsp / eoinst {
                     log << "inst3: ";
                     for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                     for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
@@ -168,11 +185,62 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         *         { log << "error: " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n'; break; }
 */
     }
-    
+    }
     // TODO: fill list via re2c
-    list.addInstruction(env().create<Move>());
+    list.addInstruction(env().create<Move, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(0xb8f00),
+        &env().create<Register, enum asm_register>(eax),
+        l
+    ));
+    list.addInstruction(env().create<Add, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(74),
+        &env().create<Register, enum asm_register>(eax),
+        l
+    ));
+    list.addInstruction(env().create<Move, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(0x073c),
+        &env().create<Indirect, Register*>(&env().create<Register, enum asm_register>(eax)),
+        w
+    ));
+    list.addInstruction(env().create<Add, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(4),
+        &env().create<Register, enum asm_register>(eax),
+        l
+    ));
+    list.addInstruction(env().create<Move, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(0x0f40),
+        &env().create<Indirect, Register*>(&env().create<Register, enum asm_register>(eax)),
+        w
+    ));
+    list.addInstruction(env().create<Add, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(2),
+        &env().create<Register, enum asm_register>(eax),
+        l
+    ));
+    list.addInstruction(env().create<Move, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(0x0f40),
+        &env().create<Indirect, Register*>(&env().create<Register, enum asm_register>(eax)),
+        w
+    ));
+    list.addInstruction(env().create<Add, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(4),
+        &env().create<Register, enum asm_register>(eax),
+        l
+    ));
+    list.addInstruction(env().create<Move, ASMOperand*, ASMOperand*, OperandSize>(
+        &env().create<Number, int>(0x073e),
+        &env().create<Indirect, Register*>(&env().create<Register, enum asm_register>(eax)),
+        w
+    ));
     list.addInstruction(env().create<Halt>());
-    list.addInstruction(env().create<Jump>());
+    list.addInstruction(env().create<Jump, Number*>(
+        &env().create<Number, int>(-3)
+    ));
+    
     log << "parse input done\n";
+    if (false && comments.length()) {
+        log << "comments:\n" << comments << '\n';
+    }
+    comments.destroy();
     return list;
 }

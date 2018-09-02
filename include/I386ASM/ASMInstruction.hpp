@@ -3,12 +3,29 @@
 
 #include "sys/Object.hpp"
 #include "sys/OStream.hpp"
+#include "I386ASM/ASMOperand.hpp"
+
+enum OperandSize { b = 1, w = 2, l = 4, automatic = 0 };
 
 class ASMInstruction: virtual public Object {
-    private:
+    protected:
+    enum OperandSize os;
+    ASMOperand *o1, *o2, *o3;
     
     public:
-    virtual ~ASMInstruction() {}
+    ASMInstruction(Environment &env, MemoryInfo &mi, OperandSize os = automatic, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
+        :Object(env, mi), os(os), o1(o1), o2(o2), o3(o3) {}
+    virtual ~ASMInstruction() {
+        if (o1) {
+            o1->destroy();
+        }
+        if (o2) {
+            o2->destroy();
+        }
+        if (o3) {
+            o3->destroy();
+        }
+    }
     
     virtual size_t getSizeInBytes() = 0;
     virtual void writeToStream(OStream &stream) = 0;

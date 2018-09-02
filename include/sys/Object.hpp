@@ -10,6 +10,8 @@ enum RTTI { object, boolean, character, integer, string };
 class Object {
     private:
     Environment &_environment;
+    
+    protected:
     MemoryInfo *_memory_info;
     friend class Environment;
     

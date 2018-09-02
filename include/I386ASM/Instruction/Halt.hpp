@@ -7,7 +7,7 @@ class Halt: public ASMInstruction {
     private:
     
     public:
-    Halt(Environment &env, MemoryInfo &mi):Object(env, mi) {}
+    Halt(Environment &env, MemoryInfo &mi):ASMInstruction(env, mi), Object(env, mi) {}
     virtual ~Halt() {}
     
     virtual size_t getSizeInBytes();

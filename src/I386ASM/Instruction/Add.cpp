@@ -1,32 +1,23 @@
-#include "I386ASM/Instruction/Move.hpp"
+#include "I386ASM/Instruction/Add.hpp"
 
-#include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 
 // public
-size_t Move::getSizeInBytes() {
+size_t Add::getSizeInBytes() {
     return 5;
 }
 
-void Move::writeToStream(OStream & stream) {
+void Add::writeToStream(OStream & stream) {
     if (Number *n = o1->as<Number>(number)) {
         int val = n->value();
         if (Register *r = o2->as<Register>(reg)) {
             stream
-                <<(char)0xb8 // movl eax
+                <<(char)0x05 // addl eax
                 <<(char)val
                 <<(char)(val>>8)
                 <<(char)(val>>16)
                 <<(char)(val>>24)
-            ;
-        } else if (Indirect *i = o2->as<Indirect>(indirect)) {
-            stream
-                <<(char)0x66 //    w
-                <<(char)0xc7 // mov
-                <<(char)0x00 // (eax)
-                <<(char)val
-                <<(char)(val>>8)
             ;
         }
     }
