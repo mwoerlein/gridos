@@ -133,7 +133,7 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         
         inst        = hlt | jmp | mov | add | sub | mul;
         operand     = reg | id | number | ((number | id) wsp)? "(" wsp reg ( wsp comma wsp reg ( wsp comma wsp [1,2,4,8] )? )? wsp ")";
-        eoinst      = semicolon | eol | "//" | "#" | "/*" ;
+        eoinst      = semicolon | eol | end | "//" | "#" | "/*";
 
         end       { break; }
         wsp       { continue; }

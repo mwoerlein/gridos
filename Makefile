@@ -4,7 +4,7 @@ BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
-TESTSUITELIBS = test.a KernelJIT.a memory.a sys.a
+TESTSUITELIBS = test.a KernelJIT.a $(MASCHINE)ASM.a memory.a sys.a
 
 .PHONY: all clean linux bootdisk libs rlibs disk kernel tests
 

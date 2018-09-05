@@ -10,6 +10,9 @@
 #include "test/sys/IntegerTest.hpp"
 #include "test/sys/StringTest.hpp"
 
+#include "test/I386ASM/ParserTest.hpp"
+#include "test/I386ASM/Instruction/HaltTest.hpp"
+
 // public
 TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
 TestSuite::~TestSuite() {};
@@ -20,6 +23,9 @@ void TestSuite::runAll() {
     run<DigitTest>();
     run<IntegerTest>();
     run<StringTest>();
+    
+    run<HaltTest>();
+    run<ParserTest>();
 }
 
 // private

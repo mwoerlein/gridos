@@ -11,7 +11,8 @@
     env().err() << __PRETTY_FUNCTION__ << " failed: " << message << " (got not expected: " << (value) << ")\n"; return false;\
 }
 #define incomplete() env().err() << __PRETTY_FUNCTION__ << " incomplete!" << '\n'; return true;
-#define success() env().out() << __PRETTY_FUNCTION__ << " successful!" << '\n'; return true;
+#define successText(message) env().out() << message << " successful!" << '\n'; return true;
+#define success() successText(__PRETTY_FUNCTION__)
 
 class TestCase: public Object {
     protected:
