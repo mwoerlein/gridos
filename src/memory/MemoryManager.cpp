@@ -19,7 +19,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
         return *notAnInfo;
     }
     
-    if (avail->len < required + 2*sizeof(MemoryInfo)) {
+    if (avail->len < (required + 2*sizeof(MemoryInfo))) {
         // use whole info
         avail->buf = memoryEnd(avail, sizeof(MemoryInfo));
         avail->len -= sizeof(MemoryInfo);
