@@ -1,17 +1,16 @@
 >
-Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel
+Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
 <
-/*  Multi
-    line
-    comment
-*/
-cga_buffer := 0xB8000; _unused:
-cga_last_row := 0x700 ; unused := 0
-_start:
-    movl    cga_buffer , %eax ;           // line comment
-    movw    0x73c, cga_last_row(%eax)  # other line comment
-    addl    0x704, %eax
-    ;
-    movw    0x740, -2(%eax);  movw    0x73e, (%eax)
-_halt: hlt; _jmp_halt:
-    jmp _halt;
+//_start:
+    movl 0xb8f00, %eax
+    addl 0x4a, %eax
+    movw 0x73c, (%eax)
+    addl 4, %eax
+    movw 0xf40, (%eax)
+    addl 2, %eax
+    movw 0xf40, (%eax)
+    addl 4, %eax
+    movw 0x73e, (%eax)
+//_halt:
+    hlt
+    jmp -3 //_halt

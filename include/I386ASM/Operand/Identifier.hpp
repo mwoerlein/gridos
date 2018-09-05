@@ -1,8 +1,8 @@
 #ifndef I386ASMIDENTIFIER_HPP_LOCK
 #define I386ASMIDENTIFIER_HPP_LOCK
 
+#include "sys/String.hpp"
 #include "I386ASM/ASMOperand.hpp"
-
 
 class Identifier: public ASMOperand {
     private:

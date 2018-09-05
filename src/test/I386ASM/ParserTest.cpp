@@ -23,7 +23,8 @@ bool ParserTest::runAll() {
         << "addl 4, %eax\n"
         << "movw 0x73e, (%eax)\n"
         << "_halt: hlt\n"
-        << "jmp _halt\n"
+//        << "jmp _halt\n"
+        << "jmp -3\n"
     ;
     (bin = "")
         << (char) 0xb8 << (char) 0x00 << (char) 0x8f << (char) 0x0b << (char) 0x00

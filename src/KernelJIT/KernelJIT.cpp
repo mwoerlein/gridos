@@ -34,7 +34,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, line);
 
-    if (true) {
+    if (false) {
         String pretty(env());
         list.logToStream(pretty);
         out<<pretty<<'\n';
