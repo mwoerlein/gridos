@@ -17,16 +17,17 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     int line = 1;
     OStream &out = env().out();
     if (!in.isEmpty()) do {
-        in>>c;
+        in >> c;
         switch (c) {
             case '>': ackblock += 2;
             case '<': ackblock--;
-                while(c!='\n') in>>c; //Rest der Zeile ueberlesen
+                while (c != '\n') { in >> c; } // ignore whole line
                 line++;
                 break;
-            case '\n':
+            default:
+                out << c;
+                while (c != '\n') { in >> c; out << c; } // output whole line
                 line++;
-            default: out<<c;
         }
     } while (ackblock > 0);
     
