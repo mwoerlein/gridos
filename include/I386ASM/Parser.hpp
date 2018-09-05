@@ -30,7 +30,7 @@ class Parser: virtual public Object {
     
     protected:
     virtual int parseIntegerValue(char * start, char * end, int base = 10);
-    virtual OperandSize parseOperandSize(char * c);
+    virtual OperandSize parseOperandSize(char * start, char * end);
     virtual Number * parseNumber(char * start, char * end);
     virtual Register * parseRegister(char * start, char * end);
     virtual Identifier * parseIdentifier(char * start, char * end);

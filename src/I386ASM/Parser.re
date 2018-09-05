@@ -146,8 +146,11 @@ Identifier * Parser::parseIdentifier(char * start, char * end) {
     return &env().create<Identifier, String&>(env().create<String, char*, char*>(start, end));
 }
 
-OperandSize Parser::parseOperandSize(char * c) {
-    switch (*c) {
+OperandSize Parser::parseOperandSize(char * start, char * end) {
+    if (end - start != 1) {
+        return automatic;
+    }
+    switch (*start) {
         case 'l':
         case 'L':
             return l;
@@ -221,7 +224,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
     }
     
     String s(env(), *notAnInfo, start, end);
-    env().err() << "unknown Operand: '" << s << "'\n";
+    env().err() << "unsupported operand '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
 
@@ -235,10 +238,12 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *
         re2c:define:YYLIMIT = end;
 
         [mM][oO][vV] @o1 [bBwWlL]? @o2 {
-            return &env().create<Move, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1));
+            if (!op1 || !op2) return 0;
+            return &env().create<Move, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1, o2));
         }
         [aA][dD][dD] @o1 [bBwWlL]? @o2 {
-            return &env().create<Add, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1));
+            if (!op1 || !op2) return 0;
+            return &env().create<Add, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1, o2));
         }
         [sS][uU][bB][bBwWlL]? {
             return 0;
@@ -258,9 +263,9 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *
         * { break; }
 */
     }
-    String s(env(), *notAnInfo, start, end);
     
-    env().err() << "unknown instruction: '"<<s<<"'\n";
+    String s(env(), *notAnInfo, start, end);
+    env().err() << "unsupported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
 
