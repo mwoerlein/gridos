@@ -16,7 +16,7 @@ class MemoryIStream: public IStream {
     
     using IStream::operator >>;
     virtual IStream &operator >>(char &c) override {
-        c = ((char*)mem.buf)[pos++];
+        c = (pos < mem.len) ? ((char*)mem.buf)[pos++] : 0;
     }
     
     virtual bool isEmpty() override {

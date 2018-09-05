@@ -66,7 +66,7 @@ bool Parser::fillBuffer(size_t need, IStream & input)
             currentColumn = 1;
         }
     }
-    if (limit < buffer + SIZE) {
+    if (input.isEmpty()) {
         // clear lookahead after end of stream
         char * maxfill = limit + YYMAXFILL;
         while (limit < maxfill) {
