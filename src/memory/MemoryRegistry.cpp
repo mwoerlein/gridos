@@ -143,20 +143,14 @@ void MemoryRegistry::transfer(MemoryManager & memoryManager) {
         buffer->size = 0;
     }
 
-    // remove available blocks, that are too small for inline memory management    
+    // remove available blocks, that are too small for inline memory management
+    // TODO: handle small available blocks via nonEmbeddedInfos, too    
     MemoryInfo *e = available.next;
     while (e != &available) {
         MemoryInfo *next = e->next;
         if (e->len < 2*sizeof(MemoryInfo)) {
-            // try to merge into neighboring used block 
-            MemoryInfo *usedPrev = findInfo(&used, e->buf);
-            if (memoryInfoEnd(usedPrev) == e->buf) {
-                usedPrev->len += e->len;
-            }
-            // otherwise just remove memory from available
             unlinkMemoryInfo(e);
         }
-        // check next
         e = next;
     }
     
