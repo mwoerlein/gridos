@@ -64,13 +64,13 @@ void MemoryManager::free(void * ptr) {
     unlinkMemoryInfo(info);
 
     if (hasFollowingBuffer(info)) {
-        // adjust inline info
+        // adjust embedded info
         info->buf = info;
         info->len += sizeof(MemoryInfo);
-    }  else {
+    } else {
         MemoryInfo * nonEmbeddedInfo = info;
         
-        // create inline info
+        // create embedded info
         info = (MemoryInfo *) nonEmbeddedInfo->buf;
         info->buf = nonEmbeddedInfo->buf;
         info->len = nonEmbeddedInfo->len;
@@ -86,17 +86,32 @@ void MemoryManager::free(void * ptr) {
     appendMemoryInfo(prev, info);
     MemoryInfo * next = info->next;
     
-    if ((memoryInfoEnd(info) == next) && (next != &available)) {
+    if ((memoryInfoEnd(info) == next->buf) && (next != &available)) {
         // merge right
         info->len = memoryDiff(info->buf, memoryInfoEnd(next)); 
         unlinkMemoryInfo(next);
         next->flags.magic = 0;
     }
-    if ((memoryInfoEnd(prev) == info) && (prev != &available)) {
+    if ((memoryInfoEnd(prev) == info->buf) && (prev != &available)) {
         // merge left
-        prev->len = memoryDiff(prev->buf, memoryInfoEnd(info)); 
+        prev->len = memoryDiff(prev->buf, memoryInfoEnd(info));
         unlinkMemoryInfo(info);
         info->flags.magic = 0;
+        
+        if (!isEmbeddedInfo(prev) && canEmbedInfo(prev)) {
+            MemoryInfo * nonEmbeddedInfo = prev;
+            
+            // create embedded info
+            prev = (MemoryInfo *) nonEmbeddedInfo->buf;
+            prev->buf = nonEmbeddedInfo->buf;
+            prev->len = nonEmbeddedInfo->len;
+            prev->flags = nonEmbeddedInfo->flags;
+            prev->owner = nonEmbeddedInfo->owner;
+            
+            replaceMemoryInfo(nonEmbeddedInfo, prev);
+            // clear non-embedded info
+            initMemoryInfoList(nonEmbeddedInfo);
+        }
     }
 }
 

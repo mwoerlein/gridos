@@ -90,14 +90,14 @@ void MemoryRegistry::registerUsedMemory(void * mem, size_t len, void * owner) {
 MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     size_t required = len + sizeof(MemoryInfo);
     
-    // find available memory
-    MemoryInfo * avail = findInfo(&available, required);
+    // find splitable available memory
+    MemoryInfo * avail = findInfo(&available, required + 2*sizeof(MemoryInfo));
     if (avail->len < required) {
         env().err()<<"bad static allocate\n";
         return *notAnInfo;
     }
     
-    // create inline info
+    // create embedded info
     MemoryInfo * ret = (MemoryInfo *) avail->buf;
     ret->buf = memoryEnd(ret, sizeof(MemoryInfo));
     ret->len = len;
@@ -137,27 +137,23 @@ void MemoryRegistry::transfer(MemoryManager & memoryManager) {
     
     // create buffer for non-embedded infos
     int nonEmbeddedCount = countNonEmbeddedInfos(&reserved) + countNonEmbeddedInfos(&used);
+    // count available blocks, that are too small for embedded memory management
+    for (MemoryInfo *e = available.next; e != &available; e = e->next) {
+        if (!canEmbedInfo(e)) {
+            nonEmbeddedCount++;
+        }
+    }
+
     if (nonEmbeddedCount) {
         MemoryInfo & arrayInfo = allocate(sizeof(MemoryInfoArray) + nonEmbeddedCount*sizeof(MemoryInfo), (void*) &memoryManager);
         buffer = (MemoryInfoArray *) arrayInfo.buf;
         buffer->size = 0;
     }
-
-    // remove available blocks, that are too small for inline memory management
-    // TODO: handle small available blocks via nonEmbeddedInfos, too    
-    MemoryInfo *e = available.next;
-    while (e != &available) {
-        MemoryInfo *next = e->next;
-        if (e->len < 2*sizeof(MemoryInfo)) {
-            unlinkMemoryInfo(e);
-        }
-        e = next;
-    }
     
     // transfer registered lists to memory manager
     transferMemoryList(&reserved, &(memoryManager.reserved), buffer);
     transferMemoryList(&used, &(memoryManager.used), buffer);
-    transferMemoryList(&available, &(memoryManager.available));
+    transferMemoryList(&available, &(memoryManager.available), buffer);
     memoryManager.nonEmbeddedInfos = buffer;
     
     // clear registry    
@@ -271,7 +267,7 @@ MemoryInfo * MemoryRegistry::newUsedInfo(void * mem, size_t len, void * owner) {
 int MemoryRegistry::countNonEmbeddedInfos(MemoryInfo * list) {
     int count = 0;
     for (MemoryInfo * cur = list->next; cur != list; cur = cur->next) {
-        if (!isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf)) {
+        if (!isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf) || !canEmbedInfo(cur)) {
             count++;
         }
     }
@@ -279,13 +275,14 @@ int MemoryRegistry::countNonEmbeddedInfos(MemoryInfo * list) {
 }
 
 void MemoryRegistry::transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer) {
+    bool isAvailable = (srcList == &available);
     for (MemoryInfo * cur = srcList->next; cur != srcList; cur = cur->next) {
         MemoryInfo * info = (MemoryInfo *) cur->buf;
-        if (!buffer || !isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf)) {
-            if (buffer) {
-                // initialize info from buffer (reserved, used)
+        if (isAvailable || !isMemoryInfo(cur->buf) || !hasFollowingBuffer(cur->buf) || !canEmbedInfo(cur)) {
+            if (!isAvailable || !canEmbedInfo(cur)) {
+                // initialize info from buffer (reserved, used, small available)
                 info = (MemoryInfo *) &buffer->elements[buffer->size++];
-            } // else initialize info inline (available)
+            } // else initialize embedded info (available)
             info->buf = cur->buf;
             info->len = cur->len;
             info->flags = cur->flags;

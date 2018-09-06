@@ -20,7 +20,7 @@ class MemoryRegistry: public MemoryAllocator {
     MemoryInfo * newUsedInfo(void * mem, size_t len, void * owner);
     
     int countNonEmbeddedInfos(MemoryInfo * list);
-    void transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer = (MemoryInfoArray *) 0);
+    void transferMemoryList(MemoryInfo * srcList, MemoryInfo * destList, MemoryInfoArray * buffer);
     
     public:
     MemoryRegistry(Environment &env, MemoryInfo &mi = *notAnInfo);
