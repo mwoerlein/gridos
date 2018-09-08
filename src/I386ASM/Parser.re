@@ -139,7 +139,57 @@ Number * Parser::parseNumber(char * start, char * end) {
 }
 
 Register * Parser::parseRegister(char * start, char * end) {
-    return &env().create<Register, enum asm_register>(eax);
+    char *mark, *ctx, *cur = start;
+    for (;;) {
+/*!re2c
+        re2c:define:YYCURSOR = cur;
+        re2c:define:YYMARKER = mark;
+        re2c:define:YYCTXMARKER = ctx;
+        re2c:define:YYLIMIT = end;
+
+        "%"[aA][hH]          { return &env().create<Register, enum asm_register>(ah); }
+        "%"[bB][hH]          { return &env().create<Register, enum asm_register>(bh); }
+        "%"[cC][hH]          { return &env().create<Register, enum asm_register>(ch); }
+        "%"[dD][hH]          { return &env().create<Register, enum asm_register>(dh); }
+        "%"[aA][lL]          { return &env().create<Register, enum asm_register>(al); }
+        "%"[bB][lL]          { return &env().create<Register, enum asm_register>(bl); }
+        "%"[cC][lL]          { return &env().create<Register, enum asm_register>(cl); }
+        "%"[dD][lL]          { return &env().create<Register, enum asm_register>(dl); }
+
+        "%"[aA][xX]          { return &env().create<Register, enum asm_register>(ax); }
+        "%"[bB][xX]          { return &env().create<Register, enum asm_register>(bx); }
+        "%"[cC][xX]          { return &env().create<Register, enum asm_register>(cx); }
+        "%"[dD][xX]          { return &env().create<Register, enum asm_register>(dx); }
+        "%"[dD][iI]          { return &env().create<Register, enum asm_register>(di); }
+        "%"[sS][iI]          { return &env().create<Register, enum asm_register>(si); }
+        "%"[bB][pP]          { return &env().create<Register, enum asm_register>(bp); }
+        "%"[iI][pP]          { return &env().create<Register, enum asm_register>(ip); }
+        "%"[sS][pP]          { return &env().create<Register, enum asm_register>(sp); }
+
+        "%"[eE][aA][xX]      { return &env().create<Register, enum asm_register>(eax); }
+        "%"[eE][bB][xX]      { return &env().create<Register, enum asm_register>(ebx); }
+        "%"[eE][cC][xX]      { return &env().create<Register, enum asm_register>(ecx); }
+        "%"[eE][dD][xX]      { return &env().create<Register, enum asm_register>(edx); }
+        "%"[eE][dD][iI]      { return &env().create<Register, enum asm_register>(edi); }
+        "%"[eE][sS][iI]      { return &env().create<Register, enum asm_register>(esi); }
+        "%"[eE][bB][pP]      { return &env().create<Register, enum asm_register>(ebp); }
+        "%"[eE][iI][pP]      { return &env().create<Register, enum asm_register>(eip); }
+        "%"[eE][sS][pP]      { return &env().create<Register, enum asm_register>(esp); }
+
+        "%"[cC][sS]          { return &env().create<Register, enum asm_register>(cs); }
+        "%"[dD][sS]          { return &env().create<Register, enum asm_register>(ds); }
+        "%"[eE][sS]          { return &env().create<Register, enum asm_register>(es); }
+        "%"[fF][sS]          { return &env().create<Register, enum asm_register>(fs); }
+        "%"[gG][sS]          { return &env().create<Register, enum asm_register>(gs); }
+        "%"[sS][sS]          { return &env().create<Register, enum asm_register>(ss); }
+
+        * { break; }
+*/
+    }
+    
+    String s(env(), *notAnInfo, start, end);
+    env().err() << "unsupported register '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    return 0;
 }
 
 Identifier * Parser::parseIdentifier(char * start, char * end) {
