@@ -9,7 +9,7 @@ class ParserBasedTestCase: public TestCase {
     protected:
     Parser &parser;
     
-    ASMInstructionList & parseSilent(IStream & input);
+    ASMInstructionList & parseSilent(IStream & input, String & errorBuffer);
     
     bool test(const char * input, const char * expectedBinary, const char * expectedPretty = 0, const char * message = 0);
     bool test(String & input, String & expectedBinary, String & expectedPretty, String & message);

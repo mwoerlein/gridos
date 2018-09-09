@@ -9,16 +9,15 @@ ParserBasedTestCase::~ParserBasedTestCase() {
 }
 
 // protected
-ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input) {
+ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & errorBuffer) {
     String outBuffer(env());
-    String errBuffer(env());
-    OStream &out = env().setOut(outBuffer); 
-    OStream &err = env().setErr(errBuffer);
+    OStream &outOrig = env().setOut(outBuffer); 
+    OStream &errOrig = env().setErr(errorBuffer);
     
     ASMInstructionList &list = parser.parse(input);
     
-    env().setOut(out);
-    env().setErr(err);
+    env().setOut(outOrig);
+    env().setErr(errOrig);
     
     return list;
 }
@@ -45,7 +44,8 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
     String buffer(env());
     {
         IStream &in = input.toIStream();
-        ASMInstructionList &list = parseSilent(in);
+        ASMInstructionList &list = parseSilent(in, buffer="");
+        assertEquals(buffer, "", "parsing error" );
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
@@ -58,7 +58,8 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
     }
     {
         IStream &in = expectedPretty.toIStream();
-        ASMInstructionList &list = parseSilent(in);
+        ASMInstructionList &list = parseSilent(in, buffer="");
+        assertEquals(buffer, "", "parsing error" );
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );
