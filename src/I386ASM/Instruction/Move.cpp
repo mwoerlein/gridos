@@ -31,6 +31,16 @@ void Move::writeToStream(OStream & stream) {
         }
     }
 }
+
+// protected
+bool Move::validateOperandsAndOperandSize(OStream &err) {
+    return true;
+}
+
+bool Move::determineOpcodeAndSize(OStream &err) {
+    return true;
+}
+
 /*
 00000000 <.data>:
    0:	b8 00 8f 0b 00       	mov    eax,0xb8f00

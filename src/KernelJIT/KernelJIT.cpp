@@ -33,22 +33,19 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, line);
-
-    if (false) {
-        String pretty(env());
-        list.logToStream(pretty);
-        out<<pretty<<'\n';
-        IStream &prettyIn = pretty.toIStream();
-        ASMInstructionList &list2 = parser.parse(prettyIn);
-        list2.logToStream(out);
-        list2.destroy();
-        prettyIn.destroy();
+    parser.destroy();
+    
+    if (!&list) {
+        return *(Kernel *) 0;
+    }
+    if (!list.prepare(env().err())) {
+        list.destroy();
+        return *(Kernel *) 0;
     }
     
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
     list.writeToStream(osk);
     list.destroy();
-    parser.destroy();
     
     // TODO: parse meta information of TEXT block and switch between copy and compile
     /*

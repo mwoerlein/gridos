@@ -6,6 +6,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
+#include "KernelJIT/HaltKernel.hpp"
 #include "memory/MemoryIStream.hpp"
 //#include "memory/MemoryManager.hpp"
 
@@ -41,6 +42,11 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
 //    env.out()<<&env<<' '<<&env.out()<<' '<<&env.err()<<' '<<&env.getAllocator()<<' '<<&k<<'\n';
 //    ma.dump(env.err(), true);
     
+    if (!&k) {
+        env.err()<<"Compiling kernel failed!\n"<<"Halting ...\n";
+        HaltKernel hk(env);
+        hk.run();
+    }
     // run compiled kernel    
     env.out()<<"Starting kernel ...\n";
     k.run();

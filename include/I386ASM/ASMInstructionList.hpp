@@ -18,6 +18,8 @@ class ASMInstructionList: virtual public Object {
     //virtual void addLabel(String &label);
     //virtual void addDefinition(String &definition, NumberArgument &value);
     virtual void addInstruction(ASMInstruction &inst);
+    
+    virtual bool prepare(OStream &err);
     virtual size_t getSizeInBytes();
     
     virtual void writeToStream(OStream &stream);

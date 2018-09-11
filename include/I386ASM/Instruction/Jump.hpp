@@ -5,7 +5,9 @@
 #include "I386ASM/Operand/Number.hpp"
 
 class Jump: public ASMInstruction {
-    private:
+    protected:
+    virtual bool validateOperandsAndOperandSize(OStream &err);
+    virtual bool determineOpcodeAndSize(OStream &err);
     
     public:
     Jump(Environment &env, MemoryInfo &mi, Number *o1, OperandSize os = automatic)

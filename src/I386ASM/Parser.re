@@ -419,7 +419,11 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
                     }
                     continue;
                   }
-        *         { env().err() << "unexpected character : " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n'; break; }
+        *         { 
+                    env().err() << "unexpected character : " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n';
+                    list.destroy();
+                    return *(ASMInstructionList *)0;
+                  }
 */
     }
     return list;

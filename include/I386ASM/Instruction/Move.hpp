@@ -4,7 +4,9 @@
 #include "I386ASM/ASMInstruction.hpp"
 
 class Move: public ASMInstruction {
-    private:
+    protected:
+    virtual bool validateOperandsAndOperandSize(OStream &err);
+    virtual bool determineOpcodeAndSize(OStream &err);
     
     public:
     Move(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, OperandSize os = automatic)

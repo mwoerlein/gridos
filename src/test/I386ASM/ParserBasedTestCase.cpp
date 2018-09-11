@@ -46,6 +46,8 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         IStream &in = input.toIStream();
         ASMInstructionList &list = parseSilent(in, buffer="");
         assertEquals(buffer, "", "parsing error" );
+        bool success = list.prepare(buffer="");
+        assert(success && (buffer == ""), "preparation error: "<<buffer );
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
@@ -60,6 +62,8 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         IStream &in = expectedPretty.toIStream();
         ASMInstructionList &list = parseSilent(in, buffer="");
         assertEquals(buffer, "", "parsing error" );
+        bool success = list.prepare(buffer="");
+        assert(success && (buffer == ""), "preparation error: "<<buffer );
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );

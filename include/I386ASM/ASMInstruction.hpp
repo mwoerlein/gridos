@@ -12,6 +12,9 @@ class ASMInstruction: virtual public Object {
     enum OperandSize os;
     ASMOperand *o1, *o2, *o3;
     
+    virtual bool validateOperandsAndOperandSize(OStream &err) = 0;
+    virtual bool determineOpcodeAndSize(OStream &err) = 0;
+    
     public:
     ASMInstruction(Environment &env, MemoryInfo &mi, OperandSize os = automatic, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
         :Object(env, mi), os(os), o1(o1), o2(o2), o3(o3) {}
@@ -27,6 +30,7 @@ class ASMInstruction: virtual public Object {
         }
     }
     
+    virtual bool prepare(OStream &err);
     virtual size_t getSizeInBytes() = 0;
     virtual void writeToStream(OStream &stream) = 0;
     virtual void logToStream(OStream &stream) = 0;
