@@ -12,6 +12,11 @@ MemoryManager::MemoryManager(Environment &env, MemoryInfo &mi): Object(env, mi) 
 MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     size_t required = len + sizeof(MemoryInfo);
     
+    if (required < len) { // size_t overflow
+        env().err()<<"bad allocate "<<len<<"\n";
+        return *notAnInfo;
+    }
+    
     // find available memory
     MemoryInfo * avail = findInfo(&available, required);
     if (avail->len < required) {

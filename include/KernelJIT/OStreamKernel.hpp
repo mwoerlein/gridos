@@ -8,7 +8,9 @@ class OStreamKernel: public Kernel, public MemoryOStream {
     public:
     OStreamKernel(Environment &env, MemoryInfo &mi, size_t size): MemoryOStream(env, mi, env.getAllocator().allocate(size)) {}
     virtual ~OStreamKernel() {
-        env().getAllocator().free(&mem);
+        if (&mem != notAnInfo) {
+            env().getAllocator().free(&mem);
+        }
     }
 };
 
