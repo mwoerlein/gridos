@@ -7,5 +7,5 @@ ModuleInfo::ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryIn
 
 ModuleInfo::~ModuleInfo() {
     cmd.destroy();
-    env().getAllocator().free(&memoryInfo);
+    env().getAllocator().free(memoryInfo);
 }

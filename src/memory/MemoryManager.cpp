@@ -56,10 +56,10 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
     return *avail;
 }
 
-void MemoryManager::free(void * ptr) {
-    MemoryInfo * info = (MemoryInfo*) &memInfo(ptr);
+void MemoryManager::free(MemoryInfo & memoryInfo) {
+    MemoryInfo * info = &memoryInfo;
     if ((info == notAnInfo) || !info->flags.used) {
-        env().err()<<"bad free "<<ptr<<"\n";
+        env().err()<<"bad free "<<&memoryInfo<<"\n";
         return;
     }
     

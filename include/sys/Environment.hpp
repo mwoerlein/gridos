@@ -35,7 +35,7 @@ class Environment: virtual public Object {
     using Object::destroy;
     inline void destroy(Object &obj) {
         delete &obj; // call destructors
-        ma->free(obj._memory_info); // free memory
+        ma->free(*(obj._memory_info)); // free memory
     }
     
     template <class Obj> Obj & create() {

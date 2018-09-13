@@ -2,6 +2,7 @@
 
 #include "sys/String.hpp"
 #include "sys/Digit.hpp"
+#include "memory/MemoryInfoHelper.hpp"
 
 #include "I386ASM/Instruction/Halt.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
@@ -18,17 +19,16 @@
 
 Parser::Parser(Environment &env, MemoryInfo &mi):
     Object(env, mi),
-    buffer((char*) env.getAllocator().allocate(SIZE + YYMAXFILL).buf),
-    linesBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),
-    columnsBuffer((int*) env.getAllocator().allocate((SIZE + YYMAXFILL) * sizeof(int)).buf),
+    buffersInfo(env.getAllocator().allocate((SIZE + YYMAXFILL) * (sizeof(char) + sizeof(int) + sizeof(int)))),
+    buffer((char*) buffersInfo.buf),
+    linesBuffer((int*) memoryEnd(buffersInfo.buf, (SIZE + YYMAXFILL) * sizeof(char))),
+    columnsBuffer((int*) memoryEnd(buffersInfo.buf, (SIZE + YYMAXFILL) * (sizeof(char) + sizeof(int)))),
     currentLine(1),
     currentColumn(1) {
 }
 
 Parser::~Parser() {
-    env().getAllocator().free(buffer);
-    env().getAllocator().free(linesBuffer);
-    env().getAllocator().free(columnsBuffer);
+    env().getAllocator().free(buffersInfo);
 }
 
 bool Parser::freeBuffer(size_t need) {

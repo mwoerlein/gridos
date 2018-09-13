@@ -13,6 +13,7 @@
 
 class Parser: virtual public Object {
     private:
+    MemoryInfo & buffersInfo;
     char *buffer;
     char *limit;
     char *token;

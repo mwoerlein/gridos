@@ -111,7 +111,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     return *ret;
 }
 
-void MemoryRegistry::free(void * ptr) {
+void MemoryRegistry::free(MemoryInfo & memoryInfo) {
     // no static free available
     env().err()<<"bad static free\n";
 }

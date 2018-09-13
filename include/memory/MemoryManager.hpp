@@ -16,7 +16,7 @@ class MemoryManager: public MemoryAllocator {
     virtual ~MemoryManager() {}
     
     virtual MemoryInfo & allocate(size_t len, void * owner = 0) override;
-    virtual void free(void * ptr) override;
+    virtual void free(MemoryInfo & memoryInfo) override;
     virtual size_t getAvailableBytes() override;
     virtual MemoryInfo & memInfo(void * ptr) override;
     

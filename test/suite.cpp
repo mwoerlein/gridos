@@ -44,8 +44,8 @@ class MallocAllocator: public MemoryAllocator {
         return *info;
     }
     
-    virtual void free(void * ptr) override {
-        MemoryInfo * info = &memInfo(ptr);
+    virtual void free(MemoryInfo & memoryInfo) override {
+        MemoryInfo * info = &memoryInfo;
         if (info != notAnInfo) {
             std::free(info);
         }
