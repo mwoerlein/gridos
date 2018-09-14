@@ -9,6 +9,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "KernelJIT/HaltKernel.hpp"
 #include "memory/MemoryIStream.hpp"
 //#include "memory/MemoryManager.hpp"
+//#include "test/TestSuite.hpp"
 
 extern "C" {
 
@@ -23,6 +24,13 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     if (!&env) {
         return;
     }
+/*
+    {
+        TestSuite ts(env);
+        ts.runAll();
+        return;
+    }
+*/
 //    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
     
     // compile kernel from modules
@@ -70,4 +78,3 @@ __asm__("__builtin_delete:");
 __asm__("__pure_virtual:");
 __asm__("__stack_chk_fail:");
 __asm__("	ret");
-
