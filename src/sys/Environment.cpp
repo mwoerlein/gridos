@@ -1,14 +1,16 @@
 #include "sys/Environment.hpp"
 
+#include "sys/OStreamFactory.hpp"
+
 void* operator new (size_t size, void* location) {
     return location;
 }
 
-Environment::Environment():Object(*this, *notAnInfo),ma(0),_out(0),_err(0) {}
+Environment::Environment():Object(*this, *notAnInfo),ma(0),_out(0),_err(0),_factory(0) {}
 Environment::Environment(MemoryAllocator &ma, OStream &out, OStream &err)
-    :Object(*this, ma.memInfo(this)),ma(&ma),_out(&out),_err(&err) {}
+    :Object(*this, ma.memInfo(this)),ma(&ma),_out(&out),_err(&err),_factory(0) {}
 Environment::Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &out, OStream &err)
-    :Object(env, mi),ma(&ma),_out(&out),_err(&err) {}
+    :Object(env, mi),ma(&ma),_out(&out),_err(&err),_factory(0) {}
 Environment::~Environment() {}
 
 OStream & Environment::out() {
@@ -28,6 +30,20 @@ OStream & Environment::err() {
 OStream & Environment::setErr(OStream & err) {
     OStream *old = _err;
     _err = &err;
+    return *old;
+}
+
+OStreamFactory & Environment::oStreamFactory() {
+    if (!_factory) {
+        *_err<<"accessing dummy OStreamFactory!\n";
+        _factory = &create<OStreamFactory>();
+    }
+    return *_factory;
+}
+
+OStreamFactory & Environment::setOStreamFactory(OStreamFactory & factory) {
+    OStreamFactory *old = _factory;
+    _factory = &factory;
     return *old;
 }
 

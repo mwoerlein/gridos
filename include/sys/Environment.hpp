@@ -3,6 +3,7 @@
 
 class ModuleInfo;
 class OStream;
+class OStreamFactory;
 #include "sys/Object.hpp"
 #include "memory/MemoryAllocator.hpp"
 
@@ -13,6 +14,7 @@ class Environment: virtual public Object {
     MemoryAllocator * ma;
     OStream *_out, *_err;
     ModuleInfo * modules;
+    OStreamFactory *_factory;
     
     public:
     Environment();
@@ -24,6 +26,8 @@ class Environment: virtual public Object {
     OStream & setOut(OStream & newOut);
     OStream & err();
     OStream & setErr(OStream & newErr);
+    OStreamFactory & oStreamFactory();
+    OStreamFactory & setOStreamFactory(OStreamFactory & factory);
     
     // TODO: access modules/kernel information via ids
     ModuleInfo & setModules(ModuleInfo & mods);

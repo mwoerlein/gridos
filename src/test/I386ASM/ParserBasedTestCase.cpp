@@ -1,5 +1,6 @@
 #include "test/I386ASM/ParserBasedTestCase.hpp"
 
+#include "sys/OStreamFactory.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
@@ -22,7 +23,7 @@ ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & 
     return list;
 }
 
-bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message) {
+bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, const char * dumpBinary) {
     String in(env(), *notAnInfo, input);
     String bin(env(), *notAnInfo, expectedBinary);
     String pretty(env());
@@ -37,10 +38,10 @@ bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, 
     } else {
         mes << '"' << input << "\"-Test";
     }
-    return test(in, bin, pretty, mes);
+    return test(in, bin, pretty, mes, dumpBinary);
 }
 
-bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message) {
+bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, const char * dumpBinary) {
     String buffer(env());
     {
         IStream &in = input.toIStream();
@@ -54,6 +55,12 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         
         list.writeToStream(buffer="");
         assertEquals(buffer, expectedBinary, "binary: "<<message );
+        
+        if (dumpBinary) {
+            OStream &dump = env().oStreamFactory().buildOStream(dumpBinary);
+            list.writeToStream(dump);
+            dump.destroy();
+        }
         
         list.destroy();
         in.destroy();

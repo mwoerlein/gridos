@@ -11,8 +11,8 @@ class ParserBasedTestCase: public TestCase {
     
     ASMInstructionList & parseSilent(IStream & input, String & errorBuffer);
     
-    bool test(const char * input, const char * expectedBinary, const char * expectedPretty = 0, const char * message = 0);
-    bool test(String & input, String & expectedBinary, String & expectedPretty, String & message);
+    bool test(const char * input, const char * expectedBinary, const char * expectedPretty = 0, const char * message = 0, const char * dumpBinary = 0);
+    bool test(String & input, String & expectedBinary, String & expectedPretty, String & message, const char * dumpBinary = 0);
     
     public:
     ParserBasedTestCase(Environment &env, MemoryInfo &mi);

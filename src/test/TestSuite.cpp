@@ -39,6 +39,7 @@ Environment & TestSuite::createTestEnvironment(size_t memorySize) {
     
     // create own test environment    
     Environment &testEnv = env().create<Environment, MemoryAllocator&, OStream&, OStream&>(mm, env().out(), env().err());
+    testEnv.setOStreamFactory(env().oStreamFactory());
     // store test memory as module, to be accessible after test for memory hole detection and cleanup
     testEnv.setModules(
         env().create<ModuleInfo, MemoryInfo &, String &>(

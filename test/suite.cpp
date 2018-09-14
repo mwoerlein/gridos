@@ -1,8 +1,10 @@
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "sys/Environment.hpp"
 #include "sys/Char.hpp"
+#include "sys/OStreamFactory.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 #include "test/TestSuite.hpp"
 
@@ -23,6 +25,31 @@ class StdOStream: public OStream {
     virtual OStream &operator <<(char c) override {
         out<<format<<c<<normal;
         return *this;
+    }
+};
+
+class StdFileOStream: public OStream {
+    private:
+    std::FILE *file;
+    
+    public:
+    using OStream::operator <<;
+    StdFileOStream(Environment &env, MemoryInfo &mi, const char *name)
+        : Object(env, mi), file(std::fopen(name, "w")) {}
+    virtual ~StdFileOStream() { std::fclose(file); }
+    
+    virtual OStream &operator <<(char c) override {
+        std::fputc(c, file);
+        return *this;
+    }
+};
+
+class StdFileOStreamFactory: public OStreamFactory {
+    public:
+    StdFileOStreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): OStreamFactory(env, mi), Object(env, mi) {}
+    virtual ~StdFileOStreamFactory() {}
+    virtual OStream & buildOStream(const char * name) override {
+        return env().create<StdFileOStream, const char *>(name);
     }
 };
 
@@ -75,6 +102,8 @@ int main() {
     env.setErr(bsErr);
     MallocAllocator bsMa(env);
     env.setAllocator(bsMa);
+    StdFileOStreamFactory bsFac(env);
+    env.setOStreamFactory(bsFac);
     
     TestSuite &ts = env.create<TestSuite>();
     ts.runAll();
