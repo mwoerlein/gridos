@@ -16,7 +16,9 @@ class MemoryOStream: public OStream {
     
     using OStream::operator <<;
     virtual OStream &operator <<(char c) override {
-        ((char*)mem.buf)[pos++] = c;
+        if (pos < mem.len) {
+            ((char*) mem.buf)[pos++] = c;
+        }
         return *this;
     }
     
