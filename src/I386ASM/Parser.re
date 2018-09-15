@@ -238,7 +238,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
                 parseIntegerValue(o7, o8, 10)
             );
         }
-        @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp  ")" {
+        @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
             return &env().create<Indirect, Register *, Number *, Register *>(
                 parseRegister(o3, o4),
@@ -262,7 +262,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
                 parseIntegerValue(o7, o8, 10)
             );
         }
-        "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp  ")" {
+        "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
             return &env().create<Indirect, Register *, Number *, Register *>(
                 parseRegister(o3, o4),
@@ -274,6 +274,39 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
             if (cur != end) break;
             return &env().create<Indirect, Register *>(
                 parseRegister(o3, o4)
+            );
+        }
+        @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Number *, Register *, int>(
+                0,
+                parseNumber(o1, o2),
+                parseRegister(o5, o6),
+                parseIntegerValue(o7, o8, 10)
+            );
+        }
+        "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Number *, Register *, int>(
+                0,
+                0,
+                parseRegister(o5, o6),
+                parseIntegerValue(o7, o8, 10)
+            );
+        }
+        @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Number *, Register *>(
+                0,
+                parseNumber(o1, o2),
+                parseRegister(o5, o6)
+            );
+        }
+        "(" wsp @o1 number @o2 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Number *>(
+                0,
+                parseNumber(o1, o2)
             );
         }
         * { break; }
@@ -355,7 +388,10 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         re2c:define:YYFILL:naked = 1;
         
         inst        = id;
-        operand     = register | id | number | ((number | id) wsp)? "(" wsp register ( wsp comma wsp register ( wsp comma wsp (id | number) )? )? wsp ")";
+        operand     = register | id | number
+                        | "(" wsp (number | id ) wsp ")"
+                        | ((number | id) wsp)? "(" (wsp register)? ( wsp comma wsp register ( wsp comma wsp (id | number) )? )? wsp ")"
+                    ;
         eoinst      = semicolon | eol | end | "//" | "#" | "/*";
 
         end       { break; }
