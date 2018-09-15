@@ -11,6 +11,7 @@
 #include "test/sys/StringTest.hpp"
 
 #include "test/I386ASM/ParserTest.hpp"
+#include "test/I386ASM/Instruction/MoveTest.hpp"
 #include "test/I386ASM/Instruction/HaltTest.hpp"
 
 // public
@@ -18,14 +19,19 @@ TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
 TestSuite::~TestSuite() {};
 
 void TestSuite::runAll() {
+//*/
     run<BoolTest>();
     run<CharTest>();
     run<DigitTest>();
     run<IntegerTest>();
     run<StringTest>();
+//*/
     
+//*/
+    run<MoveTest>();
     run<HaltTest>();
     run<ParserTest>();
+//*/
 }
 
 // private
