@@ -1,5 +1,7 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
+#include "sys/Digit.hpp"
+
 class ASMInstructionList::_Elem: virtual public Object {
     public:
     _Elem * next;
@@ -64,8 +66,33 @@ void ASMInstructionList::writeToStream(OStream &stream) {
     }
 }
 
-void ASMInstructionList::logToStream(OStream &stream) {
+class DebugOStreamWrapper: public OStream {
+    private:
+    OStream &out;
+    
+    public:
+    using OStream::operator <<;
+    DebugOStreamWrapper(Environment &env, MemoryInfo &mi, OStream &out): Object(env, mi), out(out) {}
+    virtual ~DebugOStreamWrapper() { }
+    
+    virtual OStream &operator <<(char c) override {
+        Digit d1(env());
+        Digit d2(env());
+        d1 = (int) c>>4 & 0xf;
+        d2 = (int) c & 0xf;
+        out << " 0x" << d1 << d2;
+        return *this;
+    }
+};
+
+void ASMInstructionList::logToStream(OStream &stream, bool debug) {
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        stream << cur->inst << '\n';
+        stream << cur->inst;
+        if (debug) {
+            DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
+            stream << "\t// " << cur->pos << ":\t(" << cur->inst.getSizeInBytes() << ")";
+            cur->inst.writeToStream(wrap);
+        }
+        stream << '\n';
     }
 }

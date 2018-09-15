@@ -23,7 +23,7 @@ class ASMInstructionList: virtual public Object {
     virtual size_t getSizeInBytes();
     
     virtual void writeToStream(OStream &stream);
-    virtual void logToStream(OStream &stream);
+    virtual void logToStream(OStream &stream, bool debug = false);
 };
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK
