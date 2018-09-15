@@ -11,8 +11,8 @@ bool MoveTest::runAll() {
     bool success = true;
     
     success &= testMR();
-    /*
     success &= testRM();
+    /*
     success &= testFD();
     success &= testTD();
     success &= testOI();
@@ -53,7 +53,7 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0xFA
         << (char) 0x89 << (char) 0xF7
         << (char) 0x89 << (char) 0xEE
-        << (char) 0x89 << (char) 0xE3
+        << (char) 0x89 << (char) 0xE5
         << (char) 0x89 << (char) 0xE4
     ;
     dump << bin;
@@ -97,7 +97,48 @@ bool MoveTest::testMR() {
 }
 
 bool MoveTest::testRM() {
-    success();
+    bool success = true;
+    String in(env());
+    String bin(env());
+    String pretty(env());
+    String message(env());
+    
+    OStream &dump = env().oStreamFactory().buildOStream("/tmp/moveRM.bin");
+
+    (in = "")
+        << "movl (%eax), %eax\n"
+        << "movl 5(%ebx), %eax\n"
+        << "movl (%eax, %ecx), %ebx\n"
+        << "movl 127(%ecx,%ebx,4), %ebp\n"
+        << "movl (%edx,%edi,8), %ecx\n"
+        << "movl 0xBF000(,%esi,2), %esp\n"
+        << "movl (0x20), %edi\n"
+    ;
+    (bin = "")
+        << (char) 0x8B << (char) 0x00
+        << (char) 0x8B << (char) 0x43                << (char) 0x05
+        << (char) 0x8B << (char) 0x1C << (char) 0x08
+        << (char) 0x8B << (char) 0x6C << (char) 0x99 << (char) 0x7F
+        << (char) 0x8B << (char) 0x0C << (char) 0xFA
+        << (char) 0x8B << (char) 0x24 << (char) 0x75 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00
+        << (char) 0x8B << (char) 0x3D                << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00
+    ;
+    dump << bin;
+    (pretty = "")
+        << "movl (%eax), %eax\n"
+        << "movl 0x00000005(%ebx), %eax\n"
+        << "movl (%eax,%ecx), %ebx\n"
+        << "movl 0x0000007f(%ecx,%ebx,4), %ebp\n"
+        << "movl (%edx,%edi,8), %ecx\n"
+        << "movl 0x000bf000(,%esi,2), %esp\n"
+        << "movl (0x00000020), %edi\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "movl indirect -> reg", "/tmp/movIR.bin");
+
+    dump.destroy();
+    
+    return success;
 }
 
 bool MoveTest::testFD() {
