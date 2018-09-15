@@ -53,14 +53,14 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
         
-        list.writeToStream(buffer="");
-        assertEquals(buffer, expectedBinary, "binary: "<<message );
-        
         if (dumpBinary) {
             OStream &dump = env().oStreamFactory().buildOStream(dumpBinary);
             list.writeToStream(dump);
             dump.destroy();
         }
+        
+        list.writeToStream(buffer="");
+        assertEquals(buffer, expectedBinary, "binary: "<<message );
         
         list.destroy();
         in.destroy();

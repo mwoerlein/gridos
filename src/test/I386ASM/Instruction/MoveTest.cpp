@@ -24,6 +24,7 @@ bool MoveTest::runAll() {
 
 // test cases
 bool MoveTest::testMR() {
+    bool success = true;
     String in(env());
     String bin(env());
     String pretty(env());
@@ -45,9 +46,9 @@ bool MoveTest::testMR() {
     ;
     (bin = "")
         << (char) 0x89 << (char) 0xC0
-        << (char) 0x8B << (char) 0xC3
+        << (char) 0x89 << (char) 0xC3
         << (char) 0x89 << (char) 0xD8
-        << (char) 0x8B << (char) 0xCB
+        << (char) 0x89 << (char) 0xCB
         << (char) 0x89 << (char) 0xD1
         << (char) 0x89 << (char) 0xFA
         << (char) 0x89 << (char) 0xF7
@@ -57,7 +58,7 @@ bool MoveTest::testMR() {
     ;
     dump << bin;
     
-    test(in, bin, in, message = "movl reg -> reg");
+    success &= test(in, bin, in, message = "movl reg -> reg", "/tmp/movRR.bin");
     
     (in = "")
         << "movl %eax, (%eax)\n"
@@ -78,11 +79,21 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0x3D                << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00
     ;
     dump << bin;
+    (pretty = "")
+        << "movl %eax, (%eax)\n"
+        << "movl %ebx, 0x00000002(%eax)\n"
+        << "movl %eax, (%ebx,%eax)\n"
+        << "movl %ecx, 0x00000006(%ebx,%ebp,4)\n"
+        << "movl %edx, (%ecx,%edi,8)\n"
+        << "movl %esp, 0x000bf000(,%esi,2)\n"
+        << "movl %edi, (0x00000020)\n"
+    ;
     
-    test(in, bin, in, message = "movl reg -> indirect");
+    success &= test(in, bin, pretty, message = "movl reg -> indirect", "/tmp/movRI.bin");
     
     dump.destroy();
-    success();
+    
+    return success;
 }
 
 bool MoveTest::testRM() {
