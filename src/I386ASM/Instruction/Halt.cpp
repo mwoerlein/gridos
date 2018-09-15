@@ -1,12 +1,8 @@
 #include "I386ASM/Instruction/Halt.hpp"
 
 // public
-size_t Halt::getSizeInBytes() {
-    return 1;
-}
-
 void Halt::writeToStream(OStream & stream) {
-    stream<<(char)0xf4; //hlt
+    stream<<op1;
 }
 
 // protected
@@ -30,6 +26,7 @@ bool Halt::validateOperandsAndOperandSize(OStream &err) {
     return true;
 }
 
-bool Halt::determineOpcodeAndSize(OStream &err) {
-    return true;
+size_t Halt::determineOpcodeAndSize(OStream &err) {
+    op1 = 0xF4;
+    return 1;
 }

@@ -6,13 +6,12 @@
 class Halt: public ASMInstruction {
     protected:
     virtual bool validateOperandsAndOperandSize(OStream &err);
-    virtual bool determineOpcodeAndSize(OStream &err);
+    virtual size_t determineOpcodeAndSize(OStream &err);
     
     public:
     Halt(Environment &env, MemoryInfo &mi):ASMInstruction(env, mi), Object(env, mi) {}
     virtual ~Halt() {}
     
-    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream) {
         stream << "hlt";

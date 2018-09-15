@@ -22,6 +22,44 @@ class Register: public ASMOperand {
     virtual int number() {
         return (int) _reg;
     }
+    
+    virtual int getOpCodeRegister() {
+        switch (_reg) {
+            case al:
+            case ax:
+            case eax:
+                return 0;
+            case bl:
+            case bx:
+            case ebx:
+                return 3;
+            case cl:
+            case cx:
+            case ecx:
+                return 1;
+            case dl:
+            case dx:
+            case edx:
+                return 2;
+            case dh:
+            case si:
+            case esi:
+                return 6;
+            case ch:
+            case bp:
+            case ebp:
+                return 5;
+            case ah:
+            case sp:
+            case esp:
+                return 4;
+            case bh:
+            case di:
+            case edi:
+                return 7;
+        }            
+        return -1;
+    }
 
     virtual void logToStream(OStream &stream) {
         switch (_reg) {

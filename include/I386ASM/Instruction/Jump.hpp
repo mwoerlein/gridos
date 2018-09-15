@@ -7,14 +7,13 @@
 class Jump: public ASMInstruction {
     protected:
     virtual bool validateOperandsAndOperandSize(OStream &err);
-    virtual bool determineOpcodeAndSize(OStream &err);
+    virtual size_t determineOpcodeAndSize(OStream &err);
     
     public:
     Jump(Environment &env, MemoryInfo &mi, Number *o1, OperandSize os = automatic)
         :ASMInstruction(env, mi, os, o1), Object(env, mi) {}
     virtual ~Jump() {}
     
-    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream) {
         stream << "jmp" << ' ' << *o1;

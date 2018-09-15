@@ -5,6 +5,8 @@
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Number.hpp"
 
+#define ModRM(mod,r1,r2) ((char) ((((mod)&0x3)<<6) + (((r1)&0x7)<<3) + (((r2)&0x7)))) 
+#define SIB(ss,index,base) ((char) ((((ss)&0x3)<<6) + (((index)&0x7)<<3) + (((base)&0x7)))) 
 
 class Indirect: public ASMOperand {
     private:
@@ -26,6 +28,76 @@ class Indirect: public ASMOperand {
         if (_displacement) {
             _displacement->destroy();
         }
+    }
+    
+    virtual int getModMRSize() {
+        return 1;
+    }
+    
+    virtual int getSibSize() {
+        if (_index) {
+            return 1;
+        }
+        return 0;
+    }
+    
+    virtual int getDispSize() {
+        if (_displacement) {
+            int value = _displacement->value();
+            if ((_base || _index) && (-128 <= value && value <= 127)) {
+                return 1; 
+            }
+            return 4;
+        }
+        return 0;
+    }
+
+    virtual char getModMR(int reg) {
+        switch (getDispSize()) {
+            case 0:
+                if (_index) {
+                    return ModRM(0, reg, 4);
+                }
+                return ModRM(0, reg, _base->getOpCodeRegister());
+            case 1:
+                if (_index) {
+                    return ModRM(1, reg, 4);
+                }
+                return ModRM(1, reg, _base->getOpCodeRegister());
+            case 4:
+                if (_index) {
+                    if (_base) {
+                        return ModRM(2, reg, 4);
+                    }
+                    return ModRM(0, reg, 4);
+                }
+                if (_base) {
+                    return ModRM(2, reg, _base->getOpCodeRegister());
+                }
+                return ModRM(0, reg, 5);
+        }
+        return -1;
+    }
+    
+    virtual char getSib() {
+        switch (_scale) {
+            case 1:
+                return SIB(0, _index?_index->getOpCodeRegister():4, _base?_base->getOpCodeRegister():5); 
+            case 2:
+                return SIB(1, _index?_index->getOpCodeRegister():4, _base?_base->getOpCodeRegister():5); 
+            case 4:
+                return SIB(2, _index?_index->getOpCodeRegister():4, _base?_base->getOpCodeRegister():5); 
+            case 8:
+                return SIB(3, _index?_index->getOpCodeRegister():4, _base?_base->getOpCodeRegister():5); 
+        }
+        return -1;
+    }
+    
+    virtual int getDispValue() {
+        if (_displacement) {
+            return _displacement->value();
+        }
+        return 0;
     }
     
     virtual void logToStream(OStream &stream) {

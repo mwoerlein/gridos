@@ -6,14 +6,13 @@
 class Add: public ASMInstruction {
     protected:
     virtual bool validateOperandsAndOperandSize(OStream &err);
-    virtual bool determineOpcodeAndSize(OStream &err);
+    virtual size_t determineOpcodeAndSize(OStream &err);
     
     public:
     Add(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, OperandSize os = automatic)
         :ASMInstruction(env, mi, os, o1, o2), Object(env, mi) {}
     virtual ~Add() {}
     
-    virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream) {
         stream << "add";

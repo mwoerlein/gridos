@@ -10,7 +10,8 @@ bool ASMInstruction::prepare(OStream & err) {
     if (!validateOperandsAndOperandSize(err)) {
         return false;
     }
-    if (!determineOpcodeAndSize(err)) {
+    size = determineOpcodeAndSize(err);
+    if (!size) {
         return false;
     }
     return true;

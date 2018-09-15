@@ -1,16 +1,10 @@
 #include "I386ASM/Instruction/Jump.hpp"
 
 // public
-size_t Jump::getSizeInBytes() {
-    return 2;
-}
-
 void Jump::writeToStream(OStream & stream) {
     if (Number *n = o1->as<Number>(number)) {
-        stream
-            <<(char)0xeb // jmp
-            <<(char)n->value()
-        ;
+        stream << op1;
+        writeNumber(stream, n->value(), immSize);
     }
 }
 
@@ -47,6 +41,8 @@ bool Jump::validateOperandsAndOperandSize(OStream &err) {
     return true;
 }
 
-bool Jump::determineOpcodeAndSize(OStream &err) {
-    return true;
+size_t Jump::determineOpcodeAndSize(OStream &err) {
+    op1 = 0xEB;
+    immSize = 1;
+    return 1 + immSize;
 }
