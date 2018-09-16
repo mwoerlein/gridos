@@ -204,7 +204,7 @@ bool MoveTest::testMI() {
         << "movl 0xc0ffee, (%ecx,%edi,8)\n"
         << "movl 0xfefe, 0xbf000(,%esi,2)\n"
         << "movl 0xfefe, 0xbf000(%ebp,%eax)\n"
-        << "movl -0x21524111, (0x20)\n"
+        << "movl 0xdeadbeef, (0x20)\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"movl imm -> indirect\"");

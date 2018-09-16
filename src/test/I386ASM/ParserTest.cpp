@@ -50,7 +50,7 @@ bool ParserTest::runAll() {
         << "addl 0x4, %eax\n"
         << "movw 0x73e, (%eax)\n"
         << "hlt\n"
-        << "jmp -0x3\n"
+        << "jmp 0xfffffffd\n"
     ;
     
     success &= test(in, bin, pretty, message = "\"< @@ >\"-Test");
