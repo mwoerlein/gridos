@@ -5,11 +5,11 @@
 #include "sys/OStream.hpp"
 #include "I386ASM/ASMOperand.hpp"
 
-enum OperandSize { b = 1, w = 2, l = 4, automatic = 0 };
+enum BitWidth { bit_8 = 1, bit_16 = 2, bit_32 = 4, bit_auto = 0 };
 
 class ASMInstruction: virtual public Object {
     protected:
-    enum OperandSize os;
+    enum BitWidth operandSize;
     ASMOperand *o1, *o2, *o3;
     
     char pre1, pre2, pre3, pre4;
@@ -29,8 +29,8 @@ class ASMInstruction: virtual public Object {
     }
     
     public:
-    ASMInstruction(Environment &env, MemoryInfo &mi, OperandSize os = automatic, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
-        :Object(env, mi), os(os), o1(o1), o2(o2), o3(o3),
+    ASMInstruction(Environment &env, MemoryInfo &mi, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
+        :Object(env, mi), operandSize(operandSize), o1(o1), o2(o2), o3(o3),
          pre1(0), pre2(0), pre3(0), pre4(0),
          op1(90), op2(0), op3(0),
          modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0) {}

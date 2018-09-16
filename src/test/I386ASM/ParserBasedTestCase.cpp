@@ -36,7 +36,7 @@ bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, 
     if (message) {
         mes << message;
     } else {
-        mes << '"' << input << "\"-Test";
+        mes << "test \"" << input << '"';
     }
     return test(in, bin, pretty, mes, dumpBinary);
 }

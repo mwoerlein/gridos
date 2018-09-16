@@ -34,7 +34,7 @@ bool Jump::validateOperandsAndOperandSize(OStream &err) {
         err<<"Unexpected operand: " << *o3 << '\n';
         return false;
     }
-    if (os != automatic) {
+    if (operandSize != bit_auto) {
         err<<"Invalid operand size!\n";
         return false;
     }

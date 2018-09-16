@@ -10,8 +10,8 @@ class Jump: public ASMInstruction {
     virtual size_t determineOpcodeAndSize(OStream &err);
     
     public:
-    Jump(Environment &env, MemoryInfo &mi, Number *o1, OperandSize os = automatic)
-        :ASMInstruction(env, mi, os, o1), Object(env, mi) {}
+    Jump(Environment &env, MemoryInfo &mi, Number *o1, BitWidth operandSize = bit_auto)
+        :ASMInstruction(env, mi, operandSize, o1), Object(env, mi) {}
     virtual ~Jump() {}
     
     virtual void writeToStream(OStream &stream);

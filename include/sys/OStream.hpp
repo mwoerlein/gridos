@@ -8,10 +8,6 @@ class Integer;
 class String;
 class IStream;
 class OStream: virtual public Object {
-    protected:
-    OStream &printint(int d, int base = 10, int pad = 0);
-    OStream &printuint(unsigned int d, int base = 10, int pad = 0);
-    
     public:
     virtual ~OStream() {}
     
@@ -26,6 +22,11 @@ class OStream: virtual public Object {
     virtual OStream &operator <<(Integer &i);
     virtual OStream &operator <<(String &s);
     virtual OStream &operator <<(IStream &stream);
+    
+    OStream &printint(int d, int base = 10, int pad = 0);
+    OStream &printuint(unsigned int d, int base = 10, int pad = 0);
+    OStream &printhex(int d, int pad = 0);
+    OStream &printuhex(unsigned int d, int pad = 0);
 };
 
 #endif //OSTREAM_HPP_LOCK

@@ -30,8 +30,6 @@ bool MoveTest::testMR() {
     String pretty(env());
     String message(env());
     
-    OStream &dump = env().oStreamFactory().buildOStream("/tmp/moveMR.bin");
-    
     (in = "")
         << "movl %eax, %eax\n"
         << "movl %eax, %ebx\n"
@@ -56,9 +54,8 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0xE5
         << (char) 0x89 << (char) 0xE4
     ;
-    dump << bin;
     
-    success &= test(in, bin, in, message = "movl reg -> reg", "/tmp/movRR.bin");
+    success &= test(in, bin, in, message = "test \"movl reg -> reg\"");
     
     (in = "")
         << "movl %eax, (%eax)\n"
@@ -78,20 +75,17 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0x24 << (char) 0x75 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00
         << (char) 0x89 << (char) 0x3D                << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00
     ;
-    dump << bin;
     (pretty = "")
         << "movl %eax, (%eax)\n"
-        << "movl %ebx, 0x00000002(%eax)\n"
+        << "movl %ebx, 0x2(%eax)\n"
         << "movl %eax, (%ebx,%eax)\n"
-        << "movl %ecx, 0x00000006(%ebx,%ebp,4)\n"
+        << "movl %ecx, 0x6(%ebx,%ebp,4)\n"
         << "movl %edx, (%ecx,%edi,8)\n"
-        << "movl %esp, 0x000bf000(,%esi,2)\n"
-        << "movl %edi, (0x00000020)\n"
+        << "movl %esp, 0xbf000(,%esi,2)\n"
+        << "movl %edi, (0x20)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "movl reg -> indirect", "/tmp/movRI.bin");
-    
-    dump.destroy();
+    success &= test(in, bin, pretty, message = "test \"movl reg -> indirect\"");
     
     return success;
 }
@@ -103,8 +97,6 @@ bool MoveTest::testRM() {
     String pretty(env());
     String message(env());
     
-    OStream &dump = env().oStreamFactory().buildOStream("/tmp/moveRM.bin");
-
     (in = "")
         << "movl (%eax), %eax\n"
         << "movl 5(%ebx), %eax\n"
@@ -123,20 +115,17 @@ bool MoveTest::testRM() {
         << (char) 0x8B << (char) 0x24 << (char) 0x75 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00
         << (char) 0x8B << (char) 0x3D                << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00
     ;
-    dump << bin;
     (pretty = "")
         << "movl (%eax), %eax\n"
-        << "movl 0x00000005(%ebx), %eax\n"
+        << "movl 0x5(%ebx), %eax\n"
         << "movl (%eax,%ecx), %ebx\n"
-        << "movl 0x0000007f(%ecx,%ebx,4), %ebp\n"
+        << "movl 0x7f(%ecx,%ebx,4), %ebp\n"
         << "movl (%edx,%edi,8), %ecx\n"
-        << "movl 0x000bf000(,%esi,2), %esp\n"
-        << "movl (0x00000020), %edi\n"
+        << "movl 0xbf000(,%esi,2), %esp\n"
+        << "movl (0x20), %edi\n"
     ;
     
-    success &= test(in, bin, pretty, message = "movl indirect -> reg", "/tmp/movIR.bin");
-
-    dump.destroy();
+    success &= test(in, bin, pretty, message = "test \"movl indirect -> reg\"");
     
     return success;
 }

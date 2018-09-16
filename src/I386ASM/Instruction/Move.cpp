@@ -80,39 +80,39 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
-    if (os == w) {
+    if (operandSize == bit_16) {
         pre3 = 0x66;
         size++;
     }
     
     if (n1 && r2) {
-        op1 = (os == b) ? 0xB0 : 0xB8;
+        immSize = (int) operandSize;
+        op1 = (operandSize == bit_8) ? 0xB0 : 0xB8;
         op1 += r2->getOpCodeRegister();
-        immSize = (int) os;
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (n1 && i2) {
-        op1 = (os == b) ? 0xC6 : 0xC7;
+        immSize = (int) operandSize;
+        op1 = (operandSize == bit_8) ? 0xC6 : 0xC7;
         modrmSize = i2->getModMRSize();
         sibSize = i2->getSibSize();
         dispSize = i2->getDispSize();
-        immSize = (int) os;
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (r1 && r2) {
-        op1 = (os == b) ? 0x88 : 0x89;
+        op1 = (operandSize == bit_8) ? 0x88 : 0x89;
         modrmSize = 1;
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (r1 && i2) {
-        op1 = (os == b) ? 0x88 : 0x89;
+        op1 = (operandSize == bit_8) ? 0x88 : 0x89;
         modrmSize = i2->getModMRSize();
         sibSize = i2->getSibSize();
         dispSize = i2->getDispSize();
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (i1 && r2) {
-        op1 = (os == b) ? 0x8A : 0x8B;
+        op1 = (operandSize == bit_8) ? 0x8A : 0x8B;
         modrmSize = i1->getModMRSize();
         sibSize = i1->getSibSize();
         dispSize = i1->getDispSize();

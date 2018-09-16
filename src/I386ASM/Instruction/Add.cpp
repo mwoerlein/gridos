@@ -20,6 +20,6 @@ bool Add::validateOperandsAndOperandSize(OStream &err) {
 
 size_t Add::determineOpcodeAndSize(OStream &err) {
     op1 = 0x05; // addl eax
-    immSize = (int) os;
+    immSize = (int) operandSize;
     return 1 + immSize;
 }

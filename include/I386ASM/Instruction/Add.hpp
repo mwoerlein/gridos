@@ -9,17 +9,17 @@ class Add: public ASMInstruction {
     virtual size_t determineOpcodeAndSize(OStream &err);
     
     public:
-    Add(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, OperandSize os = automatic)
-        :ASMInstruction(env, mi, os, o1, o2), Object(env, mi) {}
+    Add(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, BitWidth operandSize = bit_auto)
+        :ASMInstruction(env, mi, operandSize, o1, o2), Object(env, mi) {}
     virtual ~Add() {}
     
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream) {
         stream << "add";
-        switch (os) {
-            case b: stream << 'b'; break;
-            case w: stream << 'w'; break;
-            case l: stream << 'l'; break;
+        switch (operandSize) {
+            case bit_8: stream << 'b'; break;
+            case bit_16: stream << 'w'; break;
+            case bit_32: stream << 'l'; break;
         }
         stream << ' ' << *o1 << ", " << *o2;
     }

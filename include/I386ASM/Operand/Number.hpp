@@ -17,7 +17,7 @@ class Number: public ASMOperand {
     }
 
     virtual void logToStream(OStream &stream) {
-        stream<<(void*)_number;
+        stream.printhex(_number);
     }
     
     virtual OperandType type() { return number; }

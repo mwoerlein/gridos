@@ -197,22 +197,22 @@ Identifier * Parser::parseIdentifier(char * start, char * end) {
     return &env().create<Identifier, String&>(env().create<String, char*, char*>(start, end));
 }
 
-OperandSize Parser::parseOperandSize(char * start, char * end) {
+BitWidth Parser::parseOperandSize(char * start, char * end) {
     if (end - start != 1) {
-        return automatic;
+        return bit_auto;
     }
     switch (*start) {
         case 'l':
         case 'L':
-            return l;
+            return bit_32;
         case 'w':
         case 'W':
-            return w;
+            return bit_16;
         case 'b':
         case 'B':
-            return b;
+            return bit_8;
         default:
-            return automatic;
+            return bit_auto;
     }
 }
 
@@ -329,11 +329,11 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *
 
         [mM][oO][vV] @o1 [bBwWlL]? @o2 {
             if (!op1 || !op2) return 0;
-            return &env().create<Move, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1, o2));
+            return &env().create<Move, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
         [aA][dD][dD] @o1 [bBwWlL]? @o2 {
             if (!op1 || !op2) return 0;
-            return &env().create<Add, ASMOperand*, ASMOperand*, OperandSize> (op1, op2, parseOperandSize(o1, o2));
+            return &env().create<Add, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
         [sS][uU][bB][bBwWlL]? {
             String s(env(), *notAnInfo, start, end);

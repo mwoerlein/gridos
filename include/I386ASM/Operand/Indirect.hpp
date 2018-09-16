@@ -17,7 +17,12 @@ class Indirect: public ASMOperand {
     
     public:
     Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Number *displacement = 0, Register * index = 0, int scale = 1)
-        :Object(env, mi), _base(base), _displacement(displacement), _index(index), _scale(scale) {}
+        :Object(env, mi), _base(base), _displacement(displacement), _index(index), _scale(scale) {
+        if (_displacement && (_displacement->value() == 0) && (_base || _index)) {
+            _displacement->destroy();
+            _displacement = 0;
+        }
+    }
     virtual ~Indirect() {
         if (_base) {
             _base->destroy();
@@ -103,11 +108,11 @@ class Indirect: public ASMOperand {
     virtual void logToStream(OStream &stream) {
         if (_displacement && !_base && !_index) {
             // memory indirect
-            stream << '(' << (void*)_displacement->value() << ')';
+            stream << '(' << *_displacement << ')';
         } else {
             // register indirect
             if (_displacement) {
-                stream << (void*)_displacement->value();
+                stream << *_displacement;
             }
             stream << '(';
             if (_base) {

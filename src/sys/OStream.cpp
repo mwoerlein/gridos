@@ -16,8 +16,7 @@ OStream & OStream::operator <<(unsigned int i) {
 }
 
 OStream & OStream::operator <<(void * ptr) {
-    *this<<'0'<<'x';
-    return printuint((unsigned int)ptr, 16, 8);
+    return printuhex((unsigned int)ptr, 8);
 }
 
 OStream & OStream::operator <<(char * c) {
@@ -55,8 +54,6 @@ OStream & OStream::operator <<(IStream &stream) {
     return *this;
 }
 
-// protected
-
 OStream & OStream::printint(int d, int base, int pad) {
     /*  If D is minus, put `-' in the head. */
     if (d < 0) {
@@ -85,4 +82,18 @@ OStream & OStream::printuint(unsigned int d, int base, int pad) {
     }
 
     return *this;
+}
+
+OStream & OStream::printhex(int d, int pad) {
+    /*  If D is minus, put `-' in the head. */
+    if (d < 0) {
+        *this << '-';
+        d = -d;
+    }
+    return printuhex((unsigned int) d, pad);
+}
+
+OStream & OStream::printuhex(unsigned int d, int pad) {
+    *this<<'0'<<'x';
+    return printuint(d, 16, pad);
 }
