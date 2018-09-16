@@ -4,7 +4,7 @@
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 
-#define ModRM(mod,r1,r2) ((char) ((((mod)&0x3)<<6) + (((r1)&0x7)<<3) + (((r2)&0x7)))) 
+#define ModRM(mod,regO,regM) ((char) ((((mod)&0x3)<<6) + (((regO)&0x7)<<3) + (((regM)&0x7)))) 
 
 // public
 void Move::writeToStream(OStream & stream) {
