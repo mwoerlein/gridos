@@ -164,7 +164,6 @@ Register * Parser::parseRegister(char * start, char * end) {
         "%"[dD][iI]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_di); }
         "%"[sS][iI]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_si); }
         "%"[bB][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_bp); }
-        "%"[iI][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ip); }
         "%"[sS][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_sp); }
         
         "%"[eE][aA][xX]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_eax); }
@@ -174,7 +173,6 @@ Register * Parser::parseRegister(char * start, char * end) {
         "%"[eE][dD][iI]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_edi); }
         "%"[eE][sS][iI]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_esi); }
         "%"[eE][bB][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ebp); }
-        "%"[eE][iI][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_eip); }
         "%"[eE][sS][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_esp); }
         
         "%"[cC][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_cs); }
@@ -414,50 +412,50 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
                     ASMInstruction * inst = parseInstruction(o1, o2, o2);
                     if (inst) {
                         list.addInstruction(*inst);
-                    } //else {
+                    } else {
                         log << "inst0: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    //}
+                    }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o4, parseOperand(o3, o4));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } //else {
+                    } else {
                         log << "inst1: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    //}
+                    }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o6, parseOperand(o3, o4), parseOperand(o5, o6));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } //else {
+                    } else {
                         log << "inst2: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    //}
+                    }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp comma wsp @o7 operand @o8 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o8, parseOperand(o3, o4), parseOperand(o5, o6), parseOperand(o7, o8));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } //else {
+                    } else {
                         log << "inst3: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    //}
+                    }
                     continue;
                   }
         *         { 

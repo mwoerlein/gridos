@@ -67,7 +67,7 @@ bool MoveTest::testMR() {
         << "movl %esp, %esp\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"movl reg -> reg\"");
+    success &= test(in, bin, pretty, message = "test \"mov reg -> reg\"");
     
     (in = "")
         << "movb %al, (%eax)\n"
@@ -97,7 +97,55 @@ bool MoveTest::testMR() {
         << "movl %edi, (0x20)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"movl reg -> indirect\"");
+    success &= test(in, bin, pretty, message = "test \"mov reg -> indirect\"");
+    
+    (in = "")
+        << "movl %cs, %eax\n"
+        << "movl %ds, %ebp\n"
+        << "mov %es, %esp\n"
+        << "mov %fs, %bx\n"
+        << "movw %gs, %di\n"
+        << "movw %ss, %dx\n"
+    ;
+    (bin = "")
+        << (char) 0x8C << (char) 0xC8
+        << (char) 0x8C << (char) 0xDD
+        << (char) 0x8C << (char) 0xC4
+        << (char) 0x66 << (char) 0x8C << (char) 0xE3
+        << (char) 0x66 << (char) 0x8C << (char) 0xEF
+        << (char) 0x66 << (char) 0x8C << (char) 0xD2
+    ;
+    (pretty = "")
+        << "movl %cs, %eax\n"
+        << "movl %ds, %ebp\n"
+        << "movl %es, %esp\n"
+        << "movw %fs, %bx\n"
+        << "movw %gs, %di\n"
+        << "movw %ss, %dx\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "test \"mov sreg -> reg\"");
+    
+    (in = "")
+        << "movw %cs, (%eax)\n"
+        << "movw %ds, 300(%esp)\n"
+        << "mov %es, (,%esi,8)\n"
+        << "mov %fs, 8(%edi,%eax)\n"
+    ;
+    (bin = "")
+        << (char) 0x8C << (char) 0x08
+        << (char) 0x8C << (char) 0x9C << (char) 0x24 << (char) 0x2C << (char) 0x01 << (char) 0x00 << (char) 0x00
+        << (char) 0x8C << (char) 0x04 << (char) 0xF5 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0x8C << (char) 0x64 << (char) 0x07 << (char) 0x08
+    ;
+    (pretty = "")
+        << "movw %cs, (%eax)\n"
+        << "movw %ds, 0x12c(%esp)\n"
+        << "movw %es, (,%esi,8)\n"
+        << "movw %fs, 0x8(%edi,%eax)\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "test \"mov sreg -> indirect\"");
     
     return success;
 }
@@ -137,7 +185,55 @@ bool MoveTest::testRM() {
         << "movl (0x20), %edi\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"movl indirect -> reg\"");
+    success &= test(in, bin, pretty, message = "test \"mov indirect -> reg\"");
+    
+    (in = "")
+        << "movl %eax, %cs\n"
+        << "movl %ebp, %ds\n"
+        << "mov %esp, %es\n"
+        << "mov %bx, %fs\n"
+        << "movw %di, %gs\n"
+        << "movw %dx, %ss\n"
+    ;
+    (bin = "")
+        << (char) 0x8E << (char) 0xC8
+        << (char) 0x8E << (char) 0xDD
+        << (char) 0x8E << (char) 0xC4
+        << (char) 0x66 << (char) 0x8E << (char) 0xE3
+        << (char) 0x66 << (char) 0x8E << (char) 0xEF
+        << (char) 0x66 << (char) 0x8E << (char) 0xD2
+    ;
+    (pretty = "")
+        << "movl %eax, %cs\n"
+        << "movl %ebp, %ds\n"
+        << "movl %esp, %es\n"
+        << "movw %bx, %fs\n"
+        << "movw %di, %gs\n"
+        << "movw %dx, %ss\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "test \"mov reg -> sreg\"");
+    
+    (in = "")
+        << "mov (%eax), %cs\n"
+        << "mov 300(%ebp), %ds\n"
+        << "movw (,%esi,2), %es\n"
+        << "movw 0x6(%eax,%ebx,8), %ss\n"
+    ;
+    (bin = "")
+        << (char) 0x8E << (char) 0x08
+        << (char) 0x8E << (char) 0x9D << (char) 0x2C << (char) 0x01 << (char) 0x00 << (char) 0x00
+        << (char) 0x8E << (char) 0x04 << (char) 0x75 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0x8E << (char) 0x54 << (char) 0xD8 << (char) 0x06
+    ;
+    (pretty = "")
+        << "movw (%eax), %cs\n"
+        << "movw 0x12c(%ebp), %ds\n"
+        << "movw (,%esi,2), %es\n"
+        << "movw 0x6(%eax,%ebx,8), %ss\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "test \"mov indirect -> sreg\"");
     
     return success;
 }
@@ -176,7 +272,7 @@ bool MoveTest::testOI() {
         << "movl 0xbc614e, %esi\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"movl imm -> reg\"");
+    success &= test(in, bin, pretty, message = "test \"mov imm -> reg\"");
     
     return success;
 }
@@ -219,7 +315,7 @@ bool MoveTest::testMI() {
         << "movl 0xdeadbeef, (0x20)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"movl imm -> indirect\"");
+    success &= test(in, bin, pretty, message = "test \"mov imm -> indirect\"");
     
     return success;
 }

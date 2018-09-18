@@ -32,7 +32,6 @@ class Register: public ASMOperand {
             case reg_si:
             case reg_bp:
             case reg_sp:
-            case reg_ip:
                 return bit_16;
 
             case reg_eax:
@@ -43,7 +42,6 @@ class Register: public ASMOperand {
             case reg_esi:
             case reg_ebp:
             case reg_esp:
-            case reg_eip:
                 return bit_32;
 
             case reg_cs:
@@ -56,36 +54,55 @@ class Register: public ASMOperand {
         }
     }
     
+    virtual RegisterKind kind() {
+        switch (_reg) {
+            case reg_cs:
+            case reg_ds:
+            case reg_es:
+            case reg_fs:
+            case reg_gs:
+            case reg_ss:
+                return reg_segment;
+        }
+        return reg_general;
+    }
+    
     virtual int getOpCodeRegister() {
         switch (_reg) {
             case reg_al:
             case reg_ax:
             case reg_eax:
+            case reg_es:
                 return 0;
-            case reg_bl:
-            case reg_bx:
-            case reg_ebx:
-                return 3;
             case reg_cl:
             case reg_cx:
             case reg_ecx:
+            case reg_cs:
                 return 1;
             case reg_dl:
             case reg_dx:
             case reg_edx:
+            case reg_ss:
                 return 2;
+            case reg_bl:
+            case reg_bx:
+            case reg_ebx:
+            case reg_ds:
+                return 3;
+            case reg_ah:
+            case reg_sp:
+            case reg_esp:
+            case reg_fs:
+                return 4;
+            case reg_ch:
+            case reg_bp:
+            case reg_ebp:
+            case reg_gs:
+                return 5;
             case reg_dh:
             case reg_si:
             case reg_esi:
                 return 6;
-            case reg_ch:
-            case reg_bp:
-            case reg_ebp:
-                return 5;
-            case reg_ah:
-            case reg_sp:
-            case reg_esp:
-                return 4;
             case reg_bh:
             case reg_di:
             case reg_edi:
@@ -126,7 +143,6 @@ class Register: public ASMOperand {
                     case reg_si: return reg_esi;
                     case reg_bp: return reg_ebp;
                     case reg_sp: return reg_esp;
-                    case reg_ip: return reg_eip;
                 }
                 break;
             case bit_16:
@@ -135,6 +151,15 @@ class Register: public ASMOperand {
                     case reg_bl: return reg_bx;
                     case reg_cl: return reg_cx;
                     case reg_dl: return reg_dx;
+                        
+                    case reg_eax: return reg_ax;
+                    case reg_ebx: return reg_bx;
+                    case reg_ecx: return reg_cx;
+                    case reg_edx: return reg_dx;
+                    case reg_edi: return reg_di;
+                    case reg_esi: return reg_si;
+                    case reg_ebp: return reg_bp;
+                    case reg_esp: return reg_sp;
                 }
                 break;
         }
@@ -160,7 +185,6 @@ class Register: public ASMOperand {
             case reg_si: stream<<"%si"; break;
             case reg_bp: stream<<"%bp"; break;
             case reg_sp: stream<<"%sp"; break;
-            case reg_ip: stream<<"%ip"; break;
             
             case reg_eax: stream<<"%eax"; break;
             case reg_ebx: stream<<"%ebx"; break;
@@ -170,7 +194,6 @@ class Register: public ASMOperand {
             case reg_esi: stream<<"%esi"; break;
             case reg_ebp: stream<<"%ebp"; break;
             case reg_esp: stream<<"%esp"; break;
-            case reg_eip: stream<<"%eip"; break;
             
             case reg_cs: stream<<"%cs"; break;
             case reg_ds: stream<<"%ds"; break;

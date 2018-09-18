@@ -37,7 +37,7 @@ class Indirect: public ASMOperand {
     }
     
     virtual int getSibSize() {
-        if (_index) {
+        if (_index || (_base && (*_base == reg_esp))) {
             return 1;
         }
         return 0;
@@ -49,6 +49,9 @@ class Indirect: public ASMOperand {
             if ((_base || _index) && (-128 <= value && value <= 127)) {
                 return 1; 
             }
+            return 4;
+        }
+        if (!_base && _index) {
             return 4;
         }
         return 0;
