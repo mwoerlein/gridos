@@ -36,7 +36,7 @@ class Parser: virtual public Object {
     virtual Register * parseRegister(char * start, char * end);
     virtual Identifier * parseIdentifier(char * start, char * end);
     virtual ASMOperand * parseOperand(char * start, char * end);
-    virtual ASMInstruction * parseInstruction(char * start, char * end, ASMOperand *op1 = 0, ASMOperand *op2 = 0, ASMOperand *op3 = 0);
+    virtual ASMInstruction * parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1 = 0, ASMOperand *op2 = 0, ASMOperand *op3 = 0);
     
     public:
     Parser(Environment &env, MemoryInfo &mi);

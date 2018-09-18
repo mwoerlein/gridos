@@ -87,7 +87,7 @@ bool Parser::fillBuffer(size_t need, IStream & input)
 
         end         = "\x00";
         eol         = "\r"? "\n" | "\r";
-        wsp         = [ \t\r\n]*;
+        wsp         = [ \t]*;
 
         bin         = "0"[bB][01]+;
         oct         = "0"[0-7]+;
@@ -318,7 +318,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
     return 0;
 }
 
-ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *op1, ASMOperand *op2, ASMOperand *op3) {
+ASMInstruction * Parser::parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1, ASMOperand *op2, ASMOperand *op3) {
     char *o1, *o2, *mark, *ctx, *cur = start;
     for (;;) {
 /*!re2c
@@ -336,12 +336,12 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *
             return &env().create<Add, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
         [sS][uU][bB][bBwWlL]? {
-            String s(env(), *notAnInfo, start, end);
+            String s(env(), *notAnInfo, start, operandsEnd);
             env().err() << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
         [iI]?[mM][uU][lL][bBwWlL]? {
-            String s(env(), *notAnInfo, start, end);
+            String s(env(), *notAnInfo, start, operandsEnd);
             env().err() << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
@@ -349,16 +349,20 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, ASMOperand *
             return &env().create<Halt>();
         }
         [jJ][mM][pP] {
-            if (!op1) return 0;
-            if (Number *n = op1->as<Number>(number)) {
-                return &env().create<Jump, Number*>(n);
+            if (op1) {
+                if (Number *n = op1->as<Number>(number)) {
+                    return &env().create<Jump, Number*>(n);
+                }
             }
+            String s(env(), *notAnInfo, start, operandsEnd);
+            env().err() << "not yet supported operands in '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+            return 0;
         }
         * { break; }
 */
     }
     
-    String s(env(), *notAnInfo, start, end);
+    String s(env(), *notAnInfo, start, operandsEnd);
     env().err() << "unknown instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
@@ -395,6 +399,7 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         eoinst      = semicolon | eol | end | "//" | "#" | "/*";
 
         end       { break; }
+        eol       { continue; }
         wsp       { continue; }
         semicolon { continue; }
         ( "//" | "#" ) @o1 [^\n]* @o2 eol { continue; }
@@ -406,53 +411,53 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
                     log << "defin: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n'; continue;
                   }
         @o1 inst @o2 wsp / eoinst {
-                    ASMInstruction * inst = parseInstruction(o1, o2);
+                    ASMInstruction * inst = parseInstruction(o1, o2, o2);
                     if (inst) {
                         list.addInstruction(*inst);
-                    } else {
+                    } //else {
                         log << "inst0: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    }
+                    //}
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp / eoinst {
-                    ASMInstruction * inst = parseInstruction(o1, o2, parseOperand(o3, o4));
+                    ASMInstruction * inst = parseInstruction(o1, o2, o4, parseOperand(o3, o4));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } else {
+                    } //else {
                         log << "inst1: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    }
+                    //}
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp / eoinst {
-                    ASMInstruction * inst = parseInstruction(o1, o2, parseOperand(o3, o4), parseOperand(o5, o6));
+                    ASMInstruction * inst = parseInstruction(o1, o2, o6, parseOperand(o3, o4), parseOperand(o5, o6));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } else {
+                    } //else {
                         log << "inst2: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    }
+                    //}
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp comma wsp @o7 operand @o8 wsp / eoinst {
-                    ASMInstruction * inst = parseInstruction(o1, o2, parseOperand(o3, o4), parseOperand(o5, o6), parseOperand(o7, o8));
+                    ASMInstruction * inst = parseInstruction(o1, o2, o8, parseOperand(o3, o4), parseOperand(o5, o6), parseOperand(o7, o8));
                     if (inst) {
                         list.addInstruction(*inst);
-                    } else {
+                    } //else {
                         log << "inst3: ";
                         for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
                         for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
                         log << '\n';
-                    }
+                    //}
                     continue;
                   }
         *         { 
