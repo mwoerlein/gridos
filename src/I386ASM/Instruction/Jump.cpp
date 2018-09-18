@@ -1,14 +1,12 @@
 #include "I386ASM/Instruction/Jump.hpp"
 
-// public
-void Jump::writeToStream(OStream & stream) {
+// protected
+void Jump::writeOperandsToStream(OStream & stream) {
     if (Number *n = o1->as<Number>(number)) {
-        stream << op1;
-        writeNumber(stream, n->value(), immSize);
+        writeNumberToStream(stream, n->value(), immSize);
     }
 }
 
-// protected
 bool Jump::validateOperandsAndOperandSize(OStream &err) {
     if (!o1) {
         err<<"Missing operand!\n";

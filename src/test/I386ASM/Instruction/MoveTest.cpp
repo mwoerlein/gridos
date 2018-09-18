@@ -31,9 +31,9 @@ bool MoveTest::testMR() {
     String message(env());
     
     (in = "")
-        << "movl %eax, %eax\n"
-        << "movb %al, %bh\n"
-        << "movw %bx, %ax\n"
+        << "mov %eax, %eax\n"
+        << "mov %al, %bh\n"
+        << "mov %bx, %ax\n"
         << "movw %cx, %bx\n"
         << "movb %dh, %cl\n"
         << "movl %edi, %edx\n"
@@ -54,8 +54,20 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0xE5
         << (char) 0x89 << (char) 0xE4
     ;
+    (pretty = "")
+        << "movl %eax, %eax\n"
+        << "movb %al, %bh\n"
+        << "movw %bx, %ax\n"
+        << "movw %cx, %bx\n"
+        << "movb %dh, %cl\n"
+        << "movl %edi, %edx\n"
+        << "movl %esi, %edi\n"
+        << "movl %ebp, %esi\n"
+        << "movl %esp, %ebp\n"
+        << "movl %esp, %esp\n"
+    ;
     
-    success &= test(in, bin, in, message = "test \"movl reg -> reg\"");
+    success &= test(in, bin, pretty, message = "test \"movl reg -> reg\"");
     
     (in = "")
         << "movb %al, (%eax)\n"

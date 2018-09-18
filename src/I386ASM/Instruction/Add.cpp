@@ -3,22 +3,34 @@
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 
-// public
-void Add::writeToStream(OStream & stream) {
-    if (Number *n = o1->as<Number>(number)) {
-        if (Register *r = o2->as<Register>(reg)) {
-            stream << op1;
-            writeNumber(stream, n->value(), immSize);
-        }
+// protected
+void Add::writeOperandsToStream(OStream & stream) {
+    Number *n1 = o1->as<Number>(number);
+    Register *r2 = o2->as<Register>(reg);
+    
+    if (n1 && r2) {
+        writeNumberToStream(stream, n1->value(), immSize);
     }
 }
 
-// protected
 bool Add::validateOperandsAndOperandSize(OStream &err) {
-    return true;
+    // TODO: validate and determine more variants
+    Number *n1 = o1->as<Number>(number);
+    Register *r2 = o2->as<Register>(reg);
+    
+    if (n1 && r2) {
+        if (*r2 != reg_eax) {
+            err<<"unsupported register in \""<<*this<<"\"\n";
+            return false;
+        }
+        return true;
+    }
+    err<<"unsupported operands in \""<<*this<<"\"\n";
+    return false;
 }
 
 size_t Add::determineOpcodeAndSize(OStream &err) {
+    // TODO: validate and determine more variants
     op1 = 0x05; // addl eax
     immSize = (int) operandSize;
     return 1 + immSize;

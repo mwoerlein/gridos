@@ -6,18 +6,14 @@
 
 class Jump: public ASMInstruction {
     protected:
-    virtual bool validateOperandsAndOperandSize(OStream &err);
-    virtual size_t determineOpcodeAndSize(OStream &err);
+    virtual bool validateOperandsAndOperandSize(OStream &err) override;
+    virtual size_t determineOpcodeAndSize(OStream &err) override;
+    virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
     Jump(Environment &env, MemoryInfo &mi, Number *o1, BitWidth operandSize = bit_auto)
-        :ASMInstruction(env, mi, operandSize, o1), Object(env, mi) {}
+        :ASMInstruction(env, mi, "jmp", operandSize, o1), Object(env, mi) {}
     virtual ~Jump() {}
-    
-    virtual void writeToStream(OStream &stream);
-    virtual void logToStream(OStream &stream) {
-        stream << "jmp" << ' ' << *o1;
-    }
 };
 
 #endif //I386ASMJUMP_HPP_LOCK

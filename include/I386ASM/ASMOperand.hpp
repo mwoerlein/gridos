@@ -3,8 +3,7 @@
 
 #include "sys/Object.hpp"
 #include "sys/OStream.hpp"
-
-enum OperandType { reg, indirect, number, id };
+#include "I386ASM/ASMTypes.hpp"
 
 class ASMOperand: virtual public Object {
     public:
@@ -15,6 +14,7 @@ class ASMOperand: virtual public Object {
     friend OStream & operator << (OStream & out, ASMOperand &operand);
     
     // TODO #6: implement RTTI correctly
+    virtual RTTI rtti() override { return asm_operand; }
     template <class As> As * as(OperandType type) {
         return (As *) ((this->type() == type) ? this->_memory_info->buf : 0);
     }

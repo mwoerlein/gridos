@@ -22,7 +22,19 @@ class Identifier: public ASMOperand {
         stream<<_id;
     }
     
+    // TODO #6: implement RTTI correctly
     virtual OperandType type() { return id; }
+    virtual int hash() override {
+        return _id.hash();
+    }
+    virtual bool equals(Object &o) override {
+        if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+            if (Identifier *i = op->as<Identifier>(id)) {
+                return _id.equals(i->_id);
+            }
+        }
+        return false;
+    }
 };
 
 #endif //I386ASMIDENTIFIER_HPP_LOCK

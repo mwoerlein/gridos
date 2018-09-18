@@ -148,41 +148,41 @@ Register * Parser::parseRegister(char * start, char * end) {
         re2c:define:YYCTXMARKER = ctx;
         re2c:define:YYLIMIT = end;
 
-        "%"[aA][hH]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ah); }
-        "%"[bB][hH]          { if (cur != end) break; return &env().create<Register, enum asm_register>(bh); }
-        "%"[cC][hH]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ch); }
-        "%"[dD][hH]          { if (cur != end) break; return &env().create<Register, enum asm_register>(dh); }
-        "%"[aA][lL]          { if (cur != end) break; return &env().create<Register, enum asm_register>(al); }
-        "%"[bB][lL]          { if (cur != end) break; return &env().create<Register, enum asm_register>(bl); }
-        "%"[cC][lL]          { if (cur != end) break; return &env().create<Register, enum asm_register>(cl); }
-        "%"[dD][lL]          { if (cur != end) break; return &env().create<Register, enum asm_register>(dl); }
+        "%"[aA][hH]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ah); }
+        "%"[bB][hH]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_bh); }
+        "%"[cC][hH]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ch); }
+        "%"[dD][hH]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_dh); }
+        "%"[aA][lL]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_al); }
+        "%"[bB][lL]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_bl); }
+        "%"[cC][lL]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_cl); }
+        "%"[dD][lL]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_dl); }
         
-        "%"[aA][xX]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ax); }
-        "%"[bB][xX]          { if (cur != end) break; return &env().create<Register, enum asm_register>(bx); }
-        "%"[cC][xX]          { if (cur != end) break; return &env().create<Register, enum asm_register>(cx); }
-        "%"[dD][xX]          { if (cur != end) break; return &env().create<Register, enum asm_register>(dx); }
-        "%"[dD][iI]          { if (cur != end) break; return &env().create<Register, enum asm_register>(di); }
-        "%"[sS][iI]          { if (cur != end) break; return &env().create<Register, enum asm_register>(si); }
-        "%"[bB][pP]          { if (cur != end) break; return &env().create<Register, enum asm_register>(bp); }
-        "%"[iI][pP]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ip); }
-        "%"[sS][pP]          { if (cur != end) break; return &env().create<Register, enum asm_register>(sp); }
+        "%"[aA][xX]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ax); }
+        "%"[bB][xX]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_bx); }
+        "%"[cC][xX]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_cx); }
+        "%"[dD][xX]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_dx); }
+        "%"[dD][iI]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_di); }
+        "%"[sS][iI]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_si); }
+        "%"[bB][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_bp); }
+        "%"[iI][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ip); }
+        "%"[sS][pP]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_sp); }
         
-        "%"[eE][aA][xX]      { if (cur != end) break; return &env().create<Register, enum asm_register>(eax); }
-        "%"[eE][bB][xX]      { if (cur != end) break; return &env().create<Register, enum asm_register>(ebx); }
-        "%"[eE][cC][xX]      { if (cur != end) break; return &env().create<Register, enum asm_register>(ecx); }
-        "%"[eE][dD][xX]      { if (cur != end) break; return &env().create<Register, enum asm_register>(edx); }
-        "%"[eE][dD][iI]      { if (cur != end) break; return &env().create<Register, enum asm_register>(edi); }
-        "%"[eE][sS][iI]      { if (cur != end) break; return &env().create<Register, enum asm_register>(esi); }
-        "%"[eE][bB][pP]      { if (cur != end) break; return &env().create<Register, enum asm_register>(ebp); }
-        "%"[eE][iI][pP]      { if (cur != end) break; return &env().create<Register, enum asm_register>(eip); }
-        "%"[eE][sS][pP]      { if (cur != end) break; return &env().create<Register, enum asm_register>(esp); }
+        "%"[eE][aA][xX]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_eax); }
+        "%"[eE][bB][xX]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ebx); }
+        "%"[eE][cC][xX]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ecx); }
+        "%"[eE][dD][xX]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_edx); }
+        "%"[eE][dD][iI]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_edi); }
+        "%"[eE][sS][iI]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_esi); }
+        "%"[eE][bB][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ebp); }
+        "%"[eE][iI][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_eip); }
+        "%"[eE][sS][pP]      { if (cur != end) break; return &env().create<Register, RegisterName>(reg_esp); }
         
-        "%"[cC][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(cs); }
-        "%"[dD][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ds); }
-        "%"[eE][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(es); }
-        "%"[fF][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(fs); }
-        "%"[gG][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(gs); }
-        "%"[sS][sS]          { if (cur != end) break; return &env().create<Register, enum asm_register>(ss); }
+        "%"[cC][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_cs); }
+        "%"[dD][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ds); }
+        "%"[eE][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_es); }
+        "%"[fF][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_fs); }
+        "%"[gG][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_gs); }
+        "%"[sS][sS]          { if (cur != end) break; return &env().create<Register, RegisterName>(reg_ss); }
 
         * { break; }
 */

@@ -48,7 +48,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         ASMInstructionList &list = parseSilent(in, buffer="");
         assertEquals(buffer, "", "parsing error" );
         bool success = list.prepare(buffer="");
-        assert(success && (buffer == ""), "preparation error: "<<buffer );
+        assert(success && (buffer == ""), message<<" preparation error: "<<buffer );
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );

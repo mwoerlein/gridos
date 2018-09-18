@@ -5,9 +5,6 @@
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Number.hpp"
 
-#define ModRM(mod,regO,regM) ((char) ((((mod)&0x3)<<6) + (((regO)&0x7)<<3) + (((regM)&0x7)))) 
-#define SIB(ss,index,base) ((char) ((((ss)&0x3)<<6) + (((index)&0x7)<<3) + (((base)&0x7)))) 
-
 class Indirect: public ASMOperand {
     private:
     Number *_displacement;

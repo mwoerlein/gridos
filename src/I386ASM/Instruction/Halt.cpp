@@ -1,11 +1,8 @@
 #include "I386ASM/Instruction/Halt.hpp"
 
-// public
-void Halt::writeToStream(OStream & stream) {
-    stream<<op1;
-}
-
 // protected
+void Halt::writeOperandsToStream(OStream &stream) {}
+
 bool Halt::validateOperandsAndOperandSize(OStream &err) {
     if (o1) {
         err<<"Unexpected operand: " << *o1 << '\n';

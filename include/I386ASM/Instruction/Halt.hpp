@@ -5,17 +5,13 @@
 
 class Halt: public ASMInstruction {
     protected:
-    virtual bool validateOperandsAndOperandSize(OStream &err);
-    virtual size_t determineOpcodeAndSize(OStream &err);
+    virtual bool validateOperandsAndOperandSize(OStream &err) override;
+    virtual size_t determineOpcodeAndSize(OStream &err) override;
+    virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
-    Halt(Environment &env, MemoryInfo &mi):ASMInstruction(env, mi), Object(env, mi) {}
+    Halt(Environment &env, MemoryInfo &mi):ASMInstruction(env, mi, "hlt"), Object(env, mi) {}
     virtual ~Halt() {}
-    
-    virtual void writeToStream(OStream &stream);
-    virtual void logToStream(OStream &stream) {
-        stream << "hlt";
-    }
 };
 
 #endif //I386ASMHALT_HPP_LOCK

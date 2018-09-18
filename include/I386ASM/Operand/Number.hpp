@@ -20,7 +20,19 @@ class Number: public ASMOperand {
         stream.printuhex(_number);
     }
     
+    // TODO #6: implement RTTI correctly
     virtual OperandType type() { return number; }
+    virtual int hash() override {
+        return _number;
+    }
+    virtual bool equals(Object &o) override {
+        if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+            if (Number *n = op->as<Number>(number)) {
+                return _number == n->_number;
+            }
+        }
+        return false;
+    }
 };
 
 #endif //I386ASMNUMBER_HPP_LOCK
