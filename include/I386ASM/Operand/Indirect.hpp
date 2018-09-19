@@ -105,6 +105,10 @@ class Indirect: public ASMOperand {
         return 0;
     }
     
+    virtual bool isOffset() {
+        return !_base && !_index;
+    }
+    
     virtual void logToStream(OStream &stream) {
         if (_displacement && !_base && !_index) {
             // memory indirect

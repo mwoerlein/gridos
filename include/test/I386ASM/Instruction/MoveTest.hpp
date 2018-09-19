@@ -7,8 +7,6 @@ class MoveTest: public ParserBasedTestCase {
     protected:
     bool testMR();
     bool testRM();
-    bool testFD();
-    bool testTD();
     bool testOI();
     bool testMI();
     

@@ -211,6 +211,11 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (gr1 && i2) {
+        if (i2->isOffset() && (gr1->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
+            op1 = (operandSize == bit_8) ? 0xA2 : 0xA3;
+            dispSize = (int) addrSize;
+            return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        }
         op1 = (operandSize == bit_8) ? 0x88 : 0x89;
         modrmSize = i2->getModMRSize();
         sibSize = i2->getSibSize();
@@ -218,6 +223,11 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (i1 && gr2) {
+        if (i1->isOffset() && (gr2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
+            op1 = (operandSize == bit_8) ? 0xA0 : 0xA1;
+            dispSize = (int) addrSize;
+            return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        }
         op1 = (operandSize == bit_8) ? 0x8A : 0x8B;
         modrmSize = i1->getModMRSize();
         sibSize = i1->getSibSize();
