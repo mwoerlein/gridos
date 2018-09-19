@@ -10,6 +10,8 @@
 #include "test/sys/IntegerTest.hpp"
 #include "test/sys/StringTest.hpp"
 
+#include "test/sys/collection/LinkedListTest.hpp"
+
 #include "test/I386ASM/ParserTest.hpp"
 #include "test/I386ASM/Instruction/MoveTest.hpp"
 #include "test/I386ASM/Instruction/HaltTest.hpp"
@@ -25,6 +27,10 @@ void TestSuite::runAll() {
     run<DigitTest>();
     run<IntegerTest>();
     run<StringTest>();
+//*/
+    
+//*/
+    run<LinkedListTest>();
 //*/
     
 //*/

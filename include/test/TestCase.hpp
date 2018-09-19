@@ -4,6 +4,8 @@
 #include "sys/Object.hpp"
 
 #define assert(successful, message) if (!(successful)) { env().err() << __PRETTY_FUNCTION__ << " failed: " << message << '\n'; return false; }
+#define assertTrue(boolean, message) assert(boolean, message);
+#define assertFalse(boolean, message) assert(!(boolean), message);
 #define assertEquals(value, expected, message) if ((value) != (expected)) {\
     env().err() << __PRETTY_FUNCTION__ << " failed: " << message << " (expected: " << (expected) << " got: " << (value) << ")\n"; return false;\
 }
