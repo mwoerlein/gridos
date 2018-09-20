@@ -7,6 +7,7 @@
 class LinkedListTest: public TestCase {
     protected:
     bool testAddAndRemove();
+    bool testIterableAndClear();
     
     public:
     LinkedListTest(Environment &env, MemoryInfo &mi);

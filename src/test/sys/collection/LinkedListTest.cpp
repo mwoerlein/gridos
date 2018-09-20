@@ -1,6 +1,7 @@
 #include "test/sys/collection/LinkedListTest.hpp"
 
 #include "sys/Char.hpp"
+#include "sys/Integer.hpp"
 
 // public
 LinkedListTest::LinkedListTest(Environment &env, MemoryInfo &mi): TestCase(env, mi) {}
@@ -9,6 +10,7 @@ LinkedListTest::~LinkedListTest() {};
 bool LinkedListTest::runAll() {
     bool success = true;
     success &= testAddAndRemove();
+    success &= testIterableAndClear();
     return success;
 }
 
@@ -84,6 +86,53 @@ bool LinkedListTest::testAddAndRemove() {
     assertFalse(l.contains(c), "cleared list does not contain 'c'");
     
     assertFalse(l.remove(a), "cleared list does not remove element 'a'");
+    
+    l.destroy();
+    c.destroy();
+    b.destroy();
+    a.destroy();
+    success();
+}
+
+bool LinkedListTest::testIterableAndClear() {
+    Integer &a = env().create<Integer, int>(0);
+    Integer &b = env().create<Integer, int>(1);
+    Integer &c = env().create<Integer, int>(6);
+    
+    LinkedList<Integer> &l = env().create<LinkedList<Integer>>();
+
+    {    
+        Iterator<Integer> &it = l.iterator();
+        assertFalse(it.hasNext(), "empty list iterator has no element");
+        it.destroy();
+    }
+    
+    l.add(a); l.add(b); l.add(c); l.add(a);
+    assertFalse(l.isEmpty(), "filled list is not empty");
+    assertEquals(l.size(), 4, "filled list has size");
+
+    {    
+        Iterator<Integer> &it = l.iterator();
+        assertTrue(it.hasNext(), "filled list iterator has first element");
+        assertEquals(it.next(), a, "filled list iterator has first element 0");
+        assertTrue(it.hasNext(), "filled list iterator has second element");
+        assertEquals(it.next(), b, "filled list iterator has second element 1");
+        assertTrue(it.hasNext(), "filled list iterator has third element");
+        assertEquals(it.next(), c, "filled list iterator has third element 6");
+        assertTrue(it.hasNext(), "filled list iterator has forth element");
+        assertEquals(it.next(), a, "filled list iterator has forth element 0");
+        assertFalse(it.hasNext(), "filled list iterator has no fifth element");
+        it.destroy();
+    }
+
+    l.clear();
+    assertTrue(l.isEmpty(), "cleared list is empty");
+    assertEquals(l.size(), 0, "cleared list has size 0");
+    {    
+        Iterator<Integer> &it = l.iterator();
+        assertFalse(it.hasNext(), "cleared list iterator has no element");
+        it.destroy();
+    }
     
     l.destroy();
     c.destroy();

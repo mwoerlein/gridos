@@ -13,6 +13,24 @@ template <class Obj> class LinkedList: public Collection<Obj> {
         _Element(Environment &env, MemoryInfo &mi, Obj & val): Object(env, mi), next(0), val(val) {}
         virtual ~_Element() {}
     };
+    class _Iterator: public Iterator<Obj> {
+        public:
+        _Element *_next;
+        
+        _Iterator(Environment &env, MemoryInfo &mi, _Element *next): Object(env, mi), _next(next) {}
+        virtual ~_Iterator() {}
+        virtual bool hasNext() {
+            return _next != 0;
+        }
+        virtual Obj & next() {
+            if (!_next) {
+                return *(Obj *)0;
+            }
+            Obj & val = _next->val;
+            _next = _next->next;
+            return val;
+        }
+    };
     
     _Element *first;
     _Element *last;
@@ -86,6 +104,10 @@ template <class Obj> class LinkedList: public Collection<Obj> {
             }
         }        
         return false;
+    }
+    
+    virtual Iterator<Obj> & iterator() override {
+        return Object::env().create<_Iterator, _Element*>(first);
     }
 };
 

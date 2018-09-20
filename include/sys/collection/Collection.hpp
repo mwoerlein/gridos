@@ -1,9 +1,9 @@
 #ifndef COLLECTION_COLLECTION_HPP_LOCK
 #define COLLECTION_COLLECTION_HPP_LOCK
 
-#include "sys/Object.hpp"
+#include "sys/collection/Iterable.hpp"
 
-template <class Obj> class Collection: virtual public Object {
+template <class Obj> class Collection: virtual public Iterable<Obj> {
     public:
     virtual void clear() = 0;
     virtual int size() = 0;
