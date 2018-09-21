@@ -1,16 +1,16 @@
 #ifndef COLLECTION_LINKEDLIST_HPP_LOCK
 #define COLLECTION_LINKEDLIST_HPP_LOCK
 
-#include "sys/collection/Collection.hpp"
+#include "sys/collection/MutableCollection.hpp"
 
-template <class Obj> class LinkedList: public Collection<Obj> {
+template <class Obj> class LinkedList: public MutableCollection<Obj> {
     private:
     class _Element: public Object {
         public:
         _Element *next;
-        Obj & val;
+        Obj *val;
         
-        _Element(Environment &env, MemoryInfo &mi, Obj & val): Object(env, mi), next(0), val(val) {}
+        _Element(Environment &env, MemoryInfo &mi, Obj *val): Object(env, mi), next(0), val(val) {}
         virtual ~_Element() {}
     };
     class _Iterator: public Iterator<Obj> {
@@ -26,9 +26,9 @@ template <class Obj> class LinkedList: public Collection<Obj> {
             if (!_next) {
                 return *(Obj *)0;
             }
-            Obj & val = _next->val;
+            Obj *val = _next->val;
             _next = _next->next;
-            return val;
+            return *val;
         }
     };
     
@@ -58,7 +58,7 @@ template <class Obj> class LinkedList: public Collection<Obj> {
     }
     
     virtual bool add(Obj & o) override {
-        _Element *newElem = &Object::env().create<_Element, Obj&>(o);
+        _Element *newElem = &Object::env().create<_Element, Obj*>(&o);
         if (_size) {
             last = last->next = newElem;
         } else {
@@ -70,7 +70,7 @@ template <class Obj> class LinkedList: public Collection<Obj> {
     
     virtual bool contains(Obj & o) override {
         for (_Element *e = first; e; e = e->next) {
-            if (e->val.equals(o)) {
+            if (e->val->equals(o)) {
                 return true;
             }
         }
@@ -79,7 +79,7 @@ template <class Obj> class LinkedList: public Collection<Obj> {
     
     virtual bool remove(Obj & o) override {
         if (_size) {
-            if (first->val.equals(o)) {
+            if (first->val->equals(o)) {
                 _Element *found = first;
                 first = found->next;
                 if (last == found) {
@@ -91,7 +91,7 @@ template <class Obj> class LinkedList: public Collection<Obj> {
             }
             
             for (_Element *e = first; e->next; e = e->next) {
-                if (e->next->val.equals(o)) {
+                if (e->next->val->equals(o)) {
                     _Element *found = e->next;
                     e->next = found->next;
                     if (last == found) {
