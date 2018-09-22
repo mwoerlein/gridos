@@ -5,7 +5,6 @@
 
 template <class Obj> class Collection: virtual public Iterable<Obj> {
     public:
-    virtual void clear() = 0;
     virtual int size() = 0;
     virtual bool isEmpty() { return size() == 0; }
     virtual bool contains(Obj & o) = 0;

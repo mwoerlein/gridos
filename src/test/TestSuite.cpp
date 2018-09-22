@@ -11,6 +11,7 @@
 #include "test/sys/StringTest.hpp"
 
 #include "test/sys/collection/LinkedListTest.hpp"
+#include "test/sys/collection/HashMapTest.hpp"
 
 #include "test/I386ASM/ParserTest.hpp"
 #include "test/I386ASM/Instruction/MoveTest.hpp"
@@ -31,6 +32,7 @@ void TestSuite::runAll() {
     
 //*/
     run<LinkedListTest>();
+    run<HashMapTest>();
 //*/
     
 //*/
