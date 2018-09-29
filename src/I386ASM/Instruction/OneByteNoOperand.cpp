@@ -1,9 +1,9 @@
-#include "I386ASM/Instruction/Halt.hpp"
+#include "I386ASM/Instruction/OneByteNoOperand.hpp"
 
 // protected
-void Halt::writeOperandsToStream(OStream &stream) {}
+void OneByteNoOperand::writeOperandsToStream(OStream &stream) {}
 
-bool Halt::validateOperandsAndOperandSize(OStream &err) {
+bool OneByteNoOperand::validateOperandsAndOperandSize(OStream &err) {
     if (o1) {
         err<<"Unexpected operand: " << *o1 << '\n';
         return false;
@@ -23,11 +23,10 @@ bool Halt::validateOperandsAndOperandSize(OStream &err) {
     return true;
 }
 
-size_t Halt::determineOpcodeAndSize(OStream &err) {
-    op1 = 0xF4;
+size_t OneByteNoOperand::determineOpcodeAndSize(OStream &err) {
     return 1;
 }
 
-size_t Halt::getMaxSizeInBytes() {
+size_t OneByteNoOperand::getMaxSizeInBytes() {
     return 1;
 }

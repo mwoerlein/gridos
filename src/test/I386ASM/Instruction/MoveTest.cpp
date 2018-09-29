@@ -205,7 +205,7 @@ bool MoveTest::testRM() {
         << "movl (0x200), %eax\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"mov indirect -> reg\"", "/tmp/movIR.bin");
+    success &= test(in, bin, pretty, message = "test \"mov indirect -> reg\"");
     
     (in = "")
         << "movl %eax, %cs\n"

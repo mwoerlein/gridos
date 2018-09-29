@@ -4,7 +4,7 @@
 #include "sys/Digit.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 
-#include "I386ASM/Instruction/Halt.hpp"
+#include "I386ASM/Instruction/OneByteNoOperand.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
@@ -347,8 +347,14 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             env().err() << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
+        [cC][lL][iI] {
+            return &env().create<OneByteNoOperand, const char *, char>("cli", 0xFA);
+        }
+        [sS][tT][iI] {
+            return &env().create<OneByteNoOperand, const char *, char>("sti", 0xFB);
+        }
         [hH][lL][tT] {
-            return &env().create<Halt>();
+            return &env().create<OneByteNoOperand, const char *, char>("hlt", 0xF4);
         }
         [jJ][mM][pP] {
             if (!op1) return 0;

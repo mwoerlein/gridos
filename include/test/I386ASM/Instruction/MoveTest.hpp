@@ -1,5 +1,5 @@
-#ifndef MOVETEST_HPP_LOCK
-#define MOVETEST_HPP_LOCK
+#ifndef TEST_I386ASM_INSTRUCTION_MOVETEST_HPP_LOCK
+#define TEST_I386ASM_INSTRUCTION_MOVETEST_HPP_LOCK
 
 #include "test/I386ASM/ParserBasedTestCase.hpp"
 
@@ -17,4 +17,4 @@ class MoveTest: public ParserBasedTestCase {
     virtual bool runAll() override;
 };
 
-#endif //MOVETEST_HPP_LOCK
+#endif //TEST_I386ASM_INSTRUCTION_MOVETEST_HPP_LOCK
