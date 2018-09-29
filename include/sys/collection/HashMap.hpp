@@ -61,7 +61,7 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
     
     protected:
     inline int getBucketNumber(Key &k) {
-        return k.hash() % bucketsCount;
+        return ((unsigned int)k.hash()) % bucketsCount;
     }
     
     virtual _Element * findInBucket(_Element *bucket, Key &k) {
