@@ -27,3 +27,7 @@ size_t Halt::determineOpcodeAndSize(OStream &err) {
     op1 = 0xF4;
     return 1;
 }
+
+size_t Halt::getMaxSizeInBytes() {
+    return 1;
+}

@@ -22,6 +22,11 @@ class ASMInstructionList: virtual public Object {
     virtual void addDefinition(String &definition, Number &value);
     virtual void addInstruction(ASMInstruction &inst);
     
+    virtual bool hasLabel(String &label);
+    virtual bool hasDefinition(String &label);
+    virtual size_t getLabel(String &label);
+    virtual Number & getDefinition(String &label);
+    
     virtual bool prepare(OStream &err);
     virtual size_t getSizeInBytes();
     

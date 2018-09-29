@@ -262,3 +262,32 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
     }
     return 0;
 }
+
+size_t Move::getMaxSizeInBytes() {
+    Number *n1 = o1->as<Number>(number);
+    Indirect *i1 = o1->as<Indirect>(indirect);
+    Indirect *i2 = o2->as<Indirect>(indirect);
+    
+    size_t size = 2; //opcode, modrm
+    if (operandSize == bit_16) {
+        pre3 = 0x66;
+        size++;
+    }
+    
+    if (addrSize == bit_16) {
+        pre4 = 0x67;
+        size++;
+    }
+    if (n1) {
+        size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
+    }
+    if (i1) {
+        size += i1->getSibSize();
+        size += i1->getDispSize();
+    } 
+    if (i2) {
+        size += i2->getSibSize();
+        size += i2->getDispSize();
+    }
+    return size;
+}

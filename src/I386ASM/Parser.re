@@ -351,14 +351,8 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             return &env().create<Halt>();
         }
         [jJ][mM][pP] {
-            if (op1) {
-                if (Number *n = op1->as<Number>(number)) {
-                    return &env().create<Jump, Number*>(n);
-                }
-            }
-            String s(env(), *notAnInfo, start, operandsEnd);
-            env().err() << "not yet supported operands in '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
-            return 0;
+            if (!op1) return 0;
+            return &env().create<Jump, ASMOperand*>(op1);
         }
         * { break; }
 */

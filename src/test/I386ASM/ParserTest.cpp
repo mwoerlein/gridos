@@ -24,8 +24,7 @@ bool ParserTest::runAll() {
         << "addl 4, %eax\n"
         << "movw 0x73e, (%eax)\n"
         << "_halt: hlt\n"
-//        << "jmp _halt\n"
-        << "jmp -3\n"
+        << "jmp _halt\n"
     ;
     (bin = "")
         << (char) 0xb8 << (char) 0x00 << (char) 0x8f << (char) 0x0b << (char) 0x00
@@ -54,7 +53,7 @@ bool ParserTest::runAll() {
         << "movw 0x73e, (%eax)\n"
         << "_halt:\n"
         << "hlt\n"
-        << "jmp 0xfffffffd\n"
+        << "jmp _halt\n"
     ;
     
     success &= test(in, bin, pretty, message = "\"< @@ >\"-Test");

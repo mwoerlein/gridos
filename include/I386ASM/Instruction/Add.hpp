@@ -13,6 +13,7 @@ class Add: public ASMInstruction {
     Add(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, BitWidth operandSize = bit_auto)
         :ASMInstruction(env, mi, "add", operandSize, o1, o2), Object(env, mi) {}
     virtual ~Add() {}
+    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMADD_HPP_LOCK

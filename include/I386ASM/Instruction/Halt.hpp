@@ -12,6 +12,7 @@ class Halt: public ASMInstruction {
     public:
     Halt(Environment &env, MemoryInfo &mi):ASMInstruction(env, mi, "hlt"), Object(env, mi) {}
     virtual ~Halt() {}
+    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMHALT_HPP_LOCK

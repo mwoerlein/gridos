@@ -35,3 +35,9 @@ size_t Add::determineOpcodeAndSize(OStream &err) {
     immSize = (int) operandSize;
     return 1 + immSize;
 }
+
+size_t Add::getMaxSizeInBytes() {
+    // TODO: validate and determine more variants
+    immSize = (int) operandSize;
+    return 1 + immSize;
+}

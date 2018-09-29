@@ -13,6 +13,7 @@ class Move: public ASMInstruction {
     Move(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, BitWidth operandSize = bit_auto)
         :ASMInstruction(env, mi, "mov", operandSize, o1, o2), Object(env, mi) {}
     virtual ~Move() {}
+    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMMOVE_HPP_LOCK

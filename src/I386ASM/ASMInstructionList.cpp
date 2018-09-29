@@ -12,9 +12,9 @@ class ASMInstructionList::_Elem: virtual public Object {
     Number *value;
     
     _Elem(Environment &env, MemoryInfo &mi, String *identifier, Number *value = 0)
-        :Object(env, mi),inst(0),identifier(identifier),value(value),pos(-1),next(0) {}
+        :Object(env, mi),inst(0),identifier(identifier),value(value),pos(0),next(0) {}
     _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst)
-        :Object(env, mi),inst(inst),identifier(0),value(0),pos(-1),next(0) {}
+        :Object(env, mi),inst(inst),identifier(0),value(0),pos(0),next(0) {}
     virtual ~_Elem() {
         if (inst) {
             inst->destroy();
@@ -47,8 +47,10 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst) {
     if (!first) {
         first = last = e;
     } else {
+        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
         last = last->next = e;
     }
+    inst.pos = e->pos;
 }
 
 void ASMInstructionList::addLabel(String &label) {
@@ -56,6 +58,7 @@ void ASMInstructionList::addLabel(String &label) {
     if (!first) {
         first = last = e;
     } else {
+        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(label, *e);
@@ -66,9 +69,26 @@ void ASMInstructionList::addDefinition(String &definition, Number &value) {
     if (!first) {
         first = last = e;
     } else {
+        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(definition, *e);
+}
+
+bool ASMInstructionList::hasLabel(String &label) {
+    return ids.has(label) && !ids.get(label).value;
+}
+
+bool ASMInstructionList::hasDefinition(String &label) {
+    return ids.has(label) && ids.get(label).value;
+}
+
+size_t ASMInstructionList::getLabel(String &label) {
+    return ids.get(label).pos;
+}
+
+Number & ASMInstructionList::getDefinition(String &label) {
+    return *ids.get(label).value;
 }
 
 bool ASMInstructionList::prepare(OStream &err) {
@@ -80,7 +100,9 @@ bool ASMInstructionList::prepare(OStream &err) {
     bool success = true;
     for (_Elem * cur = first; cur ; cur = cur->next) {
         cur->pos = pos;
-        if (cur->inst) {        
+        if (cur->inst) {    
+            cur->inst->pos = pos;
+            cur->inst->list = this;
             if (cur->inst->prepare(err) && success) {
                 pos += cur->inst->getSizeInBytes();
             } else {
@@ -99,7 +121,7 @@ void ASMInstructionList::writeToStream(OStream &stream) {
     // TODO: resolve definitions;
     for (_Elem * cur = first; cur ; cur = cur->next) {
         // TODO: resolve arguments;
-        if (cur->inst) {        
+        if (cur->inst) {
             cur->inst->writeToStream(stream);
         }
     }
