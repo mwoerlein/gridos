@@ -8,6 +8,10 @@ class HaltKernel: public Kernel {
     HaltKernel(Environment &env, MemoryInfo &mi = *notAnInfo): Object(env, mi) {}
     virtual ~HaltKernel() {}
     
+    virtual void * getStart() {
+        return 0;
+    }
+    
     virtual void run() {
         while (1) {
             __asm__("hlt");

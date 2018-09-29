@@ -6,6 +6,7 @@
 class Kernel: virtual public Object {
     public:
     virtual ~Kernel() {}
+    virtual void * getStart() = 0;
     virtual void run() = 0;
 };
 

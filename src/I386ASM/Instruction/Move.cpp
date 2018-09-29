@@ -1,11 +1,14 @@
 #include "I386ASM/Instruction/Move.hpp"
 
+#include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Identifier.hpp"
+#include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
-#include "I386ASM/Operand/Indirect.hpp"
 
 // protected
 void Move::writeOperandsToStream(OStream & stream) {
+    Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -16,20 +19,24 @@ void Move::writeOperandsToStream(OStream & stream) {
     Register *sr1 = (r1 && (r1->kind() == reg_segment)) ? r1 : 0;
     Register *sr2 = (r2 && (r2->kind() == reg_segment)) ? r2 : 0;
     
-    if (n1 && gr2) {
-        writeNumberToStream(stream, n1->value(), immSize);
-    }
-    if (n1 && i2) {
-        if (modrmSize) {
-            stream << i2->getModMR(0);
+    if (n1 || id1) {
+        // Reached only for labels. Definitions will be rewritten to numbers before.
+        int val = n1 ? n1->value() : list->getLabel(id1->identifier());
+        if (gr2) {
+            writeNumberToStream(stream, val, immSize);
         }
-        if (sibSize) {
-            stream << i2->getSib();
+        if (i2) {
+            if (modrmSize) {
+                stream << i2->getModMR(0);
+            }
+            if (sibSize) {
+                stream << i2->getSib();
+            }
+            if (dispSize) {
+                writeNumberToStream(stream, i2->getDispValue(), dispSize);
+            }
+            writeNumberToStream(stream, val, immSize);
         }
-        if (dispSize) {
-            writeNumberToStream(stream, i2->getDispValue(), dispSize);
-        }
-        writeNumberToStream(stream, n1->value(), immSize);
     }
     if (gr1 && gr2) {
         stream << ModRM(3, gr1->getOpCodeRegister(), gr2->getOpCodeRegister());
@@ -88,6 +95,7 @@ void Move::writeOperandsToStream(OStream & stream) {
 
 bool Move::validateOperandsAndOperandSize(OStream &err) {
     bool valid = true;
+    Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -130,19 +138,22 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
         return valid;
     }
     
-    if (n1 && gr2) {
+    if ((n1 || id1) && gr2) {
         return true;
     }
-    if (n1 && i2) {
+    if ((n1 || id1) && i2) {
+        // TODO: validate indirect registers?
         return true;
     }
     if (gr1 && gr2) {
         return true;
     }
     if (gr1 && i2) {
+        // TODO: validate indirect registers?
         return true;
     }
     if (i1 && gr2) {
+        // TODO: validate indirect registers?
         return true;
     }
     if (gr1 && sr2) {
@@ -153,6 +164,7 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
             err<<"invalid operand size in \""<<*this<<"\"\n";
             return false;
         }
+        // TODO: validate indirect registers?
         return true;
     }
     if (sr1 && gr2) {
@@ -163,6 +175,7 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
             err<<"invalid operand size in \""<<*this<<"\"\n";
             return false;
         }
+        // TODO: validate indirect registers?
         return true;
     }
     err<<"unsupported operands in \""<<*this<<"\"\n";
@@ -171,6 +184,7 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
 
 size_t Move::determineOpcodeAndSize(OStream &err) {
     size_t size = 0;
+    Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -191,13 +205,19 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
         size++;
     }
     
-    if (n1 && gr2) {
+    if (id1 && list->hasDefinition(id1->identifier())) {
+        o1 = n1 = &list->cloneNumber(id1->identifier());
+        id1->destroy();
+        id1 = 0;
+    }
+    
+    if ((n1 || id1) && gr2) {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xB0 : 0xB8;
         op1 += gr2->getOpCodeRegister();
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
-    if (n1 && i2) {
+    if ((n1 || id1) && i2) {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xC6 : 0xC7;
         modrmSize = i2->getModMRSize();
@@ -264,6 +284,7 @@ size_t Move::determineOpcodeAndSize(OStream &err) {
 }
 
 size_t Move::getMaxSizeInBytes() {
+    Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
@@ -278,7 +299,7 @@ size_t Move::getMaxSizeInBytes() {
         pre4 = 0x67;
         size++;
     }
-    if (n1) {
+    if (n1 || id1) {
         size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
     }
     if (i1) {

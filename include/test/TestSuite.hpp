@@ -13,7 +13,7 @@ class TestSuite: public Object {
     TestSuite(Environment &env, MemoryInfo &mi = *notAnInfo);
     virtual ~TestSuite();
     
-    template <class TC> void run(size_t memorySize = 0x10000) {
+    template <class TC> void run(size_t memorySize = 0x100000) {
         Environment &testEnv = createTestEnvironment(memorySize);
         TestCase & tc = testEnv.create<TC>();
         bool success = tc.runAll();

@@ -266,7 +266,8 @@ bool MoveTest::testOI() {
     String message(env());
     
     (in = "")
-        << "movb 0x0, %al\n"
+        << "zero := 0x0\n"
+        << "movb zero, %al\n"
         << "movb 0x1A, %bh\n"
         << "movw 1, %sp\n"
         << "movl 12345678, %esi\n"
@@ -278,6 +279,7 @@ bool MoveTest::testOI() {
         << (char) 0xBE << (char) 0x4E << (char) 0x61 << (char) 0xBC << (char) 0x00
     ;
     (pretty = "")
+        << "zero := 0x0\n"
         << "movb 0x0, %al\n"
         << "movb 0x1a, %bh\n"
         << "movw 0x1, %sp\n"
@@ -297,14 +299,17 @@ bool MoveTest::testMI() {
     String message(env());
     
     (in = "")
-        << "movb 0x0, (%eax)\n"
-        << "movb 0xFF, 2(%eax)\n"
+        << "start:\n"
+        << "movb start, (%eax)\n"
+        << "movb ff, 2(%eax)\n"
         << "movw 12, (%ebx, %eax)\n"
         << "movw 1024, 6(%ebx,%ebp,4)\n"
         << "movl 0xC0FFEE, (%ecx,%edi,8)\n"
-        << "movl 0xFEFE, 0xBF000(,%esi,2)\n"
+        << "movl fefe, 0xBF000(,%esi,2)\n"
         << "movl 0xFEFE, 0xBF000(%ebp,%eax,1)\n"
         << "movl 0xDEADBEEF, (0x20)\n"
+        << "fefe := 0xFEFE\n"
+        << "ff := 0xFF\n"
     ;
     (bin = "")
         << (char) 0xC6 << (char) 0x00 << (char) 0x00
@@ -317,7 +322,8 @@ bool MoveTest::testMI() {
         << (char) 0xC7 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
     ;
     (pretty = "")
-        << "movb 0x0, (%eax)\n"
+        << "start:\n"
+        << "movb start, (%eax)\n"
         << "movb 0xff, 0x2(%eax)\n"
         << "movw 0xc, (%ebx,%eax)\n"
         << "movw 0x400, 0x6(%ebx,%ebp,4)\n"
@@ -325,6 +331,8 @@ bool MoveTest::testMI() {
         << "movl 0xfefe, 0xbf000(,%esi,2)\n"
         << "movl 0xfefe, 0xbf000(%ebp,%eax)\n"
         << "movl 0xdeadbeef, (0x20)\n"
+        << "fefe := 0xfefe\n"
+        << "ff := 0xff\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"mov imm -> indirect\"");

@@ -356,6 +356,9 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         [hH][lL][tT] {
             return &env().create<OneByteNoOperand, const char *, char>("hlt", 0xF4);
         }
+        [nN][oO][pP] {
+            return &env().create<OneByteNoOperand, const char *, char>("nop", 0x90);
+        }
         [jJ][mM][pP] {
             if (!op1) return 0;
             return &env().create<Jump, ASMOperand*>(op1);

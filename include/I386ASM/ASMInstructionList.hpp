@@ -26,6 +26,7 @@ class ASMInstructionList: virtual public Object {
     virtual bool hasDefinition(String &label);
     virtual size_t getLabel(String &label);
     virtual Number & getDefinition(String &label);
+    virtual Number & cloneNumber(String &label);
     
     virtual bool prepare(OStream &err);
     virtual bool finalize(OStream &err, void * start);

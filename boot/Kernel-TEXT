@@ -1,10 +1,17 @@
 >
 Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
 <
+cga_lastline := 0xb8f00
 _start:
-    movl 0xb8f00, %eax
+    jmp _init
+buffer: nop; nop; nop; nop
+_init:
+    movl cga_lastline, %eax
     addl 0x4a, %eax
-    jmp drawLT
+    movl buffer, %ecx
+    movl drawGT, (%ecx)
+    movl drawLT, %edx
+    jmp %edx
 _halt:
     hlt
     jmp _halt
@@ -20,4 +27,4 @@ drawAT:
     movw 0xf40, (%eax)
     addl 2, %eax
     movw 0xf40, (%eax)
-    jmp drawGT
+    jmp (%ecx)

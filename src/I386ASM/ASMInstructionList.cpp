@@ -90,6 +90,10 @@ size_t ASMInstructionList::getLabel(String &label) {
 Number & ASMInstructionList::getDefinition(String &label) {
     return *ids.get(label).value;
 }
+Number & ASMInstructionList::cloneNumber(String &label) {
+    _Elem & e = ids.get(label);
+    return env().create<Number,int>(e.value ? e.value->value(): e.pos);
+}
 
 bool ASMInstructionList::prepare(OStream &err) {
     if (pos != -1) {

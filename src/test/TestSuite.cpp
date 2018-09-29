@@ -15,6 +15,7 @@
 
 #include "test/I386ASM/ParserTest.hpp"
 #include "test/I386ASM/Instruction/MoveTest.hpp"
+#include "test/I386ASM/Instruction/JumpTest.hpp"
 #include "test/I386ASM/Instruction/OneByteNoOperandTest.hpp"
 
 // public
@@ -38,6 +39,7 @@ void TestSuite::runAll() {
 //*/
     run<OneByteNoOperandTest>();
     run<MoveTest>();
+    run<JumpTest>();
     run<ParserTest>();
 //*/
 }

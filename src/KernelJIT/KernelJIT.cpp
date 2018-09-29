@@ -43,7 +43,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         return *(Kernel *) 0;
     }
     
-    I386OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
+    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
     list.finalize(env().err(), osk.getStart());
 //    list.logToStream(env().out(), true);
     list.writeToStream(osk);
