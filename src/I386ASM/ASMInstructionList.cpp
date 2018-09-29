@@ -113,6 +113,20 @@ bool ASMInstructionList::prepare(OStream &err) {
     return success;
 }
 
+bool ASMInstructionList::finalize(OStream &err, void * start) {
+    if (pos == -1) {
+        err << "List is not prepared!\n";
+        return false;
+    }
+    for (_Elem * cur = first; cur ; cur = cur->next) {
+        cur->pos += (size_t) start;
+        if (cur->inst) {
+            cur->inst->pos = cur->pos;
+        }
+    }
+    return true;
+}
+
 size_t ASMInstructionList::getSizeInBytes() {
     return pos;
 }

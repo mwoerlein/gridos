@@ -23,7 +23,7 @@ ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & 
     return list;
 }
 
-bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, const char * dumpBinary) {
+bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, void * start, const char * dumpBinary) {
     String in(env(), *notAnInfo, input);
     String bin(env(), *notAnInfo, expectedBinary);
     String pretty(env());
@@ -38,20 +38,28 @@ bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, 
     } else {
         mes << "test \"" << input << '"';
     }
-    return test(in, bin, pretty, mes, dumpBinary);
+    return test(in, bin, pretty, mes, start, dumpBinary);
 }
 
-bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, const char * dumpBinary) {
+bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, void * start, const char * dumpBinary) {
     String buffer(env());
     {
         IStream &in = input.toIStream();
         ASMInstructionList &list = parseSilent(in, buffer="");
         assertEquals(buffer, "", "parsing error" );
-        bool success = list.prepare(buffer="");
-        assert(success && (buffer == ""), message<<" preparation error: "<<buffer );
+        
+        {
+            bool success = list.prepare(buffer="");
+            assert(success && (buffer == ""), message<<" preparation error: "<<buffer );
+        }
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
+        
+        {
+            bool success = list.finalize(buffer="", start);
+            assert(success && (buffer == ""), message<<" finalization error: "<<buffer );
+        }
         
         if (dumpBinary) {
             OStream &dump = env().oStreamFactory().buildOStream(dumpBinary);
@@ -69,11 +77,19 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         IStream &in = expectedPretty.toIStream();
         ASMInstructionList &list = parseSilent(in, buffer="");
         assertEquals(buffer, "", "parsing error" );
-        bool success = list.prepare(buffer="");
-        assert(success && (buffer == ""), "preparation error: "<<buffer );
+        
+        {
+            bool success = list.prepare(buffer="");
+            assert(success && (buffer == ""), "preparation error: "<<buffer );
+        }
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );
+        
+        {
+            bool success = list.finalize(buffer="", start);
+            assert(success && (buffer == ""), message<<" finalization error: "<<buffer );
+        }
         
         list.writeToStream(buffer="");
         assertEquals(buffer, expectedBinary, "stable binary: "<<message );

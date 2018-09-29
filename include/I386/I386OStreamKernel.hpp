@@ -10,22 +10,20 @@
 class I386OStreamKernel: public OStreamKernel {
     private:
     void delay() {}
-    inline void empty_8042() { 
-        while (I386IO_Port(0x64).inb()&3) {
-            delay();
-            I386IO_Port(0x60).inb(); 
-        }
-    }
     
     public:
     I386OStreamKernel(Environment &env, MemoryInfo &mi, size_t size):OStreamKernel(env, mi, size), Object(env, mi) {}
+    
+    virtual void * getStart() {
+        return mem.buf;
+    }
     
     virtual void run() {
         I386InterruptVectorTable vt;
         I386PIC pic;
         I386Keyboard kbd(pic);
         
-/* Koprozessoren zurücksetzten */        
+/* Koprozessoren zurücksetzen */        
         I386IO_Port(0xf0).outb(0);
         delay();
         I386IO_Port(0xf1).outb(0);

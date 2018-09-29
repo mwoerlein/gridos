@@ -28,6 +28,7 @@ class ASMInstructionList: virtual public Object {
     virtual Number & getDefinition(String &label);
     
     virtual bool prepare(OStream &err);
+    virtual bool finalize(OStream &err, void * start);
     virtual size_t getSizeInBytes();
     
     virtual void writeToStream(OStream &stream);
