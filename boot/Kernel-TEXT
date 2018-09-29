@@ -1,7 +1,7 @@
 >
 Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
 <
-//_start:
+_start:
     movl 0xb8f00, %eax
     addl 0x4a, %eax
     movw 0x73c, (%eax)
@@ -11,6 +11,6 @@ Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
     movw 0xf40, (%eax)
     addl 4, %eax
     movw 0x73e, (%eax)
-//_halt:
+_halt:
     hlt
     jmp -3 //_halt

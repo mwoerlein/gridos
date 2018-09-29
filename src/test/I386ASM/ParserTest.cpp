@@ -13,6 +13,7 @@ bool ParserTest::runAll() {
     String message(env());
     
     (in = "")
+        << "cga_last_line:=0xB8F00\n"
         << "_start: movl 0xb8f00, %eax\n"
         << "addl 0x4a, %eax\n"
         << "movw 0x73c, (%eax)\n"
@@ -40,6 +41,8 @@ bool ParserTest::runAll() {
         << (char) 0xeb << (char) 0xfd
     ; 
     (pretty = "")
+        << "cga_last_line := 0xb8f00\n"
+        << "_start:\n"
         << "movl 0xb8f00, %eax\n"
         << "addl 0x4a, %eax\n"
         << "movw 0x73c, (%eax)\n"
@@ -49,6 +52,7 @@ bool ParserTest::runAll() {
         << "movw 0xf40, (%eax)\n"
         << "addl 0x4, %eax\n"
         << "movw 0x73e, (%eax)\n"
+        << "_halt:\n"
         << "hlt\n"
         << "jmp 0xfffffffd\n"
     ;

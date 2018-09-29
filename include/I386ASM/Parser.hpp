@@ -30,6 +30,7 @@ class Parser: virtual public Object {
     bool fillBuffer(size_t need, IStream & input);
     
     protected:
+    virtual String & parseStringValue(char * start, char * end);
     virtual int parseIntegerValue(char * start, char * end, int base = 10);
     virtual BitWidth parseOperandSize(char * start, char * end);
     virtual Number * parseNumber(char * start, char * end);

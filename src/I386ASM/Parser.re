@@ -104,6 +104,10 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         assign      = ":=";
 */
 
+String & Parser::parseStringValue(char * start, char * end) {
+    return env().create<String, char*, char*>(start, end);
+}
+
 int Parser::parseIntegerValue(char * start, char * end, int base) {
     int result = 0;
     Digit d(env());
@@ -192,7 +196,7 @@ Register * Parser::parseRegister(char * start, char * end) {
 }
 
 Identifier * Parser::parseIdentifier(char * start, char * end) {
-    return &env().create<Identifier, String&>(env().create<String, char*, char*>(start, end));
+    return &env().create<Identifier, String&>(parseStringValue(start, end));
 }
 
 BitWidth Parser::parseOperandSize(char * start, char * end) {
@@ -404,9 +408,19 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" { continue; }
 
         @o1 id @o2 wsp colon {
-                    log << "label: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << '\n'; continue; }
+                    String & label = parseStringValue(o1, o2);
+                    list.addLabel(label);
+                    continue;
+                  }
         @o1 id @o2 wsp assign wsp @o3 number @o4 wsp / eoinst {
-                    log << "defin: "; for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n'; continue;
+                    String & label = parseStringValue(o1, o2);
+                    Number * number = parseNumber(o3, o4);
+                    if (number) {
+                        list.addDefinition(label, *number);
+                    } else {
+                        log << "defin: " << label << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n';
+                    }
+                    continue;
                   }
         @o1 inst @o2 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o2);

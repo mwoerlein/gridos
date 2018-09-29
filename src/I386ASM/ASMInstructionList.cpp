@@ -1,39 +1,74 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
 #include "sys/Digit.hpp"
+#include "sys/String.hpp"
 
 class ASMInstructionList::_Elem: virtual public Object {
     public:
     _Elem * next;
-    ASMInstruction &inst;
     size_t pos;
+    ASMInstruction *inst;
+    String *identifier;
+    Number *value;
     
-    _Elem(Environment &env, MemoryInfo &mi, ASMInstruction &inst)
-        :Object(env, mi),inst(inst),pos(-1),next(0) {}
-    virtual ~_Elem() {}
+    _Elem(Environment &env, MemoryInfo &mi, String *identifier, Number *value = 0)
+        :Object(env, mi),inst(0),identifier(identifier),value(value),pos(-1),next(0) {}
+    _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst)
+        :Object(env, mi),inst(inst),identifier(0),value(0),pos(-1),next(0) {}
+    virtual ~_Elem() {
+        if (inst) {
+            inst->destroy();
+        }
+        if (identifier) {
+            identifier->destroy();
+        }
+        if (value) {
+            value->destroy();
+        }
+    }
 };
 
 // public
-ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), pos(-1), first(0), last(0) {}
+ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {}
 ASMInstructionList::~ASMInstructionList() {
     _Elem * cur = first;
     while (cur) {
         _Elem * kill = cur;
         cur = cur->next;
-        kill->inst.destroy();
         kill->destroy();
     }
     last = first = 0;
     pos = -1;
+    ids.destroy();
 }
 
 void ASMInstructionList::addInstruction(ASMInstruction &inst) {
-    _Elem * e = &env().create<_Elem, ASMInstruction&>(inst);
+    _Elem * e = &env().create<_Elem, ASMInstruction*>(&inst);
     if (!first) {
         first = last = e;
     } else {
         last = last->next = e;
     }
+}
+
+void ASMInstructionList::addLabel(String &label) {
+    _Elem * e = &env().create<_Elem, String*>(&label);
+    if (!first) {
+        first = last = e;
+    } else {
+        last = last->next = e;
+    }
+    ids.set(label, *e);
+}
+
+void ASMInstructionList::addDefinition(String &definition, Number &value) {
+    _Elem * e = &env().create<_Elem, String*, Number*>(&definition, &value);
+    if (!first) {
+        first = last = e;
+    } else {
+        last = last->next = e;
+    }
+    ids.set(definition, *e);
 }
 
 bool ASMInstructionList::prepare(OStream &err) {
@@ -44,11 +79,13 @@ bool ASMInstructionList::prepare(OStream &err) {
     pos = 0;
     bool success = true;
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        if (cur->inst.prepare(err) && success) {
-            cur->pos = pos;
-            pos += cur->inst.getSizeInBytes();
-        } else {
-            success = false;
+        cur->pos = pos;
+        if (cur->inst) {        
+            if (cur->inst->prepare(err) && success) {
+                pos += cur->inst->getSizeInBytes();
+            } else {
+                success = false;
+            }
         }
     }
     return success;
@@ -62,7 +99,9 @@ void ASMInstructionList::writeToStream(OStream &stream) {
     // TODO: resolve definitions;
     for (_Elem * cur = first; cur ; cur = cur->next) {
         // TODO: resolve arguments;
-        cur->inst.writeToStream(stream);
+        if (cur->inst) {        
+            cur->inst->writeToStream(stream);
+        }
     }
 }
 
@@ -87,11 +126,20 @@ class DebugOStreamWrapper: public OStream {
 
 void ASMInstructionList::logToStream(OStream &stream, bool debug) {
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        stream << cur->inst;
-        if (debug) {
-            DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
-            stream << "\t// " << cur->pos << ":\t(" << cur->inst.getSizeInBytes() << ")";
-            cur->inst.writeToStream(wrap);
+        if (cur->inst) {        
+            stream << *cur->inst;
+            if (debug) {
+                DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
+                stream << "\t// " << cur->pos << ":\t(" << cur->inst->getSizeInBytes() << ")";
+                cur->inst->writeToStream(wrap);
+            }
+        } else if (cur->identifier) {
+            if (cur->value) {
+                stream << *cur->identifier << " := ";
+                cur->value->logToStream(stream);
+            } else {
+                stream << *cur->identifier << ":";
+            }
         }
         stream << '\n';
     }
