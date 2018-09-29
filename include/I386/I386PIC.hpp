@@ -3,7 +3,7 @@
 
 #include "I386/I386IO_Port.hpp"
 
-#define set(mask) {\
+#define I386PIC_set_mask(mask) {\
     I386IO_Port(0xa1).outb(((mask) >> 8) & 0xff);\
     I386IO_Port(0x21).outb((mask) & 0xff);\
 }
@@ -25,18 +25,18 @@ class I386PIC {
         I386IO_Port(0xa1).outb(0x02);
         I386IO_Port(0x21).outb(0x01);
         I386IO_Port(0xa1).outb(0x01);
-        set(mask);
+        I386PIC_set_mask(mask);
     }
     virtual ~I386PIC() {}
     
     void activate(int nr) {
         mask &= ~(1<<nr);
-        set(mask);
+        I386PIC_set_mask(mask);
     }
     
     void deactivate(int nr) {
         mask |= 1<<nr;
-        set(mask);
+        I386PIC_set_mask(mask);
     }
     
     void finalize(int nr) {
