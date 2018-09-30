@@ -3,9 +3,10 @@
 
 #include "sys/Object.hpp"
 #include "sys/collection/HashMap.hpp"
-#include "I386ASM/ASMInstruction.hpp"
+#include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/Operand/Number.hpp"
 
+class ASMInstruction;
 class ASMInstructionList: virtual public Object {
     private:
     class _Elem;
@@ -15,7 +16,9 @@ class ASMInstructionList: virtual public Object {
     HashMap<String, _Elem> &ids; 
     
     public:
-    ASMInstructionList(Environment &env, MemoryInfo &mi);
+    ParseErrorStream &err;
+    
+    ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error);
     virtual ~ASMInstructionList();
     
     virtual void addLabel(String &label);
@@ -28,12 +31,14 @@ class ASMInstructionList: virtual public Object {
     virtual Number & getDefinition(String &label);
     virtual Number & cloneNumber(String &label);
     
-    virtual bool prepare(OStream &err);
-    virtual bool finalize(OStream &err, void * start);
-    virtual size_t getSizeInBytes();
+    virtual size_t prepare();
+    virtual void finalize(void * start);
+    virtual bool hasErrors();
     
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream, bool debug = false);
 };
+
+#include "I386ASM/ASMInstruction.hpp"
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK

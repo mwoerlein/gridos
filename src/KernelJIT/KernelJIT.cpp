@@ -6,6 +6,7 @@
 #include "I386/I386OStreamKernel.hpp"
 
 #include "I386ASM/Parser.hpp"
+#include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 #include "sys/String.hpp"
@@ -32,19 +33,28 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     } while (ackblock > 0);
     
     Parser &parser = env().create<Parser>();
-    ASMInstructionList &list = parser.parse(in, line);
+    ASMInstructionList &list = parser.parse(in, env().err(), line);
     parser.destroy();
     
-    if (!&list) {
-        return *(Kernel *) 0;
-    }
-    if (!list.prepare(env().err())) {
+    if (list.hasErrors()) {
         list.destroy();
         return *(Kernel *) 0;
     }
     
-    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(list.getSizeInBytes());
-    list.finalize(env().err(), osk.getStart());
+    size_t size = list.prepare();
+    if (list.hasErrors()) {
+        list.destroy();
+        return *(Kernel *) 0;
+    }
+    
+    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
+    list.finalize(osk.getStart());
+    if (list.hasErrors()) {
+        osk.destroy();
+        list.destroy();
+        return *(Kernel *) 0;
+    }
+    
 //    list.logToStream(env().out(), true);
     list.writeToStream(osk);
     list.destroy();

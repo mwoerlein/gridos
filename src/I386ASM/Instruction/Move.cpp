@@ -1,6 +1,5 @@
 #include "I386ASM/Instruction/Move.hpp"
 
-#include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Number.hpp"
@@ -93,8 +92,18 @@ void Move::writeOperandsToStream(OStream & stream) {
     }
 }
 
-bool Move::validateOperandsAndOperandSize(OStream &err) {
-    bool valid = true;
+void Move::validateOperandsAndOperandSize() {
+    if (!o1) {
+        list->err<<"Missing source!\n";
+    }
+    if (!o2) {
+        list->err<<"Missing destination!\n";
+    }
+    if (o3) {
+        list->err<<"Unexpected operand: " << *o3 << '\n';
+    }
+    if (list->hasErrors()) return;
+    
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
@@ -111,8 +120,7 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
             BitWidth newSize = gr1->getOperandSize();
             if (gr2) {
                 if (newSize != gr2->getOperandSize()) {
-                    err<<"ambigious operand size in \""<<*this<<"\"\n";
-                    return false;
+                    list->err<<"ambigious operand sizes in \""<<*this<<"\"\n";
                 }
             }
             operandSize = newSize;
@@ -123,73 +131,68 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
         } else if (sr2) {
             operandSize = sr2->getOperandSize();
         } else {
-            err<<"missing operand size and no general purpose register to determine from in \""<<*this<<"\"\n";
-            return false;
+            list->err<<"missing operand size and no general purpose register to determine from in \""<<*this<<"\"\n";
         }
     }
+    if (list->hasErrors()) return;
     
     if (gr1) {
-        valid &= gr1->validate(err, operandSize);
+        gr1->validate(list->err, operandSize);
     }
     if (gr2) {
-        valid &= gr2->validate(err, operandSize);
+        gr2->validate(list->err, operandSize);
     }
-    if (!valid) {
-        return valid;
-    }
+    if (list->hasErrors()) return;
     
     if (id1) {
         String & identifier = id1->identifier();
         if (!list->hasLabel(identifier) && !list->hasDefinition(identifier)) {
-            err<<"Unknown identifier: " << identifier << '\n';
-            return false;
+            list->err<<"Unknown identifier: " << identifier << '\n';
+            return;
         }
     }
     if ((n1 || id1) && gr2) {
-        return true;
+        return;
     }
     if ((n1 || id1) && i2) {
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
     if (gr1 && gr2) {
-        return true;
+        return;
     }
     if (gr1 && i2) {
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
     if (i1 && gr2) {
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
     if (gr1 && sr2) {
-        return true;
+        return;
     }
     if (i1 && sr2) {
         if (operandSize != bit_16) {
-            err<<"invalid operand size in \""<<*this<<"\"\n";
-            return false;
+            list->err<<"invalid operand size in \""<<*this<<"\"\n";
         }
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
     if (sr1 && gr2) {
-        return true;
+        return;
     }
     if (sr1 && i2) {
         if (operandSize != bit_16) {
-            err<<"invalid operand size in \""<<*this<<"\"\n";
-            return false;
+            list->err<<"invalid operand size in \""<<*this<<"\"\n";
         }
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
-    err<<"unsupported operands in \""<<*this<<"\"\n";
-    return false;
+    list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Move::determineOpcodeAndSize(OStream &err) {
+size_t Move::determineOpcodeAndSize() {
     size_t size = 0;
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);

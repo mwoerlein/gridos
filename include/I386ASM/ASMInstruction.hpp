@@ -5,8 +5,8 @@
 #include "sys/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/ASMInstructionList.hpp"
 
-class ASMInstructionList;
 class ASMInstruction: virtual public Object {
     protected:
     friend class ASMInstructionList;
@@ -21,10 +21,11 @@ class ASMInstruction: virtual public Object {
     ASMInstructionList * list;
     
     virtual void writeNumberToStream(OStream &stream, int val, int size);
-    
-    virtual bool validateOperandsAndOperandSize(OStream &err) = 0;
-    virtual size_t determineOpcodeAndSize(OStream &err) = 0;
     virtual void writeOperandsToStream(OStream &stream) = 0;
+    
+//    virtual void resolveDefinitions();
+    virtual void validateOperandsAndOperandSize() = 0;
+    virtual size_t determineOpcodeAndSize() = 0;
     
     public:
     ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)
@@ -38,7 +39,7 @@ class ASMInstruction: virtual public Object {
         if (o3) { o3->destroy(); }
     }
     
-    virtual bool prepare(OStream &err);
+    virtual void prepare();
     virtual size_t getMaxSizeInBytes() = 0;
     virtual size_t getSizeInBytes();
     virtual void writeToStream(OStream &stream);

@@ -3,27 +3,22 @@
 // protected
 void OneByteNoOperand::writeOperandsToStream(OStream &stream) {}
 
-bool OneByteNoOperand::validateOperandsAndOperandSize(OStream &err) {
+void OneByteNoOperand::validateOperandsAndOperandSize() {
     if (o1) {
-        err<<"Unexpected operand: " << *o1 << '\n';
-        return false;
+        list->err<<"Unexpected operand: " << *o1 << '\n';
     }
     if (o2) {
-        err<<"Unexpected operand: " << *o2 << '\n';
-        return false;
+        list->err<<"Unexpected operand: " << *o2 << '\n';
     }
     if (o3) {
-        err<<"Unexpected operand: " << *o3 << '\n';
-        return false;
+        list->err<<"Unexpected operand: " << *o3 << '\n';
     }
     if (operandSize != bit_auto) {
-        err<<"Invalid operand size!\n";
-        return false;
+        list->err<<"Invalid operand size!\n";
     }
-    return true;
 }
 
-size_t OneByteNoOperand::determineOpcodeAndSize(OStream &err) {
+size_t OneByteNoOperand::determineOpcodeAndSize() {
     return 1;
 }
 

@@ -13,23 +13,21 @@ void Add::writeOperandsToStream(OStream & stream) {
     }
 }
 
-bool Add::validateOperandsAndOperandSize(OStream &err) {
+void Add::validateOperandsAndOperandSize() {
     // TODO: validate and determine more variants
     Number *n1 = o1->as<Number>(number);
     Register *r2 = o2->as<Register>(reg);
     
     if (n1 && r2) {
         if (*r2 != reg_eax) {
-            err<<"unsupported register in \""<<*this<<"\"\n";
-            return false;
+            list->err<<"unsupported register in \""<<*this<<"\"\n";
         }
-        return true;
+        return;
     }
-    err<<"unsupported operands in \""<<*this<<"\"\n";
-    return false;
+    list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Add::determineOpcodeAndSize(OStream &err) {
+size_t Add::determineOpcodeAndSize() {
     // TODO: validate and determine more variants
     op1 = 0x05; // addl eax
     immSize = (int) operandSize;

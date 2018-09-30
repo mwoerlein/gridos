@@ -1,6 +1,5 @@
 #include "I386ASM/Instruction/Jump.hpp"
 
-#include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Number.hpp"
@@ -36,23 +35,21 @@ void Jump::writeOperandsToStream(OStream & stream) {
     }
 }
 
-bool Jump::validateOperandsAndOperandSize(OStream &err) {
+void Jump::validateOperandsAndOperandSize() {
     if (!o1) {
-        err<<"Missing operand!\n";
-        return false;
+        list->err<<"Missing operand!\n";
     }
     if (o2) {
-        err<<"Unexpected operand: " << *o2 << '\n';
-        return false;
+        list->err<<"Unexpected operand: " << *o2 << '\n';
     }
     if (o3) {
-        err<<"Unexpected operand: " << *o3 << '\n';
-        return false;
+        list->err<<"Unexpected operand: " << *o3 << '\n';
     }
     if (operandSize != bit_auto) {
-        err<<"Invalid operand size!\n";
-        return false;
+        list->err<<"Invalid operand size!\n";
     }
+    if (list->hasErrors()) return;
+    
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
@@ -60,31 +57,29 @@ bool Jump::validateOperandsAndOperandSize(OStream &err) {
     
     if (id1) {
         String & identifier = id1->identifier();
-        if (list->hasLabel(identifier) || list->hasDefinition(identifier)) {
-            return true;
+        if (!list->hasLabel(identifier) && !list->hasDefinition(identifier)) {
+            list->err<<"Unknown identifier: " << identifier << '\n';
         }
-        err<<"Unknown identifier: " << identifier << '\n';
-        return false;
+        return;
     }
     if (n1) {
-        return true;
+        return;
     }
     if (r1) {
         if (r1->kind() != reg_general) {
-            err<<"Invalid register: " << *o1 << '\n';
-            return false;
+            list->err<<"Invalid register: " << *o1 << '\n';
         }
-        return true;
+        return;
     }
     if (i1) {
         // TODO: validate indirect registers?
-        return true;
+        return;
     }
-    err<<"Invalid operand: " << *o1 << '\n';
-    return false;
+    list->err<<"Invalid operand: " << *o1 << '\n';
+    return;
 }
 
-size_t Jump::determineOpcodeAndSize(OStream &err) {
+size_t Jump::determineOpcodeAndSize() {
     Identifier *id1 = o1->as<Identifier>(id);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -102,7 +97,7 @@ size_t Jump::determineOpcodeAndSize(OStream &err) {
                 op1 = 0xE9;
                 immSize = 4;
             }
-        return 1 + immSize;
+            return 1 + immSize;
         }
     }
     Number *n1 = o1->as<Number>(number);

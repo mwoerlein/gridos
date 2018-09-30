@@ -1,5 +1,9 @@
 #include "I386ASM/ASMInstruction.hpp"
 
+#include "I386ASM/Operand/Identifier.hpp"
+#include "I386ASM/Operand/Indirect.hpp"
+#include "I386ASM/Operand/Number.hpp"
+
 // public
 OStream & operator << (OStream & out, ASMInstruction &instruction) {
     instruction.logToStream(out);
@@ -23,17 +27,34 @@ void ASMInstruction::logToStream(OStream &stream) {
         stream << ", " << *o3;
     }
 }
-
-bool ASMInstruction::prepare(OStream & err) {
-    if (!validateOperandsAndOperandSize(err)) {
-        return false;
+/*
+void ASMInstruction::resolveDefinitions() {
+    if (o1) {
+        if (Identifier *idOp = o1->as<Identifier>(id)) {
+            String & identifier = idOp->identifier();
+            if (list->hasDefinition(identifier)) {
+                o1 = &list->cloneNumber(identifier);
+                idOp->destroy();
+            } else if (!list->hasLabel(identifier)) {
+                list->err << "Unknown identifier: " << idOp << '\n';
+            }
+        }
+        if (Indirect *i1 = o1->as<Indirect>(indirect)) {
+        }
     }
-    size = determineOpcodeAndSize(err);
+}
+*/
+void ASMInstruction::prepare() {
+    //resolveDefinitions();
+    //if (list->hasErrors()) return;
+    
+    validateOperandsAndOperandSize();
+    if (list->hasErrors()) return;
+    
+    size = determineOpcodeAndSize();
     if (!size) {
-        err<<"invalid opcode size determined for \""<<*this<<"\"\n";
-        return false;
+        list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
     }
-    return true;
 }
 
 size_t ASMInstruction::getSizeInBytes() {

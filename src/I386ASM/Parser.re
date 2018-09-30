@@ -191,7 +191,7 @@ Register * Parser::parseRegister(char * start, char * end) {
     }
     
     String s(env(), *notAnInfo, start, end);
-    env().err() << "unknown register '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    list->err << "unknown register '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
 
@@ -316,7 +316,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
     }
     
     String s(env(), *notAnInfo, start, end);
-    env().err() << "unknown operand '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    list->err << "unknown operand '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
 
@@ -339,12 +339,12 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         }
         [sS][uU][bB][bBwWlL]? {
             String s(env(), *notAnInfo, start, operandsEnd);
-            env().err() << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+            list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
         [iI]?[mM][uU][lL][bBwWlL]? {
             String s(env(), *notAnInfo, start, operandsEnd);
-            env().err() << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+            list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
         [cC][lL][iI] {
@@ -368,15 +368,13 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
     }
     
     String s(env(), *notAnInfo, start, operandsEnd);
-    env().err() << "unknown instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    list->err << "unknown instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return 0;
 }
 
 // public
-ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
-    OStream & log = env().out();
-    
-    ASMInstructionList & list = env().create<ASMInstructionList>();
+ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, int column) {
+    list = &env().create<ASMInstructionList, OStream&>(error);
     
     // reset parsing buffer
     token = current = marker = ctxmarker = limit = buffer + SIZE;
@@ -411,76 +409,46 @@ ASMInstructionList & Parser::parse(IStream & input, int line, int column) {
         "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" { continue; }
 
         @o1 id @o2 wsp colon {
-                    String & label = parseStringValue(o1, o2);
-                    list.addLabel(label);
+                    list->addLabel(parseStringValue(o1, o2));
                     continue;
                   }
         @o1 id @o2 wsp assign wsp @o3 number @o4 wsp / eoinst {
-                    String & label = parseStringValue(o1, o2);
-                    Number * number = parseNumber(o3, o4);
-                    if (number) {
-                        list.addDefinition(label, *number);
-                    } else {
-                        log << "defin: " << label << " as "; for (char * cur = o3; cur < o4; cur++) { log << *cur; };log << '\n';
-                    }
+                    list->addDefinition(parseStringValue(o1, o2), *parseNumber(o3, o4));
                     continue;
                   }
         @o1 inst @o2 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o2);
                     if (inst) {
-                        list.addInstruction(*inst);
-                    } else {
-                        log << "inst0: ";
-                        for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
-                        log << '\n';
+                        list->addInstruction(*inst);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o4, parseOperand(o3, o4));
                     if (inst) {
-                        list.addInstruction(*inst);
-                    } else {
-                        log << "inst1: ";
-                        for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
-                        log << '\n';
+                        list->addInstruction(*inst);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o6, parseOperand(o3, o4), parseOperand(o5, o6));
                     if (inst) {
-                        list.addInstruction(*inst);
-                    } else {
-                        log << "inst2: ";
-                        for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
-                        log << '\n';
+                        list->addInstruction(*inst);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp comma wsp @o7 operand @o8 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o8, parseOperand(o3, o4), parseOperand(o5, o6), parseOperand(o7, o8));
                     if (inst) {
-                        list.addInstruction(*inst);
-                    } else {
-                        log << "inst3: ";
-                        for (char * cur = o1; cur < o2; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o3; cur < o4; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o5; cur < o6; cur++) { log << *cur; }; log << ' ';
-                        for (char * cur = o7; cur < o8; cur++) { log << *cur; }; log << ' ';
-                        log << '\n';
+                        list->addInstruction(*inst);
                     }
                     continue;
                   }
         *         { 
-                    env().err() << "unexpected character : " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n';
-                    list.destroy();
-                    return *(ASMInstructionList *)0;
+                    list->err << "unexpected character : " << *token << " line: " << linesBuffer[token-buffer] << " column: "  << columnsBuffer[token-buffer] << '\n';
+                    break;
                   }
 */
     }
-    return list;
+    return *list;
 }

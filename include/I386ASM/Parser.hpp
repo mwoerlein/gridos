@@ -4,6 +4,7 @@
 #include "sys/Object.hpp"
 #include "sys/IStream.hpp"
 
+#include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 #include "I386ASM/ASMOperand.hpp"
@@ -13,6 +14,7 @@
 
 class Parser: virtual public Object {
     private:
+    ASMInstructionList * list;
     MemoryInfo & buffersInfo;
     char *buffer;
     char *limit;
@@ -43,7 +45,7 @@ class Parser: virtual public Object {
     Parser(Environment &env, MemoryInfo &mi);
     virtual ~Parser();
     
-    virtual ASMInstructionList & parse(IStream & input, int line = 1, int column = 1);
+    virtual ASMInstructionList & parse(IStream & input, OStream & error, int line = 1, int column = 1);
 };
 
 #endif //I386ASMPARSER_HPP_LOCK

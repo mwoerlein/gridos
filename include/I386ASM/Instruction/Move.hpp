@@ -5,8 +5,8 @@
 
 class Move: public ASMInstruction {
     protected:
-    virtual bool validateOperandsAndOperandSize(OStream &err) override;
-    virtual size_t determineOpcodeAndSize(OStream &err) override;
+    virtual void validateOperandsAndOperandSize() override;
+    virtual size_t determineOpcodeAndSize() override;
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:

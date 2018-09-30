@@ -14,7 +14,7 @@ bool ParserTest::runAll() {
     
     (in = "")
         << "cga_last_line:=0xB8F00\n"
-        << "_start: movl 0xb8f00, %eax\n"
+        << "_start: movl cga_last_line, %eax\n"
         << "addl 0x4a, %eax\n"
         << "movw 0x73c, (%eax)\n"
         << "addl 4, %eax\n"

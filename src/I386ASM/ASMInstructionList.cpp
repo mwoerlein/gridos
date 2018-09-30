@@ -29,7 +29,9 @@ class ASMInstructionList::_Elem: virtual public Object {
 };
 
 // public
-ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi): Object(env, mi), ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {}
+ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error)
+    : Object(env, mi), err(env.create<ParseErrorStream, OStream&>(error)),
+      ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {}
 ASMInstructionList::~ASMInstructionList() {
     _Elem * cur = first;
     while (cur) {
@@ -40,6 +42,7 @@ ASMInstructionList::~ASMInstructionList() {
     last = first = 0;
     pos = -1;
     ids.destroy();
+    err.destroy();
 }
 
 void ASMInstructionList::addInstruction(ASMInstruction &inst) {
@@ -95,32 +98,30 @@ Number & ASMInstructionList::cloneNumber(String &label) {
     return env().create<Number,int>(e.value ? e.value->value(): e.pos);
 }
 
-bool ASMInstructionList::prepare(OStream &err) {
+size_t ASMInstructionList::prepare() {
     if (pos != -1) {
         err << "List is already prepared!\n";
-        return false;
+        return pos;
     }
     pos = 0;
-    bool success = true;
     for (_Elem * cur = first; cur ; cur = cur->next) {
         cur->pos = pos;
         if (cur->inst) {    
             cur->inst->pos = pos;
             cur->inst->list = this;
-            if (cur->inst->prepare(err) && success) {
+            cur->inst->prepare();
+            if (!hasErrors()) {
                 pos += cur->inst->getSizeInBytes();
-            } else {
-                success = false;
             }
         }
     }
-    return success;
+    return pos;
 }
 
-bool ASMInstructionList::finalize(OStream &err, void * start) {
+void ASMInstructionList::finalize(void * start) {
     if (pos == -1) {
         err << "List is not prepared!\n";
-        return false;
+        return;
     }
     for (_Elem * cur = first; cur ; cur = cur->next) {
         cur->pos += (size_t) start;
@@ -128,13 +129,12 @@ bool ASMInstructionList::finalize(OStream &err, void * start) {
             cur->inst->pos = cur->pos;
         }
     }
-    return true;
 }
 
-size_t ASMInstructionList::getSizeInBytes() {
-    return pos;
+bool ASMInstructionList::hasErrors() {
+    return (int) err;
 }
-    
+
 void ASMInstructionList::writeToStream(OStream &stream) {
     // TODO: resolve definitions;
     for (_Elem * cur = first; cur ; cur = cur->next) {
