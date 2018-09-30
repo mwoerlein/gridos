@@ -175,6 +175,15 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
             }
         } else if (cur->identifier) {
             if (cur->value) {
+                if (pos != -1) {
+                    // skip definitions after prepare
+                    // instructions have to replace definition usages with corresponding numbers during preparation
+                    if (debug) {
+                        stream << "// ";
+                    } else {
+                        continue;
+                    }
+                } 
                 stream << *cur->identifier << " := ";
                 cur->value->logToStream(stream);
             } else {

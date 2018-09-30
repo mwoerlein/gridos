@@ -138,6 +138,13 @@ bool Move::validateOperandsAndOperandSize(OStream &err) {
         return valid;
     }
     
+    if (id1) {
+        String & identifier = id1->identifier();
+        if (!list->hasLabel(identifier) && !list->hasDefinition(identifier)) {
+            err<<"Unknown identifier: " << identifier << '\n';
+            return false;
+        }
+    }
     if ((n1 || id1) && gr2) {
         return true;
     }

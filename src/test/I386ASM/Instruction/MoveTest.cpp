@@ -279,7 +279,6 @@ bool MoveTest::testOI() {
         << (char) 0xBE << (char) 0x4E << (char) 0x61 << (char) 0xBC << (char) 0x00
     ;
     (pretty = "")
-        << "zero := 0x0\n"
         << "movb 0x0, %al\n"
         << "movb 0x1a, %bh\n"
         << "movw 0x1, %sp\n"
@@ -331,8 +330,6 @@ bool MoveTest::testMI() {
         << "movl 0xfefe, 0xbf000(,%esi,2)\n"
         << "movl 0xfefe, 0xbf000(%ebp,%eax)\n"
         << "movl 0xdeadbeef, (0x20)\n"
-        << "fefe := 0xfefe\n"
-        << "ff := 0xff\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"mov imm -> indirect\"");

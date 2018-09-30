@@ -66,7 +66,6 @@ bool JumpTest::testRelative() {
         << (char) 0xE9 << (char) 0x64 << (char) 0xFF << (char) 0xFF << (char) 0xFF
     ;
     (pretty = "")
-        << "startDef := 0x0\n"
         << "start:\n"
         << "jmp near_start\n" // 0 <= dest <= 127
         << "jmp 0x1e\n" // 0 <= dest <= 127

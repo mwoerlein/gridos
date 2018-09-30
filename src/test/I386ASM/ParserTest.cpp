@@ -40,7 +40,6 @@ bool ParserTest::runAll() {
         << (char) 0xeb << (char) 0xfd
     ; 
     (pretty = "")
-        << "cga_last_line := 0xb8f00\n"
         << "_start:\n"
         << "movl 0xb8f00, %eax\n"
         << "addl 0x4a, %eax\n"
