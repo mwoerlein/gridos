@@ -1,33 +1,51 @@
 >
-Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
+Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "Blinking"
 <
 cga_lastline := 0xb8f00
 _start:
-    jmp _init
-drawGtAddr: nop; nop; nop; nop
-haltAddr: nop; nop; nop; nop
-_init:
-    movl cga_lastline, %eax
-    addl 0x4a, %eax
-    movl haltAddr, %ecx
-    movl _halt, (%ecx)
-    movl drawGtAddr, %ecx
-    movl drawGT, (%ecx)
-    movl drawLT, %edx
-    jmp %edx
-_halt:
-    hlt
-    jmp _halt
-drawLT:
-    movw 0x73c, (%eax)
-    addl 4, %eax
-    jmp drawAT
-drawGT:
-    addl 4, %eax
-    movw 0x73e, (%eax)
-    jmp (haltAddr)
-drawAT:
-    movw 0xf40, (%eax)
-    addl 2, %eax
-    movw 0xf40, (%eax)
-    jmp (%ecx)
+    movl 0, %ebx // column = 0
+    movl 0, %ecx // charOffset = 0
+// inject not yet supported instructions
+    movw 0xf1f6, (DIVCL)
+    movw 0xf3f6, (DIVBL)
+    movw 0xf975, (JNZ)
+    movw 0xc181, (ADDECX)
+    movl 0x761, (ADDECXIMM)
+    
+blinking_loop:
+    // charTmp = charOffset
+    movl %ecx, %eax
+    
+    // show 'a'+charOffset at column
+//    addl 0x761, %ecx
+ADDECX: nop; nop
+ADDECXIMM: nop; nop; nop; nop
+    movw %cx, cga_lastline(,%ebx,2)
+    
+    // charOffset = (charTmp + 1) % 26
+    addl 1, %eax
+    movl 26, %ecx
+//    divb %cl
+DIVCL: nop; nop
+    movb %ah, %cl
+    //divw %cx; movw %dx, %cx
+    //divl %ecx; movl %edx, %ecx
+    
+    // column = (column + 1) % 80
+    movl %ebx, %eax
+    addl 1, %eax
+    movl 80, %ebx
+//    divb %bl
+DIVBL: nop; nop
+    movb %ah, %bl
+    //divw %bx; movw %dx, %bx
+    //divl %ebx; movl %edx, %ebx
+    
+    // wait a bit
+    movl 0x3fffff, %eax    
+wait:
+    addl -1, %eax
+//    jnz wait
+JNZ: nop; nop
+    // endless loop
+    jmp blinking_loop
