@@ -15,7 +15,7 @@
 #include "I386ASM/Operand/Identifier.hpp"
 
 /*!max:re2c*/
-#define SIZE 500
+#define SIZE 5000
 
 Parser::Parser(Environment &env, MemoryInfo &mi):
     Object(env, mi),
@@ -233,8 +233,9 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         
         @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
                 parseRegister(o3, o4),
+                0,
                 parseNumber(o1, o2),
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
@@ -242,23 +243,26 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
                 parseRegister(o3, o4),
+                0,
                 parseNumber(o1, o2),
                 parseRegister(o5, o6)
             );
         }
         @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *>(
+            return &env().create<Indirect, Register *, Identifier *, Number *>(
                 parseRegister(o3, o4),
+                0,
                 parseNumber(o1, o2)
             );
         }
         "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
                 parseRegister(o3, o4),
+                0,
                 0,
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
@@ -266,8 +270,9 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
                 parseRegister(o3, o4),
+                0,
                 0,
                 parseRegister(o5, o6)
             );
@@ -280,7 +285,8 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+                0,
                 0,
                 parseNumber(o1, o2),
                 parseRegister(o5, o6),
@@ -289,7 +295,8 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+                0,
                 0,
                 0,
                 parseRegister(o5, o6),
@@ -298,7 +305,8 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+                0,
                 0,
                 parseNumber(o1, o2),
                 parseRegister(o5, o6)
@@ -306,11 +314,66 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         "(" wsp @o1 number @o2 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Number *>(
+            return &env().create<Indirect, Register *, Identifier *, Number *>(
+                0,
                 0,
                 parseNumber(o1, o2)
             );
         }
+
+        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+                parseRegister(o3, o4),
+                parseIdentifier(o1, o2),
+                0,
+                parseRegister(o5, o6),
+                parseIntegerValue(o7, o8, 10)
+            );
+        }
+        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+                parseRegister(o3, o4),
+                parseIdentifier(o1, o2),
+                0,
+                parseRegister(o5, o6)
+            );
+        }
+        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *>(
+                parseRegister(o3, o4),
+                parseIdentifier(o1, o2)
+            );
+        }
+        @o1 id @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+                0,
+                parseIdentifier(o1, o2),
+                0,
+                parseRegister(o5, o6),
+                parseIntegerValue(o7, o8, 10)
+            );
+        }
+        @o1 id @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+                0,
+                parseIdentifier(o1, o2),
+                0,
+                parseRegister(o5, o6)
+            );
+        }
+        "(" wsp @o1 id @o2 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Indirect, Register *, Identifier *>(
+                0,
+                parseIdentifier(o1, o2)
+            );
+        }
+
         * { break; }
 */
     }

@@ -4,11 +4,14 @@ Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "< @@ >"
 cga_lastline := 0xb8f00
 _start:
     jmp _init
-buffer: nop; nop; nop; nop
+drawGtAddr: nop; nop; nop; nop
+haltAddr: nop; nop; nop; nop
 _init:
     movl cga_lastline, %eax
     addl 0x4a, %eax
-    movl buffer, %ecx
+    movl haltAddr, %ecx
+    movl _halt, (%ecx)
+    movl drawGtAddr, %ecx
     movl drawGT, (%ecx)
     movl drawLT, %edx
     jmp %edx
@@ -22,7 +25,7 @@ drawLT:
 drawGT:
     addl 4, %eax
     movw 0x73e, (%eax)
-    jmp _halt
+    jmp (haltAddr)
 drawAT:
     movw 0xf40, (%eax)
     addl 2, %eax

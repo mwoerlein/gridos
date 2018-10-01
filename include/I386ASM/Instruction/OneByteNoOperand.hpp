@@ -5,7 +5,7 @@
 
 class OneByteNoOperand: public ASMInstruction {
     protected:
-    virtual void validateOperandsAndOperandSize() override;
+    virtual void checkArguments() override;
     virtual size_t determineOpcodeAndSize() override;
     virtual void writeOperandsToStream(OStream &stream) override;
     

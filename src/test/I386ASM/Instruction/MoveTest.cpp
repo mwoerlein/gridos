@@ -66,16 +66,19 @@ bool MoveTest::testMR() {
     success &= test(in, bin, pretty, message = "test \"mov reg -> reg\"");
     
     (in = "")
+        << "buffer:=0xBF000\n"
+        << "foo:=0x200\n"
+        << "_start:\n"
         << "movb %al, (%eax)\n"
         << "movb %bh, 2(%eax)\n"
         << "movw %ax, (%ebx, %eax)\n"
         << "movw %cx, 6(%ebx,%ebp,4)\n"
         << "movl %edx, (%ecx,%edi,8)\n"
-        << "movl %esp, 0xBF000(,%esi,2)\n"
+        << "movl %esp, buffer(,%esi,2)\n"
         << "movl %edi, (0x20)\n"
-        << "movl %ebx, (0x200)\n"
-        << "mov %al, (0x200)\n"
-        << "mov %ax, (0x200)\n"
+        << "movl %ebx, (foo)\n"
+        << "mov %al, (_start)\n"
+        << "mov %ax, (foo)\n"
         << "mov %eax, (0x200)\n"
     ;
     (bin = "")
@@ -92,6 +95,7 @@ bool MoveTest::testMR() {
         << (char) 0xA3                << (char) 0x00 << (char) 0x02 << (char) 0x00 << (char) 0x00
     ;
     (pretty = "")
+        << "_start:\n"
         << "movb %al, (%eax)\n"
         << "movb %bh, 0x2(%eax)\n"
         << "movw %ax, (%ebx,%eax)\n"
@@ -100,12 +104,12 @@ bool MoveTest::testMR() {
         << "movl %esp, 0xbf000(,%esi,2)\n"
         << "movl %edi, (0x20)\n"
         << "movl %ebx, (0x200)\n"
-        << "movb %al, (0x200)\n"
+        << "movb %al, (_start)\n"
         << "movw %ax, (0x200)\n"
         << "movl %eax, (0x200)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"mov reg -> indirect\"");
+    success &= test(in, bin, pretty, message = "test \"mov reg -> indirect\"", 0x200);
     
     (in = "")
         << "movl %cs, %eax\n"

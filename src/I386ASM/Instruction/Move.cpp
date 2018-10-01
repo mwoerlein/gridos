@@ -32,7 +32,7 @@ void Move::writeOperandsToStream(OStream & stream) {
                 stream << i2->getSib();
             }
             if (dispSize) {
-                writeNumberToStream(stream, i2->getDispValue(), dispSize);
+                writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
             }
             writeNumberToStream(stream, val, immSize);
         }
@@ -48,7 +48,7 @@ void Move::writeOperandsToStream(OStream & stream) {
             stream << i2->getSib();
         }
         if (dispSize) {
-            writeNumberToStream(stream, i2->getDispValue(), dispSize);
+            writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
         }
     }
     if (i1 && gr2) {
@@ -59,7 +59,7 @@ void Move::writeOperandsToStream(OStream & stream) {
             stream << i1->getSib();
         }
         if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(), dispSize);
+            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
         }
     }
     if (gr1 && sr2) {
@@ -73,7 +73,7 @@ void Move::writeOperandsToStream(OStream & stream) {
             stream << i1->getSib();
         }
         if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(), dispSize);
+            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
         }
     }
     if (sr1 && gr2) {
@@ -87,12 +87,12 @@ void Move::writeOperandsToStream(OStream & stream) {
             stream << i2->getSib();
         }
         if (dispSize) {
-            writeNumberToStream(stream, i2->getDispValue(), dispSize);
+            writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
         }
     }
 }
 
-void Move::validateOperandsAndOperandSize() {
+void Move::checkArguments() {
     if (!o1) {
         list->err<<"Missing source!\n";
     }
@@ -104,12 +104,8 @@ void Move::validateOperandsAndOperandSize() {
     }
     if (list->hasErrors()) return;
     
-    Identifier *id1 = o1->as<Identifier>(id);
-    Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
-    Indirect *i1 = o1->as<Indirect>(indirect);
-    Indirect *i2 = o2->as<Indirect>(indirect);
     Register *gr1 = (r1 && (r1->kind() == reg_general)) ? r1 : 0;
     Register *gr2 = (r2 && (r2->kind() == reg_general)) ? r2 : 0;
     Register *sr1 = (r1 && (r1->kind() == reg_segment)) ? r1 : 0;
@@ -134,39 +130,41 @@ void Move::validateOperandsAndOperandSize() {
             list->err<<"missing operand size and no general purpose register to determine from in \""<<*this<<"\"\n";
         }
     }
-    if (list->hasErrors()) return;
+}
+
+void Move::validateOperandsAndOperandSize() {
+    Identifier *id1 = o1->as<Identifier>(id);
+    Number *n1 = o1->as<Number>(number);
+    Register *r1 = o1->as<Register>(reg);
+    Register *r2 = o2->as<Register>(reg);
+    Indirect *i1 = o1->as<Indirect>(indirect);
+    Indirect *i2 = o2->as<Indirect>(indirect);
+    Register *gr1 = (r1 && (r1->kind() == reg_general)) ? r1 : 0;
+    Register *gr2 = (r2 && (r2->kind() == reg_general)) ? r2 : 0;
+    Register *sr1 = (r1 && (r1->kind() == reg_segment)) ? r1 : 0;
+    Register *sr2 = (r2 && (r2->kind() == reg_segment)) ? r2 : 0;
     
     if (gr1) {
-        gr1->validate(list->err, operandSize);
+        gr1->validate(*list, operandSize);
     }
     if (gr2) {
-        gr2->validate(list->err, operandSize);
+        gr2->validate(*list, operandSize);
     }
     if (list->hasErrors()) return;
     
-    if (id1) {
-        String & identifier = id1->identifier();
-        if (!list->hasLabel(identifier) && !list->hasDefinition(identifier)) {
-            list->err<<"Unknown identifier: " << identifier << '\n';
-            return;
-        }
-    }
     if ((n1 || id1) && gr2) {
         return;
     }
     if ((n1 || id1) && i2) {
-        // TODO: validate indirect registers?
         return;
     }
     if (gr1 && gr2) {
         return;
     }
     if (gr1 && i2) {
-        // TODO: validate indirect registers?
         return;
     }
     if (i1 && gr2) {
-        // TODO: validate indirect registers?
         return;
     }
     if (gr1 && sr2) {
@@ -176,7 +174,6 @@ void Move::validateOperandsAndOperandSize() {
         if (operandSize != bit_16) {
             list->err<<"invalid operand size in \""<<*this<<"\"\n";
         }
-        // TODO: validate indirect registers?
         return;
     }
     if (sr1 && gr2) {
@@ -186,7 +183,6 @@ void Move::validateOperandsAndOperandSize() {
         if (operandSize != bit_16) {
             list->err<<"invalid operand size in \""<<*this<<"\"\n";
         }
-        // TODO: validate indirect registers?
         return;
     }
     list->err<<"unsupported operands in \""<<*this<<"\"\n";

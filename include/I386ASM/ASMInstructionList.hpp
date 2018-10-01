@@ -4,8 +4,8 @@
 #include "sys/Object.hpp"
 #include "sys/collection/HashMap.hpp"
 #include "I386ASM/ParseErrorStream.hpp"
-#include "I386ASM/Operand/Number.hpp"
 
+class Number;
 class ASMInstruction;
 class ASMInstructionList: virtual public Object {
     private:
@@ -16,6 +16,7 @@ class ASMInstructionList: virtual public Object {
     HashMap<String, _Elem> &ids; 
     
     public:
+    OStream &warn;
     ParseErrorStream &err;
     
     ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error);
@@ -39,6 +40,8 @@ class ASMInstructionList: virtual public Object {
     virtual void logToStream(OStream &stream, bool debug = false);
 };
 
+#include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK

@@ -30,7 +30,7 @@ class ASMInstructionList::_Elem: virtual public Object {
 
 // public
 ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error)
-    : Object(env, mi), err(env.create<ParseErrorStream, OStream&>(error)),
+    : Object(env, mi), warn(error), err(env.create<ParseErrorStream, OStream&>(error)),
       ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {}
 ASMInstructionList::~ASMInstructionList() {
     _Elem * cur = first;
@@ -54,6 +54,7 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst) {
         last = last->next = e;
     }
     inst.pos = e->pos;
+    inst.list = this;
 }
 
 void ASMInstructionList::addLabel(String &label) {
@@ -108,7 +109,6 @@ size_t ASMInstructionList::prepare() {
         cur->pos = pos;
         if (cur->inst) {    
             cur->inst->pos = pos;
-            cur->inst->list = this;
             cur->inst->prepare();
             if (!hasErrors()) {
                 pos += cur->inst->getSizeInBytes();

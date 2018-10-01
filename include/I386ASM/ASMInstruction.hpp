@@ -4,7 +4,6 @@
 #include "sys/Object.hpp"
 #include "sys/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
-#include "I386ASM/ASMOperand.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 class ASMInstruction: virtual public Object {
@@ -23,8 +22,9 @@ class ASMInstruction: virtual public Object {
     virtual void writeNumberToStream(OStream &stream, int val, int size);
     virtual void writeOperandsToStream(OStream &stream) = 0;
     
-//    virtual void resolveDefinitions();
-    virtual void validateOperandsAndOperandSize() = 0;
+    virtual void checkArguments();
+    virtual void replaceOperands();
+    virtual void validateOperandsAndOperandSize();
     virtual size_t determineOpcodeAndSize() = 0;
     
     public:

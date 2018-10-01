@@ -24,7 +24,7 @@ ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & 
     return list;
 }
 
-bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, void * start, const char * dumpBinary) {
+bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, size_t start, const char * dumpBinary) {
     String in(env(), *notAnInfo, input);
     String bin(env(), *notAnInfo, expectedBinary);
     String pretty(env());
@@ -42,7 +42,7 @@ bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, 
     return test(in, bin, pretty, mes, start, dumpBinary);
 }
 
-bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, void * start, const char * dumpBinary) {
+bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, size_t start, const char * dumpBinary) {
     String buffer(env());
     String errorBuffer(env());
     {
@@ -56,7 +56,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
         
-        list.finalize(start);
+        list.finalize((void *) start);
         assertFalse(list.hasErrors(), message<<" finalization error: "<<errorBuffer );
         
         if (dumpBinary) {
@@ -82,7 +82,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );
         
-        list.finalize(start);
+        list.finalize((void *) start);
         assertFalse(list.hasErrors(), message<<" stable finalization error: "<<errorBuffer );
         
         list.writeToStream(buffer="");

@@ -5,6 +5,7 @@
 
 class Jump: public ASMInstruction {
     protected:
+    virtual void checkArguments() override;
     virtual void validateOperandsAndOperandSize() override;
     virtual size_t determineOpcodeAndSize() override;
     virtual void writeOperandsToStream(OStream &stream) override;

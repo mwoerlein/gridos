@@ -27,26 +27,32 @@ void ASMInstruction::logToStream(OStream &stream) {
         stream << ", " << *o3;
     }
 }
-/*
-void ASMInstruction::resolveDefinitions() {
-    if (o1) {
-        if (Identifier *idOp = o1->as<Identifier>(id)) {
-            String & identifier = idOp->identifier();
-            if (list->hasDefinition(identifier)) {
-                o1 = &list->cloneNumber(identifier);
-                idOp->destroy();
-            } else if (!list->hasLabel(identifier)) {
-                list->err << "Unknown identifier: " << idOp << '\n';
-            }
-        }
-        if (Indirect *i1 = o1->as<Indirect>(indirect)) {
-        }
+
+void ASMInstruction::checkArguments() {}
+
+void ASMInstruction::replaceOperands() {
+    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list) : 0) {
+        o1->destroy();
+        o1 = replacement;
+    }
+    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list) : 0) {
+        o2->destroy();
+        o2 = replacement;
+    }
+    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list) : 0) {
+        o3->destroy();
+        o3 = replacement;
     }
 }
-*/
+
+void ASMInstruction::validateOperandsAndOperandSize() {}
+
 void ASMInstruction::prepare() {
-    //resolveDefinitions();
-    //if (list->hasErrors()) return;
+    checkArguments();
+    if (list->hasErrors()) return;
+    
+    replaceOperands();
+    if (list->hasErrors()) return;
     
     validateOperandsAndOperandSize();
     if (list->hasErrors()) return;

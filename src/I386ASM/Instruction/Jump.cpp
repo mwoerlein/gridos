@@ -30,12 +30,12 @@ void Jump::writeOperandsToStream(OStream & stream) {
             stream << i1->getSib();
         }
         if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(), dispSize);
+            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
         }
     }
 }
 
-void Jump::validateOperandsAndOperandSize() {
+void Jump::checkArguments() {
     if (!o1) {
         list->err<<"Missing operand!\n";
     }
@@ -48,31 +48,21 @@ void Jump::validateOperandsAndOperandSize() {
     if (operandSize != bit_auto) {
         list->err<<"Invalid operand size!\n";
     }
-    if (list->hasErrors()) return;
-    
+}
+
+void Jump::validateOperandsAndOperandSize() {
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
     
-    if (id1) {
-        String & identifier = id1->identifier();
-        if (!list->hasLabel(identifier) && !list->hasDefinition(identifier)) {
-            list->err<<"Unknown identifier: " << identifier << '\n';
-        }
-        return;
-    }
-    if (n1) {
+    if (id1 || n1 || i1) {
         return;
     }
     if (r1) {
         if (r1->kind() != reg_general) {
             list->err<<"Invalid register: " << *o1 << '\n';
         }
-        return;
-    }
-    if (i1) {
-        // TODO: validate indirect registers?
         return;
     }
     list->err<<"Invalid operand: " << *o1 << '\n';

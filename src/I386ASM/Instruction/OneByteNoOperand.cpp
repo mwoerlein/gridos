@@ -3,7 +3,7 @@
 // protected
 void OneByteNoOperand::writeOperandsToStream(OStream &stream) {}
 
-void OneByteNoOperand::validateOperandsAndOperandSize() {
+void OneByteNoOperand::checkArguments() {
     if (o1) {
         list->err<<"Unexpected operand: " << *o1 << '\n';
     }

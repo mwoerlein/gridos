@@ -5,11 +5,15 @@
 #include "sys/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
 
+class ASMInstructionList;
 class ASMOperand: virtual public Object {
     public:
     virtual ~ASMOperand() {}
     
     virtual void logToStream(OStream &stream) = 0;
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) {
+        return 0;
+    }
     
     friend OStream & operator << (OStream & out, ASMOperand &operand);
     
@@ -20,5 +24,7 @@ class ASMOperand: virtual public Object {
     }
     virtual OperandType type() = 0;
 };
+
+#include "I386ASM/ASMInstructionList.hpp"
 
 #endif //I386ASMOPERAND_HPP_LOCK

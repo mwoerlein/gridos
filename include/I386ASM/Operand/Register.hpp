@@ -111,19 +111,18 @@ class Register: public ASMOperand {
         return -1;
     }
     
-    virtual bool validate(OStream &error, BitWidth operandSize) {
+    virtual void validate(ASMInstructionList & list, BitWidth operandSize) {
         if (operandSize == getOperandSize()) {
-            return true;
+            return;
         }
         RegisterName newReg = wideRegister(_reg, operandSize);
         if (newReg == reg_none) {
-            error<<"Invalid register \""<<*this<<"\" for "<<(operandSize*8)<<" bit operand size\n";
-            return false;
+            list.err<<"Invalid register \""<<*this<<"\" for "<<(operandSize*8)<<" bit operand size\n";
+            return;
         }
-        error<<"replace \""<<*this<<"\"";
+        list.warn<<"replace \""<<*this<<"\"";
         _reg = newReg;
-        error<<" with \""<<*this<<"\" due to "<<(operandSize*8)<<" bit operand size\n";
-        return true;
+        list.warn<<" with \""<<*this<<"\" due to "<<(operandSize*8)<<" bit operand size\n";
     }
     
     virtual RegisterName wideRegister(RegisterName orig, BitWidth size) {

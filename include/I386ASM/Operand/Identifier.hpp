@@ -21,6 +21,19 @@ class Identifier: public ASMOperand {
     virtual void logToStream(OStream &stream) {
         stream<<_id;
     }
+
+    virtual Number * validateAndResolveDefinition(ASMInstructionList & list) {
+        if (list.hasDefinition(_id)) {
+            return &list.cloneNumber(_id);
+        } else if (!list.hasLabel(_id)) {
+            list.err << "Unknown identifier: " << *this << '\n';
+        }
+        return 0;
+    }
+    
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) override {
+        return validateAndResolveDefinition(list);
+    }
     
     // TODO #6: implement RTTI correctly
     virtual OperandType type() { return id; }

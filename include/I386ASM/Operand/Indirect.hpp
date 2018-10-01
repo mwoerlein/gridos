@@ -2,23 +2,21 @@
 #define I386ASMINDIRECT_HPP_LOCK
 
 #include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Number.hpp"
 
 class Indirect: public ASMOperand {
     private:
+    Identifier *_displacementId;
     Number *_displacement;
     Register *_base;
     Register *_index;
     int _scale;
     
     public:
-    Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Number *displacement = 0, Register * index = 0, int scale = 1)
-        :Object(env, mi), _base(base), _displacement(displacement), _index(index), _scale(scale) {
-        if (_displacement && (_displacement->value() == 0) && (_base || _index)) {
-            _displacement->destroy();
-            _displacement = 0;
-        }
+    Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Identifier *displacementId = 0, Number *displacement = 0, Register * index = 0, int scale = 1)
+        :Object(env, mi), _base(base), _displacementId(displacementId), _displacement(displacement), _index(index), _scale(scale) {
     }
     virtual ~Indirect() {
         if (_base) {
@@ -27,9 +25,44 @@ class Indirect: public ASMOperand {
         if (_index) {
             _index->destroy();
         }
+        if (_displacementId) {
+            _displacementId->destroy();
+        }
         if (_displacement) {
             _displacement->destroy();
         }
+    }
+    
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) override {
+        if (_base) {
+            if (_base->getOperandSize() != bit_32) {
+                list.err << "invalid base register: " << *_base << '\n';
+            }
+        }
+        if (_index) {
+            if (_index->getOperandSize() != bit_32) {
+                list.err << "invalid index register: " << *_index << '\n';
+            }
+        }
+        switch (_scale) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+                break;
+            default:
+                list.err << "invalid scale: " << _scale << '\n';
+        }
+        if (Number * disp = _displacementId ? _displacementId->validateAndResolveDefinition(list) : 0) {
+            _displacementId->destroy();
+            _displacementId = 0;
+            _displacement = disp;
+        }
+        if (_displacement && (_displacement->value() == 0) && (_base || _index)) {
+            _displacement->destroy();
+            _displacement = 0;
+        }
+        return 0;
     }
     
     virtual int getModMRSize() {
@@ -44,6 +77,9 @@ class Indirect: public ASMOperand {
     }
     
     virtual int getDispSize() {
+        if (_displacementId) {
+            return 4;
+        }
         if (_displacement) {
             int value = _displacement->value();
             if ((_base || _index) && (-128 <= value && value <= 127)) {
@@ -98,7 +134,10 @@ class Indirect: public ASMOperand {
         return -1;
     }
     
-    virtual int getDispValue() {
+    virtual int getDispValue(ASMInstructionList & list) {
+        if (_displacementId) {
+            return list.getLabel(_displacementId->identifier());
+        }
         if (_displacement) {
             return _displacement->value();
         }
@@ -110,12 +149,17 @@ class Indirect: public ASMOperand {
     }
     
     virtual void logToStream(OStream &stream) {
-        if (_displacement && !_base && !_index) {
+        if (_displacementId && !_base && !_index) {
+            // memory indirect
+            stream << '(' << *_displacementId << ')';
+        } else if (_displacement && !_base && !_index) {
             // memory indirect
             stream << '(' << *_displacement << ')';
         } else {
             // register indirect
-            if (_displacement) {
+            if (_displacementId) {
+                stream << *_displacementId;
+            } else if (_displacement) {
                 stream << *_displacement;
             }
             stream << '(';
