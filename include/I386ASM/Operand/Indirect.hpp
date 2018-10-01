@@ -40,7 +40,7 @@ class Indirect: public ASMOperand {
             }
         }
         if (_index) {
-            if (_index->getOperandSize() != bit_32) {
+            if (_index->getOperandSize() != bit_32 || (*_index == reg_esp)) {
                 list.err << "invalid index register: " << *_index << '\n';
             }
         }
