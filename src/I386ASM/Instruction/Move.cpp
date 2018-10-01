@@ -14,12 +14,10 @@ size_t Move::approximateSizeInBytes() {
     
     size_t size = 2; //opcode, modrm
     if (operandSize == bit_16) {
-        pre3 = 0x66;
         size++;
     }
     
     if (addrSize == bit_16) {
-        pre4 = 0x67;
         size++;
     }
     if (n1 || id1) {
