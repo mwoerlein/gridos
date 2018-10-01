@@ -14,8 +14,9 @@
 #include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 
+/*!stags:re2c format = 'char *@@;'; */
 /*!max:re2c*/
-#define SIZE 5000
+#define SIZE 500
 
 Parser::Parser(Environment &env, MemoryInfo &mi):
     Object(env, mi),
@@ -47,6 +48,7 @@ bool Parser::freeBuffer(size_t need) {
     token -= free;
     marker -= free;
     ctxmarker -= free;
+    /*!stags:re2c format = "@@ -= free;\n"; */
     return true;
 }
 
@@ -79,7 +81,6 @@ bool Parser::fillBuffer(size_t need, IStream & input)
 };
 
 // protected
-/*!stags:re2c format = 'char *@@;'; */
 /*!re2c
         re2c:flags:T = 1;
         re2c:define:YYCTYPE = char;
