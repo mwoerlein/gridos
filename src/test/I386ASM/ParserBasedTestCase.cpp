@@ -51,7 +51,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         assertFalse(list.hasErrors(), message<<" parsing error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
-        list.prepare();
+        list.compile();
         assertFalse(list.hasErrors(), message<<" preparation error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
@@ -80,7 +80,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         assertFalse(list.hasErrors(), message<<" stable parsing error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
-        list.prepare();
+        list.compile();
         assertFalse(list.hasErrors(), message<<" stable preparation error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         

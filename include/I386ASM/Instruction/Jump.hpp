@@ -5,16 +5,16 @@
 
 class Jump: public ASMInstruction {
     protected:
-    virtual void checkArguments() override;
-    virtual void validateOperandsAndOperandSize() override;
-    virtual size_t determineOpcodeAndSize() override;
+    virtual size_t approximateSizeInBytes() override;
+    virtual void checkOperands() override;
+    virtual void validateOperands() override;
+    virtual size_t compileOperands() override;
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
     Jump(Environment &env, MemoryInfo &mi, ASMOperand *o1, BitWidth operandSize = bit_auto)
         :ASMInstruction(env, mi, "jmp", operandSize, o1), Object(env, mi) {}
     virtual ~Jump() {}
-    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMJUMP_HPP_LOCK

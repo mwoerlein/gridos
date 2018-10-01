@@ -50,7 +50,7 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
+        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
     inst.pos = e->pos;
@@ -62,7 +62,7 @@ void ASMInstructionList::addLabel(String &label) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
+        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(label, *e);
@@ -73,7 +73,7 @@ void ASMInstructionList::addDefinition(String &definition, Number &value) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->getMaxSizeInBytes() : 0);
+        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(definition, *e);
@@ -99,9 +99,9 @@ Number & ASMInstructionList::cloneNumber(String &label) {
     return env().create<Number,int>(e.value ? e.value->value(): e.pos);
 }
 
-size_t ASMInstructionList::prepare() {
+size_t ASMInstructionList::compile() {
     if (pos != -1) {
-        err << "List is already prepared!\n";
+        err << "List is already compiled!\n";
         return pos;
     }
     pos = 0;
@@ -109,10 +109,7 @@ size_t ASMInstructionList::prepare() {
         cur->pos = pos;
         if (cur->inst) {    
             cur->inst->pos = pos;
-            cur->inst->prepare();
-            if (!hasErrors()) {
-                pos += cur->inst->getSizeInBytes();
-            }
+            pos += cur->inst->compile();
         }
     }
     return pos;
@@ -120,7 +117,7 @@ size_t ASMInstructionList::prepare() {
 
 void ASMInstructionList::finalize(size_t startAddress) {
     if (pos == -1) {
-        err << "List is not prepared!\n";
+        err << "List is not compiled!\n";
         return;
     }
     if (startAddress) {
@@ -139,7 +136,7 @@ bool ASMInstructionList::hasErrors() {
 
 void ASMInstructionList::writeToStream(OStream &stream) {
     if (pos == -1) {
-        err << "List is not prepared!\n";
+        err << "List is not compiled!\n";
         return;
     }
     for (_Elem * cur = first; cur ; cur = cur->next) {
@@ -174,14 +171,14 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
             stream << *cur->inst;
             if (debug) {
                 DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
-                stream << "\t// " << cur->pos << ":\t(" << cur->inst->getSizeInBytes() << ")";
+                stream << "\t// " << cur->inst->pos << ":\t(" << cur->inst->size << ")";
                 cur->inst->writeToStream(wrap);
             }
         } else if (cur->identifier) {
             if (cur->value) {
                 if (pos != -1) {
-                    // skip definitions after prepare
-                    // instructions have to replace definition usages with corresponding numbers during preparation
+                    // skip definitions after compilation
+                    // instructions replace definition usages with corresponding numbers
                     if (debug) {
                         stream << "// ";
                     } else {

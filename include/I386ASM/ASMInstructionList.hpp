@@ -32,7 +32,7 @@ class ASMInstructionList: virtual public Object {
     virtual Number & getDefinition(String &label);
     virtual Number & cloneNumber(String &label);
     
-    virtual size_t prepare();
+    virtual size_t compile();
     virtual void finalize(size_t startAddress);
     virtual bool hasErrors();
     

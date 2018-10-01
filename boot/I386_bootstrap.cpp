@@ -56,7 +56,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
         hk.run();
     }
     // run compiled kernel    
-    env.out()<<"Starting kernel ... "<<k.getStart()<<'\n';
+    env.out()<<"Starting kernel ... "<<k.getStartAddress()<<'\n';
     k.run();
 
 //    env.destroy(k);

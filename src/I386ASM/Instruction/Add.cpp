@@ -4,16 +4,13 @@
 #include "I386ASM/Operand/Indirect.hpp"
 
 // protected
-void Add::writeOperandsToStream(OStream & stream) {
-    Number *n1 = o1->as<Number>(number);
-    Register *r2 = o2->as<Register>(reg);
-    
-    if (n1 && r2) {
-        writeNumberToStream(stream, n1->value(), immSize);
-    }
+size_t Add::approximateSizeInBytes() {
+    // TODO: validate and determine more variants
+    immSize = (int) operandSize;
+    return 1 + immSize;
 }
 
-void Add::validateOperandsAndOperandSize() {
+void Add::validateOperands() {
     // TODO: validate and determine more variants
     Number *n1 = o1->as<Number>(number);
     Register *r2 = o2->as<Register>(reg);
@@ -27,15 +24,18 @@ void Add::validateOperandsAndOperandSize() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Add::determineOpcodeAndSize() {
+size_t Add::compileOperands() {
     // TODO: validate and determine more variants
     op1 = 0x05; // addl eax
     immSize = (int) operandSize;
     return 1 + immSize;
 }
 
-size_t Add::getMaxSizeInBytes() {
-    // TODO: validate and determine more variants
-    immSize = (int) operandSize;
-    return 1 + immSize;
+void Add::writeOperandsToStream(OStream & stream) {
+    Number *n1 = o1->as<Number>(number);
+    Register *r2 = o2->as<Register>(reg);
+    
+    if (n1 && r2) {
+        writeNumberToStream(stream, n1->value(), immSize);
+    }
 }

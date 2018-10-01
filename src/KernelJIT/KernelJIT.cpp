@@ -41,7 +41,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
         return *(Kernel *) 0;
     }
     
-    size_t size = list.prepare();
+    size_t size = list.compile();
     if (list.hasErrors()) {
         list.destroy();
         return *(Kernel *) 0;

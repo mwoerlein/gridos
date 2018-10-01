@@ -1,11 +1,11 @@
-#include "test/I386ASM/Instruction/OneByteNoOperandTest.hpp"
+#include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
 
 // public
-OneByteNoOperandTest::OneByteNoOperandTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
-OneByteNoOperandTest::~OneByteNoOperandTest() {};
+NoOperandInstructionTest::NoOperandInstructionTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
+NoOperandInstructionTest::~NoOperandInstructionTest() {};
 
 
-bool OneByteNoOperandTest::runAll() {
+bool NoOperandInstructionTest::runAll() {
     bool success = true;
     
     {

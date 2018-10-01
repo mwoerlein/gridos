@@ -28,45 +28,6 @@ void ASMInstruction::logToStream(OStream &stream) {
     }
 }
 
-void ASMInstruction::checkArguments() {}
-
-void ASMInstruction::replaceOperands() {
-    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list) : 0) {
-        o1->destroy();
-        o1 = replacement;
-    }
-    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list) : 0) {
-        o2->destroy();
-        o2 = replacement;
-    }
-    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list) : 0) {
-        o3->destroy();
-        o3 = replacement;
-    }
-}
-
-void ASMInstruction::validateOperandsAndOperandSize() {}
-
-void ASMInstruction::prepare() {
-    checkArguments();
-    if (list->hasErrors()) return;
-    
-    replaceOperands();
-    if (list->hasErrors()) return;
-    
-    validateOperandsAndOperandSize();
-    if (list->hasErrors()) return;
-    
-    size = determineOpcodeAndSize();
-    if (!size) {
-        list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
-    }
-}
-
-size_t ASMInstruction::getSizeInBytes() {
-    return size;
-}
-
 void ASMInstruction::writeToStream(OStream & stream) {
     if (pre1) { stream << pre1; }
     if (pre2) { stream << pre2; }
@@ -83,6 +44,42 @@ void ASMInstruction::writeToStream(OStream & stream) {
 }
 
 // protected
+void ASMInstruction::checkOperands() {}
+
+void ASMInstruction::sanitizeOperands() {
+    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list) : 0) {
+        o1->destroy();
+        o1 = replacement;
+    }
+    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list) : 0) {
+        o2->destroy();
+        o2 = replacement;
+    }
+    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list) : 0) {
+        o3->destroy();
+        o3 = replacement;
+    }
+}
+
+void ASMInstruction::validateOperands() {}
+
+size_t ASMInstruction::compile() {
+    checkOperands();
+    if (list->hasErrors()) return 0;
+    
+    sanitizeOperands();
+    if (list->hasErrors()) return 0;
+    
+    validateOperands();
+    if (list->hasErrors()) return 0;
+    
+    size = compileOperands();
+    if (!size) {
+        list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
+    }
+    return size;
+}
+
 void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
     switch (size) {
         case 1: stream << (char)val; break;

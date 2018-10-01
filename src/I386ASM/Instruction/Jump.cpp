@@ -6,36 +6,28 @@
 #include "I386ASM/Operand/Register.hpp"
 
 // protected
-void Jump::writeOperandsToStream(OStream & stream) {
+size_t Jump::approximateSizeInBytes() {
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
+    if (id1 || n1) {
+        return 5; // opcode + immediate
+    }
     Register *r1 = o1->as<Register>(reg);
-    Indirect *i1 = o1->as<Indirect>(indirect);
-    if (id1) {
-        // Reached only for labels. Definitions will be rewritten to numbers before.
-        int offset = list->getLabel(id1->identifier()) - (pos + size);
-        writeNumberToStream(stream, offset, immSize);
-    }
-    if (n1) {
-        writeNumberToStream(stream, n1->value() - (pos + size), immSize);
-    }
     if (r1) {
-        stream << ModRM(3, 4, r1->getOpCodeRegister());
+        return 2; // opcode + modmr
     }
+    Indirect *i1 = o1->as<Indirect>(indirect);
     if (i1) {
-        if (modrmSize) {
-            stream << i1->getModMR(4);
-        }
-        if (sibSize) {
-            stream << i1->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
-        }
+        size_t size = 1; // opcode
+        size += i1->getModMRSize();
+        size += i1->getSibSize();
+        size += i1->getDispSize();
+        return size;
     }
+    return 7; // all over maximum
 }
 
-void Jump::checkArguments() {
+void Jump::checkOperands() {
     if (!o1) {
         list->err<<"Missing operand!\n";
     }
@@ -50,7 +42,7 @@ void Jump::checkArguments() {
     }
 }
 
-void Jump::validateOperandsAndOperandSize() {
+void Jump::validateOperands() {
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
@@ -69,7 +61,7 @@ void Jump::validateOperandsAndOperandSize() {
     return;
 }
 
-size_t Jump::determineOpcodeAndSize() {
+size_t Jump::compileOperands() {
     Identifier *id1 = o1->as<Identifier>(id);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -118,23 +110,28 @@ size_t Jump::determineOpcodeAndSize() {
     return 0;
 }
 
-size_t Jump::getMaxSizeInBytes() {
+void Jump::writeOperandsToStream(OStream & stream) {
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
-    if (id1 || n1) {
-        return 5; // opcode + immediate
-    }
     Register *r1 = o1->as<Register>(reg);
-    if (r1) {
-        return 2; // opcode + modmr
-    }
     Indirect *i1 = o1->as<Indirect>(indirect);
-    if (i1) {
-        size_t size = 1; // opcode
-        size += i1->getModMRSize();
-        size += i1->getSibSize();
-        size += i1->getDispSize();
-        return size;
+    if (n1 || id1) {
+        // Reached only for labels. Definitions will be rewritten to numbers before.
+        int val = n1 ? n1->value() : list->getLabel(id1->identifier());
+        writeNumberToStream(stream, val - (pos + size), immSize);
     }
-    return 7;
+    if (r1) {
+        stream << ModRM(3, 4, r1->getOpCodeRegister());
+    }
+    if (i1) {
+        if (modrmSize) {
+            stream << i1->getModMR(4);
+        }
+        if (sibSize) {
+            stream << i1->getSib();
+        }
+        if (dispSize) {
+            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
+        }
+    }
 }

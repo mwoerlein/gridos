@@ -4,7 +4,7 @@
 #include "sys/Digit.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 
-#include "I386ASM/Instruction/OneByteNoOperand.hpp"
+#include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
@@ -412,16 +412,16 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             return 0;
         }
         [cC][lL][iI] {
-            return &env().create<OneByteNoOperand, const char *, char>("cli", 0xFA);
+            return &env().create<NoOperandInstruction, const char *, char>("cli", 0xFA);
         }
         [sS][tT][iI] {
-            return &env().create<OneByteNoOperand, const char *, char>("sti", 0xFB);
+            return &env().create<NoOperandInstruction, const char *, char>("sti", 0xFB);
         }
         [hH][lL][tT] {
-            return &env().create<OneByteNoOperand, const char *, char>("hlt", 0xF4);
+            return &env().create<NoOperandInstruction, const char *, char>("hlt", 0xF4);
         }
         [nN][oO][pP] {
-            return &env().create<OneByteNoOperand, const char *, char>("nop", 0x90);
+            return &env().create<NoOperandInstruction, const char *, char>("nop", 0x90);
         }
         [jJ][mM][pP] {
             if (!op1) return 0;

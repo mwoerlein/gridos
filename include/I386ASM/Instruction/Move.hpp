@@ -5,16 +5,16 @@
 
 class Move: public ASMInstruction {
     protected:
-    virtual void checkArguments() override;
-    virtual void validateOperandsAndOperandSize() override;
-    virtual size_t determineOpcodeAndSize() override;
+    virtual size_t approximateSizeInBytes() override;
+    virtual void checkOperands() override;
+    virtual void validateOperands() override;
+    virtual size_t compileOperands() override;
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
     Move(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, BitWidth operandSize = bit_auto)
         :ASMInstruction(env, mi, "mov", operandSize, o1, o2), Object(env, mi) {}
     virtual ~Move() {}
-    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMMOVE_HPP_LOCK

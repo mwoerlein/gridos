@@ -19,13 +19,13 @@ class ASMInstruction: virtual public Object {
     size_t size, pos;
     ASMInstructionList * list;
     
-    virtual void writeNumberToStream(OStream &stream, int val, int size);
+    virtual size_t approximateSizeInBytes() = 0;
+    virtual void checkOperands();
+    virtual void sanitizeOperands();
+    virtual void validateOperands();
+    virtual size_t compileOperands() = 0;
     virtual void writeOperandsToStream(OStream &stream) = 0;
-    
-    virtual void checkArguments();
-    virtual void replaceOperands();
-    virtual void validateOperandsAndOperandSize();
-    virtual size_t determineOpcodeAndSize() = 0;
+    virtual void writeNumberToStream(OStream &stream, int val, int size);
     
     public:
     ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)
@@ -39,9 +39,8 @@ class ASMInstruction: virtual public Object {
         if (o3) { o3->destroy(); }
     }
     
-    virtual void prepare();
-    virtual size_t getMaxSizeInBytes() = 0;
-    virtual size_t getSizeInBytes();
+    virtual size_t compile();
+    
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream);
     

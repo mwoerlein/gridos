@@ -5,15 +5,15 @@
 
 class Add: public ASMInstruction {
     protected:
-    virtual void validateOperandsAndOperandSize() override;
-    virtual size_t determineOpcodeAndSize() override;
+    virtual size_t approximateSizeInBytes() override;
+    virtual void validateOperands() override;
+    virtual size_t compileOperands() override;
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
     Add(Environment &env, MemoryInfo &mi, ASMOperand *o1, ASMOperand *o2, BitWidth operandSize = bit_auto)
         :ASMInstruction(env, mi, "add", operandSize, o1, o2), Object(env, mi) {}
     virtual ~Add() {}
-    virtual size_t getMaxSizeInBytes() override;
 };
 
 #endif //I386ASMADD_HPP_LOCK
