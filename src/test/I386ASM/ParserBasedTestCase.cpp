@@ -48,16 +48,19 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
     {
         IStream &in = input.toIStream();
         ASMInstructionList &list = parseSilent(in, errorBuffer);
-        assertFalse(list.hasErrors(), message<<" parsing error: "<<errorBuffer );
+        assertFalse(list.hasErrors(), message<<" parsing error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         list.prepare();
-        assertFalse(list.hasErrors(), message<<" preparation error: "<<errorBuffer );
+        assertFalse(list.hasErrors(), message<<" preparation error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
         
         list.finalize((void *) start);
-        assertFalse(list.hasErrors(), message<<" finalization error: "<<errorBuffer );
+        assertFalse(list.hasErrors(), message<<" finalization error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         if (dumpBinary) {
             OStream &dump = env().oStreamFactory().buildOStream(dumpBinary);
@@ -73,17 +76,20 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
     }
     {
         IStream &in = expectedPretty.toIStream();
-        ASMInstructionList &list = parser.parse(in, errorBuffer);
-        assertFalse(list.hasErrors(), message<<" stable parsing error: "<<errorBuffer );
+        ASMInstructionList &list = parseSilent(in, errorBuffer);
+        assertFalse(list.hasErrors(), message<<" stable parsing error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         list.prepare();
-        assertFalse(list.hasErrors(), message<<" stable preparation error: "<<errorBuffer );
+        assertFalse(list.hasErrors(), message<<" stable preparation error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );
         
         list.finalize((void *) start);
-        assertFalse(list.hasErrors(), message<<" stable finalization error: "<<errorBuffer );
+        assertFalse(list.hasErrors(), message<<" stable finalization error:\n"<<errorBuffer );
+        if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         list.writeToStream(buffer="");
         assertEquals(buffer, expectedBinary, "stable binary: "<<message );

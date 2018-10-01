@@ -116,5 +116,94 @@ bool ParserTest::runAll() {
     ;
     
     success &= test(in, bin, pretty, message = "\"< @@ >\"-Test");
+
+    (in = "")
+        << "cga_lastline := 0xb8f00\n"
+        << "blinking:\n"
+        << "    movl 0, %ebx // column = 0\n"
+        << "    movl 0, %ecx // charOffset = 0\n"
+        << "blinking_loop:\n"
+        << "    // charTmp = charOffset\n"
+        << "    movl %ecx, %eax\n"
+        << "    // show 'a'+charOffset at column\n"
+//        << "    addl 0x761, %ecx\n"
+        << "    movw %cx, cga_lastline(,%ebx,2)\n"
+        << "    // charOffset = (charTmp + 1) % 26\n"
+        << "    addl 1, %eax\n"
+        << "    movl 26, %ecx\n"
+//        << "    divb %cl; movb %ah, %cl\n"
+        << "    movb %ah, %cl\n"
+        << "    //divw %cx; movw %dx, %cx\n"
+        << "    //divl %ecx; movl %edx, %ecx\n"
+        << "    // column = (column + 1) % 80\n"
+        << "    movl %ebx, %eax\n"
+        << "    addl 1, %eax\n"
+        << "    movl 80, %ebx\n"
+//        << "    divb %bl; movb %ah, %bl\n"
+        << "    movb %ah, %bl\n"
+        << "    //divw %bx; movw %dx, %bx\n"
+        << "    //divl %ebx; movl %edx, %ebx\n"
+        << "    // wait a bit\n"
+        << "    movl 0x7fffff, %eax\n"    
+        << "wait:\n"
+        << "    addl -1, %eax\n"
+//        << "    jnz wait\n"
+        << "    // endless loop\n"
+        << "    jmp blinking_loop\n"
+    ;
+    
+    (bin = "")
+                                                                                                // blinking:
+        << (char) 0xbb << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00                // movl 0, %ebx
+        << (char) 0xb9 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00                // movl 0, %ecx
+                                                                                                // blinking_loop:
+        << (char) 0x89 << (char) 0xc8                                                             // movl %ecx, %eax
+//        << (char) 0x81 << (char) 0xc1 << (char) 0x61 << (char) 0x07 << (char) 0x00 << (char) 0x00 // addl 0x761, %ecx
+        << (char) 0x66 << (char) 0x89 << (char) 0x0c << (char) 0x5d                               // movw %cx, cga_lastline(,%ebx,2)
+                       << (char) 0x00 << (char) 0x8f << (char) 0x0b << (char) 0x00                // 
+        << (char) 0x05 << (char) 0x01 << (char) 0x00 << (char) 0x00 << (char) 0x00                // addl 1, %eax
+        << (char) 0xb9 << (char) 0x1a << (char) 0x00 << (char) 0x00 << (char) 0x00                // movl 26, %ecx
+//        << (char) 0xf6 << (char) 0xf1                                                             // divb %cl
+        << (char) 0x88 << (char) 0xe1                                                             // movb %ah, %cl
+
+        << (char) 0x89 << (char) 0xd8                                                             // movl %ebx, %eax
+        << (char) 0x05 << (char) 0x01 << (char) 0x00 << (char) 0x00 << (char) 0x00                // addl 1, %eax
+        << (char) 0xbb << (char) 0x50 << (char) 0x00 << (char) 0x00 << (char) 0x00                // movl 80, %ebx
+//        << (char) 0xf6 << (char) 0xf3                                                             // divb %bl
+        << (char) 0x88 << (char) 0xe3                                                             // movb %ah, %bl
+
+        << (char) 0xb8 << (char) 0xff << (char) 0xff << (char) 0x7f << (char) 0x00                // movl 0x7fffff, %eax
+                                                                                                // wait:
+        << (char) 0x05 << (char) 0xff << (char) 0xff << (char) 0xff << (char) 0xff                // addl -1, %eax
+//        << (char) 0x75 << (char) 0xf9                                                             // jnz wait
+        << (char) 0xeb << (char) 0xd0                                                             // jmp blinking_loop
+    ;
+     
+    (pretty = "")
+        << "blinking:\n"
+        << "movl 0x0, %ebx\n"
+        << "movl 0x0, %ecx\n"
+        << "blinking_loop:\n"
+        << "movl %ecx, %eax\n"
+//        << "addl 0x761, %ecx\n"
+        << "movw %cx, 0xb8f00(,%ebx,2)\n"
+        << "addl 0x1, %eax\n"
+        << "movl 0x1a, %ecx\n"
+//        << "divb %cl\n"
+        << "movb %ah, %cl\n"
+        << "movl %ebx, %eax\n"
+        << "addl 0x1, %eax\n"
+        << "movl 0x50, %ebx\n"
+//        << "divb %bl\n"
+        << "movb %ah, %bl\n"
+        << "movl 0x7fffff, %eax\n"    
+        << "wait:\n"
+        << "addl 0xffffffff, %eax\n"
+//        << "jnz wait\n"
+        << "jmp blinking_loop\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "\"Blinking\"-Test");
+
     return success;
 }
