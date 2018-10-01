@@ -48,7 +48,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     }
     
     OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
-    list.finalize(osk.getStart());
+    list.finalize(osk.getStartAddress());
     if (list.hasErrors()) {
         osk.destroy();
         list.destroy();

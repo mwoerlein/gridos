@@ -24,7 +24,7 @@ ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & 
     return list;
 }
 
-bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, size_t start, const char * dumpBinary) {
+bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, const char * expectedPretty, const char * message, size_t startAddress, const char * dumpBinary) {
     String in(env(), *notAnInfo, input);
     String bin(env(), *notAnInfo, expectedBinary);
     String pretty(env());
@@ -39,10 +39,10 @@ bool ParserBasedTestCase::test(const char * input, const char * expectedBinary, 
     } else {
         mes << "test \"" << input << '"';
     }
-    return test(in, bin, pretty, mes, start, dumpBinary);
+    return test(in, bin, pretty, mes, startAddress, dumpBinary);
 }
 
-bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, size_t start, const char * dumpBinary) {
+bool ParserBasedTestCase::test(String & input, String & expectedBinary, String & expectedPretty, String & message, size_t startAddress, const char * dumpBinary) {
     String buffer(env());
     String errorBuffer(env());
     {
@@ -58,7 +58,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "pretty print: "<<message );
         
-        list.finalize((void *) start);
+        list.finalize(startAddress);
         assertFalse(list.hasErrors(), message<<" finalization error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
@@ -87,7 +87,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         list.logToStream(buffer="");
         assertEquals(buffer, expectedPretty, "stable pretty print: "<<message );
         
-        list.finalize((void *) start);
+        list.finalize(startAddress);
         assertFalse(list.hasErrors(), message<<" stable finalization error:\n"<<errorBuffer );
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         

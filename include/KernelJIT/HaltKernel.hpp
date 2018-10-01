@@ -8,7 +8,7 @@ class HaltKernel: public Kernel {
     HaltKernel(Environment &env, MemoryInfo &mi = *notAnInfo): Object(env, mi) {}
     virtual ~HaltKernel() {}
     
-    virtual void * getStart() {
+    virtual size_t getStartAddress() override {
         return 0;
     }
     

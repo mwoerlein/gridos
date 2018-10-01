@@ -33,7 +33,7 @@ class ASMInstructionList: virtual public Object {
     virtual Number & cloneNumber(String &label);
     
     virtual size_t prepare();
-    virtual void finalize(void * start);
+    virtual void finalize(size_t startAddress);
     virtual bool hasErrors();
     
     virtual void writeToStream(OStream &stream);

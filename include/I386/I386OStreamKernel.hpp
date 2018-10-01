@@ -14,8 +14,8 @@ class I386OStreamKernel: public OStreamKernel {
     public:
     I386OStreamKernel(Environment &env, MemoryInfo &mi, size_t size):OStreamKernel(env, mi, size), Object(env, mi) {}
     
-    virtual void * getStart() {
-        return mem.buf;
+    virtual size_t getStartAddress() override {
+        return (size_t) mem.buf;
     }
     
     virtual void run() {

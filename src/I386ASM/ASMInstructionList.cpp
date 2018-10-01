@@ -118,15 +118,17 @@ size_t ASMInstructionList::prepare() {
     return pos;
 }
 
-void ASMInstructionList::finalize(void * start) {
+void ASMInstructionList::finalize(size_t startAddress) {
     if (pos == -1) {
         err << "List is not prepared!\n";
         return;
     }
-    for (_Elem * cur = first; cur ; cur = cur->next) {
-        cur->pos += (size_t) start;
-        if (cur->inst) {
-            cur->inst->pos = cur->pos;
+    if (startAddress) {
+        for (_Elem * cur = first; cur ; cur = cur->next) {
+            cur->pos += startAddress;
+            if (cur->inst) {
+                cur->inst->pos = cur->pos;
+            }
         }
     }
 }
@@ -136,9 +138,11 @@ bool ASMInstructionList::hasErrors() {
 }
 
 void ASMInstructionList::writeToStream(OStream &stream) {
-    // TODO: resolve definitions;
+    if (pos == -1) {
+        err << "List is not prepared!\n";
+        return;
+    }
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        // TODO: resolve arguments;
         if (cur->inst) {
             cur->inst->writeToStream(stream);
         }

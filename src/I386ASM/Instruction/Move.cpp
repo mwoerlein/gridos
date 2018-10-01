@@ -211,12 +211,6 @@ size_t Move::determineOpcodeAndSize() {
         size++;
     }
     
-    if (id1 && list->hasDefinition(id1->identifier())) {
-        o1 = n1 = &list->cloneNumber(id1->identifier());
-        id1->destroy();
-        id1 = 0;
-    }
-    
     if ((n1 || id1) && gr2) {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xB0 : 0xB8;
