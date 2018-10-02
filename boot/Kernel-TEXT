@@ -9,17 +9,13 @@ _start:
     movw 0xf1f6, (DIVCL)
     movw 0xf3f6, (DIVBL)
     movw 0xf975, (JNZ)
-    movw 0xc181, (ADDECX)
-    movl 0x761, (ADDECXIMM)
     
 blinking_loop:
     // charTmp = charOffset
     movl %ecx, %eax
     
     // show 'a'+charOffset at column
-//    addl 0x761, %ecx
-ADDECX: nop; nop
-ADDECXIMM: nop; nop; nop; nop
+    addl 0x761, %ecx
     movw %cx, cga_lastline(,%ebx,2)
     
     // charOffset = (charTmp + 1) % 26

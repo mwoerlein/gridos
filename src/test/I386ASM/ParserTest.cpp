@@ -126,7 +126,7 @@ bool ParserTest::runAll() {
         << "    // charTmp = charOffset\n"
         << "    movl %ecx, %eax\n"
         << "    // show 'a'+charOffset at column\n"
-//        << "    addl 0x761, %ecx\n"
+        << "    addl 0x761, %ecx\n"
         << "    movw %cx, cga_lastline(,%ebx,2)\n"
         << "    // charOffset = (charTmp + 1) % 26\n"
         << "    addl 1, %eax\n"
@@ -158,7 +158,7 @@ bool ParserTest::runAll() {
         << (char) 0xb9 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00                // movl 0, %ecx
                                                                                                 // blinking_loop:
         << (char) 0x89 << (char) 0xc8                                                             // movl %ecx, %eax
-//        << (char) 0x81 << (char) 0xc1 << (char) 0x61 << (char) 0x07 << (char) 0x00 << (char) 0x00 // addl 0x761, %ecx
+        << (char) 0x81 << (char) 0xc1 << (char) 0x61 << (char) 0x07 << (char) 0x00 << (char) 0x00 // addl 0x761, %ecx
         << (char) 0x66 << (char) 0x89 << (char) 0x0c << (char) 0x5d                               // movw %cx, cga_lastline(,%ebx,2)
                        << (char) 0x00 << (char) 0x8f << (char) 0x0b << (char) 0x00                // 
         << (char) 0x05 << (char) 0x01 << (char) 0x00 << (char) 0x00 << (char) 0x00                // addl 1, %eax
@@ -176,7 +176,7 @@ bool ParserTest::runAll() {
                                                                                                 // wait:
         << (char) 0x05 << (char) 0xff << (char) 0xff << (char) 0xff << (char) 0xff                // addl -1, %eax
 //        << (char) 0x75 << (char) 0xf9                                                             // jnz wait
-        << (char) 0xeb << (char) 0xd0                                                             // jmp blinking_loop
+        << (char) 0xeb << (char) 0xca                                                             // jmp blinking_loop
     ;
      
     (pretty = "")
@@ -185,7 +185,7 @@ bool ParserTest::runAll() {
         << "movl 0x0, %ecx\n"
         << "blinking_loop:\n"
         << "movl %ecx, %eax\n"
-//        << "addl 0x761, %ecx\n"
+        << "addl 0x761, %ecx\n"
         << "movw %cx, 0xb8f00(,%ebx,2)\n"
         << "addl 0x1, %eax\n"
         << "movl 0x1a, %ecx\n"

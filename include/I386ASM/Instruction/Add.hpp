@@ -6,6 +6,7 @@
 class Add: public ASMInstruction {
     protected:
     virtual size_t approximateSizeInBytes() override;
+    virtual void checkOperands() override;
     virtual void validateOperands() override;
     virtual size_t compileOperands() override;
     virtual void writeOperandsToStream(OStream &stream) override;

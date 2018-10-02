@@ -1,7 +1,5 @@
 #include "test/I386ASM/Instruction/MoveTest.hpp"
 
-#include "sys/OStreamFactory.hpp"
-
 // public
 MoveTest::MoveTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
 MoveTest::~MoveTest() {};

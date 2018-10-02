@@ -63,28 +63,11 @@ void Jump::validateOperands() {
 
 size_t Jump::compileOperands() {
     Identifier *id1 = o1->as<Identifier>(id);
+    Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
-    if (id1) {
-        String & identifier = id1->identifier();
-        if (list->hasDefinition(identifier)) {
-            o1 = &list->cloneNumber(identifier);
-            id1->destroy();
-        } else { // label
-            int offset = pos - list->getLabel(identifier);
-            if (-128 <= offset && offset <= 127) {
-                op1 = 0xEB;
-                immSize = 1;
-            } else {
-                op1 = 0xE9;
-                immSize = 4;
-            }
-            return 1 + immSize;
-        }
-    }
-    Number *n1 = o1->as<Number>(number);
-    if (n1) {
-        int offset = pos - n1->value();
+    if (n1 || id1) {
+        int offset = pos - (n1 ? n1->value() : list->getLabel(id1->identifier()));
         if (-128 <= offset && offset <= 127) {
             op1 = 0xEB;
             immSize = 1;

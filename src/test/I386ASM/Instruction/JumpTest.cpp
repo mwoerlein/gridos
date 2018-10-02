@@ -1,7 +1,5 @@
 #include "test/I386ASM/Instruction/JumpTest.hpp"
 
-#include "sys/OStreamFactory.hpp"
-
 // public
 JumpTest::JumpTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
 JumpTest::~JumpTest() {};
