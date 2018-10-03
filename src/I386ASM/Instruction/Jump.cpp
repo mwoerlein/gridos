@@ -66,28 +66,40 @@ size_t Jump::compileOperands() {
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
-    if (n1 || id1) {
-        int offset = pos - (n1 ? n1->value() : list->getLabel(id1->identifier()));
+    if (id1) {
+        size_t size = 1;
+        int offset = pos - list->getLabel(id1->identifier());
         if (-128 <= offset && offset <= 127) {
             op1 = 0xEB;
-            immSize = 1;
+            immSize = (int) bit_8;
+        } else if (-32768 <= offset && offset <= 32767) {
+            pre3 = 0x66;
+            size++;
+            op1 = 0xE9;
+            immSize = (int) bit_16;
         } else {
             op1 = 0xE9;
-            immSize = 4;
+            immSize = (int) bit_32;
         }
+        return size + immSize;
+    }
+    if (n1) {
+        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
+        op1 = 0xE9;
+        immSize = (int) bit_32;
         return 1 + immSize;
     }
     if (r1) {
         op1 = 0xFF;
         modrmSize = 1;
-        return size + 1 + modrmSize;
+        return 1 + modrmSize;
     }
     if (i1) {
         op1 = 0xFF;
         modrmSize = i1->getModMRSize();
         sibSize = i1->getSibSize();
         dispSize = i1->getDispSize();
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return 1 + modrmSize + sibSize + dispSize;
     }
         
     return 0;
