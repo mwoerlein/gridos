@@ -20,16 +20,16 @@ blinking_loop:
     addl 1, %eax
     movl 26, %ecx
     divb %cl; movb %ah, %cl
-    //divw %cx; movw %dx, %cx
-    //divl %ecx; movl %edx, %ecx
+    //movw 0, %dx; divw %cx; movw %dx, %cx
+    //movl 0, %edx; divl %ecx; movl %edx, %ecx
     
     // column = (column + 1) % 80
     movl %ebx, %eax
     addl 1, %eax
     movl 80, %ebx
     divb %bl; movb %ah, %bl
-    //divw %bx; movw %dx, %bx
-    //divl %ebx; movl %edx, %ebx
+    //movw 0, %dx; divw %bx; movw %dx, %bx
+    //movl 0, %edx; divl %ebx; movl %edx, %ebx
     
     // wait a bit
     movl 0x3fffff, %eax    

@@ -132,17 +132,17 @@ bool ParserTest::runAll() {
         << "    addl 1, %eax\n"
         << "    movl 26, %ecx\n"
         << "    divb %cl; movb %ah, %cl\n"
-        << "    //divw %cx; movw %dx, %cx\n"
-        << "    //divl %ecx; movl %edx, %ecx\n"
+        << "    //movw 0, %dx; divw %cx; movw %dx, %cx\n"
+        << "    //movl 0, %edx; divl %ecx; movl %edx, %ecx\n"
         << "    // column = (column + 1) % 80\n"
         << "    movl %ebx, %eax\n"
         << "    addl 1, %eax\n"
         << "    movl 80, %ebx\n"
         << "    divb %bl; movb %ah, %bl\n"
-        << "    //divw %bx; movw %dx, %bx\n"
-        << "    //divl %ebx; movl %edx, %ebx\n"
+        << "    //movw 0, %dx; divw %bx; movw %dx, %bx\n"
+        << "    //movl 0, %edx; divl %ebx; movl %edx, %ebx\n"
         << "    // wait a bit\n"
-        << "    movl 0x7fffff, %eax\n"    
+        << "    movl 0x3fffff, %eax\n"    
         << "wait:\n"
         << "    addl -1, %eax\n"
 //        << "    jnz wait\n"
@@ -170,7 +170,7 @@ bool ParserTest::runAll() {
         << (char) 0xf6 << (char) 0xf3                                                             // divb %bl
         << (char) 0x88 << (char) 0xe3                                                             // movb %ah, %bl
 
-        << (char) 0xb8 << (char) 0xff << (char) 0xff << (char) 0x7f << (char) 0x00                // movl 0x7fffff, %eax
+        << (char) 0xb8 << (char) 0xff << (char) 0xff << (char) 0x3f << (char) 0x00                // movl 0x3fffff, %eax
                                                                                                 // wait:
         << (char) 0x05 << (char) 0xff << (char) 0xff << (char) 0xff << (char) 0xff                // addl -1, %eax
 //        << (char) 0x75 << (char) 0xf9                                                             // jnz wait
@@ -194,7 +194,7 @@ bool ParserTest::runAll() {
         << "movl 0x50, %ebx\n"
         << "divb %bl\n"
         << "movb %ah, %bl\n"
-        << "movl 0x7fffff, %eax\n"    
+        << "movl 0x3fffff, %eax\n"
         << "wait:\n"
         << "addl 0xffffffff, %eax\n"
 //        << "jnz wait\n"
