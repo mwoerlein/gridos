@@ -1,5 +1,5 @@
-#ifndef I386ASMADD_HPP_LOCK
-#define I386ASMADD_HPP_LOCK
+#ifndef I386ASM_INSTRUCTION_ADD_HPP_LOCK
+#define I386ASM_INSTRUCTION_ADD_HPP_LOCK
 
 #include "I386ASM/ASMInstruction.hpp"
 
@@ -17,4 +17,4 @@ class Add: public ASMInstruction {
     virtual ~Add() {}
 };
 
-#endif //I386ASMADD_HPP_LOCK
+#endif //I386ASM_INSTRUCTION_ADD_HPP_LOCK

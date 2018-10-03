@@ -1,5 +1,5 @@
-#ifndef I386ASMMOVE_HPP_LOCK
-#define I386ASMMOVE_HPP_LOCK
+#ifndef I386ASM_INSTRUCTION_MOVE_HPP_LOCK
+#define I386ASM_INSTRUCTION_MOVE_HPP_LOCK
 
 #include "I386ASM/ASMInstruction.hpp"
 
@@ -17,4 +17,4 @@ class Move: public ASMInstruction {
     virtual ~Move() {}
 };
 
-#endif //I386ASMMOVE_HPP_LOCK
+#endif //I386ASM_INSTRUCTION_MOVE_HPP_LOCK

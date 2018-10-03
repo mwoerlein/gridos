@@ -1,5 +1,5 @@
-#ifndef I386ASMJUMP_HPP_LOCK
-#define I386ASMJUMP_HPP_LOCK
+#ifndef I386ASM_INSTRUCTION_JUMP_HPP_LOCK
+#define I386ASM_INSTRUCTION_JUMP_HPP_LOCK
 
 #include "I386ASM/ASMInstruction.hpp"
 
@@ -12,9 +12,9 @@ class Jump: public ASMInstruction {
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
-    Jump(Environment &env, MemoryInfo &mi, ASMOperand *o1, BitWidth operandSize = bit_auto)
-        :ASMInstruction(env, mi, "jmp", operandSize, o1), Object(env, mi) {}
+    Jump(Environment &env, MemoryInfo &mi, ASMOperand *o1)
+        :ASMInstruction(env, mi, "jmp", bit_auto, o1), Object(env, mi) {}
     virtual ~Jump() {}
 };
 
-#endif //I386ASMJUMP_HPP_LOCK
+#endif //I386ASM_INSTRUCTION_JUMP_HPP_LOCK

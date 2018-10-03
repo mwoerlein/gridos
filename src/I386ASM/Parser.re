@@ -6,6 +6,7 @@
 
 #include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
+#include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
 #include "I386ASM/Instruction/Div.hpp"
@@ -96,7 +97,8 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         dec         = "0" | [1-9][0-9]*; 
         hex         = "0"[xX][0-9a-fA-F]+;
         number      = "-"? (bin | oct | dec | hex);
-
+        
+        condition   = [nN]?(([aA]|[bB]|[gG|[lL])[eE]?|[cC]|[eE]|[oO]|[pP]|[sS]|[zZ]) | [pP]([oO]|[eE]);
         register    = "%" [a-zA-Z][a-zA-Z0-9]+;
         
         id          = [a-zA-Z_][a-zA-Z0-9_]+;
@@ -145,6 +147,56 @@ Number * Parser::parseNumber(char * start, char * end) {
     return &env().create<Number, int>(0); 
 }
 
+InstructionCondition Parser::parseInstructionCondition(char * start, char * end) {
+    char *mark, *ctx, *cur = start;
+    for (;;) {
+/*!re2c
+        re2c:define:YYCURSOR = cur;
+        re2c:define:YYMARKER = mark;
+        re2c:define:YYCTXMARKER = ctx;
+        re2c:define:YYLIMIT = end;
+
+        [aA]          { if (cur != end) break; return cond_above; }
+        [aA][eE]      { if (cur != end) break; return cond_above_or_equal; }
+        [bB]          { if (cur != end) break; return cond_below; }
+        [bB][eE]      { if (cur != end) break; return cond_below_or_equal; }
+        [cC]          { if (cur != end) break; return cond_carry; }
+        [eE]          { if (cur != end) break; return cond_equal; }
+        [gG]          { if (cur != end) break; return cond_greater; }
+        [gG][eE]      { if (cur != end) break; return cond_greater_or_equal; }
+        [lL]          { if (cur != end) break; return cond_lesser; }
+        [lL][eE]      { if (cur != end) break; return cond_lesser_or_equal; }
+        [oO]          { if (cur != end) break; return cond_overflow; }
+        [pP]          { if (cur != end) break; return cond_parity; }
+        [sS]          { if (cur != end) break; return cond_sign; }
+        [zZ]          { if (cur != end) break; return cond_zero; }
+ 
+        [nN][aA]      { if (cur != end) break; return cond_not_above; }
+        [nN][aA][eE]  { if (cur != end) break; return cond_not_above_or_equal; }
+        [nN][bB]      { if (cur != end) break; return cond_not_below; }
+        [nN][bB][eE]  { if (cur != end) break; return cond_not_below_or_equal; }
+        [nN][cC]      { if (cur != end) break; return cond_not_carry; }
+        [nN][eE]      { if (cur != end) break; return cond_not_equal; }
+        [nN][gG]      { if (cur != end) break; return cond_not_greater; }
+        [nN][gG][eE]  { if (cur != end) break; return cond_not_greater_or_equal; }
+        [nN][lL]      { if (cur != end) break; return cond_not_lesser; }
+        [nN][lL][eE]  { if (cur != end) break; return cond_not_lesser_or_equal; }
+        [nN][oO]      { if (cur != end) break; return cond_not_overflow; }
+        [nN][pP]      { if (cur != end) break; return cond_not_parity; }
+        [nN][sS]      { if (cur != end) break; return cond_not_sign; }
+        [nN][zZ]      { if (cur != end) break; return cond_not_zero; }
+ 
+        [pP][eE]      { if (cur != end) break; return cond_parity_even; }
+        [pP][oO]      { if (cur != end) break; return cond_parity_odd; }
+
+        * { break; }
+*/
+    }
+    
+    String s(env(), *notAnInfo, start, end);
+    list->err << "unknown condition '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    return cond_above;
+}
 Register * Parser::parseRegister(char * start, char * end) {
     char *mark, *ctx, *cur = start;
     for (;;) {
@@ -431,6 +483,10 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         [jJ][mM][pP] {
             if (!op1 || op2 || op3) return 0;
             return &env().create<Jump, ASMOperand*>(op1);
+        }
+        [jJ] @o1 condition @o2 {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<ConditionalJump, InstructionCondition, ASMOperand*>(parseInstructionCondition(o1, o2), op1);
         }
         * { break; }
 */

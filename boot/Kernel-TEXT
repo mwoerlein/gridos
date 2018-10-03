@@ -5,8 +5,6 @@ cga_lastline := 0xb8f00
 _start:
     movl 0, %ebx // column = 0
     movl 0, %ecx // charOffset = 0
-// inject not yet supported instructions
-    movw 0xf975, (JNZ)
     
 blinking_loop:
     // charTmp = charOffset
@@ -35,7 +33,6 @@ blinking_loop:
     movl 0x3fffff, %eax    
 wait:
     addl -1, %eax
-//    jnz wait
-JNZ: nop; nop
+    jnz wait
     // endless loop
     jmp blinking_loop

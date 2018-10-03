@@ -20,5 +20,44 @@ enum RegisterKind {
     reg_general, reg_segment
 };
 
+enum InstructionCondition {
+    cond_above,
+    cond_above_or_equal,
+    cond_below,
+    cond_below_or_equal,
+    cond_carry,
+    cond_equal,
+    cond_greater,
+    cond_greater_or_equal,
+    cond_lesser,
+    cond_lesser_or_equal,
+    cond_overflow,
+    cond_parity,
+    cond_sign,
+    cond_zero,
+    
+    cond_not_above,
+    cond_not_above_or_equal,
+    cond_not_below,
+    cond_not_below_or_equal,
+    cond_not_carry,
+    cond_not_equal,
+    cond_not_greater,
+    cond_not_greater_or_equal,
+    cond_not_lesser,
+    cond_not_lesser_or_equal,
+    cond_not_overflow,
+    cond_not_parity,
+    cond_not_sign,
+    cond_not_zero,
+    
+    cond_parity_even,
+    cond_parity_odd,
+};
 
+const int instruction_condition_encoding[] = {
+    7, 3, 2, 6, 2, 4, 15, 13, 12, 14, 0, 10, 8, 4,
+    6, 2, 3, 7, 3, 5, 14, 12, 13, 15, 1, 11, 9, 5,
+    10, 11
+};
 #endif //I386ASMTYPES_HPP_LOCK

@@ -145,7 +145,7 @@ bool ParserTest::runAll() {
         << "    movl 0x3fffff, %eax\n"    
         << "wait:\n"
         << "    addl -1, %eax\n"
-//        << "    jnz wait\n"
+        << "    jnz wait\n"
         << "    // endless loop\n"
         << "    jmp blinking_loop\n"
     ;
@@ -173,8 +173,8 @@ bool ParserTest::runAll() {
         << (char) 0xb8 << (char) 0xff << (char) 0xff << (char) 0x3f << (char) 0x00                // movl 0x3fffff, %eax
                                                                                                 // wait:
         << (char) 0x05 << (char) 0xff << (char) 0xff << (char) 0xff << (char) 0xff                // addl -1, %eax
-//        << (char) 0x75 << (char) 0xf9                                                             // jnz wait
-        << (char) 0xeb << (char) 0xc6                                                             // jmp blinking_loop
+        << (char) 0x75 << (char) 0xf9                                                             // jnz wait
+        << (char) 0xeb << (char) 0xc4                                                             // jmp blinking_loop
     ;
      
     (pretty = "")
@@ -197,7 +197,7 @@ bool ParserTest::runAll() {
         << "movl 0x3fffff, %eax\n"
         << "wait:\n"
         << "addl 0xffffffff, %eax\n"
-//        << "jnz wait\n"
+        << "jnz wait\n"
         << "jmp blinking_loop\n"
     ;
     
