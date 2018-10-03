@@ -59,6 +59,8 @@ bool ConditionalJumpTest::testD() {
         << "jpe start\n"
         << "jpo end\n"
         << "end:\n"
+        << "jcxz end\n"
+        << "jecxz end\n"
     ;
     (bin = "")
         << (char) 0x77 << (char) 0xFE
@@ -97,6 +99,8 @@ bool ConditionalJumpTest::testD() {
         << (char) 0x75 << (char) 0x07
         << (char) 0x66 << (char) 0x0F << (char) 0x8A << (char) 0x39 << (char) 0xFF
         << (char) 0x7B << (char) 0x00
+        << (char) 0x67 << (char) 0xE3 << (char) 0xFD
+        << (char) 0xE3 << (char) 0xFB
     ;
     
     success &= test(in, bin, in, message = "test \"conditional jump\"");

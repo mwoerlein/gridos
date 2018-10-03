@@ -488,6 +488,14 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             if (!op1 || op2 || op3) return 0;
             return &env().create<ConditionalJump, InstructionCondition, ASMOperand*>(parseInstructionCondition(o1, o2), op1);
         }
+        [jJ][cC][xX][zZ] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<ConditionalJump, InstructionCondition, ASMOperand*>(cond_reg_cx, op1);
+        }
+        [jJ][eE][cC][xX][zZ] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<ConditionalJump, InstructionCondition, ASMOperand*>(cond_reg_ecx, op1);
+        }
         * { break; }
 */
     }

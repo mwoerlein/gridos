@@ -53,11 +53,15 @@ enum InstructionCondition {
     
     cond_parity_even,
     cond_parity_odd,
+    
+    cond_reg_cx,
+    cond_reg_ecx,
 };
 
 const int instruction_condition_encoding[] = {
     7, 3, 2, 6, 2, 4, 15, 13, 12, 14, 0, 10, 8, 4,
     6, 2, 3, 7, 3, 5, 14, 12, 13, 15, 1, 11, 9, 5,
-    10, 11
+    10, 11,
+    0, 0,
 };
 #endif //I386ASMTYPES_HPP_LOCK

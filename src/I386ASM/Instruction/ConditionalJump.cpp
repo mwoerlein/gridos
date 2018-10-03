@@ -29,6 +29,19 @@ void ConditionalJump::validateOperands() {
     Identifier *id1 = o1->as<Identifier>(id);
     Number *n1 = o1->as<Number>(number);
     
+    if (condition == cond_reg_cx || condition == cond_reg_ecx) {
+        if (n1) {
+            list->err<<"Only label based addressing allowed in: " << *this << '\n';
+        }
+        if (id1) {
+            int offset = pos - list->getLabel(id1->identifier());
+            if (offset < -128 || 127 < offset) {
+                list->err<<"Only byte offset allowed in: " << *this << '\n';
+            }
+        }
+        return;
+    }
+    
     if (id1 || n1) {
         return;
     }
@@ -43,7 +56,15 @@ size_t ConditionalJump::compileOperands() {
         size_t size = 1;
         int offset = pos - list->getLabel(id1->identifier());
         if (-128 <= offset && offset <= 127) {
-            op1 = 0x70 + instruction_condition_encoding[condition];
+            if (condition == cond_reg_cx) {
+                pre4 = 0x67;
+                size++;
+                op1 = 0xE3;
+            } else if (condition == cond_reg_ecx) {
+                op1 = 0xE3;
+            } else {
+                op1 = 0x70 + instruction_condition_encoding[condition];
+            } 
             immSize = (int) bit_8;
         } else if (-32768 <= offset && offset <= 32767) {
             pre3 = 0x66;
@@ -115,6 +136,8 @@ const char* ConditionalJump::mnemonics[] = {
 
     "jpe", //cond_parity_even
     "jpo", //cond_parity_odd
-    "j??"
+    
+    "jcxz",
+    "jecxz",
 };
 
