@@ -8,6 +8,7 @@
 #include "I386ASM/Instruction/Jump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
+#include "I386ASM/Instruction/Div.hpp"
 
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
@@ -394,19 +395,23 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         re2c:define:YYLIMIT = end;
 
         [mM][oO][vV] @o1 [bBwWlL]? @o2 {
-            if (!op1 || !op2) return 0;
+            if (!op1 || !op2 || op3) return 0;
             return &env().create<Move, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
         [aA][dD][dD] @o1 [bBwWlL]? @o2 {
-            if (!op1 || !op2) return 0;
+            if (!op1 || !op2 || op3) return 0;
             return &env().create<Add, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
-        [sS][uU][bB][bBwWlL]? {
+        [sS][uU][bB] @o1 [bBwWlL]? @o2 {
             String s(env(), *notAnInfo, start, operandsEnd);
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
-        [iI]?[mM][uU][lL][bBwWlL]? {
+        [dD][iI][vV] @o1 [bBwWlL]? @o2 {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Div, ASMOperand*, BitWidth> (op1, parseOperandSize(o1, o2));
+        }
+        [iI]?[mM][uU][lL] @o1 [bBwWlL]? @o2 {
             String s(env(), *notAnInfo, start, operandsEnd);
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
@@ -424,7 +429,7 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             return &env().create<NoOperandInstruction, const char *, char>("nop", 0x90);
         }
         [jJ][mM][pP] {
-            if (!op1) return 0;
+            if (!op1 || op2 || op3) return 0;
             return &env().create<Jump, ASMOperand*>(op1);
         }
         * { break; }

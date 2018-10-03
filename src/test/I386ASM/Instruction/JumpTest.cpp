@@ -4,7 +4,6 @@
 JumpTest::JumpTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
 JumpTest::~JumpTest() {};
 
-
 bool JumpTest::runAll() {
     bool success = true;
     

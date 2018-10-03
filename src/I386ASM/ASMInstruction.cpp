@@ -44,6 +44,11 @@ void ASMInstruction::writeToStream(OStream & stream) {
 }
 
 // protected
+size_t ASMInstruction::approximateSizeInBytes() {
+    // 4xpre 3xop 1xmodrm 1xsib 4xdisp 4ximm
+    return 17;
+}
+
 void ASMInstruction::checkOperands() {}
 
 void ASMInstruction::sanitizeOperands() {

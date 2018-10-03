@@ -106,7 +106,7 @@ bool AddTest::testMR() {
         << "addl %ebp, (%esp,%ecx,8)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"add reg -> indirect\"");
+    success &= test(in, bin, pretty, message = "test \"add reg -> reg/indirect\"");
     
     return success;
 }

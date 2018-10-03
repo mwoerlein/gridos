@@ -6,8 +6,6 @@ _start:
     movl 0, %ebx // column = 0
     movl 0, %ecx // charOffset = 0
 // inject not yet supported instructions
-    movw 0xf1f6, (DIVCL)
-    movw 0xf3f6, (DIVBL)
     movw 0xf975, (JNZ)
     
 blinking_loop:
@@ -21,9 +19,7 @@ blinking_loop:
     // charOffset = (charTmp + 1) % 26
     addl 1, %eax
     movl 26, %ecx
-//    divb %cl
-DIVCL: nop; nop
-    movb %ah, %cl
+    divb %cl; movb %ah, %cl
     //divw %cx; movw %dx, %cx
     //divl %ecx; movl %edx, %ecx
     
@@ -31,9 +27,7 @@ DIVCL: nop; nop
     movl %ebx, %eax
     addl 1, %eax
     movl 80, %ebx
-//    divb %bl
-DIVBL: nop; nop
-    movb %ah, %bl
+    divb %bl; movb %ah, %bl
     //divw %bx; movw %dx, %bx
     //divl %ebx; movl %edx, %ebx
     

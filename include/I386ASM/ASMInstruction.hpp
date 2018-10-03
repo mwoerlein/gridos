@@ -19,7 +19,7 @@ class ASMInstruction: virtual public Object {
     size_t size, pos;
     ASMInstructionList * list;
     
-    virtual size_t approximateSizeInBytes() = 0;
+    virtual size_t approximateSizeInBytes();
     virtual void checkOperands();
     virtual void sanitizeOperands();
     virtual void validateOperands();
@@ -31,7 +31,7 @@ class ASMInstruction: virtual public Object {
     ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)
         :Object(env, mi), mnemonic(mnemonic), o1(o1), o2(o2), o3(o3), operandSize(operandSize), addrSize(addrSize),
          pre1(0), pre2(0), pre3(0), pre4(0),
-         op1(90), op2(0), op3(0),
+         op1(0x90), op2(0), op3(0),
          modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0), pos(-1), list(0) {}
     virtual ~ASMInstruction() {
         if (o1) { o1->destroy(); }

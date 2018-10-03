@@ -4,7 +4,6 @@
 MoveTest::MoveTest(Environment &env, MemoryInfo &mi): ParserBasedTestCase(env, mi) {}
 MoveTest::~MoveTest() {};
 
-
 bool MoveTest::runAll() {
     bool success = true;
     

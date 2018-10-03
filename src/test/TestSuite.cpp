@@ -16,6 +16,7 @@
 #include "test/I386ASM/ParserTest.hpp"
 #include "test/I386ASM/Instruction/MoveTest.hpp"
 #include "test/I386ASM/Instruction/AddTest.hpp"
+#include "test/I386ASM/Instruction/DivTest.hpp"
 #include "test/I386ASM/Instruction/JumpTest.hpp"
 #include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
 
@@ -41,6 +42,7 @@ void TestSuite::runAll() {
     run<NoOperandInstructionTest>();
     run<MoveTest>();
     run<AddTest>();
+    run<DivTest>();
     run<JumpTest>();
     run<ParserTest>();
 //*/
