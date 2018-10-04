@@ -14,7 +14,7 @@ class Identifier: public ASMOperand {
         _id.destroy();
     }
     
-    virtual String &identifier() {
+    virtual String &id() {
         return _id;
     }
 
@@ -24,7 +24,7 @@ class Identifier: public ASMOperand {
 
     virtual Number * validateAndResolveDefinition(ASMInstructionList & list) {
         if (list.hasDefinition(_id)) {
-            return &list.cloneNumber(_id);
+            return &list.getNumberForDefinition(_id);
         } else if (!list.hasLabel(_id)) {
             list.err << "Unknown identifier: " << *this << '\n';
         }
@@ -36,14 +36,14 @@ class Identifier: public ASMOperand {
     }
     
     // TODO #6: implement RTTI correctly
-    virtual OperandType type() { return id; }
+    virtual OperandType type() { return identifier; }
     virtual int hash() override {
         return _id.hash();
     }
     virtual bool equals(Object &o) override {
         if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
-            if (Identifier *i = op->as<Identifier>(id)) {
-                return _id.equals(i->_id);
+            if (Identifier *id = op->as<Identifier>(identifier)) {
+                return _id.equals(id->_id);
             }
         }
         return false;

@@ -5,6 +5,16 @@
 #include "sys/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Identifier.hpp"
+#include "I386ASM/Operand/Indirect.hpp"
+#include "I386ASM/Operand/Register.hpp"
+#include "I386ASM/Operand/Number.hpp"
+
+#define useIndirectSizes(i) { \
+    modrmSize = (i)->getModRMSize();\
+    sibSize = (i)->getSibSize();\
+    dispSize = (i)->getDispSize();\
+}
 
 class ASMInstruction: virtual public Object {
     protected:
@@ -26,6 +36,11 @@ class ASMInstruction: virtual public Object {
     virtual size_t compileOperands() = 0;
     virtual void writeOperandsToStream(OStream &stream) = 0;
     virtual void writeNumberToStream(OStream &stream, int val, int size);
+    virtual void writeOffsetToStream(OStream &stream, ASMOperand *o);
+    virtual void writeImmediateToStream(OStream &stream, ASMOperand *o);
+    virtual void writeIndirectToStream(OStream &stream, Indirect *i, int reg);
+    virtual BitWidth getBitWidth(int value);
+    virtual BitWidth approximateOffsetWidth(Identifier *id);
     
     public:
     ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)

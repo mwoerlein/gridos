@@ -1,9 +1,5 @@
 #include "I386ASM/ASMInstruction.hpp"
 
-#include "I386ASM/Operand/Identifier.hpp"
-#include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Number.hpp"
-
 // public
 OStream & operator << (OStream & out, ASMInstruction &instruction) {
     instruction.logToStream(out);
@@ -91,4 +87,50 @@ void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
         case 2: stream << (char)val << (char)(val>>8); break;
         case 4: stream << (char)val << (char)(val>>8) << (char)(val>>16) << (char)(val>>24); break;
     }
+}
+
+void ASMInstruction::writeOffsetToStream(OStream &stream, ASMOperand *o) {
+    if (Identifier *id = o->as<Identifier>(identifier)) {
+        writeNumberToStream(stream, list->getLabel(*id) - (pos + size), immSize);
+    } else if (Number *num = o->as<Number>(number)) {
+        writeNumberToStream(stream, num->value() - (pos + size), immSize);
+    } else {
+        list->err<<"invalid offset operand \""<<*o<<"\"\n";
+    }
+}
+
+void ASMInstruction::writeImmediateToStream(OStream &stream, ASMOperand *o) {
+    if (Identifier *id = o->as<Identifier>(identifier)) {
+        writeNumberToStream(stream, list->getLabel(*id), immSize);
+    } else if (Number *num = o->as<Number>(number)) {
+        writeNumberToStream(stream, num->value(), immSize);
+    } else {
+        list->err<<"invalid immediate operand \""<<*o<<"\"\n";
+    }
+}
+
+void ASMInstruction::writeIndirectToStream(OStream &stream, Indirect * i, int reg) {
+    if (modrmSize) {
+        stream << i->getModRM(reg);
+    }
+    if (sibSize) {
+        stream << i->getSib();
+    }
+    if (dispSize) {
+        writeNumberToStream(stream, i->getDispValue(*list), dispSize);
+    }
+}
+
+BitWidth ASMInstruction::getBitWidth(int value) {
+    if (-128 <= value && value <= 127) {
+        return bit_8;
+    }
+    if (-32768 <= value && value <= 32767) {
+        return bit_16;
+    }
+    return bit_32;
+}
+
+BitWidth ASMInstruction::approximateOffsetWidth(Identifier *id) {
+    return getBitWidth(pos - list->getLabel(*id));
 }

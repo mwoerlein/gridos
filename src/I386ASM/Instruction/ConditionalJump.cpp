@@ -1,10 +1,5 @@
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 
-#include "I386ASM/Operand/Identifier.hpp"
-#include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Number.hpp"
-#include "I386ASM/Operand/Register.hpp"
-
 // protected
 size_t ConditionalJump::approximateSizeInBytes() {
     return 6; // all over maximum
@@ -26,18 +21,15 @@ void ConditionalJump::checkOperands() {
 }
 
 void ConditionalJump::validateOperands() {
-    Identifier *id1 = o1->as<Identifier>(id);
+    Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     
     if (condition == cond_reg_cx || condition == cond_reg_ecx) {
         if (n1) {
             list->err<<"Only label based addressing allowed in: " << *this << '\n';
         }
-        if (id1) {
-            int offset = pos - list->getLabel(id1->identifier());
-            if (offset < -128 || 127 < offset) {
-                list->err<<"Only byte offset allowed in: " << *this << '\n';
-            }
+        if (id1 && (approximateOffsetWidth(id1) != bit_8)) {
+            list->err<<"Only byte offset allowed in: " << *this << '\n';
         }
         return;
     }
@@ -50,35 +42,33 @@ void ConditionalJump::validateOperands() {
 }
 
 size_t ConditionalJump::compileOperands() {
-    Identifier *id1 = o1->as<Identifier>(id);
+    Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1) {
         size_t size = 1;
-        int offset = pos - list->getLabel(id1->identifier());
-        if (-128 <= offset && offset <= 127) {
-            if (condition == cond_reg_cx) {
-                pre4 = 0x67;
+        BitWidth offsetWidth = approximateOffsetWidth(id1); 
+        switch (offsetWidth) {
+            case bit_8:
+                if (condition == cond_reg_cx) {
+                    pre4 = 0x67;
+                    size++;
+                    op1 = 0xE3;
+                } else if (condition == cond_reg_ecx) {
+                    op1 = 0xE3;
+                } else {
+                    op1 = 0x70 + instruction_condition_encoding[condition];
+                } 
+                break;
+            case bit_16:
+                pre3 = 0x66;
                 size++;
-                op1 = 0xE3;
-            } else if (condition == cond_reg_ecx) {
-                op1 = 0xE3;
-            } else {
-                op1 = 0x70 + instruction_condition_encoding[condition];
-            } 
-            immSize = (int) bit_8;
-        } else if (-32768 <= offset && offset <= 32767) {
-            pre3 = 0x66;
-            size++;
-            op1 = 0x0F;
-            size++;
-            op2 = 0x80 + instruction_condition_encoding[condition];
-            immSize = (int) bit_16;
-        } else {
-            op1 = 0x0F;
-            size++;
-            op2 = 0x80 + instruction_condition_encoding[condition];
-            immSize = (int) bit_32;
+                // fallthrough
+            default:
+                op1 = 0x0F;
+                size++;
+                op2 = 0x80 + instruction_condition_encoding[condition];
         }
+        immSize = (int) offsetWidth;
         return size + immSize;
     }
     if (n1) {
@@ -93,12 +83,8 @@ size_t ConditionalJump::compileOperands() {
 }
 
 void ConditionalJump::writeOperandsToStream(OStream & stream) {
-    Identifier *id1 = o1->as<Identifier>(id);
-    Number *n1 = o1->as<Number>(number);
-    if (n1 || id1) {
-        // Reached only for labels. Definitions will be rewritten to numbers before.
-        int val = n1 ? n1->value() : list->getLabel(id1->identifier());
-        writeNumberToStream(stream, val - (pos + size), immSize);
+    if (immSize) {
+        writeOffsetToStream(stream, o1);
     }
 }
 

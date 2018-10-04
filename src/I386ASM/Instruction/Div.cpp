@@ -1,8 +1,5 @@
 #include "I386ASM/Instruction/Div.hpp"
 
-#include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Register.hpp"
-
 // protected
 size_t Div::approximateSizeInBytes() {
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -85,9 +82,7 @@ size_t Div::compileOperands() {
     }
     if (i1) {
         op1 = (operandSize == bit_8) ? 0xF6 : 0xF7;
-        modrmSize = i1->getModMRSize();
-        sibSize = i1->getSibSize();
-        dispSize = i1->getDispSize();
+        useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize;
     }
     
@@ -101,14 +96,6 @@ void Div::writeOperandsToStream(OStream & stream) {
         stream << ModRM(3, 6, r1->getOpCodeRegister());
     }
     if (i1) {
-        if (modrmSize) {
-            stream << i1->getModMR(6);
-        }
-        if (sibSize) {
-            stream << i1->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
-        }
+        writeIndirectToStream(stream, i1, 6);
     }
 }

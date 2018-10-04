@@ -91,13 +91,16 @@ size_t ASMInstructionList::getLabel(String &label) {
     return ids.get(label).pos;
 }
 
-Number & ASMInstructionList::getDefinition(String &label) {
-    return *ids.get(label).value;
-}
-Number & ASMInstructionList::cloneNumber(String &label) {
+Number & ASMInstructionList::getNumberForDefinition(String &label) {
     _Elem & e = ids.get(label);
     return env().create<Number,int>(e.value ? e.value->value(): e.pos);
 }
+
+bool ASMInstructionList::hasLabel(Identifier &id) { return hasLabel(id.id()); }
+bool ASMInstructionList::hasDefinition(Identifier &id) { return hasDefinition(id.id()); }
+size_t ASMInstructionList::getLabel(Identifier &id) { return getLabel(id.id()); }
+Number & ASMInstructionList::getNumberForDefinition(Identifier &id) { return getNumberForDefinition(id.id()); }
+
 
 size_t ASMInstructionList::compile() {
     if (pos != -1) {

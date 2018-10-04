@@ -1,13 +1,8 @@
 #include "I386ASM/Instruction/Move.hpp"
 
-#include "I386ASM/Operand/Identifier.hpp"
-#include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Number.hpp"
-#include "I386ASM/Operand/Register.hpp"
-
 // protected
 size_t Move::approximateSizeInBytes() {
-    Identifier *id1 = o1->as<Identifier>(id);
+    Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
@@ -75,7 +70,7 @@ void Move::checkOperands() {
 }
 
 void Move::validateOperands() {
-    Identifier *id1 = o1->as<Identifier>(id);
+    Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -132,7 +127,7 @@ void Move::validateOperands() {
 
 size_t Move::compileOperands() {
     size_t size = 0;
-    Identifier *id1 = o1->as<Identifier>(id);
+    Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -162,9 +157,7 @@ size_t Move::compileOperands() {
     if ((n1 || id1) && i2) {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xC6 : 0xC7;
-        modrmSize = i2->getModMRSize();
-        sibSize = i2->getSibSize();
-        dispSize = i2->getDispSize();
+        useIndirectSizes(i2);
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (gr1 && gr2) {
@@ -179,9 +172,7 @@ size_t Move::compileOperands() {
             return size + 1 + modrmSize + sibSize + dispSize + immSize;
         }
         op1 = (operandSize == bit_8) ? 0x88 : 0x89;
-        modrmSize = i2->getModMRSize();
-        sibSize = i2->getSibSize();
-        dispSize = i2->getDispSize();
+        useIndirectSizes(i2);
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (i1 && gr2) {
@@ -191,9 +182,7 @@ size_t Move::compileOperands() {
             return size + 1 + modrmSize + sibSize + dispSize + immSize;
         }
         op1 = (operandSize == bit_8) ? 0x8A : 0x8B;
-        modrmSize = i1->getModMRSize();
-        sibSize = i1->getSibSize();
-        dispSize = i1->getDispSize();
+        useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (gr1 && sr2) {
@@ -204,9 +193,7 @@ size_t Move::compileOperands() {
     if (i1 && sr2) {
         pre3 = 0; size--; // segment register implicit use 16 bit 
         op1 = 0x8E;
-        modrmSize = i1->getModMRSize();
-        sibSize = i1->getSibSize();
-        dispSize = i1->getDispSize();
+        useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (sr1 && gr2) {
@@ -217,96 +204,37 @@ size_t Move::compileOperands() {
     if (sr1 && i2) {
         pre3 = 0; size--; // segment register implicit use 16 bit 
         op1 = 0x8C;
-        modrmSize = i2->getModMRSize();
-        sibSize = i2->getSibSize();
-        dispSize = i2->getDispSize();
+        useIndirectSizes(i2);
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     return 0;
 }
 
 void Move::writeOperandsToStream(OStream & stream) {
-    Identifier *id1 = o1->as<Identifier>(id);
-    Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
-    Register *gr1 = (r1 && (r1->kind() == reg_general)) ? r1 : 0;
-    Register *gr2 = (r2 && (r2->kind() == reg_general)) ? r2 : 0;
-    Register *sr1 = (r1 && (r1->kind() == reg_segment)) ? r1 : 0;
-    Register *sr2 = (r2 && (r2->kind() == reg_segment)) ? r2 : 0;
     
-    if (n1 || id1) {
-        // Reached only for labels. Definitions will be rewritten to numbers before.
-        int val = n1 ? n1->value() : list->getLabel(id1->identifier());
-        if (gr2) {
-            writeNumberToStream(stream, val, immSize);
+    if (immSize) {
+        if (i2) {
+            writeIndirectToStream(stream, i2, 0);
+        }
+        writeImmediateToStream(stream, o1);
+    }
+    if (r1) {
+        if (r2) {
+            if (r2->kind() == reg_segment) {
+                stream << ModRM(3, r2->getOpCodeRegister(), r1->getOpCodeRegister());
+            } else {
+                stream << ModRM(3, r1->getOpCodeRegister(), r2->getOpCodeRegister());
+            }
         }
         if (i2) {
-            if (modrmSize) {
-                stream << i2->getModMR(0);
-            }
-            if (sibSize) {
-                stream << i2->getSib();
-            }
-            if (dispSize) {
-                writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
-            }
-            writeNumberToStream(stream, val, immSize);
+            writeIndirectToStream(stream, i2, r1->getOpCodeRegister());
         }
     }
-    if (gr1 && gr2) {
-        stream << ModRM(3, gr1->getOpCodeRegister(), gr2->getOpCodeRegister());
-    }
-    if (gr1 && i2) {
-        if (modrmSize) {
-            stream << i2->getModMR(gr1->getOpCodeRegister());
-        }
-        if (sibSize) {
-            stream << i2->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
-        }
-    }
-    if (i1 && gr2) {
-        if (modrmSize) {
-            stream << i1->getModMR(gr2->getOpCodeRegister());
-        }
-        if (sibSize) {
-            stream << i1->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
-        }
-    }
-    if (gr1 && sr2) {
-        stream << ModRM(3, sr2->getOpCodeRegister(), gr1->getOpCodeRegister());
-    }
-    if (i1 && sr2) {
-        if (modrmSize) {
-            stream << i1->getModMR(sr2->getOpCodeRegister());
-        }
-        if (sibSize) {
-            stream << i1->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i1->getDispValue(*list), dispSize);
-        }
-    }
-    if (sr1 && gr2) {
-        stream << ModRM(3, sr1->getOpCodeRegister(), gr2->getOpCodeRegister());
-    }
-    if (sr1 && i2) {
-        if (modrmSize) {
-            stream << i2->getModMR(sr1->getOpCodeRegister());
-        }
-        if (sibSize) {
-            stream << i2->getSib();
-        }
-        if (dispSize) {
-            writeNumberToStream(stream, i2->getDispValue(*list), dispSize);
-        }
+    if (i1 && r2) {
+        writeIndirectToStream(stream, i1, r2->getOpCodeRegister());
     }
 }

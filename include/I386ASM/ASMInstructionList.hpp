@@ -6,6 +6,7 @@
 #include "I386ASM/ParseErrorStream.hpp"
 
 class Number;
+class Identifier;
 class ASMInstruction;
 class ASMInstructionList: virtual public Object {
     private:
@@ -29,8 +30,12 @@ class ASMInstructionList: virtual public Object {
     virtual bool hasLabel(String &label);
     virtual bool hasDefinition(String &label);
     virtual size_t getLabel(String &label);
-    virtual Number & getDefinition(String &label);
-    virtual Number & cloneNumber(String &label);
+    virtual Number & getNumberForDefinition(String &label);
+
+    virtual bool hasLabel(Identifier &id);
+    virtual bool hasDefinition(Identifier &id);
+    virtual size_t getLabel(Identifier &id);
+    virtual Number & getNumberForDefinition(Identifier &id);
     
     virtual size_t compile();
     virtual void finalize(size_t startAddress);
@@ -42,6 +47,7 @@ class ASMInstructionList: virtual public Object {
 
 #include "I386ASM/ASMOperand.hpp"
 #include "I386ASM/Operand/Number.hpp"
+#include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK

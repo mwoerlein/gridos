@@ -65,7 +65,7 @@ class Indirect: public ASMOperand {
         return 0;
     }
     
-    virtual int getModMRSize() {
+    virtual int getModRMSize() {
         return 1;
     }
     
@@ -93,7 +93,7 @@ class Indirect: public ASMOperand {
         return 0;
     }
 
-    virtual char getModMR(int reg) {
+    virtual char getModRM(int reg) {
         switch (getDispSize()) {
             case 0:
                 if (_index) {
@@ -136,7 +136,7 @@ class Indirect: public ASMOperand {
     
     virtual int getDispValue(ASMInstructionList & list) {
         if (_displacementId) {
-            return list.getLabel(_displacementId->identifier());
+            return list.getLabel(_displacementId->id());
         }
         if (_displacement) {
             return _displacement->value();

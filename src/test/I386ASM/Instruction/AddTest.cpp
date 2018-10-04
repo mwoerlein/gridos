@@ -29,6 +29,7 @@ bool AddTest::testMI() {
         << "add start,%eax\n"
         << "add 0x12,%ah\n"
         << "addb 0x12,(%eax)\n"
+        << "add 0x12, %edi\n"
         << "add 0x12345678, %edi\n"
         << "addb 0xFF, 0x2(%esp)\n"
         << "addw 0x4, (%edx)\n"
@@ -44,6 +45,7 @@ bool AddTest::testMI() {
         << (char) 0x05 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00
         << (char) 0x80 << (char) 0xC4 << (char) 0x12
         << (char) 0x80 << (char) 0x00 << (char) 0x12
+        << (char) 0x83 << (char) 0xC7 << (char) 0x12
         << (char) 0x81 << (char) 0xC7 << (char) 0x78 << (char) 0x56 << (char) 0x34 << (char) 0x12
         << (char) 0x80 << (char) 0x44 << (char) 0x24 << (char) 0x02 << (char) 0xFF
         << (char) 0x66 << (char) 0x83 << (char) 0x02 << (char) 0x04
@@ -59,11 +61,11 @@ bool AddTest::testMI() {
         << "addl start, %eax\n"
         << "addb 0x12, %ah\n"
         << "addb 0x12, (%eax)\n"
+        << "addl 0x12, %edi\n"
         << "addl 0x12345678, %edi\n"
         << "addb 0xff, 0x2(%esp)\n"
         << "addw 0x4, (%edx)\n"
         << "addw 0x400, 0x6(%eax,%edi,4)\n"
-//        << "addl 0xff, (%esp)\n"
         << "addl 0xffffffff, (%esp)\n"
         << "addl 0xc0ffee, (%esp,%ecx,8)\n"
         << "addl 0xdeadbeef, (0x20)\n"
