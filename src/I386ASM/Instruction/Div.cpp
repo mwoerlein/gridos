@@ -93,7 +93,7 @@ void Div::writeOperandsToStream(OStream & stream) {
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
     if (r1) {
-        stream << ModRM(3, 6, r1->getOpCodeRegister());
+        writeModRMToStream(stream, 6, r1);
     }
     if (i1) {
         writeIndirectToStream(stream, i1, 6);

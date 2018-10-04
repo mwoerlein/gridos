@@ -155,8 +155,8 @@ void Add::writeOperandsToStream(OStream & stream) {
     Indirect *i2 = o2->as<Indirect>(indirect);
     
     if (immSize) {
-        if (r2 && modrmSize) {
-            stream << ModRM(3, 0, r2->getOpCodeRegister());
+        if (r2) {
+            writeModRMToStream(stream, 0, r2);
         }
         if (i2) {
             writeIndirectToStream(stream, i2, 0);
@@ -164,12 +164,12 @@ void Add::writeOperandsToStream(OStream & stream) {
         writeImmediateToStream(stream, o1);
     }
     if (r1 && r2) {
-        stream << ModRM(3, r1->getOpCodeRegister(), r2->getOpCodeRegister());
+        writeModRMToStream(stream, r1, r2);
     }
     if (r1 && i2) {
-        writeIndirectToStream(stream, i2, r1->getOpCodeRegister());
+        writeIndirectToStream(stream, i2, r1);
     }
     if (i1 && r2) {
-        writeIndirectToStream(stream, i1, r2->getOpCodeRegister());
+        writeIndirectToStream(stream, i1, r2);
     }
 }

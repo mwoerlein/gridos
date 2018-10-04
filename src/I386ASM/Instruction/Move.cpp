@@ -152,7 +152,7 @@ size_t Move::compileOperands() {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xB0 : 0xB8;
         op1 += gr2->getOpCodeRegister();
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + immSize;
     }
     if ((n1 || id1) && i2) {
         immSize = (int) operandSize;
@@ -163,49 +163,49 @@ size_t Move::compileOperands() {
     if (gr1 && gr2) {
         op1 = (operandSize == bit_8) ? 0x88 : 0x89;
         modrmSize = 1;
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize;
     }
     if (gr1 && i2) {
         if (i2->isOffset() && (gr1->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA2 : 0xA3;
             dispSize = (int) addrSize;
-            return size + 1 + modrmSize + sibSize + dispSize + immSize;
+            return size + 1 + dispSize;
         }
         op1 = (operandSize == bit_8) ? 0x88 : 0x89;
         useIndirectSizes(i2);
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (i1 && gr2) {
         if (i1->isOffset() && (gr2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA0 : 0xA1;
             dispSize = (int) addrSize;
-            return size + 1 + modrmSize + sibSize + dispSize + immSize;
+            return size + 1 + dispSize;
         }
         op1 = (operandSize == bit_8) ? 0x8A : 0x8B;
         useIndirectSizes(i1);
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (gr1 && sr2) {
         op1 = 0x8E;
         modrmSize = 1;
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize;
     }
     if (i1 && sr2) {
         pre3 = 0; size--; // segment register implicit use 16 bit 
         op1 = 0x8E;
         useIndirectSizes(i1);
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (sr1 && gr2) {
         op1 = 0x8C;
         modrmSize = 1;
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize;
     }
     if (sr1 && i2) {
         pre3 = 0; size--; // segment register implicit use 16 bit 
         op1 = 0x8C;
         useIndirectSizes(i2);
-        return size + 1 + modrmSize + sibSize + dispSize + immSize;
+        return size + 1 + modrmSize + sibSize + dispSize;
     }
     return 0;
 }
@@ -217,6 +217,9 @@ void Move::writeOperandsToStream(OStream & stream) {
     Indirect *i2 = o2->as<Indirect>(indirect);
     
     if (immSize) {
+        if (r2) {
+            writeModRMToStream(stream, 0, r2);
+        }
         if (i2) {
             writeIndirectToStream(stream, i2, 0);
         }
@@ -225,16 +228,16 @@ void Move::writeOperandsToStream(OStream & stream) {
     if (r1) {
         if (r2) {
             if (r2->kind() == reg_segment) {
-                stream << ModRM(3, r2->getOpCodeRegister(), r1->getOpCodeRegister());
+                writeModRMToStream(stream, r2, r1);
             } else {
-                stream << ModRM(3, r1->getOpCodeRegister(), r2->getOpCodeRegister());
+                writeModRMToStream(stream, r1, r2);
             }
         }
         if (i2) {
-            writeIndirectToStream(stream, i2, r1->getOpCodeRegister());
+            writeIndirectToStream(stream, i2, r1);
         }
     }
     if (i1 && r2) {
-        writeIndirectToStream(stream, i1, r2->getOpCodeRegister());
+        writeIndirectToStream(stream, i1, r2);
     }
 }

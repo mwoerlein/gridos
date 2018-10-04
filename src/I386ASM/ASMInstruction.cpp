@@ -109,6 +109,12 @@ void ASMInstruction::writeImmediateToStream(OStream &stream, ASMOperand *o) {
     }
 }
 
+void ASMInstruction::writeModRMToStream(OStream &stream, int regO, int regM) {
+    if (modrmSize) {
+        stream << ModRM(3, regO, regM);
+    }
+}
+
 void ASMInstruction::writeIndirectToStream(OStream &stream, Indirect * i, int reg) {
     if (modrmSize) {
         stream << i->getModRM(reg);

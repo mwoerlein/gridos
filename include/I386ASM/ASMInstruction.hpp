@@ -38,9 +38,20 @@ class ASMInstruction: virtual public Object {
     virtual void writeNumberToStream(OStream &stream, int val, int size);
     virtual void writeOffsetToStream(OStream &stream, ASMOperand *o);
     virtual void writeImmediateToStream(OStream &stream, ASMOperand *o);
+    virtual void writeModRMToStream(OStream &stream, int regO, int regM);
     virtual void writeIndirectToStream(OStream &stream, Indirect *i, int reg);
     virtual BitWidth getBitWidth(int value);
     virtual BitWidth approximateOffsetWidth(Identifier *id);
+
+    inline void writeModRMToStream(OStream &stream, Register *regO, Register *regM) {
+        writeModRMToStream(stream, regO->getOpCodeRegister(), regM->getOpCodeRegister());
+    }
+    inline void writeModRMToStream(OStream &stream, int regO, Register *regM) {
+        writeModRMToStream(stream, regO, regM->getOpCodeRegister());
+    }
+    inline void writeIndirectToStream(OStream &stream, Indirect *i, Register *reg) {
+        writeIndirectToStream(stream, i, reg->getOpCodeRegister());
+    }
     
     public:
     ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)

@@ -105,7 +105,7 @@ void Jump::writeOperandsToStream(OStream & stream) {
         writeOffsetToStream(stream, o1);
     }
     if (r1) {
-        stream << ModRM(3, 4, r1->getOpCodeRegister());
+        writeModRMToStream(stream, 4, r1);
     }
     if (i1) {
         writeIndirectToStream(stream, i1, 4);
