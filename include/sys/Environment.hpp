@@ -42,11 +42,6 @@ class Environment: virtual public Object {
         ma->free(*(obj._memory_info)); // free memory
     }
     
-    template <class Obj> Obj & create() {
-        MemoryInfo &mi = ma->allocate(sizeof(Obj), this);
-        return *(new (mi.buf) Obj(*this, mi));
-    }
-    
     template <class Obj, typename... Args> Obj & create(Args... args) {
         MemoryInfo &mi = ma->allocate(sizeof(Obj), this);
         return *(new (mi.buf) Obj(*this, mi, args...));

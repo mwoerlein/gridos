@@ -23,5 +23,10 @@ bool NoOperandInstructionTest::runAll() {
         success &= test("STi", bin, "sti\n");
     }
     
+    {
+        const char bin[] = {(char)0x90, 0};
+        success &= test("nOP", bin, "nop\n");
+    }
+    
     return success;
 }

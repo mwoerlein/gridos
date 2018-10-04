@@ -91,6 +91,10 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         end         = "\x00";
         eol         = "\r"? "\n" | "\r";
         wsp         = [ \t]*;
+        comma       = ",";
+        semicolon   = ";";
+        colon       = ":";
+        assign      = ":=";
 
         bin         = "0"[bB][01]+;
         oct         = "0"[0-7]+;
@@ -98,14 +102,10 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         hex         = "0"[xX][0-9a-fA-F]+;
         number      = "-"? (bin | oct | dec | hex);
         
+        bitwidth    = [bBwWlL];
         condition   = [nN]?(([aA]|[bB]|[gG|[lL])[eE]?|[cC]|[eE]|[oO]|[pP]|[sS]|[zZ]) | [pP]([oO]|[eE]);
         register    = "%" [a-zA-Z][a-zA-Z0-9]+;
-        
         id          = [a-zA-Z_][a-zA-Z0-9_]+;
-        comma       = ",";
-        semicolon   = ";";
-        colon       = ":";
-        assign      = ":=";
 */
 
 String & Parser::parseStringValue(char * start, char * end) {
@@ -446,24 +446,24 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         re2c:define:YYCTXMARKER = ctx;
         re2c:define:YYLIMIT = end;
 
-        [mM][oO][vV] @o1 [bBwWlL]? @o2 {
+        [mM][oO][vV] @o1 bitwidth? @o2 {
             if (!op1 || !op2 || op3) return 0;
             return &env().create<Move, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
-        [aA][dD][dD] @o1 [bBwWlL]? @o2 {
+        [aA][dD][dD] @o1 bitwidth? @o2 {
             if (!op1 || !op2 || op3) return 0;
             return &env().create<Add, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
-        [sS][uU][bB] @o1 [bBwWlL]? @o2 {
+        [sS][uU][bB] @o1 bitwidth? @o2 {
             String s(env(), *notAnInfo, start, operandsEnd);
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
-        [dD][iI][vV] @o1 [bBwWlL]? @o2 {
+        [dD][iI][vV] @o1 bitwidth? @o2 {
             if (!op1 || op2 || op3) return 0;
             return &env().create<Div, ASMOperand*, BitWidth> (op1, parseOperandSize(o1, o2));
         }
-        [iI]?[mM][uU][lL] @o1 [bBwWlL]? @o2 {
+        [iI]?[mM][uU][lL] @o1 bitwidth? @o2 {
             String s(env(), *notAnInfo, start, operandsEnd);
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
