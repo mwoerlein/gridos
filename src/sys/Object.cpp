@@ -20,7 +20,3 @@ OStream & Object::operator >>(OStream & stream) {
     // TODO #6: prepend classname
     return stream << (void*) _memory_info->buf;
 }
-
-OStream & operator <<(OStream & stream, Object &o) {
-    return o >> stream;
-}

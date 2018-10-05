@@ -159,11 +159,7 @@ class DebugOStreamWrapper: public OStream {
     virtual ~DebugOStreamWrapper() { }
     
     virtual OStream &operator <<(char c) override {
-        Digit d1(env());
-        Digit d2(env());
-        d1 = (int) c>>4 & 0xf;
-        d2 = (int) c & 0xf;
-        out << " 0x" << d1 << d2;
+        (out<<' ').printuhex((unsigned char)c,2);
         return *this;
     }
 };
@@ -174,7 +170,7 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
             stream << *cur->inst;
             if (debug) {
                 DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
-                stream << "\t// " << cur->inst->pos << ":\t(" << cur->inst->size << ")";
+                stream << "\t// " << (void*) cur->inst->pos << ": (" << cur->inst->size << ")";
                 cur->inst->writeToStream(wrap);
             }
         } else if (cur->identifier) {

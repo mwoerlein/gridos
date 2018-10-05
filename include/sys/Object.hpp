@@ -27,7 +27,6 @@ class Object {
     // TODO #6: implement RTTI correctly
     virtual RTTI rtti() { return object; };
     virtual OStream & operator >>(OStream & stream);
-    friend OStream & operator <<(OStream & stream, Object &o);
 };
 
 #include "sys/Environment.hpp"

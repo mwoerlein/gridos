@@ -30,16 +30,8 @@ OStream & OStream::operator <<(const char * c) {
     return *this<<(char *) c;
 }
 
-OStream & OStream::operator <<(Char &c) {
-    return c >> *this;
-}
-
-OStream & OStream::operator <<(Integer &i) {
-    return i >> *this;
-}
-
-OStream & OStream::operator <<(String &s) {
-    return s >> *this;
+OStream & OStream::operator <<(Object &o) {
+    return o >> *this;
 }
 
 OStream & OStream::printint(int d, int base, int pad) {
