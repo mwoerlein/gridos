@@ -3,7 +3,6 @@
 
 #include "sys/collection/MutableMap.hpp"
 
-
 template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
     private:
     class _Element: public Object {
@@ -54,10 +53,38 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
         }
     };
 
-    MemoryInfo & bucketsInfo;
+    MemoryInfo * bucketsInfo;
     _Element *first, *last, **buckets;
     int _size;
     int bucketsCount;
+    int initialBucketsCount;
+    
+    void resize(int count) {
+        bucketsCount = count;
+        Object::env().getAllocator().free(*bucketsInfo);
+        bucketsInfo = &Object::env().getAllocator().allocate(bucketsCount * sizeof(_Element*));
+        buckets = (_Element**) bucketsInfo->buf;
+    }
+    
+    void rehash() {
+        for (int i = 0; i < bucketsCount; i++) {
+            buckets[i] = 0;
+        }
+        for (_Element * cur = first; cur; cur = cur->orderedNext) {
+            int bucketNumber = getBucketNumber(*cur->key);
+            cur->bucketNext = buckets[bucketNumber];
+            buckets[bucketNumber] = cur;
+        }
+    }
+    
+    void destroyAllElements() {
+        _Element * cur = first;
+        while (cur) {
+            _Element * kill = cur;
+            cur = cur->orderedNext;
+            kill->destroy();
+        }
+    }
     
     protected:
     inline int getBucketNumber(Key &k) {
@@ -76,31 +103,27 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
 
     public:
     HashMap(Environment &env, MemoryInfo &mi = *notAnInfo, int bucketsCount = 13):
-            Object(env, mi), bucketsCount(bucketsCount),
-            bucketsInfo(env.getAllocator().allocate(bucketsCount * sizeof(_Element*))),
-            buckets((_Element**) bucketsInfo.buf),
+            Object(env, mi), bucketsCount(bucketsCount), initialBucketsCount(bucketsCount),
+            bucketsInfo(&env.getAllocator().allocate(bucketsCount * sizeof(_Element*))),
+            buckets((_Element**) bucketsInfo->buf),
             first(0), last(0), _size(0) {
-        for (int i = 0; i < bucketsCount; i++) {
-            buckets[i] = 0;
-        }
+        rehash();
     }
     virtual ~HashMap() {
-        clear();
-        Object::env().getAllocator().free(bucketsInfo);
+        destroyAllElements();
+        Object::env().getAllocator().free(*bucketsInfo);
     }
     
     virtual void clear() override {
-        _Element * cur = first;
-        while (cur) {
-            _Element * kill = cur;
-            cur = cur->orderedNext;
-            kill->destroy();
-        }
+        destroyAllElements();
         last = first = 0;
-        for (int i = 0; i < bucketsCount; i++) {
-            buckets[i] = 0;
-        }
         _size = 0;
+        // shrink, if required
+        if (bucketsCount != initialBucketsCount) {
+            resize(initialBucketsCount);
+        }
+        // clear buckets
+        rehash();
     }
     
     virtual int size() override {
@@ -108,7 +131,11 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
     }
     
     virtual Value & set(Key & k, Value & v) override {
-        // TODO: resize hashmap, if required
+        // grow, if required
+        if ((2 * _size) > bucketsCount) {
+            resize(2*bucketsCount + 1);
+            rehash();
+        }
         int bucketNumber = getBucketNumber(k);
         if (_Element *e = findInBucket(buckets[bucketNumber], k)) {
             // replace value
@@ -140,17 +167,15 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
             if (e->key->equals(k)) {
                 // found as first of bucket list
                 buckets[bucketNumber] = e->bucketNext;
-            } else {
-                while (e->bucketNext && !e->bucketNext->key->equals(k)) {
-                    e = e->bucketNext;
-                }
-                if (e->bucketNext) {
+            } else do {
+                _Element *prev = e;
+                e = e->bucketNext;
+                if (e->key->equals(k)) {
                     // found in bucket list
-                    _Element *prev = e;
-                    e = e->bucketNext;
                     prev->bucketNext = e->bucketNext;
+                    break;
                 }
-            }
+            } while (e);
         }
         
         // remove from ordered list
@@ -169,6 +194,13 @@ template <class Key, class Value> class HashMap: public MutableMap<Key,Value> {
             e->orderedPrev = e->orderedNext = 0; 
             e->destroy();
             _size--;
+            
+            // shrink, if required
+            if (((4 * _size) < bucketsCount) && bucketsCount > initialBucketsCount) {
+                resize((bucketsCount-1) / 2);
+                rehash();
+            }
+        
             return *ret;
         }
         return *(Value*) 0;
