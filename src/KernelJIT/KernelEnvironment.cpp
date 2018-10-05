@@ -1,21 +1,18 @@
 #include "KernelJIT/KernelEnvironment.hpp"
 
-#include "sys/collection/HashMap.hpp"
-
 KernelEnvironment::KernelEnvironment(MemoryAllocator &ma, OStream &out, OStream &err)
-        :Environment(*this, ma.memInfo(this), ma, out, err), Object(*this, ma.memInfo(this)), _modules(0) {}
+        :Environment(*this, ma.memInfo(this), ma, out, err),
+         HashMap(*this, ma.memInfo(this), 5),
+         Object(*this, ma.memInfo(this)) {
+ }
         
 KernelEnvironment::~KernelEnvironment() {
     destroyModules();
-    _modules->destroy();
 }
     
 void KernelEnvironment::addModule(const char* commandline, MemoryInfo &moduleInfo) {
-    if (!_modules) {
-        _modules = &create<HashMap<String, ModuleInfo>>();
-    }
     // TODO: parse command_line and moduleInfo and use correct id
-    _modules->set(create<String, const char*>(commandline), create<ModuleInfo, MemoryInfo &>(moduleInfo));
+    set(create<String, const char*>(commandline), create<ModuleInfo, MemoryInfo &>(moduleInfo));
 }
 
 bool KernelEnvironment::hasModule(const char* moduleId) {
@@ -33,14 +30,11 @@ ModuleInfo &KernelEnvironment::getModule(const char* moduleId) {
 }
 
 void KernelEnvironment::destroyModules() {
-    if (!_modules) return;
-    
-    Iterator<String> &mit = _modules->keys();
+    Iterator<String> &mit = keys();
     while (mit.hasNext()) {
         String & mid = mit.next();
-        _modules->unset(mid).destroy();
+        unset(mid).destroy();
         mid.destroy();
     }
     mit.destroy();
-    _modules->destroy();
 }

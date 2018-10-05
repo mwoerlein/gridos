@@ -3,13 +3,10 @@
 
 #include "sys/Environment.hpp"
 #include "sys/String.hpp"
-#include "sys/collection/MutableMap.hpp"
+#include "sys/collection/HashMap.hpp"
 #include "KernelJIT/ModuleInfo.hpp"
 
-class KernelEnvironment: public Environment {
-    private:
-    MutableMap<String, ModuleInfo> *_modules;
-    
+class KernelEnvironment: public Environment, private HashMap<String, ModuleInfo> {
     public:
     KernelEnvironment(MemoryAllocator &ma, OStream &out, OStream &err);
     virtual ~KernelEnvironment();
@@ -20,13 +17,13 @@ class KernelEnvironment: public Environment {
     virtual void destroyModules();
     
     inline bool hasModule(String & moduleId) {
-        return _modules->has(moduleId);
+        return has(moduleId);
     }
     inline ModuleInfo &getModule(String & moduleId) {
-        return _modules->get(moduleId);
+        return get(moduleId);
     }
     inline Iterator<ModuleInfo> & modules() {
-        return _modules->iterator();
+        return iterator();
     }
 };
 
