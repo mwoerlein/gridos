@@ -1,5 +1,6 @@
 #include "test/sys/StringTest.hpp"
 
+#include "sys/Bool.hpp"
 #include "sys/Integer.hpp"
 
 // public
@@ -175,6 +176,7 @@ bool StringTest::testIStream() {
 bool StringTest::testOStreamAndAppend() {
     char space[] = " ";
     void *null = (void*) 0;
+    Bool &b = env().create<Bool, bool>(false);
     Char &c = env().create<Char, char>('\n');
     String &s = env().create<String, const char*>("text");
     Integer &i = env().create<Integer>();
@@ -185,9 +187,9 @@ bool StringTest::testOStreamAndAppend() {
     
     string = "";
     IStream &stream = s.toIStream();
-    string<<i<<' '<<s<<c<<stream;
+    string<<i<<' '<<s<<c<<stream<<" "<<b;
     stream.destroy();
-    assertEquals(string, "0 text\ntext", "filled with Char, String, Integer, and IStream");
+    assertEquals(string, "0 text\ntext false", "filled with Char, String, Integer, IStream, and Bool");
     
     string = "";
     string += space;
@@ -200,6 +202,7 @@ bool StringTest::testOStreamAndAppend() {
     i.destroy();
     s.destroy();
     c.destroy();
+    b.destroy();
     string.destroy();
     success();
 }

@@ -9,8 +9,6 @@
 #include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
-#include "sys/String.hpp"
-
 Kernel &KernelJIT::kernel_compile(IStream & in) {
     int x = 0;
     char c = 255;

@@ -1,8 +1,5 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
-#include "sys/Digit.hpp"
-#include "sys/String.hpp"
-
 class ASMInstructionList::_Elem: virtual public Object {
     public:
     _Elem * next;

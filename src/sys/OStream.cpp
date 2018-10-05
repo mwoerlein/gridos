@@ -1,10 +1,5 @@
 #include "sys/OStream.hpp"
 
-#include "sys/Char.hpp"
-#include "sys/Integer.hpp"
-#include "sys/String.hpp"
-#include "sys/IStream.hpp"
-
 // public
 
 OStream & OStream::operator <<(int i) {
