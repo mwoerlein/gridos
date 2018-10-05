@@ -2,7 +2,7 @@
 #define I386ASMOPERAND_HPP_LOCK
 
 #include "sys/Object.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
 
 class ASMInstructionList;

@@ -3,8 +3,8 @@
 
 #include "sys/Comparable.hpp"
 #include "sys/Char.hpp"
-#include "sys/IStream.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/IStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class String: public OStream, public ComparableC<char *>, public ComparableC<const char *>, public Comparable<String> {
     protected:

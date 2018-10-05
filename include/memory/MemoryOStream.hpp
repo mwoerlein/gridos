@@ -1,7 +1,7 @@
 #ifndef MEMORYOSTREAM_HPP_LOCK
 #define MEMORYOSTREAM_HPP_LOCK
 
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class MemoryOStream: public OStream {
     private:

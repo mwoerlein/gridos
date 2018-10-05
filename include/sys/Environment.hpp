@@ -57,7 +57,7 @@ class Environment: virtual public Object {
 };
 
 #include "KernelJIT/ModuleInfo.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 #endif //ENVIRONMENT_HPP_LOCK
 

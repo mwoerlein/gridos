@@ -2,7 +2,7 @@
 #define I386ASMPARSER_HPP_LOCK
 
 #include "sys/Object.hpp"
-#include "sys/IStream.hpp"
+#include "sys/stream/IStream.hpp"
 
 #include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"

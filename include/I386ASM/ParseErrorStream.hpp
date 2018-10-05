@@ -1,7 +1,7 @@
 #ifndef I386ASM_PARSEERRORSTREAM_HPP_LOCK
 #define I386ASM_PARSEERRORSTREAM_HPP_LOCK
 
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class ParseErrorStream: public OStream {
     private:

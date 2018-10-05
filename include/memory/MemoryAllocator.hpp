@@ -2,7 +2,7 @@
 #define MEMORYALLOCATOR_HPP_LOCK
 
 #include "sys/Object.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class MemoryAllocator: virtual public Object {
     protected:

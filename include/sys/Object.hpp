@@ -30,7 +30,7 @@ class Object {
 };
 
 #include "sys/Environment.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 #endif //OBJECT_HPP_LOCK
 

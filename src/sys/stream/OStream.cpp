@@ -1,4 +1,4 @@
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 // public
 

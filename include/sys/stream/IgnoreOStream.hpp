@@ -1,7 +1,7 @@
 #ifndef SYS_IGNOREOSTREAM_HPP_LOCK
 #define SYS_IGNOREOSTREAM_HPP_LOCK
 
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class IgnoreOStream: public OStream {
     public:

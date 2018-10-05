@@ -4,7 +4,7 @@
 
 #include "sys/Environment.hpp"
 #include "sys/Char.hpp"
-#include "sys/OStreamFactory.hpp"
+#include "sys/stream/OStreamFactory.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 #include "test/TestSuite.hpp"
 

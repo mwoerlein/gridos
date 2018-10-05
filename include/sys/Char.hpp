@@ -1,8 +1,8 @@
 #ifndef CHAR_HPP_LOCK
 #define CHAR_HPP_LOCK
 
-#include "sys/OStream.hpp"
 #include "sys/Comparable.hpp"
+#include "sys/stream/OStream.hpp"
 
 class Char: public ComparableC<char>, public Comparable<Char> {
     protected:

@@ -3,7 +3,7 @@
 
 #include "sys/Object.hpp"
 #include "sys/Char.hpp"
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class IStream: virtual public Object {
     public:

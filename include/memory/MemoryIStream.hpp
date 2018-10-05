@@ -1,7 +1,7 @@
 #ifndef MEMORYISTREAM_HPP_LOCK
 #define MEMORYISTREAM_HPP_LOCK
 
-#include "sys/IStream.hpp"
+#include "sys/stream/IStream.hpp"
 
 class MemoryIStream: public IStream {
     private:

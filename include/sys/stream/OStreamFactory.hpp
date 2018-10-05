@@ -2,8 +2,8 @@
 #define OSTREAMFACTORY_HPP_LOCK
 
 #include "sys/Object.hpp"
-#include "sys/OStream.hpp"
-#include "sys/String.hpp"
+#include "sys/stream/OStream.hpp"
+#include "sys/stream/IgnoreOStream.hpp"
 
 /*
  * Dummy implementation!
@@ -14,7 +14,7 @@ class OStreamFactory: virtual public Object {
     OStreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): Object(env, mi) {}
     virtual ~OStreamFactory() {}
     virtual OStream & buildOStream(const char * name) {
-        return env().create<String>();
+        return env().create<IgnoreOStream>();
     }
 };
 

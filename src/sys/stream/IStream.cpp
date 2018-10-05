@@ -1,4 +1,4 @@
-#include "sys/IStream.hpp"
+#include "sys/stream/IStream.hpp"
 
 // public
 IStream & IStream::operator >>(Char &c) {

@@ -1,7 +1,7 @@
 #ifndef I386CGAOSTREAM_HPP_LOCK
 #define I386CGAOSTREAM_HPP_LOCK
 
-#include "sys/OStream.hpp"
+#include "sys/stream/OStream.hpp"
 
 class I386CgaOStream: public OStream {
     private:

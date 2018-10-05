@@ -1,7 +1,7 @@
 #include "test/I386ASM/ParserBasedTestCase.hpp"
 
-#include "sys/OStreamFactory.hpp"
-#include "sys/IgnoreOStream.hpp"
+#include "sys/stream/OStreamFactory.hpp"
+#include "sys/stream/IgnoreOStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
