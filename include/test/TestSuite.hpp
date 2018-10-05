@@ -8,6 +8,7 @@ class TestSuite: public Object {
     private:
     Environment &createTestEnvironment(size_t memorySize);
     void destroyTestEnvironment(Environment &env, bool checkMemory = true);
+    MemoryInfo *currentTestMemoryInfo;
     
     public:
     TestSuite(Environment &env, MemoryInfo &mi = *notAnInfo);

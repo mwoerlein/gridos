@@ -1,17 +1,14 @@
-#ifndef MODULEINFO_HPP_LOCK
-#define MODULEINFO_HPP_LOCK
+#ifndef KERNELJIT_MODULEINFO_HPP_LOCK
+#define KERNELJIT_MODULEINFO_HPP_LOCK
 
-#include "sys/Object.hpp"
-class String;
+#include "sys/collection/PropertyContainer.hpp"
 
-class ModuleInfo: virtual public Object {
+class ModuleInfo: public PropertyContainer {
     public:
-    ModuleInfo * next;
     MemoryInfo & memoryInfo;
-    String & cmd;
     
-    ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo, String & cmd, ModuleInfo * next = 0);
+    ModuleInfo(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo);
     virtual ~ModuleInfo();
 };
 
-#endif //MODULEINFO_HPP_LOCK
+#endif //KERNELJIT_MODULEINFO_HPP_LOCK

@@ -15,7 +15,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     int ackblock = 0;
     int line = 1;
     OStream &out = env().out();
-    if (!in.isEmpty()) do {
+/*    if (!in.isEmpty()) do {
         in >> c;
         switch (c) {
             case '>': ackblock += 2;
@@ -28,7 +28,7 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
                 while (c != '\n') { in >> c; out << c; } // output whole line
                 line++;
         }
-    } while (ackblock > 0);
+    } while (ackblock > 0);*/
     
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, env().err(), line);

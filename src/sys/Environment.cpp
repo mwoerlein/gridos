@@ -7,8 +7,6 @@ void* operator new (size_t size, void* location) {
 }
 
 Environment::Environment():Object(*this, *notAnInfo),ma(0),_out(0),_err(0),_factory(0) {}
-Environment::Environment(MemoryAllocator &ma, OStream &out, OStream &err)
-    :Object(*this, ma.memInfo(this)),ma(&ma),_out(&out),_err(&err),_factory(0) {}
 Environment::Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &out, OStream &err)
     :Object(env, mi),ma(&ma),_out(&out),_err(&err),_factory(0) {}
 Environment::~Environment() {}
@@ -44,16 +42,6 @@ OStreamFactory & Environment::oStreamFactory() {
 OStreamFactory & Environment::setOStreamFactory(OStreamFactory & factory) {
     OStreamFactory *old = _factory;
     _factory = &factory;
-    return *old;
-}
-
-ModuleInfo & Environment::getModules() {
-    return *modules;
-}
-
-ModuleInfo & Environment::setModules(ModuleInfo & mods) {
-    ModuleInfo *old = modules;
-    modules = &mods;
     return *old;
 }
 

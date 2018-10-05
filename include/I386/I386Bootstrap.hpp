@@ -1,7 +1,7 @@
 #ifndef I386BOOTSTRAP_HPP_LOCK
 #define I386BOOTSTRAP_HPP_LOCK
 
-#include "sys/Environment.hpp"
+#include "KernelJIT/KernelEnvironment.hpp"
 
 class I386Bootstrap {
     private:
@@ -10,7 +10,7 @@ class I386Bootstrap {
     public:
     I386Bootstrap() {}
     virtual ~I386Bootstrap() {}
-    Environment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
+    KernelEnvironment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
 };
 
 #endif //I386BOOTSTRAP_HPP_LOCK

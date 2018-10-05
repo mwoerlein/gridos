@@ -1,6 +1,11 @@
->
-Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "Blinking"
-<
+/*[meta]
+mimetype = text/x-pasm
+description = Dies ist das TEXTSEGMENT fuer den GridOS-MicroKernel "Blinking"
+author = Marc Woerlein<marc.woerlein@gmx.de>
+;more_info  = FooBar
+[pool]
+version = 0.2.0+20181005022610
+*/
 cga_lastline := 0xb8f00
 _start:
     movl 0, %ebx // column = 0

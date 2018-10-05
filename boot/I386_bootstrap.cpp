@@ -13,28 +13,33 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 
 extern "C" {
 
-Environment & bootstrapEnvironment(unsigned long magic, void *mbi, void *mbh) {
+KernelEnvironment & bootstrapEnvironment(unsigned long magic, void *mbi, void *mbh) {
     I386Bootstrap bs;
     return bs.buildEnvironment(magic, mbi, mbh);
 }
 
 void bootstrap(unsigned long magic, void *mbi, void *mbh){
     // create environment
-    Environment &env = bootstrapEnvironment(magic, mbi, mbh);
+    KernelEnvironment &env = bootstrapEnvironment(magic, mbi, mbh);
     if (!&env) {
         return;
     }
-/*
+/*/
     {
         TestSuite ts(env);
         ts.runAll();
         return;
     }
-*/
-//    MemoryManager &ma = *((MemoryManager *) (&env.getAllocator()));
+//*/
+//    MemoryManager &ma = *env.as<MemoryManager>(env.getAllocator(), object);
     
     // compile kernel from modules
-    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModules().memoryInfo);
+    if (!env.hasModule("kernel")) {
+        env.err()<<"No kernel loaded!\n"<<"Halting ...\n";
+        HaltKernel hk(env);
+        hk.run();
+    }
+    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModule("kernel").memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
     env.out()<<"Compiling ... with "<<&jit<<'\n';
@@ -42,12 +47,9 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     
     env.destroy(jit);
     env.destroy(in);
+    env.destroyModules();
     
-    for (ModuleInfo * module = &env.getModules(); module; module = module->next) {
-        module->destroy();
-    }
-    
-//    env.out()<<&env<<' '<<&env.out()<<' '<<&env.err()<<' '<<&env.getAllocator()<<' '<<&k<<'\n';
+//    env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<k<<'\n';
 //    ma.dump(env.err(), true);
     
     if (!&k) {
@@ -56,7 +58,7 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
         hk.run();
     }
     // run compiled kernel    
-    env.out()<<"Starting kernel ... "<<k.getStartAddress()<<'\n';
+    env.out()<<"Starting kernel ... "<<(void*) k.getStartAddress()<<'\n';
     k.run();
 
 //    env.destroy(k);

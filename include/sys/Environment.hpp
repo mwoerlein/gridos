@@ -1,7 +1,6 @@
 #ifndef ENVIRONMENT_HPP_LOCK
 #define ENVIRONMENT_HPP_LOCK
 
-class ModuleInfo;
 class OStream;
 class OStreamFactory;
 #include "sys/Object.hpp"
@@ -13,12 +12,10 @@ class Environment: virtual public Object {
     private:
     MemoryAllocator * ma;
     OStream *_out, *_err;
-    ModuleInfo * modules;
     OStreamFactory *_factory;
     
     public:
     Environment();
-    Environment(MemoryAllocator &ma, OStream &out, OStream &err);
     Environment(Environment &env, MemoryInfo &mi, MemoryAllocator &ma, OStream &out, OStream &err);
     virtual ~Environment();
     
@@ -28,10 +25,6 @@ class Environment: virtual public Object {
     OStream & setErr(OStream & newErr);
     OStreamFactory & oStreamFactory();
     OStreamFactory & setOStreamFactory(OStreamFactory & factory);
-    
-    // TODO: access modules/kernel information via ids
-    ModuleInfo & setModules(ModuleInfo & mods);
-    ModuleInfo & getModules();
     
     MemoryAllocator & getAllocator();
     MemoryAllocator & setAllocator(MemoryAllocator & allocator);
@@ -59,7 +52,6 @@ class Environment: virtual public Object {
     }
 };
 
-#include "KernelJIT/ModuleInfo.hpp"
 #include "sys/stream/OStream.hpp"
 
 #endif //ENVIRONMENT_HPP_LOCK

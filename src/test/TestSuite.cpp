@@ -55,31 +55,23 @@ void TestSuite::runAll() {
 // private
 Environment & TestSuite::createTestEnvironment(size_t memorySize) {
     // prepare sandbox memory
-    MemoryInfo &testMemoryInfo = env().getAllocator().allocate(memorySize, this);
+    currentTestMemoryInfo = &env().getAllocator().allocate(memorySize, this);
     MemoryRegistry memoryRegistry(env());
-    memoryRegistry.registerAvailableMemory(testMemoryInfo.buf, testMemoryInfo.len);
+    memoryRegistry.registerAvailableMemory(currentTestMemoryInfo->buf, currentTestMemoryInfo->len);
     MemoryManager &mm = env().create<MemoryManager>();
     memoryRegistry.transfer(mm);
     
     // create own test environment    
     Environment &testEnv = env().create<Environment, MemoryAllocator&, OStream&, OStream&>(mm, env().out(), env().err());
     testEnv.setOStreamFactory(env().oStreamFactory());
-    // store test memory as module, to be accessible after test for memory hole detection and cleanup
-    testEnv.setModules(
-        env().create<ModuleInfo, MemoryInfo &, String &>(
-            testMemoryInfo,
-            env().create<String, const char *>("testMemory")
-        )
-    );
     
     return testEnv;
 }
 
 void TestSuite::destroyTestEnvironment(Environment &testEnvironment, bool checkMemory) {
-    ModuleInfo &testMemoryModule = testEnvironment.getModules();
     MemoryAllocator &testAllocator = testEnvironment.getAllocator();
     
-    if (checkMemory && testAllocator.getAvailableBytes() != testMemoryModule.memoryInfo.len) {
+    if (checkMemory && testAllocator.getAvailableBytes() != currentTestMemoryInfo->len) {
         testEnvironment.err() << "memory hole detected!\n";
         testAllocator.dump(testEnvironment.err(), true);
     }
@@ -87,5 +79,5 @@ void TestSuite::destroyTestEnvironment(Environment &testEnvironment, bool checkM
     // cleanup test resources
     testEnvironment.destroy();
     testAllocator.destroy();
-    testMemoryModule.destroy(); // implicit sandbox destruction
+    env().getAllocator().free(*currentTestMemoryInfo);
 }

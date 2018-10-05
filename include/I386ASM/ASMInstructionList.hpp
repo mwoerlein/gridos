@@ -2,6 +2,7 @@
 #define I386ASMINSTRUCTIONLIST_HPP_LOCK
 
 #include "sys/Object.hpp"
+#include "sys/String.hpp"
 #include "sys/collection/HashMap.hpp"
 #include "I386ASM/ParseErrorStream.hpp"
 

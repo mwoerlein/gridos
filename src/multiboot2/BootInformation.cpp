@@ -92,23 +92,12 @@ void BootInformation::registerMemory(MemoryRegistry &reg) {
     reg.registerUsedMemory(mbi, (size_t) (*(unsigned int *) mbi), this);
 }
 
-void BootInformation::registerModules(Environment &env) {
+void BootInformation::registerModules(KernelEnvironment &env) {
     MemoryAllocator &ma = env.getAllocator();
-    ModuleInfo * next = (ModuleInfo *) 0;
     
-    ModuleInfo * kernel = &env.create<ModuleInfo, MemoryInfo &, String &, ModuleInfo *>(
-        ma.memInfo((void *)address->load_addr),
-        env.create<String, char*>(commandline->string),
-        next
-    );
-    next = kernel;
+    env.addModule(commandline->string, ma.memInfo((void *)address->load_addr));
     
     for (int i = modulesCount-1; i >= 0; i--) {
-        next = &env.create<ModuleInfo, MemoryInfo &, String &, ModuleInfo *>(
-            ma.memInfo((void*)modules[i]->mod_start),
-            env.create<String, char*>(modules[i]->cmdline),
-            next
-        );
+        env.addModule(modules[i]->cmdline, ma.memInfo((void*)modules[i]->mod_start));
     }
-    env.setModules(*next);
 }

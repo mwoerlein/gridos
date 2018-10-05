@@ -11,18 +11,18 @@ void I386Bootstrap::trickCompiler() {
     I386InterruptVectorTable vt;
 }
 
-Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
+KernelEnvironment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
     Environment bsEnv;
     I386CgaOStream bsOut(bsEnv);
     bsEnv.setOut(bsOut);
     bsEnv.setErr(bsOut);
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
-        return *((Environment *) 0x0);
+        return *((KernelEnvironment *) 0);
     }
     if ((unsigned long)mbi & 7) {
         bsOut<<"Unaligned mbi: "<<mbi<<'\n';
-        return *((Environment *) 0x0);
+        return *((KernelEnvironment *) 0);
     }
 
     BootInformation bootInformation(mbi, mbh);
@@ -33,8 +33,8 @@ Environment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, vo
     bootInformation.registerMemory(memoryRegistry);
     
     // create "heap"-based environment and memory management
-    MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(Environment), this);
-    Environment &env = *(new (envInfo.buf) Environment(memoryRegistry, bsOut, bsOut));
+    MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(KernelEnvironment), this);
+    KernelEnvironment &env = *(new (envInfo.buf) KernelEnvironment(memoryRegistry, bsOut, bsOut));
     
     MemoryManager &mm = env.create<MemoryManager>();
     memoryRegistry.transfer(mm);
