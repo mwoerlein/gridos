@@ -16,6 +16,7 @@ class Bool: public Object {
     virtual Bool &operator =(Bool &b);
     virtual Bool &operator =(bool b);
     
+    virtual OStream & operator >>(OStream & stream) override;
     virtual int hash() override;
     virtual bool equals(Object &o) override;
     

@@ -10,12 +10,10 @@ class ASMOperand: virtual public Object {
     public:
     virtual ~ASMOperand() {}
     
-    virtual void logToStream(OStream &stream) = 0;
     virtual ASMOperand * validateAndReplace(ASMInstructionList & list) {
         return 0;
     }
-    
-    friend OStream & operator << (OStream & out, ASMOperand &operand);
+    virtual OStream & operator >>(OStream & stream) = 0;
     
     // TODO #6: implement RTTI correctly
     virtual RTTI rtti() override { return asm_operand; }

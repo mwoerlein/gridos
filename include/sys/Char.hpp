@@ -21,6 +21,7 @@ class Char: public ComparableC<char>, public Comparable<Char> {
     useComparableOperators(Char);
     virtual int compareTo(char c) override;
     virtual int compareTo(Char &c) override;
+    virtual OStream & operator >>(OStream & stream) override;
     virtual int hash() override;
     
     // TODO #6: implement RTTI correctly

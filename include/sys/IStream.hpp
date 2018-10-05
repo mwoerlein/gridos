@@ -3,6 +3,7 @@
 
 #include "sys/Object.hpp"
 #include "sys/Char.hpp"
+#include "sys/OStream.hpp"
 
 class IStream: virtual public Object {
     public:
@@ -10,8 +11,9 @@ class IStream: virtual public Object {
     
     virtual bool isEmpty() = 0;
     
-    virtual IStream &operator >>(char &c) = 0;
-    virtual IStream &operator >>(Char &c);
+    virtual IStream & operator >>(char &c) = 0;
+    virtual IStream & operator >>(Char &c);
+    virtual OStream & operator >>(OStream & stream) override;
 };
 
 #endif //ISTREAM_HPP_LOCK

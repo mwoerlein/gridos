@@ -3,6 +3,7 @@
 
 #include "memory/MemoryTypes.hpp"
 class Environment;
+class OStream;
 
 // TODO #6: implement RTTI correctly
 enum RTTI { object, boolean, character, integer, string, asm_operand };
@@ -25,9 +26,12 @@ class Object {
     virtual bool equals(Object &o);
     // TODO #6: implement RTTI correctly
     virtual RTTI rtti() { return object; };
+    virtual OStream & operator >>(OStream & stream);
+    friend OStream & operator <<(OStream & stream, Object &o);
 };
 
 #include "sys/Environment.hpp"
+#include "sys/OStream.hpp"
 
 #endif //OBJECT_HPP_LOCK
 

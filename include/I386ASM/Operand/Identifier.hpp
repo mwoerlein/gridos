@@ -18,8 +18,8 @@ class Identifier: public ASMOperand {
         return _id;
     }
 
-    virtual void logToStream(OStream &stream) {
-        stream<<_id;
+    virtual OStream & operator >>(OStream & stream) {
+        return stream << _id;
     }
 
     virtual Number * validateAndResolveDefinition(ASMInstructionList & list) {

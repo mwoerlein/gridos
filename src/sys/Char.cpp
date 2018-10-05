@@ -27,6 +27,10 @@ int Char::compareTo(Char &c) {
     return _c - (char) c;
 }
 
+OStream & Char::operator >>(OStream & stream) {
+    return stream << _c;
+}
+
 int Char::hash() {
     return _c;
 }

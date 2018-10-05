@@ -148,32 +148,33 @@ class Indirect: public ASMOperand {
         return !_base && !_index;
     }
     
-    virtual void logToStream(OStream &stream) {
+    virtual OStream & operator >>(OStream & stream) {
         if (_displacementId && !_base && !_index) {
             // memory indirect
-            stream << '(' << *_displacementId << ')';
-        } else if (_displacement && !_base && !_index) {
-            // memory indirect
-            stream << '(' << *_displacement << ')';
-        } else {
-            // register indirect
-            if (_displacementId) {
-                stream << *_displacementId;
-            } else if (_displacement) {
-                stream << *_displacement;
-            }
-            stream << '(';
-            if (_base) {
-                stream << *_base;
-            }
-            if (_index) {
-                stream << ',' << *_index;
-                if (_scale > 1) {
-                    stream << ',' << _scale;
-                }
-            }
-            stream << ')';
+            return stream << '(' << *_displacementId << ')';
         }
+        if (_displacement && !_base && !_index) {
+            // memory indirect
+            return stream << '(' << *_displacement << ')';
+        }
+        
+        // register indirect
+        if (_displacementId) {
+            stream << *_displacementId;
+        } else if (_displacement) {
+            stream << *_displacement;
+        }
+        stream << '(';
+        if (_base) {
+            stream << *_base;
+        }
+        if (_index) {
+            stream << ',' << *_index;
+            if (_scale > 1) {
+                stream << ',' << _scale;
+            }
+        }
+        return stream << ')';
     }
     
     virtual OperandType type() { return indirect; }

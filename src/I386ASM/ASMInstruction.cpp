@@ -1,12 +1,7 @@
 #include "I386ASM/ASMInstruction.hpp"
 
 // public
-OStream & operator << (OStream & out, ASMInstruction &instruction) {
-    instruction.logToStream(out);
-    return out;
-}
-
-void ASMInstruction::logToStream(OStream &stream) {
+OStream & ASMInstruction::operator >>(OStream & stream) {
     stream << mnemonic;
     switch (operandSize) {
         case bit_8: stream << 'b'; break;
@@ -22,6 +17,7 @@ void ASMInstruction::logToStream(OStream &stream) {
     if (o3) {
         stream << ", " << *o3;
     }
+    return stream;
 }
 
 void ASMInstruction::writeToStream(OStream & stream) {

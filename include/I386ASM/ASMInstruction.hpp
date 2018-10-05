@@ -68,9 +68,7 @@ class ASMInstruction: virtual public Object {
     virtual size_t compile();
     
     virtual void writeToStream(OStream &stream);
-    virtual void logToStream(OStream &stream);
-    
-    friend OStream & operator << (OStream & out, ASMInstruction &instruction);
+    virtual OStream & operator >>(OStream & stream) override;
 };
 
 // http://sparksandflames.com/files/x86InstructionChart.html

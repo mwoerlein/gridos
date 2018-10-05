@@ -16,8 +16,8 @@ class Number: public ASMOperand {
         return _number;
     }
 
-    virtual void logToStream(OStream &stream) {
-        stream.printuhex(_number);
+    virtual OStream & operator >>(OStream & stream) {
+        return stream.printuhex(_number);
     }
     
     // TODO #6: implement RTTI correctly

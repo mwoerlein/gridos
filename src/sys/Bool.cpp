@@ -19,6 +19,10 @@ Bool & Bool::operator =(Bool &b) {
     return *this;
 }
 
+OStream & Bool::operator >>(OStream & stream) {
+    return stream << (_b ? "true" : "false");
+}
+
 int Bool::hash() {
     return (int) _b;
 }

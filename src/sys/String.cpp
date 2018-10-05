@@ -137,6 +137,13 @@ int String::hash() {
     return _hash;
 }
 
+OStream & String::operator >>(OStream & stream) {
+    for (_Element * cur = first; cur; cur = cur->next) {
+        stream << *cur;
+    }
+    return stream;
+}
+
 
 // protected
 

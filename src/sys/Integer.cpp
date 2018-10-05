@@ -86,6 +86,10 @@ int Integer::compareTo(Integer &i) {
     return _i - (int) i;
 }
 
+OStream & Integer::operator >>(OStream & stream) {
+    return stream << _i;
+}
+
 int Integer::hash() {
     return _i;
 }

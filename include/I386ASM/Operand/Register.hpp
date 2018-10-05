@@ -165,42 +165,43 @@ class Register: public ASMOperand {
         return reg_none;
     }
 
-    virtual void logToStream(OStream &stream) {
+    virtual OStream & operator >>(OStream & stream) {
         switch (_reg) {
-            case reg_al: stream<<"%al"; break;
-            case reg_ah: stream<<"%ah"; break;
-            case reg_bl: stream<<"%bl"; break;
-            case reg_bh: stream<<"%bh"; break;
-            case reg_cl: stream<<"%cl"; break;
-            case reg_ch: stream<<"%ch"; break;
-            case reg_dl: stream<<"%dl"; break;
-            case reg_dh: stream<<"%dh"; break;
+            case reg_al: return stream<<"%al";
+            case reg_ah: return stream<<"%ah";
+            case reg_bl: return stream<<"%bl";
+            case reg_bh: return stream<<"%bh";
+            case reg_cl: return stream<<"%cl";
+            case reg_ch: return stream<<"%ch";
+            case reg_dl: return stream<<"%dl";
+            case reg_dh: return stream<<"%dh";
             
-            case reg_ax: stream<<"%ax"; break;
-            case reg_bx: stream<<"%bx"; break;
-            case reg_cx: stream<<"%cx"; break;
-            case reg_dx: stream<<"%dx"; break;
-            case reg_di: stream<<"%di"; break;
-            case reg_si: stream<<"%si"; break;
-            case reg_bp: stream<<"%bp"; break;
-            case reg_sp: stream<<"%sp"; break;
+            case reg_ax: return stream<<"%ax";
+            case reg_bx: return stream<<"%bx";
+            case reg_cx: return stream<<"%cx";
+            case reg_dx: return stream<<"%dx";
+            case reg_di: return stream<<"%di";
+            case reg_si: return stream<<"%si";
+            case reg_bp: return stream<<"%bp";
+            case reg_sp: return stream<<"%sp";
             
-            case reg_eax: stream<<"%eax"; break;
-            case reg_ebx: stream<<"%ebx"; break;
-            case reg_ecx: stream<<"%ecx"; break;
-            case reg_edx: stream<<"%edx"; break;
-            case reg_edi: stream<<"%edi"; break;
-            case reg_esi: stream<<"%esi"; break;
-            case reg_ebp: stream<<"%ebp"; break;
-            case reg_esp: stream<<"%esp"; break;
+            case reg_eax: return stream<<"%eax";
+            case reg_ebx: return stream<<"%ebx";
+            case reg_ecx: return stream<<"%ecx";
+            case reg_edx: return stream<<"%edx";
+            case reg_edi: return stream<<"%edi";
+            case reg_esi: return stream<<"%esi";
+            case reg_ebp: return stream<<"%ebp";
+            case reg_esp: return stream<<"%esp";
             
-            case reg_cs: stream<<"%cs"; break;
-            case reg_ds: stream<<"%ds"; break;
-            case reg_es: stream<<"%es"; break;
-            case reg_fs: stream<<"%fs"; break;
-            case reg_gs: stream<<"%gs"; break;
-            case reg_ss: stream<<"%ss"; break;
+            case reg_cs: return stream<<"%cs";
+            case reg_ds: return stream<<"%ds";
+            case reg_es: return stream<<"%es";
+            case reg_fs: return stream<<"%fs";
+            case reg_gs: return stream<<"%gs";
+            case reg_ss: return stream<<"%ss";
         }
+        return stream;
     }
     
     // TODO #6: implement RTTI correctly

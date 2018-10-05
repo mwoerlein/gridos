@@ -31,27 +31,15 @@ OStream & OStream::operator <<(const char * c) {
 }
 
 OStream & OStream::operator <<(Char &c) {
-    return *this<<(char) c;
+    return c >> *this;
 }
 
 OStream & OStream::operator <<(Integer &i) {
-    return *this<<(int) i;
+    return i >> *this;
 }
 
 OStream & OStream::operator <<(String &s) {
-    IStream &stream = s.toIStream();
-    *this<<stream;
-    stream.destroy();
-    return *this;
-}
-
-OStream & OStream::operator <<(IStream &stream) {
-    char tmp;
-    while (!stream.isEmpty()) {
-        stream>>tmp;
-        *this<<tmp;
-    }
-    return *this;
+    return s >> *this;
 }
 
 OStream & OStream::printint(int d, int base, int pad) {

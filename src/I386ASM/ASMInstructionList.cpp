@@ -188,8 +188,7 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
                         continue;
                     }
                 } 
-                stream << *cur->identifier << " := ";
-                cur->value->logToStream(stream);
+                stream << *cur->identifier << " := " << *cur->value;
             } else {
                 stream << *cur->identifier << ":";
             }

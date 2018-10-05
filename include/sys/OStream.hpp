@@ -6,7 +6,6 @@
 class Char;
 class Integer;
 class String;
-class IStream;
 class OStream: virtual public Object {
     public:
     virtual ~OStream() {}
@@ -18,10 +17,10 @@ class OStream: virtual public Object {
     virtual OStream &operator <<(char *c);
     virtual OStream &operator <<(const char *c);
     
+    // resolve ambiguity between primitive and Object& casts 
     virtual OStream &operator <<(Char &c);
     virtual OStream &operator <<(Integer &i);
     virtual OStream &operator <<(String &s);
-    virtual OStream &operator <<(IStream &stream);
     
     OStream &printint(int d, int base = 10, int pad = 0);
     OStream &printuint(unsigned int d, int base = 10, int pad = 0);

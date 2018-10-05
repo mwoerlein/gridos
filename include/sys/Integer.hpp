@@ -35,6 +35,7 @@ class Integer: public ComparableC<int>, public Comparable<Integer> {
     useComparableOperators(Integer);
     virtual int compareTo(int i) override;
     virtual int compareTo(Integer &i) override;
+    virtual OStream & operator >>(OStream & stream) override;
     virtual int hash() override;
         
     // TODO #6: implement RTTI correctly
