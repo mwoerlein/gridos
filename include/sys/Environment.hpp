@@ -48,11 +48,14 @@ class Environment: virtual public Object {
     }
     
     /*
-     * evil runtime cast which fails if obj is not primary derived from As!
+     * evil runtime cast which fails if obj is not created at heap or primary derived from As!
      * TODO #6: implement RTTI correctly
      */
     template <class As> As * as(Object &obj, RTTI rtti) {
-        return (As *) ((obj.rtti() == rtti) ? obj._memory_info->buf : 0);
+        if (&obj && (obj._memory_info != notAnInfo) && (obj.rtti() == rtti)) {
+            return (As *) obj._memory_info->buf;
+        }
+        return 0;
     }
 };
 
