@@ -27,3 +27,5 @@ LIBS=$(patsubst %,$(LIBDIR)/%.a,$(SUBDIRS))
 MAKEBOOT=make $(MAKEOP) MASCHINE=$(MASCHINE) -f ./.Makefiles/Makefile.boot
 MAKELIB=make $(MAKEOP) MASCHINE=$(MASCHINE) -f ./.Makefiles/Makefile.libs
 
+$(LIBDIR)/%.a:
+	@$(MAKELIB) LIB=$@ $@

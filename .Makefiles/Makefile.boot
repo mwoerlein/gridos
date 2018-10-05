@@ -52,8 +52,5 @@ $(BOOTDIR)/$(MASCHINE)_bootstrap.o: $(BOOTDIR)/$(MASCHINE)_bootstrap.s
 $(BOOTDIR)/$(MASCHINE)_bootstrap.s: $(BOOTDIR)/$(MASCHINE)_bootstrap.cpp
 	$(CC) $(CFLAGS) -I../include -S $< -o $@
 
-$(LIBDIR)/%.a:
-	$(MAKELIB) LIB=$@ $@
-
 clean:
 	@rm -rf $(addprefix $(BOOTDIR)/, *.bin *.block *.o *.s *.OStream)
