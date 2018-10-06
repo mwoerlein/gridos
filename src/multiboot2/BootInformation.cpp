@@ -1,6 +1,5 @@
 #include "multiboot2/BootInformation.hpp"
 
-#include "KernelJIT/ModuleInfo.hpp"
 #include "sys/String.hpp"
 
 BootInformation::BootInformation(void *mbi, void *mbh):mbi(mbi),mbh(mbh),modulesCount(0) {
@@ -95,7 +94,7 @@ void BootInformation::registerMemory(MemoryRegistry &reg) {
 void BootInformation::registerModules(KernelEnvironment &env) {
     MemoryAllocator &ma = env.getAllocator();
     
-    env.addModule(commandline->string, ma.memInfo((void *)address->load_addr));
+    env.addModule(commandline->string, ma.memInfo((void *)address->load_addr), "startup");
     
     for (int i = modulesCount-1; i >= 0; i--) {
         env.addModule(modules[i]->cmdline, ma.memInfo((void*)modules[i]->mod_start));

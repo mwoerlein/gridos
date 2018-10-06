@@ -10,9 +10,14 @@ KernelEnvironment::~KernelEnvironment() {
     destroyModules();
 }
     
-void KernelEnvironment::addModule(const char* commandline, MemoryInfo &moduleInfo) {
-    // TODO: parse command_line and moduleInfo and use correct id
-    set(create<String, const char*>(commandline), create<ModuleInfo, MemoryInfo &>(moduleInfo));
+void KernelEnvironment::addModule(const char* commandline, MemoryInfo &moduleInfo, const char* id) {
+    Module & module = create<Module, MemoryInfo &>(moduleInfo);
+    if (id) {
+        module.setStringProperty("meta.id", id);
+    }
+    module.parseHeader();
+    module.parseCommandline(commandline);
+    set(module.getId(), module);
 }
 
 bool KernelEnvironment::hasModule(const char* moduleId) {
@@ -22,19 +27,18 @@ bool KernelEnvironment::hasModule(const char* moduleId) {
     return ret;
 }
 
-ModuleInfo &KernelEnvironment::getModule(const char* moduleId) {
+Module &KernelEnvironment::getModule(const char* moduleId) {
     String &tmp = env().create<String, const char*>(moduleId);
-    ModuleInfo & ret = getModule(tmp);
+    Module & ret = getModule(tmp);
     tmp.destroy();
     return ret;
 }
 
 void KernelEnvironment::destroyModules() {
-    Iterator<String> &mit = keys();
-    while (mit.hasNext()) {
-        String & mid = mit.next();
-        unset(mid).destroy();
-        mid.destroy();
+    Iterator<Module> &modules = values();
+    while (modules.hasNext()) {
+        modules.next().destroy();
     }
-    mit.destroy();
+    modules.destroy();
+    clear();
 }

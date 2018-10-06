@@ -8,8 +8,10 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "KernelJIT/KernelJIT.hpp"
 #include "KernelJIT/HaltKernel.hpp"
 #include "memory/MemoryIStream.hpp"
-//#include "memory/MemoryManager.hpp"
-//#include "test/TestSuite.hpp"
+#include "memory/MemoryManager.hpp"
+#include "test/TestSuite.hpp"
+
+#define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
 
 extern "C" {
 
@@ -24,44 +26,61 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     if (!&env) {
         return;
     }
-/*/
-    {
+    assertHALT(env.hasModule("startup"), "No startup loaded!");
+    
+    if (env.testSetting("startup", "meta.test", "1")) {
         TestSuite ts(env);
         ts.runAll();
-        return;
     }
-//*/
-//    MemoryManager &ma = *env.as<MemoryManager>(env.getAllocator(), object);
     
-    // compile kernel from modules
-    if (!env.hasModule("kernel")) {
-        env.err()<<"No kernel loaded!\n"<<"Halting ...\n";
-        HaltKernel hk(env);
-        hk.run();
+    // TODO: improve debug handling 
+    int debugLevel = 0;
+    if (env.testSetting("startup", "meta.debug", "1")) {
+        debugLevel = 1;
     }
+    if (env.testSetting("startup", "meta.debug", "2")) {
+        debugLevel = 2;
+    }
+    if (env.testSetting("startup", "meta.debug", "3")) {
+        debugLevel = 3;
+    }
+    
+    if (debugLevel >= 2) {
+        Iterator<Module> &modules = env.modules();
+        while (modules.hasNext()) {
+            Module &module = modules.next();
+            env.out() << '[' << module.getId() << "]\n"; 
+            module.dumpProperties(env.out());
+        }
+        modules.destroy();
+    }
+    
+    assertHALT(env.hasModule("kernel"), "No kernel loaded!");
+    // compile kernel from modules
     MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModule("kernel").memoryInfo);
     KernelJIT &jit = env.create<KernelJIT>();
 
-    env.out()<<"Compiling ... with "<<&jit<<'\n';
+    if (debugLevel >= 1) {
+        env.out()<<"Compiling ... with "<<&jit<<'\n';
+    }
     Kernel &k = jit.kernel_compile(in);
     
     env.destroy(jit);
     env.destroy(in);
     env.destroyModules();
     
-//    env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<k<<'\n';
-//    ma.dump(env.err(), true);
-    
-    if (!&k) {
-        env.err()<<"Compiling kernel failed!\n"<<"Halting ...\n";
-        HaltKernel hk(env);
-        hk.run();
+    if (debugLevel >= 2) {
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<k<<'\n';
+        env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
+    
+    assertHALT(&k, "Compiling kernel failed!");
+    
     // run compiled kernel    
-    env.out()<<"Starting kernel ... "<<(void*) k.getStartAddress()<<'\n';
+    if (debugLevel >= 1) {
+        env.out()<<"Starting kernel ... "<<(void*) k.getStartAddress()<<'\n';
+    }
     k.run();
-
-//    env.destroy(k);
 }
 
 }

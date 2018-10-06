@@ -67,9 +67,6 @@ Kernel &KernelJIT::kernel_compile(IStream & in) {
     }
     out<<x<<" bytes"<<'\n';
     */
-    
-    
-    out<<"ready!"<<'\n';
 
     return osk;
 }

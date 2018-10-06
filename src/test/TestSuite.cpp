@@ -2,7 +2,6 @@
 
 #include "memory/MemoryRegistry.hpp"
 #include "memory/MemoryManager.hpp"
-#include "KernelJIT/ModuleInfo.hpp"
 
 #include "test/sys/BoolTest.hpp"
 #include "test/sys/CharTest.hpp"

@@ -1,25 +1,16 @@
 #include "sys/collection/PropertyContainer.hpp"
 
-#include "sys/collection/LinkedList.hpp"
-
 // public
 PropertyContainer::PropertyContainer(Environment &env, MemoryInfo &mi):
-        HashMap(env,mi), Object(env, mi), ownStrings(env.create<LinkedList<String>>()) {
+        HashMap(env, mi), LinkedList(env, mi), Object(env, mi) {
 }
 
 PropertyContainer::~PropertyContainer() {
-    Iterator<String> &ownIt = ownStrings.iterator();
-    while (ownIt.hasNext()) {
-        ownIt.next().destroy();
+    Iterator<Object> &ownedIterator = LinkedList::iterator();
+    while (ownedIterator.hasNext()) {
+        ownedIterator.next().destroy();
     }
-    ownIt.destroy();
-    ownStrings.destroy();
-}
-
-String & PropertyContainer::createOwnString(const char* name) {
-    String &own = env().create<String, const char*>(name);
-    ownStrings.add(own); 
-    return own;
+    ownedIterator.destroy();
 }
 
 bool PropertyContainer::hasProperty(const char* name) {
@@ -43,9 +34,18 @@ bool PropertyContainer::hasStringProperty(const char* name) {
     return ret;
 }
     
-String & PropertyContainer::getStringProperty(const char* name)  {
+String & PropertyContainer::getStringProperty(const char* name) {
     String &tmp = env().create<String, const char*>(name); 
     String &ret = getStringProperty(tmp);
     tmp.destroy();
     return ret;
+}
+
+void PropertyContainer::dumpProperties(OStream &stream) {
+    Iterator<String> &names = keys();
+    while (names.hasNext()) {
+        String & name = names.next();
+        stream << name << "=" << getProperty(name) << '\n';
+    }
+    names.destroy();
 }
