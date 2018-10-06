@@ -22,6 +22,16 @@ class MemoryIStream: public IStream {
     virtual bool isEmpty() override {
         return (pos == mem.len);
     }
+    
+    virtual void seek(size_t p) {
+        if (p <= 0) {
+            pos = 0;
+        } else if (p >= mem.len) {
+            pos = mem.len;
+        } else {
+            pos = p;
+        }
+    }
 };
 
 #endif //MEMORYISTREAM_HPP_LOCK

@@ -7,6 +7,9 @@
 #define PROPERTYNAME_MODULE_ID "meta.id"
 
 class Module: public PropertyContainer {
+    private:
+    size_t contentOffset;
+    
     public:
     MemoryInfo & memoryInfo;
     
@@ -19,6 +22,9 @@ class Module: public PropertyContainer {
     inline bool hasId() { return hasStringProperty(PROPERTYNAME_MODULE_ID); }
     inline String & getId() { return getStringProperty(PROPERTYNAME_MODULE_ID); }
     inline Object & setId(String & id) { return setStringProperty(PROPERTYNAME_MODULE_ID, id); }
+    
+    virtual IStream & getContentIStream();
+    virtual size_t getContentSize();
 };
 
 #endif //KERNELJIT_MODULE_HPP_LOCK

@@ -7,8 +7,6 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "KernelJIT/HaltKernel.hpp"
-#include "memory/MemoryIStream.hpp"
-#include "memory/MemoryManager.hpp"
 #include "test/TestSuite.hpp"
 
 #define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
@@ -55,18 +53,13 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
         modules.destroy();
     }
     
-    assertHALT(env.hasModule("kernel"), "No kernel loaded!");
     // compile kernel from modules
-    MemoryIStream &in = env.create<MemoryIStream, MemoryInfo&>(env.getModule("kernel").memoryInfo);
+    assertHALT(env.hasModule("kernel"), "No kernel loaded!");
     KernelJIT &jit = env.create<KernelJIT>();
-
-    if (debugLevel >= 1) {
-        env.out()<<"Compiling ... with "<<&jit<<'\n';
-    }
-    Kernel &k = jit.kernel_compile(in);
+    if (debugLevel >= 1) { env.out()<<"Compiling ... with "<<&jit<<'\n'; }
+    Kernel &k = jit.kernel_compile(env.getModule("kernel"));
     
-    env.destroy(jit);
-    env.destroy(in);
+    jit.destroy();
     env.destroyModules();
     
     if (debugLevel >= 2) {

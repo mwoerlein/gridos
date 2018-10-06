@@ -9,65 +9,64 @@
 #include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
-Kernel &KernelJIT::kernel_compile(IStream & in) {
-    int x = 0;
-    char c = 255;
-    int ackblock = 0;
-    int line = 1;
-    OStream &out = env().out();
-/*    if (!in.isEmpty()) do {
-        in >> c;
-        switch (c) {
-            case '>': ackblock += 2;
-            case '<': ackblock--;
-                while (c != '\n') { in >> c; } // ignore whole line
-                line++;
-                break;
-            default:
-                out << c;
-                while (c != '\n') { in >> c; out << c; } // output whole line
-                line++;
+Kernel &KernelJIT::kernel_compile(Module & module) {
+    // TODO: improve debug handling 
+    int debugLevel = 0;
+    if (module.testStringProperty("meta.debug", "1")) {
+        debugLevel = 1;
+    }
+    if (module.testStringProperty("meta.debug", "2")) {
+        debugLevel = 2;
+    }
+    if (module.testStringProperty("meta.debug", "3")) {
+        debugLevel = 3;
+    }
+    
+    if (module.testStringProperty("meta.mimetype", "text/x-pasm")) {
+        Parser &parser = env().create<Parser>();
+        IStream &in = module.getContentIStream();
+        ASMInstructionList &list = parser.parse(in, env().err());
+        in.destroy();
+        parser.destroy();
+        
+        if (list.hasErrors()) {
+            if (debugLevel >= 2) { env().err()<<"parsing error\n"; }
+            list.destroy();
+            return *(Kernel *) 0;
         }
-    } while (ackblock > 0);*/
-    
-    Parser &parser = env().create<Parser>();
-    ASMInstructionList &list = parser.parse(in, env().err(), line);
-    parser.destroy();
-    
-    if (list.hasErrors()) {
+        
+        size_t size = list.compile();
+        if (list.hasErrors()) {
+            if (debugLevel >= 2) { env().err()<<"compile error\n"; }
+            list.destroy();
+            return *(Kernel *) 0;
+        }
+        
+        OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
+        list.finalize(osk.getStartAddress());
+        if (list.hasErrors()) {
+            if (debugLevel >= 2) { env().err()<<"finalize error\n"; }
+            osk.destroy();
+            list.destroy();
+            return *(Kernel *) 0;
+        }
+        
+        if (debugLevel >= 2) { list.logToStream(env().out(), debugLevel >= 3); }
+        list.writeToStream(osk);
         list.destroy();
-        return *(Kernel *) 0;
+        return osk;
     }
     
-    size_t size = list.compile();
-    if (list.hasErrors()) {
-        list.destroy();
-        return *(Kernel *) 0;
+    if (module.testStringProperty("meta.mimetype", "application/x-bin-x86")) {
+        size_t size = module.getContentSize();
+        OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
+        IStream &in = module.getContentIStream();
+        if (debugLevel >= 2) { env().out()<<"copying "<<size<< " bytes ..."; }
+        osk<<in;
+        if (debugLevel >= 2) { env().out()<<" done\n"; }
+        in.destroy();
+        return osk;
     }
     
-    OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
-    list.finalize(osk.getStartAddress());
-    if (list.hasErrors()) {
-        osk.destroy();
-        list.destroy();
-        return *(Kernel *) 0;
-    }
-    
-//    list.logToStream(env().out(), true);
-    list.writeToStream(osk);
-    list.destroy();
-    
-    // TODO: parse meta information of TEXT block and switch between copy and compile
-    /*
-    out<<"copying ";
-    while (!in.isEmpty()) {
-        in>>c;
-        osk<<c;
-        x++;
-    }
-    out<<x<<" bytes"<<'\n';
-    */
-
-    return osk;
+    return *(Kernel *) 0;
 }
-
