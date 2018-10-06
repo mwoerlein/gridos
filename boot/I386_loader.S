@@ -31,8 +31,7 @@ loader_start:
     subw    %si, %si
     subw    %di, %di
     cld
-    rep
-    movsw
+    rep movsw
 /* Segmentpointer richtig setzen */
     movw    $GRIDOS_LOADER_SEG, %ax
     movw    %ax, %ds
@@ -63,7 +62,7 @@ bd_sectors:
     .byte DISK_SECTORS
 loadmsg:    .asciz "Loading "
 readerr:    .asciz "read error"
-memerr:     .asciz "mem error"
+memerr:     .asciz "memory error"
 .align 4
 
 loader_stage0:
@@ -435,7 +434,7 @@ mbi_tag_name_end:
 mbi_tag_command_line:
     .long   MULTIBOOT_TAG_TYPE_CMDLINE
     .long   mbi_tag_command_line_end - mbi_tag_command_line
-    .asciz  "jit.i386"
+    .asciz  JIT_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_command_line_end:
 mbi_tag_modules:
@@ -443,7 +442,7 @@ mbi_tag_modules:
     .long   mbi_tag_modules_end - mbi_tag_modules
     .long   TEXT_ADDR
     .long   TEXT_ADDR + TEXT_SIZE
-    .asciz  "kernel.pool"
+    .asciz  TEXT_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_modules_end:
 mbi_tag_mmap:
