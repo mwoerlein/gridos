@@ -13,10 +13,23 @@ KernelEnvironment::~KernelEnvironment() {
 void KernelEnvironment::addModule(const char* commandline, MemoryInfo &moduleInfo, const char* id) {
     Module & module = create<Module, MemoryInfo &>(moduleInfo);
     if (id) {
-        module.setStringProperty("meta.id", id);
+        module.setId(module.createOwn<String, const char*>(id));
     }
-    module.parseHeader();
-    module.parseCommandline(commandline);
+    if (!module.parseHeader()) {
+        env().err() << "ignore module at " << moduleInfo.buf << " because of invalid header\n";
+        module.destroy();
+        return;
+    }
+    if (!module.parseCommandline(commandline)) {
+        env().err() << "ignore module at " << moduleInfo.buf << " because of invalid commandline\n";
+        module.destroy();
+        return;
+    }
+    if (!module.hasId()) {
+        env().err() << "ignore module at " << moduleInfo.buf << " because of missing module id\n";
+        module.destroy();
+        return;
+    }
     set(module.getId(), module);
 }
 
