@@ -47,8 +47,8 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
-            env.out() << '[' << module.getId() << "]\n"; 
-            module.dumpProperties(env.out());
+            env.out() << '[' << module.getId() << "] (at "<<module.memoryInfo.buf<<")\n"; 
+            if (debugLevel >= 3) { module.dumpProperties(env.out()); }
         }
         modules.destroy();
     }

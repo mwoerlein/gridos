@@ -7,7 +7,7 @@
 #define isMemoryInfo(ptr) (((MemoryInfo *) ptr)->flags.magic == MEMORY_INFO_MAGIC)
 #define hasFollowingBuffer(ptr) (((MemoryInfo *) ptr)->buf == memoryEnd(ptr, sizeof(MemoryInfo)))
 #define isEmbeddedInfo(ptr) (((MemoryInfo *) ptr)->buf == ((void *) ptr))
-#define canEmbedInfo(ptr) (((MemoryInfo *) ptr)->len >= 2*sizeof(MemoryInfo))
+#define canEmbedInfo(ptr) (((MemoryInfo *) ptr)->len > sizeof(MemoryInfo))
 
 #define isEmptyMemoryInfoList(list) ((list)->next == (list))
 
