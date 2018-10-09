@@ -3,17 +3,18 @@
 
 #include "I386ASM/Parser.hpp"
 
-static const char VERSION[] = "(pasm 0.1.0)";
+static const char VERSION[] = "pasm 0.1.0";
 static const char USAGE[] =
 R"(Pool Assembler.
 
     Usage:
-      pasm [options] -o <outfile> <infile>
+      pasm [options] -o <file> <file>
 
     Options:
-      -h --help   Show this screen.
-      --version   Show version.
-      -p --plain  Do not write module headers into outfile. Just plain binary.
+      -h --help    Show this screen.
+      --version    Show version.
+      -o <file>    Place the output into <file>.
+      -b --binary  Generate plain binary without module informations.
 )";
 
 class PasmCommand: public CommandLine {
@@ -36,7 +37,7 @@ class PasmCommand: public CommandLine {
             return 0;
         }
         if (hasProperty("version")) {
-            env().out()<<VERSION;
+            env().out()<<VERSION<<"\n";
             return 0;
         }
         if (!hasStringProperty("o") || _arguments.size() != 1) {
@@ -59,8 +60,8 @@ class PasmCommand: public CommandLine {
         list.finalize(startAddress);
         if (list.hasErrors()) { return 1; }
 
-        // write module headers
-        if (!hasProperty("p") && !hasProperty("plain")) {
+        // generate module infos
+        if (!hasProperty("b") && !hasProperty("binary")) {
             outfile
                 <<"/*[meta]\n"
                 <<"mimetype = application/x-bin-x86\n"
