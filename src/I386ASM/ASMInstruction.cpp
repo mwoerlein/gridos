@@ -133,6 +133,16 @@ BitWidth ASMInstruction::getBitWidth(int value) {
     return bit_32;
 }
 
+BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
+    if (value <= 255) {
+        return bit_8;
+    }
+    if (value <= 65535) {
+        return bit_16;
+    }
+    return bit_32;
+}
+
 BitWidth ASMInstruction::approximateOffsetWidth(Identifier *id) {
     return getBitWidth(pos - list->getLabel(*id));
 }

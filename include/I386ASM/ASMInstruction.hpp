@@ -41,6 +41,7 @@ class ASMInstruction: virtual public Object {
     virtual void writeModRMToStream(OStream &stream, int regO, int regM);
     virtual void writeIndirectToStream(OStream &stream, Indirect *i, int reg);
     virtual BitWidth getBitWidth(int value);
+    virtual BitWidth getUnsignedBitWidth(unsigned int value);
     virtual BitWidth approximateOffsetWidth(Identifier *id);
 
     inline void writeModRMToStream(OStream &stream, Register *regO, Register *regM) {

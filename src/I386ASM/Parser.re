@@ -10,6 +10,8 @@
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
 #include "I386ASM/Instruction/Div.hpp"
+#include "I386ASM/Instruction/Inline.hpp"
+#include "I386ASM/Instruction/Organize.hpp"
 
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
@@ -496,6 +498,24 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             if (!op1 || op2 || op3) return 0;
             return &env().create<ConditionalJump, InstructionCondition, ASMOperand*>(cond_reg_ecx, op1);
         }
+
+        "."[bB][yY][tT][eE] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Inline, ASMOperand*, BitWidth>(op1, bit_8);
+        }
+        "."[wW][oO][rR][dD] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Inline, ASMOperand*, BitWidth>(op1, bit_16);
+        }
+        "."[lL][oO][nN][gG] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Inline, ASMOperand*, BitWidth>(op1, bit_32);
+        }
+        "."[oO][rR][gG] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Organize, ASMOperand*>(op1);
+        }
+
         * { break; }
 */
     }
@@ -527,7 +547,7 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
         re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
         re2c:define:YYFILL:naked = 1;
         
-        inst        = id;
+        inst        = "."? id;
         operand     = register | id | number
                         | "(" wsp (number | id ) wsp ")"
                         | ((number | id) wsp)? "(" (wsp register)? ( wsp comma wsp register ( wsp comma wsp (id | number) )? )? wsp ")"
