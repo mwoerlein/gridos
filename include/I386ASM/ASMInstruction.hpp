@@ -66,6 +66,7 @@ class ASMInstruction: virtual public Object {
         if (o3) { o3->destroy(); }
     }
     
+    virtual size_t prepare();
     virtual size_t compile();
     
     virtual void writeToStream(OStream &stream);

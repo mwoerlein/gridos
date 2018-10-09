@@ -60,13 +60,17 @@ void ASMInstruction::sanitizeOperands() {
 
 void ASMInstruction::validateOperands() {}
 
-size_t ASMInstruction::compile() {
+size_t ASMInstruction::prepare() {
     checkOperands();
     if (list->hasErrors()) return 0;
     
     sanitizeOperands();
     if (list->hasErrors()) return 0;
     
+    return approximateSizeInBytes();
+}
+
+size_t ASMInstruction::compile() {
     validateOperands();
     if (list->hasErrors()) return 0;
     

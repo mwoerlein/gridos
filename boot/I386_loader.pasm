@@ -18,8 +18,12 @@ halt:
     hlt
     jmp halt
 
-.org 0x1f0
+.org GRIDOS_LOADER_MPT_START
     jmp loader_end
-.org 0x1fe
-    .word 0xaa55
+.org GRIDOS_LOADER_MPT_END
+    .word GRIDOS_LOADER_MBR_SIGNATURE
 loader_end:
+// TODO: include constants via "header"
+GRIDOS_LOADER_MBR_SIGNATURE := 0xaa55
+GRIDOS_LOADER_MPT_START := 0x1be
+GRIDOS_LOADER_MPT_END := 0x1fe

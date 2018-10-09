@@ -47,10 +47,8 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
-    inst.pos = e->pos;
     inst.list = this;
 }
 
@@ -59,7 +57,6 @@ void ASMInstructionList::addLabel(String &label) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(label, *e);
@@ -70,7 +67,6 @@ void ASMInstructionList::addDefinition(String &definition, Number &value) {
     if (!first) {
         first = last = e;
     } else {
-        e->pos = last->pos + ((last->inst) ? last->inst->approximateSizeInBytes() : 0);
         last = last->next = e;
     }
     ids.set(definition, *e);
@@ -103,6 +99,14 @@ size_t ASMInstructionList::compile() {
     if (pos != -1) {
         err << "List is already compiled!\n";
         return pos;
+    }
+    pos = 0;
+    for (_Elem * cur = first; cur ; cur = cur->next) {
+        cur->pos = pos;
+        if (cur->inst) {    
+            cur->inst->pos = pos;
+            pos += cur->inst->prepare();
+        }
     }
     pos = 0;
     for (_Elem * cur = first; cur ; cur = cur->next) {
