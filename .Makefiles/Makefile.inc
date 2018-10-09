@@ -14,6 +14,7 @@ endif
 LIBDIR=./lib
 SRCDIR=./src
 OBJDIR=./obj
+BINDIR=./bin
 IMGDIR=./img
 INCDIR=./include
 BOOTDIR=./boot

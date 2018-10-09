@@ -10,7 +10,7 @@ class I386Bootstrap {
     public:
     I386Bootstrap() {}
     virtual ~I386Bootstrap() {}
-    KernelEnvironment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
+    static KernelEnvironment & buildEnvironment(unsigned long magic, void *mbi, void *mbh);
 };
 
 #endif //I386BOOTSTRAP_HPP_LOCK

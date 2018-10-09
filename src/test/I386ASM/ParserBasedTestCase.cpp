@@ -1,6 +1,6 @@
 #include "test/I386ASM/ParserBasedTestCase.hpp"
 
-#include "sys/stream/OStreamFactory.hpp"
+#include "sys/stream/StreamFactory.hpp"
 #include "sys/stream/IgnoreOStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
@@ -63,7 +63,7 @@ bool ParserBasedTestCase::test(String & input, String & expectedBinary, String &
         if (errorBuffer != "") { env().err()<<errorBuffer; errorBuffer = "";}
         
         if (dumpBinary) {
-            OStream &dump = env().oStreamFactory().buildOStream(dumpBinary);
+            OStream &dump = env().streamFactory().buildOStream(dumpBinary);
             list.writeToStream(dump);
             dump.destroy();
         }

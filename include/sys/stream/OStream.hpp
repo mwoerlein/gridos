@@ -1,5 +1,5 @@
-#ifndef OSTREAM_HPP_LOCK
-#define OSTREAM_HPP_LOCK
+#ifndef SYS_STREAM_OSTREAM_HPP_LOCK
+#define SYS_STREAM_OSTREAM_HPP_LOCK
 
 #include "sys/Object.hpp"
 
@@ -22,5 +22,5 @@ class OStream: virtual public Object {
     OStream &printuhex(unsigned int d, int pad = 0);
 };
 
-#endif //OSTREAM_HPP_LOCK
+#endif //SYS_STREAM_OSTREAM_HPP_LOCK
 

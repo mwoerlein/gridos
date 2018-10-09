@@ -144,6 +144,12 @@ OStream & String::operator >>(OStream & stream) {
     return stream;
 }
 
+void String::operator >>(char *buffer) {
+    for (_Element * cur = first; cur; cur = cur->next) {
+        *buffer++ = (char) *cur;
+    }
+    *buffer = 0;
+}
 
 // protected
 

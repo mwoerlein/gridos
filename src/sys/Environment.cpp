@@ -1,6 +1,6 @@
 #include "sys/Environment.hpp"
 
-#include "sys/stream/OStreamFactory.hpp"
+#include "sys/stream/StreamFactory.hpp"
 
 void* operator new (size_t size, void* location) {
     return location;
@@ -31,16 +31,16 @@ OStream & Environment::setErr(OStream & err) {
     return *old;
 }
 
-OStreamFactory & Environment::oStreamFactory() {
+StreamFactory & Environment::streamFactory() {
     if (!_factory) {
-        *_err<<"accessing dummy OStreamFactory!\n";
-        _factory = &create<OStreamFactory>();
+        *_err<<"accessing dummy StreamFactory!\n";
+        _factory = &create<StreamFactory>();
     }
     return *_factory;
 }
 
-OStreamFactory & Environment::setOStreamFactory(OStreamFactory & factory) {
-    OStreamFactory *old = _factory;
+StreamFactory & Environment::setStreamFactory(StreamFactory & factory) {
+    StreamFactory *old = _factory;
     _factory = &factory;
     return *old;
 }

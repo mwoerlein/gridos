@@ -36,6 +36,7 @@ class String: public OStream, public ComparableC<char *>, public ComparableC<con
     virtual int compareTo(const char *cstring) override;
     virtual int compareTo(String &s) override;
     virtual OStream & operator >>(OStream & stream) override;
+    virtual void operator >>(char *buffer);
     virtual int hash() override;
     
     virtual IStream &toIStream();

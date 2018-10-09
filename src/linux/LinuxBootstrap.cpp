@@ -1,12 +1,13 @@
+#include "linux/LinuxBootstrap.hpp"
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "sys/Environment.hpp"
 #include "sys/Char.hpp"
-#include "sys/stream/OStreamFactory.hpp"
+#include "sys/stream/StreamFactory.hpp"
 #include "memory/MemoryInfoHelper.hpp"
-#include "test/TestSuite.hpp"
 
 static char normal[] = { 0x1b, '[', '0', ';', '3', '9', 'm', 0 };
 static char red[] = { 0x1b, '[', '1', ';', '3', '1', 'm', 0 };
@@ -33,23 +34,59 @@ class StdFileOStream: public OStream {
     std::FILE *file;
     
     public:
-    using OStream::operator <<;
     StdFileOStream(Environment &env, MemoryInfo &mi, const char *name)
         : Object(env, mi), file(std::fopen(name, "w")) {}
     virtual ~StdFileOStream() { std::fclose(file); }
     
+    using OStream::operator <<;
     virtual OStream &operator <<(char c) override {
         std::fputc(c, file);
         return *this;
     }
 };
 
-class StdFileOStreamFactory: public OStreamFactory {
+class StdFileIStream: public IStream {
+    private:
+    std::FILE *file;
+    
     public:
-    StdFileOStreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): OStreamFactory(env, mi), Object(env, mi) {}
-    virtual ~StdFileOStreamFactory() {}
+    StdFileIStream(Environment &env, MemoryInfo &mi, const char *name)
+        : Object(env, mi), file(std::fopen(name, "r")) {}
+    virtual ~StdFileIStream() { std::fclose(file); }
+    
+    using IStream::operator >>;
+    virtual IStream & operator >>(char &c) {
+        c = std::fgetc(file);
+        return *this;
+    }
+    virtual bool isEmpty() {
+        int last = std::fgetc(file);
+        bool ret = last == EOF;
+        std::ungetc(last, file);
+        return ret;
+    }
+};
+
+class StdFileStreamFactory: public StreamFactory {
+    public:
+    StdFileStreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): StreamFactory(env, mi), Object(env, mi) {}
+    virtual ~StdFileStreamFactory() {}
+    
     virtual OStream & buildOStream(const char * name) override {
         return env().create<StdFileOStream, const char *>(name);
+    }
+    virtual OStream & buildOStream(String & name) override {
+        char buffer[FILENAME_MAX];
+        name >> buffer;
+        return env().create<StdFileOStream, const char *>(buffer);
+    }
+    virtual IStream & buildIStream(const char * name) override {
+        return env().create<StdFileIStream, const char *>(name);
+    }
+    virtual IStream & buildIStream(String & name) override {
+        char buffer[FILENAME_MAX];
+        name >> buffer;
+        return env().create<StdFileIStream, const char *>(buffer);
     }
 };
 
@@ -93,19 +130,16 @@ class MallocAllocator: public MemoryAllocator {
     virtual void dump(OStream &log, bool all = false) override {}
 };
 
-int main() {
+Environment & LinuxBootstrap::buildEnvironment() {
+    MallocAllocator bsMa(*(Environment*)0);
     
-    Environment env;
-    StdOStream bsOut(env, *notAnInfo, std::cout, normal);
-    env.setOut(bsOut);
-    StdOStream bsErr(env, *notAnInfo, std::cerr, red);
-    env.setErr(bsErr);
-    MallocAllocator bsMa(env);
+    MemoryInfo &envInfo = bsMa.allocate(sizeof(Environment), 0);
+    Environment &env = *(new (envInfo.buf) Environment());
     env.setAllocator(bsMa);
-    StdFileOStreamFactory bsFac(env);
-    env.setOStreamFactory(bsFac);
     
-    TestSuite &ts = env.create<TestSuite>();
-    ts.runAll();
-    env.destroy(ts);
+    env.setAllocator(env.create<MallocAllocator>());
+    env.setOut(env.create<StdOStream, std::ostream &, const char *>(std::cout, normal));
+    env.setErr(env.create<StdOStream, std::ostream &, const char *>(std::cerr, red));
+    env.setStreamFactory(env.create<StdFileStreamFactory>());
+    return env;
 }

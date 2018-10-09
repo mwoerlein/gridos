@@ -33,7 +33,7 @@ KernelEnvironment & I386Bootstrap::buildEnvironment(unsigned long magic, void *m
     bootInformation.registerMemory(memoryRegistry);
     
     // create "heap"-based environment and memory management
-    MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(KernelEnvironment), this);
+    MemoryInfo &envInfo = memoryRegistry.allocate(sizeof(KernelEnvironment), 0);
     KernelEnvironment &env = *(new (envInfo.buf) KernelEnvironment(memoryRegistry, bsOut, bsOut));
     
     MemoryManager &mm = env.create<MemoryManager>();

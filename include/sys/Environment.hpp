@@ -2,7 +2,7 @@
 #define ENVIRONMENT_HPP_LOCK
 
 class OStream;
-class OStreamFactory;
+class StreamFactory;
 #include "sys/Object.hpp"
 #include "memory/MemoryAllocator.hpp"
 
@@ -12,7 +12,7 @@ class Environment: virtual public Object {
     private:
     MemoryAllocator * ma;
     OStream *_out, *_err;
-    OStreamFactory *_factory;
+    StreamFactory *_factory;
     
     public:
     Environment();
@@ -23,8 +23,8 @@ class Environment: virtual public Object {
     OStream & setOut(OStream & newOut);
     OStream & err();
     OStream & setErr(OStream & newErr);
-    OStreamFactory & oStreamFactory();
-    OStreamFactory & setOStreamFactory(OStreamFactory & factory);
+    StreamFactory & streamFactory();
+    StreamFactory & setStreamFactory(StreamFactory & factory);
     
     MemoryAllocator & getAllocator();
     MemoryAllocator & setAllocator(MemoryAllocator & allocator);

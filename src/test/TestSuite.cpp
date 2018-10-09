@@ -62,7 +62,7 @@ Environment & TestSuite::createTestEnvironment(size_t memorySize) {
     
     // create own test environment    
     Environment &testEnv = env().create<Environment, MemoryAllocator&, OStream&, OStream&>(mm, env().out(), env().err());
-    testEnv.setOStreamFactory(env().oStreamFactory());
+    testEnv.setStreamFactory(env().streamFactory());
     
     return testEnv;
 }

@@ -13,14 +13,9 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 
 extern "C" {
 
-KernelEnvironment & bootstrapEnvironment(unsigned long magic, void *mbi, void *mbh) {
-    I386Bootstrap bs;
-    return bs.buildEnvironment(magic, mbi, mbh);
-}
-
 void bootstrap(unsigned long magic, void *mbi, void *mbh){
     // create environment
-    KernelEnvironment &env = bootstrapEnvironment(magic, mbi, mbh);
+    KernelEnvironment &env = I386Bootstrap::buildEnvironment(magic, mbi, mbh);
     if (!&env) {
         return;
     }

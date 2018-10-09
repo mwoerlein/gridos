@@ -4,14 +4,15 @@ BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
-TESTSUITELIBS = test.a KernelJIT.a $(MASCHINE)ASM.a memory.a sys.a
+TESTSUITELIBS = test.a KernelJIT.a $(MASCHINE)ASM.a linux.a memory.a sys.a
+PASMLIBS = $(MASCHINE)ASM.a linux.a memory.a sys.a
 
 .PHONY: all clean libs rlibs tests
 
 all: clean $(IMGDIR)/bootdisk.img
 
-tests: clean test/suite
-	@test/suite
+tests: clean $(BINDIR)/testsuite
+	@$(BINDIR)/testsuite
 
 libs: 
 	@$(MAKE) $(MAKEOP) MASCHINE=$(MASCHINE) RLIBS="$(LIBS)" rlibs
@@ -19,7 +20,7 @@ rlibs:
 	$(MAKELIB) LIB=$(THIS) $(THIS)
 	if [ "$(REST)" != "" ] ; then $(MAKE) $(MAKEOP) MASCHINE=$(MASCHINE) RLIBS="$(REST)" rlibs; fi
 
-$(LIBDIR) $(IMGDIR):
+$(LIBDIR) $(IMGDIR) $(BINDIR):
 	@mkdir -p $@
 
 $(IMGDIR)/bootdisk.img: $(IMGDIR) $(BOOTBLOCKS)
@@ -33,6 +34,10 @@ clean:
 	@rm -rf $(OBJDIR) $(LIBDIR) test/suite
 	@$(MAKEBOOT) $@
 
-test/suite: test/suite.cpp $(TESTSUITELIBS:%=$(LIBDIR)/%)
+$(BINDIR)/testsuite: $(SRCDIR)/commands/testsuite.cpp $(TESTSUITELIBS:%=$(LIBDIR)/%) $(BINDIR)
 	@echo "build test suite"
 	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(TESTSUITELIBS:%=$(LIBDIR)/%)
+
+$(BINDIR)/pasm: $(SRCDIR)/commands/pasm.cpp $(PASMLIBS:%=$(LIBDIR)/%) $(BINDIR)
+	@echo "build pasm"
+	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(PASMLIBS:%=$(LIBDIR)/%)

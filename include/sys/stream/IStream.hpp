@@ -1,5 +1,5 @@
-#ifndef ISTREAM_HPP_LOCK
-#define ISTREAM_HPP_LOCK
+#ifndef SYS_STREAM_ISTREAM_HPP_LOCK
+#define SYS_STREAM_ISTREAM_HPP_LOCK
 
 #include "sys/Object.hpp"
 #include "sys/Char.hpp"
@@ -16,5 +16,5 @@ class IStream: virtual public Object {
     virtual OStream & operator >>(OStream & stream) override;
 };
 
-#endif //ISTREAM_HPP_LOCK
+#endif //SYS_STREAM_ISTREAM_HPP_LOCK
 

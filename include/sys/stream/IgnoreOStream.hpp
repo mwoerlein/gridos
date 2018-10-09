@@ -1,5 +1,5 @@
-#ifndef SYS_IGNOREOSTREAM_HPP_LOCK
-#define SYS_IGNOREOSTREAM_HPP_LOCK
+#ifndef SYS_STREAM_IGNOREOSTREAM_HPP_LOCK
+#define SYS_STREAM_IGNOREOSTREAM_HPP_LOCK
 
 #include "sys/stream/OStream.hpp"
 
@@ -9,9 +9,7 @@ class IgnoreOStream: public OStream {
     virtual ~IgnoreOStream() {}
     
     using OStream::operator <<;
-    virtual OStream &operator <<(char c) override {
-        return *this;
-    }
+    virtual OStream &operator <<(char c) override { return *this; }
 };
 
-#endif //SYS_IGNOREOSTREAM_HPP_LOCK
+#endif //SYS_STREAM_IGNOREOSTREAM_HPP_LOCK
