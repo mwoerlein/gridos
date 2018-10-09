@@ -4,9 +4,10 @@
 *.bin
 *.block
 
-/img/bootdisk.img
+/bin
 /multiboot_example/multiboot2.kernel
+/img/bootdisk.img
 /img/disk
 /img/disk.img
 /src/I386ASM/Parser.cpp
-/test/suite
+/src/KernelJIT/Module.cpp
