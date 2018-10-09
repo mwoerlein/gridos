@@ -32,8 +32,12 @@ size_t Module::getContentSize() {
 */
 
 bool Module::parseHeader() {
+    if (memoryInfo.len < 10) {
+        // too short for parsable header
+        return true;
+    }
     char *cursor = (char *) memoryInfo.buf;
-    if ((memoryInfo.len > 10) && (*cursor++ != '/') || (*cursor++ != '*') || (*cursor != '[')) {
+    if ((*cursor++ != '/') || (*cursor++ != '*') || (*cursor != '[')) {
         // no parsable header found
         return true;
     }
@@ -68,7 +72,7 @@ bool Module::parseHeader() {
 /*!stags:re2c format = 'char *@@;'; */
 #   define YYCTYPE     char
 #   define YYPEEK()    *cursor
-#   define YYSKIP()    if (++cursor == limit) break;
+#   define YYSKIP()    if (cursor++ == limit) break;
 #   define YYBACKUP()  mark = cursor
 #   define YYRESTORE() cursor = mark
 #   define YYSTAGP(t)  t = cursor    
