@@ -76,6 +76,7 @@ bool ParserTest::runAll() {
         << (char) 0xff << (char) 0x21                                                             // jmp (%ecx)
     ; 
     (pretty = "")
+        << ".code32\n"
         << "_start:\n"
         << "jmp _init\n"
         << "drawGtAddr:\n"
@@ -178,6 +179,7 @@ bool ParserTest::runAll() {
     ;
      
     (pretty = "")
+        << ".code32\n"
         << "blinking:\n"
         << "movl 0x0, %ebx\n"
         << "movl 0x0, %ecx\n"

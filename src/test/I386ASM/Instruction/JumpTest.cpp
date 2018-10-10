@@ -67,6 +67,7 @@ bool JumpTest::testRelative() {
         << (char) 0xE9 << (char) 0x56 << (char) 0xFF << (char) 0xFE << (char) 0xFF
     ;
     (pretty = "")
+        << ".code32\n"
         << "start:\n"
         << "jmp near_start\n" // 0 <= offset <= 127
         << "jmp end\n" // 127 < offset <= 32767
@@ -104,6 +105,7 @@ bool JumpTest::testIndirect() {
     String message(env());
     
     (in = "")
+        << ".code32\n"
         << "jmp %ebx\n"
         << "jmp (%ecx)\n"
         << "jmp 0x2(%ecx,%eax)\n"

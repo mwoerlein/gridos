@@ -4,6 +4,7 @@
 #include "sys/Object.hpp"
 #include "sys/String.hpp"
 #include "sys/collection/HashMap.hpp"
+#include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ParseErrorStream.hpp"
 
 class Number;
@@ -24,9 +25,10 @@ class ASMInstructionList: virtual public Object {
     ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error);
     virtual ~ASMInstructionList();
     
+    virtual void setMode(BitWidth mode);
     virtual void addLabel(String &label);
     virtual void addDefinition(String &definition, Number &value);
-    virtual void addInstruction(ASMInstruction &inst);
+    virtual void addInstruction(ASMInstruction &inst, BitWidth data = bit_auto, BitWidth addr = bit_auto);
     
     virtual bool hasLabel(String &label);
     virtual bool hasDefinition(String &label);

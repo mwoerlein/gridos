@@ -540,8 +540,9 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
     currentColumn = column;
     
     char *o1, *o2, *o3, *o4, *o5, *o6, *o7, *o8;
-    
     for (;;) {
+        BitWidth data = bit_auto, addr = bit_auto;
+detect_instruction:
         token = current;
 /*!re2c
         re2c:define:YYCURSOR = current;
@@ -552,7 +553,7 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
         re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
         re2c:define:YYFILL:naked = 1;
         
-        inst        = "."? id;
+        inst        = id | "."[bB][yY][tT][eE] | "."[wW][oO][rR][dD] | "."[lL][oO][nN][gG] | "."[oO][rR][gG] | "."[aA][lL][iI][gG][nN];
         operand     = register | id | number
                         | "(" wsp (number | id ) wsp ")"
                         | ((number | id) wsp)? "(" (wsp register)? ( wsp comma wsp register ( wsp comma wsp (id | number) )? )? wsp ")"
@@ -566,6 +567,13 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
         ( "//" | "#" ) @o1 [^\n]* @o2 eol { continue; }
         "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" { continue; }
 
+        ".code16" wsp / eoinst { list->setMode(bit_16); continue; }
+        ".code32" wsp / eoinst { list->setMode(bit_32); continue; }
+        ".data16" wsp { data = bit_16; goto detect_instruction; }
+        ".data32" wsp { data = bit_32; goto detect_instruction; }
+        ".addr16" wsp { addr = bit_16; goto detect_instruction; }
+        ".addr32" wsp { addr = bit_32; goto detect_instruction; }
+ 
         @o1 id @o2 wsp colon {
                     list->addLabel(parseStringValue(o1, o2));
                     continue;
@@ -577,28 +585,28 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
         @o1 inst @o2 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o2);
                     if (inst) {
-                        list->addInstruction(*inst);
+                        list->addInstruction(*inst, data, addr);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o4, parseOperand(o3, o4));
                     if (inst) {
-                        list->addInstruction(*inst);
+                        list->addInstruction(*inst, data, addr);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o6, parseOperand(o3, o4), parseOperand(o5, o6));
                     if (inst) {
-                        list->addInstruction(*inst);
+                        list->addInstruction(*inst, data, addr);
                     }
                     continue;
                   }
         @o1 inst @o2 wsp @o3 operand @o4 wsp comma wsp @o5 operand @o6 wsp comma wsp @o7 operand @o8 wsp / eoinst {
                     ASMInstruction * inst = parseInstruction(o1, o2, o8, parseOperand(o3, o4), parseOperand(o5, o6), parseOperand(o7, o8));
                     if (inst) {
-                        list->addInstruction(*inst);
+                        list->addInstruction(*inst, data, addr);
                     }
                     continue;
                   }

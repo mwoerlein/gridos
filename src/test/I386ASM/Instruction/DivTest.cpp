@@ -38,6 +38,7 @@ bool DivTest::testM() {
         << (char) 0xF7 << (char) 0x35 << (char) 0x78 << (char) 0x56 << (char) 0x34 << (char) 0x12
     ;
     (pretty = "")
+        << ".code32\n"
         << "divb %ah\n"
         << "divw %bx\n"
         << "divl %esp\n"

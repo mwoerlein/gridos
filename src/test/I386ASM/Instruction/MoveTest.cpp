@@ -48,6 +48,7 @@ bool MoveTest::testMR() {
         << (char) 0x89 << (char) 0xE4
     ;
     (pretty = "")
+        << ".code32\n"
         << "movl %eax, %eax\n"
         << "movb %al, %bh\n"
         << "movw %bx, %ax\n"
@@ -92,6 +93,7 @@ bool MoveTest::testMR() {
         << (char) 0xA3                << (char) 0x00 << (char) 0x02 << (char) 0x00 << (char) 0x00
     ;
     (pretty = "")
+        << ".code32\n"
         << "_start:\n"
         << "movb %al, (%eax)\n"
         << "movb %bh, 0x2(%eax)\n"
@@ -125,6 +127,7 @@ bool MoveTest::testMR() {
         << (char) 0x66 << (char) 0x8C << (char) 0xD2
     ;
     (pretty = "")
+        << ".code32\n"
         << "movl %cs, %eax\n"
         << "movl %ds, %ebp\n"
         << "movl %es, %esp\n"
@@ -148,6 +151,7 @@ bool MoveTest::testMR() {
         << (char) 0x8C << (char) 0x64 << (char) 0x07 << (char) 0x08
     ;
     (pretty = "")
+        << ".code32\n"
         << "movw %cs, (%eax)\n"
         << "movw %ds, 0x12c(%esp)\n"
         << "movw %es, (,%esi,8)\n"
@@ -193,6 +197,7 @@ bool MoveTest::testRM() {
         << (char) 0xA1                << (char) 0x00 << (char) 0x02 << (char) 0x00 << (char) 0x00
     ;
     (pretty = "")
+        << ".code32\n"
         << "movb (%eax), %dl\n"
         << "movb 0x5(%ebx), %ch\n"
         << "movw (%eax,%ecx), %bx\n"
@@ -225,6 +230,7 @@ bool MoveTest::testRM() {
         << (char) 0x66 << (char) 0x8E << (char) 0xD2
     ;
     (pretty = "")
+        << ".code32\n"
         << "movl %eax, %cs\n"
         << "movl %ebp, %ds\n"
         << "movl %esp, %es\n"
@@ -248,6 +254,7 @@ bool MoveTest::testRM() {
         << (char) 0x8E << (char) 0x54 << (char) 0xD8 << (char) 0x06
     ;
     (pretty = "")
+        << ".code32\n"
         << "movw (%eax), %cs\n"
         << "movw 0x12c(%ebp), %ds\n"
         << "movw (,%esi,2), %es\n"
@@ -280,6 +287,7 @@ bool MoveTest::testOI() {
         << (char) 0xBE << (char) 0x4E << (char) 0x61 << (char) 0xBC << (char) 0x00
     ;
     (pretty = "")
+        << ".code32\n"
         << "movb 0x0, %al\n"
         << "movb 0x1a, %bh\n"
         << "movw 0x1, %sp\n"
@@ -322,6 +330,7 @@ bool MoveTest::testMI() {
         << (char) 0xC7 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
     ;
     (pretty = "")
+        << ".code32\n"
         << "start:\n"
         << "movb start, (%eax)\n"
         << "movb 0xff, 0x2(%eax)\n"

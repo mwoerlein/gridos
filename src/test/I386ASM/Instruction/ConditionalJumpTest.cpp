@@ -21,6 +21,7 @@ bool ConditionalJumpTest::testD() {
     String message(env());
     
     (in = "")
+        << ".code32\n"
         << "start:\n"
         << "ja start\n"
         << "jae end\n"

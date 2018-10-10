@@ -7,11 +7,17 @@ class ASMInstructionList::_Elem: virtual public Object {
     ASMInstruction *inst;
     String *identifier;
     Number *value;
+    BitWidth mode, data, addr;
     
+    _Elem(Environment &env, MemoryInfo &mi, BitWidth mode)
+        :Object(env, mi),inst(0),identifier(0),value(0),
+        pos(0),next(0),mode(mode),data(bit_auto),addr(bit_auto) {}
     _Elem(Environment &env, MemoryInfo &mi, String *identifier, Number *value = 0)
-        :Object(env, mi),inst(0),identifier(identifier),value(value),pos(0),next(0) {}
-    _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst)
-        :Object(env, mi),inst(inst),identifier(0),value(0),pos(0),next(0) {}
+        :Object(env, mi),inst(0),identifier(identifier),value(value),
+        pos(0),next(0),mode(bit_auto),data(bit_auto),addr(bit_auto) {}
+    _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst, BitWidth data, BitWidth addr)
+        :Object(env, mi),inst(inst),identifier(0),value(0),
+        pos(0),next(0),mode(bit_auto),data(data),addr(addr) {}
     virtual ~_Elem() {
         if (inst) {
             inst->destroy();
@@ -28,7 +34,9 @@ class ASMInstructionList::_Elem: virtual public Object {
 // public
 ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error)
     : Object(env, mi), warn(error), err(env.create<ParseErrorStream, OStream&>(error)),
-      ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {}
+      ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {
+    setMode(bit_32);
+}
 ASMInstructionList::~ASMInstructionList() {
     _Elem * cur = first;
     while (cur) {
@@ -42,33 +50,38 @@ ASMInstructionList::~ASMInstructionList() {
     err.destroy();
 }
 
-void ASMInstructionList::addInstruction(ASMInstruction &inst) {
-    _Elem * e = &env().create<_Elem, ASMInstruction*>(&inst);
+void ASMInstructionList::setMode(BitWidth mode) {
+    if (last && !last->inst && !last->identifier) {
+        // reuse previous mode, if available
+        last->mode = mode;
+        return;
+    }
+    _Elem * e = &env().create<_Elem, BitWidth>(mode);
     if (!first) {
         first = last = e;
     } else {
         last = last->next = e;
     }
+}
+
+void ASMInstructionList::addInstruction(ASMInstruction &inst, BitWidth data, BitWidth addr) {
+    _Elem * e = &env().create<_Elem, ASMInstruction*>(&inst, data, addr);
+    e->mode = last->mode;
+    last = last->next = e;
     inst.list = this;
 }
 
 void ASMInstructionList::addLabel(String &label) {
     _Elem * e = &env().create<_Elem, String*>(&label);
-    if (!first) {
-        first = last = e;
-    } else {
-        last = last->next = e;
-    }
+    e->mode = last->mode;
+    last = last->next = e;
     ids.set(label, *e);
 }
 
 void ASMInstructionList::addDefinition(String &definition, Number &value) {
     _Elem * e = &env().create<_Elem, String*, Number*>(&definition, &value);
-    if (!first) {
-        first = last = e;
-    } else {
-        last = last->next = e;
-    }
+    e->mode = last->mode;
+    last = last->next = e;
     ids.set(definition, *e);
 }
 
@@ -167,7 +180,15 @@ class DebugOStreamWrapper: public OStream {
 
 void ASMInstructionList::logToStream(OStream &stream, bool debug) {
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        if (cur->inst) {        
+        if (cur->inst) {      
+            if (cur->data != cur->mode) switch (cur->data) {
+                case bit_32: stream << ".data32 "; break;
+                case bit_16: stream << ".data16 "; break;
+            }
+            if (cur->addr != cur->mode) switch (cur->addr) {
+                case bit_32: stream << ".addr32 "; break;
+                case bit_16: stream << ".addr16 "; break;
+            }
             stream << *cur->inst;
             if (debug) {
                 DebugOStreamWrapper wrap(env(), *notAnInfo, stream);
@@ -188,6 +209,11 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
                 stream << *cur->identifier << " := " << *cur->value;
             } else {
                 stream << *cur->identifier << ":";
+            }
+        } else {
+            switch (cur->mode) {
+                case bit_32: stream << ".code32"; break;
+                case bit_16: stream << ".code16"; break;
             }
         }
         stream << '\n';

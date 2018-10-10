@@ -12,6 +12,7 @@ bool InlineAlignOrgTest::runAll() {
     String message(env());
     
     (in = "")
+        << ".code32\n"
         << ".byte 0x0\n"
         << ".byte 0x12\n"
         << ".align 0x4\n"
@@ -36,7 +37,7 @@ bool InlineAlignOrgTest::runAll() {
         << (char) 0x21 << (char) 0x43 << (char) 0x65 << (char) 0x87
     ;
     
-    success &= test(in, bin, in, message = "test \"inline align org\"",0,"/tmp/iao.bin");
+    success &= test(in, bin, in, message = "test \"inline align org\"");
     
     return success;
 }

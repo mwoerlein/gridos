@@ -1,5 +1,5 @@
 /* Code */
-#//.code16
+.code16
 loader_start:
 /* set up the REAL stack */
     .byte 0xbc; .word GRIDOS_STACK_ADDR #// movw GRIDOS_STACK_ADDR, %sp
@@ -18,7 +18,6 @@ halt:
     jmp halt
 
 .org GRIDOS_LOADER_MPT_START
-    jmp loader_end
 .org GRIDOS_LOADER_MPT_END
     .word GRIDOS_LOADER_MBR_SIGNATURE
 

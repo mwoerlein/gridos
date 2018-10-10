@@ -55,6 +55,7 @@ bool AddTest::testMI() {
         << (char) 0x81 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
     ;
     (pretty = "")
+        << ".code32\n"
         << "start:\n"
         << "addb start, %al\n"
         << "addw start, %ax\n"
@@ -100,6 +101,7 @@ bool AddTest::testMR() {
         << (char) 0x01 << (char) 0x2C << (char) 0xCC
     ;
     (pretty = "")
+        << ".code32\n"
         << "addb %al, %al\n"
         << "addw %bx, %dx\n"
         << "addl %esp, %ebp\n"
@@ -131,6 +133,7 @@ bool AddTest::testRM() {
         << (char) 0x03 << (char) 0x2C << (char) 0xCC
     ;
     (pretty = "")
+        << ".code32\n"
         << "addb 0x2(%esp), %ah\n"
         << "addw 0x6(%eax,%edi,4), %di\n"
         << "addl (%esp,%ecx,8), %ebp\n"

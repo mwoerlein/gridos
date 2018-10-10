@@ -10,22 +10,22 @@ bool NoOperandInstructionTest::runAll() {
     
     {
         const char bin[] = {(char)0xf4, 0};
-        success &= test("HLT", bin, "hlt\n");
+        success &= test("HLT", bin, ".code32\nhlt\n");
     }
     
     {
         const char bin[] = {(char)0xfa, 0};
-        success &= test("ClI", bin, "cli\n");
+        success &= test("ClI", bin, ".code32\ncli\n");
     }
     
     {
         const char bin[] = {(char)0xfb, 0};
-        success &= test("STi", bin, "sti\n");
+        success &= test("STi", bin, ".code32\nsti\n");
     }
     
     {
         const char bin[] = {(char)0x90, 0};
-        success &= test("nOP", bin, "nop\n");
+        success &= test("nOP", bin, ".code32\nnop\n");
     }
     
     return success;
