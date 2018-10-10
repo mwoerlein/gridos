@@ -37,7 +37,7 @@ $(BOOTDIR)/$(MASCHINE)_loader.block: $(BOOTDIR)/$(MASCHINE)_loader.o
 	echo "creating $@"
 	ld -e loader_start -Ttext 0x0 -s --oformat binary -m elf_i386 -o $@ $<
 
-$(BOOTDIR)/$(MASCHINE)_loader.x86: $(BOOTDIR)/$(MASCHINE)_loader.pasm
+$(BOOTDIR)/$(MASCHINE)_loader.bin: $(BOOTDIR)/$(MASCHINE)_loader.pasm
 	echo "creating $@"
 	$(BINDIR)/pasm -bo -o $@ $<
 

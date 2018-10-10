@@ -25,7 +25,6 @@ void Organize::checkOperands() {
 
 void Organize::validateOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
-        BitWidth nw = getUnsignedBitWidth(n1->value());
         if (n1->value() < pos) {
             list->err<<"invalid organize '"<<n1->value()<<"' at pos "<<pos<<"\n";
         }
@@ -39,12 +38,12 @@ size_t Organize::compileOperands() {
         immSize = n1->value() - pos;
         return immSize;
     }
-    return 0;
+    return -1;
 }
 
 void Organize::writeToStream(OStream & stream) {
     for (size_t i = 0; i < immSize; i++) {
-        stream << (char) 0;
+        stream << (char) 0x0;
     }
 }
 
@@ -52,5 +51,5 @@ void Organize::writeOperandsToStream(OStream & stream) {
 }
 
 OStream & Organize::operator >>(OStream & stream) {
-    return stream << ".org " << *o1 << '\n';
+    return stream << ".org " << *o1;
 }

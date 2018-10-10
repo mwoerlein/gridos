@@ -12,6 +12,7 @@
 #include "I386ASM/Instruction/Div.hpp"
 #include "I386ASM/Instruction/Inline.hpp"
 #include "I386ASM/Instruction/Organize.hpp"
+#include "I386ASM/Instruction/Align.hpp"
 
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
@@ -514,6 +515,10 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         "."[oO][rR][gG] {
             if (!op1 || op2 || op3) return 0;
             return &env().create<Organize, ASMOperand*>(op1);
+        }
+        "."[aA][lL][iI][gG][nN] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Align, ASMOperand*>(op1);
         }
 
         * { break; }

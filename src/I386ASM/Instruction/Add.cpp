@@ -145,7 +145,7 @@ size_t Add::compileOperands() {
         useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize;
     }
-    return 0;
+    return -1;
 }
 
 void Add::writeOperandsToStream(OStream & stream) {

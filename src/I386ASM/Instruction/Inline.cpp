@@ -36,7 +36,7 @@ size_t Inline::compileOperands() {
         immSize = (int) operandSize;
         return immSize;
     }
-    return 0;
+    return -1;
 }
 
 void Inline::writeToStream(OStream & stream) {
@@ -53,5 +53,5 @@ OStream & Inline::operator >>(OStream & stream) {
         case bit_16: stream << ".word "; break;
         case bit_32: stream << ".long "; break;
     }
-    return stream << *o1 << '\n';
+    return stream << *o1;
 }

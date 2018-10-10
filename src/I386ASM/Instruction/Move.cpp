@@ -207,7 +207,7 @@ size_t Move::compileOperands() {
         useIndirectSizes(i2);
         return size + 1 + modrmSize + sibSize + dispSize;
     }
-    return 0;
+    return -1;
 }
 
 void Move::writeOperandsToStream(OStream & stream) {

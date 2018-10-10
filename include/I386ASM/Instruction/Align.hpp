@@ -1,9 +1,9 @@
-#ifndef I386ASM_INSTRUCTION_ORGANIZE_HPP_LOCK
-#define I386ASM_INSTRUCTION_ORGANIZE_HPP_LOCK
+#ifndef I386ASM_INSTRUCTION_ALIGN_HPP_LOCK
+#define I386ASM_INSTRUCTION_ALIGN_HPP_LOCK
 
 #include "I386ASM/ASMInstruction.hpp"
 
-class Organize: public ASMInstruction {
+class Align: public ASMInstruction {
     protected:
     virtual size_t approximateSizeInBytes() override;
     virtual void checkOperands() override;
@@ -12,12 +12,12 @@ class Organize: public ASMInstruction {
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
-    Organize(Environment &env, MemoryInfo &mi, ASMOperand *o1)
-        :ASMInstruction(env, mi, ".org", bit_auto, o1), Object(env, mi) {}
-    virtual ~Organize() {}
+    Align(Environment &env, MemoryInfo &mi, ASMOperand *o1)
+        :ASMInstruction(env, mi, ".align", bit_auto, o1), Object(env, mi) {}
+    virtual ~Align() {}
     
     virtual void writeToStream(OStream &stream) override;
     virtual OStream & operator >>(OStream & stream) override;
 };
 
-#endif //I386ASM_INSTRUCTION_ORGANIZE_HPP_LOCK
+#endif //I386ASM_INSTRUCTION_ALIGN_HPP_LOCK

@@ -94,8 +94,7 @@ size_t Jump::compileOperands() {
         useIndirectSizes(i1);
         return 1 + modrmSize + sibSize + dispSize;
     }
-        
-    return 0;
+    return -1;
 }
 
 void Jump::writeOperandsToStream(OStream & stream) {

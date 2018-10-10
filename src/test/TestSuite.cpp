@@ -20,6 +20,7 @@
 #include "test/I386ASM/Instruction/JumpTest.hpp"
 #include "test/I386ASM/Instruction/ConditionalJumpTest.hpp"
 #include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
+#include "test/I386ASM/Instruction/InlineAlignOrgTest.hpp"
 
 // public
 TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
@@ -42,6 +43,7 @@ void TestSuite::runAll() {
     
 //*/
     run<NoOperandInstructionTest>();
+    run<InlineAlignOrgTest>();
     run<MoveTest>();
     run<AddTest>();
     run<DivTest>();

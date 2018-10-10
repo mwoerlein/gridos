@@ -75,8 +75,9 @@ size_t ASMInstruction::compile() {
     if (list->hasErrors()) return 0;
     
     size = compileOperands();
-    if (!size) {
+    if (size < 0) {
         list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
+        size = 0;
     }
     return size;
 }

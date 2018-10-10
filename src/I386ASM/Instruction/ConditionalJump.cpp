@@ -78,8 +78,7 @@ size_t ConditionalJump::compileOperands() {
         immSize = (int) bit_32;
         return 2 + immSize;
     }
-        
-    return 0;
+    return -1;
 }
 
 void ConditionalJump::writeOperandsToStream(OStream & stream) {
