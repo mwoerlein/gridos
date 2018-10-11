@@ -13,6 +13,7 @@ class Indirect: public ASMOperand {
     Register *_base;
     Register *_index;
     int _scale;
+    BitWidth addrSize = bit_auto;
     
     public:
     Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Identifier *displacementId = 0, Number *displacement = 0, Register * index = 0, int scale = 1)
@@ -33,25 +34,70 @@ class Indirect: public ASMOperand {
         }
     }
     
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) override {
-        if (_base) {
-            if (_base->getOperandSize() != bit_32) {
-                list.err << "invalid base register: " << *_base << '\n';
-            }
-        }
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override {
+        addrSize = mode;
         if (_index) {
-            if (_index->getOperandSize() != bit_32 || (*_index == reg_esp)) {
-                list.err << "invalid index register: " << *_index << '\n';
+            switch (_index->name()) {
+                case reg_eax:
+                case reg_ebx:
+                case reg_ecx:
+                case reg_edx:
+                case reg_edi:
+                case reg_esi:
+                case reg_ebp:
+                case reg_di:
+                case reg_si:
+                    addrSize = _index->getOperandSize();
+                    break;
+                default:
+                    list.err << "invalid index register: " << *_index << '\n';
             }
         }
-        switch (_scale) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
-                break;
-            default:
+        if (_base) {
+            switch (_base->name()) {
+                case reg_eax:
+                case reg_ebx:
+                case reg_ecx:
+                case reg_edx:
+                case reg_edi:
+                case reg_esi:
+                case reg_ebp:
+                case reg_esp:
+                case reg_bx:
+                case reg_bp:
+                    addrSize = _base->getOperandSize();
+                    break;
+                case reg_di:
+                case reg_si:
+                    if (_index) {
+                        list.err << "invalid index register: " << *_index << '\n';
+                    } else {
+                        addrSize = _base->getOperandSize();
+                    }
+                    break;
+                default:
+                    list.err << "invalid base register: " << *_base << '\n';
+            }
+        }
+        if (_base && _index) {
+            if (_base->getOperandSize() != _index->getOperandSize()) {
+                list.err << "index and base register do not match: " << *this << '\n';
+            }
+        }
+        if (addrSize == bit_32) {
+            switch (_scale) {
+                case 1:
+                case 2:
+                case 4:
+                case 8:
+                    break;
+                default:
+                    list.err << "invalid scale: " << _scale << '\n';
+            }
+        } else {
+            if (_scale != 1) {
                 list.err << "invalid scale: " << _scale << '\n';
+            }
         }
         if (Number * disp = _displacementId ? _displacementId->validateAndResolveDefinition(list) : 0) {
             _displacementId->destroy();
@@ -65,57 +111,92 @@ class Indirect: public ASMOperand {
         return 0;
     }
     
+    virtual BitWidth getAddrSize() {
+        return addrSize;
+    }
+    
     virtual int getModRMSize() {
         return 1;
     }
     
     virtual int getSibSize() {
+        if (addrSize == bit_16) {
+            return 0;
+        }
         if (_index || (_base && (*_base == reg_esp))) {
             return 1;
         }
         return 0;
     }
     
-    virtual int getDispSize() {
+    virtual BitWidth getDispSize() {
         if (_displacementId) {
-            return 4;
+            return addrSize;
         }
         if (_displacement) {
             int value = _displacement->value();
             if ((_base || _index) && (-128 <= value && value <= 127)) {
-                return 1; 
+                return bit_8; 
             }
-            return 4;
+            return addrSize;
+        }
+        if (_base && (*_base == reg_bp) && !_index) {
+            return bit_8; // use 0(%bp)
         }
         if (!_base && _index) {
-            return 4;
+            return addrSize; // use 0(,<_index>)
         }
-        return 0;
+        return bit_auto; // no disp bytes
     }
 
     virtual char getModRM(int reg) {
-        switch (getDispSize()) {
-            case 0:
-                if (_index) {
-                    return ModRM(0, reg, 4);
-                }
-                return ModRM(0, reg, _base->getOpCodeRegister());
-            case 1:
-                if (_index) {
-                    return ModRM(1, reg, 4);
-                }
-                return ModRM(1, reg, _base->getOpCodeRegister());
-            case 4:
-                if (_index) {
-                    if (_base) {
-                        return ModRM(2, reg, 4);
+        switch (addrSize) {
+            case bit_32: switch (getDispSize()) {
+                case bit_auto:
+                    if (_index) {
+                        return ModRM(0, reg, 4);
                     }
-                    return ModRM(0, reg, 4);
+                    return ModRM(0, reg, _base->getOpCodeRegister());
+                case bit_8:
+                    if (_index) {
+                        return ModRM(1, reg, 4);
+                    }
+                    return ModRM(1, reg, _base->getOpCodeRegister());
+                case bit_32:
+                    if (_index) {
+                        if (_base) {
+                            return ModRM(2, reg, 4);
+                        }
+                        return ModRM(0, reg, 4);
+                    }
+                    if (_base) {
+                        return ModRM(2, reg, _base->getOpCodeRegister());
+                    }
+                    return ModRM(0, reg, 5);
+                default:
+                    return -1;
+            }
+            case bit_16: { 
+                if (!_base) {
+                    // 16 bit offset
+                    return ModRM(0, reg, 6);
                 }
-                if (_base) {
-                    return ModRM(2, reg, _base->getOpCodeRegister());
+                int mod = 0;
+                switch (getDispSize()) {
+                    case bit_8: mod = 1; break;
+                    case bit_16: mod = 2;break;
                 }
-                return ModRM(0, reg, 5);
+                switch (_base->name()) {
+                    case reg_bx:
+                        return ModRM(mod, reg, (!_index ? 7 : ((*_index == reg_si) ? 0 : 1)));
+                    case reg_bp:
+                        return ModRM(mod, reg, (!_index ? 6 : ((*_index == reg_si) ? 2 : 3)));
+                    case reg_si:
+                        return ModRM(mod, reg, 4);
+                    case reg_di:
+                        return ModRM(mod, reg, 5);
+                }
+            }
         }
         return -1;
     }

@@ -10,7 +10,7 @@ class ASMOperand: virtual public Object {
     public:
     virtual ~ASMOperand() {}
     
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) {
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) {
         return 0;
     }
     virtual OStream & operator >>(OStream & stream) = 0;

@@ -1,7 +1,7 @@
 #include "I386ASM/Instruction/Jump.hpp"
 
 // protected
-size_t Jump::approximateSizeInBytes() {
+size_t Jump::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1 || n1) {
@@ -16,7 +16,7 @@ size_t Jump::approximateSizeInBytes() {
         size_t size = 1; // opcode
         size += i1->getModRMSize();
         size += i1->getSibSize();
-        size += i1->getDispSize();
+        size += (int) i1->getDispSize();
         return size;
     }
     return 7; // all over maximum
@@ -56,7 +56,7 @@ void Jump::validateOperands() {
     return;
 }
 
-size_t Jump::compileOperands() {
+size_t Jump::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);

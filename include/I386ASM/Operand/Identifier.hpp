@@ -31,7 +31,7 @@ class Identifier: public ASMOperand {
         return 0;
     }
     
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list) override {
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override {
         return validateAndResolveDefinition(list);
     }
     

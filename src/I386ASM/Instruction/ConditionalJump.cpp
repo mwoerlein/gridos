@@ -1,7 +1,7 @@
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 
 // protected
-size_t ConditionalJump::approximateSizeInBytes() {
+size_t ConditionalJump::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
     return 6; // all over maximum
 }
 
@@ -41,7 +41,7 @@ void ConditionalJump::validateOperands() {
     return;
 }
 
-size_t ConditionalJump::compileOperands() {
+size_t ConditionalJump::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1) {

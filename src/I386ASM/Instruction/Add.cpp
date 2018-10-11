@@ -1,18 +1,14 @@
 #include "I386ASM/Instruction/Add.hpp"
 
 // protected
-size_t Add::approximateSizeInBytes() {
+size_t Add::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
     size_t size = 2; //opcode, modrm
-    if (operandSize == bit_16) {
-        size++;
-    }
-    
-    if (addrSize == bit_16) {
+    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
         size++;
     }
     
@@ -20,12 +16,18 @@ size_t Add::approximateSizeInBytes() {
         size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
     }
     if (i1) {
+        if (mode != i1->getAddrSize()) {
+            size++;
+        }
         size += i1->getSibSize();
-        size += i1->getDispSize();
+        size += (int) i1->getDispSize();
     } 
     if (i2) {
+        if (mode != i2->getAddrSize()) {
+            size++;
+        }
         size += i2->getSibSize();
-        size += i2->getDispSize();
+        size += (int) i2->getDispSize();
     }
     return size;
 }
@@ -96,7 +98,7 @@ void Add::validateOperands() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Add::compileOperands() {
+size_t Add::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
     size_t size = 0;
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
@@ -105,9 +107,8 @@ size_t Add::compileOperands() {
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
-    if (operandSize == bit_16) {
-        pre3 = 0x66;
-        size++;
+    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
+        pre3 = 0x66; size++;
     }
     
     if (addrSize == bit_16) {
@@ -131,17 +132,30 @@ size_t Add::compileOperands() {
             }
         }
         modrmSize = 1;
-        if (i2) { useIndirectSizes(i2); }
+        if (i2) {
+            if (mode != i2->getAddrSize()) {
+                pre4 = 0x67; size++;
+            }    
+            useIndirectSizes(i2);
+        }
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (r1 && (r2 || i2)) {
         op1 = (operandSize == bit_8) ? 0x00 : 0x01;
         modrmSize = 1;
-        if (i2) { useIndirectSizes(i2); }
+        if (i2) {
+            if (mode != i2->getAddrSize()) {
+                pre4 = 0x67; size++;
+            }    
+            useIndirectSizes(i2);
+        }
         return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (i1 && r2) {
         op1 = (operandSize == bit_8) ? 0x02 : 0x03;
+        if (mode != i1->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize;
     }

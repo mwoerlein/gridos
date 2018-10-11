@@ -217,6 +217,7 @@ class Register: public ASMOperand {
         }
         return false;
     }
+    inline RegisterName name() { return _reg; }
     inline bool operator ==(RegisterName reg) { return _reg == reg; }
     inline bool operator !=(RegisterName reg) { return _reg != reg; }
 };

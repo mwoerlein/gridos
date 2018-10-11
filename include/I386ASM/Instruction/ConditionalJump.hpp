@@ -10,10 +10,10 @@ class ConditionalJump: public ASMInstruction {
     protected:
     InstructionCondition condition;
     
-    virtual size_t approximateSizeInBytes() override;
+    virtual size_t approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) override;
     virtual void checkOperands() override;
     virtual void validateOperands() override;
-    virtual size_t compileOperands() override;
+    virtual size_t compileOperands(BitWidth data, BitWidth addr, BitWidth mode) override;
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:

@@ -118,7 +118,11 @@ size_t ASMInstructionList::compile() {
         cur->pos = pos;
         if (cur->inst) {    
             cur->inst->pos = pos;
-            pos += cur->inst->prepare();
+            pos += cur->inst->prepare(
+                (cur->data == bit_auto) ? cur->mode : cur->data,
+                (cur->addr == bit_auto) ? cur->mode : cur->addr,
+                cur->mode
+            );
         }
     }
     pos = 0;
@@ -126,7 +130,11 @@ size_t ASMInstructionList::compile() {
         cur->pos = pos;
         if (cur->inst) {    
             cur->inst->pos = pos;
-            pos += cur->inst->compile();
+            pos += cur->inst->compile(
+                (cur->data == bit_auto) ? cur->mode : cur->data,
+                (cur->addr == bit_auto) ? cur->mode : cur->addr,
+                cur->mode
+            );
         }
     }
     return pos;

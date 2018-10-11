@@ -1,30 +1,33 @@
 #include "I386ASM/Instruction/Move.hpp"
 
 // protected
-size_t Move::approximateSizeInBytes() {
+size_t Move::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
     size_t size = 2; //opcode, modrm
-    if (operandSize == bit_16) {
+    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
         size++;
     }
     
-    if (addrSize == bit_16) {
-        size++;
-    }
     if (n1 || id1) {
         size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
     }
     if (i1) {
+        if (mode != i1->getAddrSize()) {
+            size++;
+        }
         size += i1->getSibSize();
-        size += i1->getDispSize();
+        size += (int) i1->getDispSize();
     } 
     if (i2) {
+        if (mode != i2->getAddrSize()) {
+            size++;
+        }
         size += i2->getSibSize();
-        size += i2->getDispSize();
+        size += (int) i2->getDispSize();
     }
     return size;
 }
@@ -125,7 +128,7 @@ void Move::validateOperands() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Move::compileOperands() {
+size_t Move::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
     size_t size = 0;
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
@@ -138,14 +141,8 @@ size_t Move::compileOperands() {
     Register *sr1 = (r1 && (r1->kind() == reg_segment)) ? r1 : 0;
     Register *sr2 = (r2 && (r2->kind() == reg_segment)) ? r2 : 0;
     
-    if (operandSize == bit_16) {
-        pre3 = 0x66;
-        size++;
-    }
-    
-    if (addrSize == bit_16) {
-        pre4 = 0x67;
-        size++;
+    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
+        pre3 = 0x66; size++;
     }
     
     if ((n1 || id1) && gr2) {
@@ -155,6 +152,9 @@ size_t Move::compileOperands() {
         return size + 1 + immSize;
     }
     if ((n1 || id1) && i2) {
+        if (mode != i2->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xC6 : 0xC7;
         useIndirectSizes(i2);
@@ -166,6 +166,9 @@ size_t Move::compileOperands() {
         return size + 1 + modrmSize;
     }
     if (gr1 && i2) {
+        if (mode != i2->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         if (i2->isOffset() && (gr1->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA2 : 0xA3;
             dispSize = (int) addrSize;
@@ -176,6 +179,9 @@ size_t Move::compileOperands() {
         return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (i1 && gr2) {
+        if (mode != i1->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         if (i1->isOffset() && (gr2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA0 : 0xA1;
             dispSize = (int) addrSize;
@@ -191,7 +197,12 @@ size_t Move::compileOperands() {
         return size + 1 + modrmSize;
     }
     if (i1 && sr2) {
-        pre3 = 0; size--; // segment register implicit use 16 bit 
+        if (pre3) {
+            pre3 = 0; size--; // segment register implicit uses 16 bit
+        } 
+        if (mode != i1->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         op1 = 0x8E;
         useIndirectSizes(i1);
         return size + 1 + modrmSize + sibSize + dispSize;
@@ -202,7 +213,12 @@ size_t Move::compileOperands() {
         return size + 1 + modrmSize;
     }
     if (sr1 && i2) {
-        pre3 = 0; size--; // segment register implicit use 16 bit 
+        if (pre3) {
+            pre3 = 0; size--; // segment register implicit uses 16 bit
+        } 
+        if (mode != i2->getAddrSize()) {
+            pre4 = 0x67; size++;
+        }    
         op1 = 0x8C;
         useIndirectSizes(i2);
         return size + 1 + modrmSize + sibSize + dispSize;

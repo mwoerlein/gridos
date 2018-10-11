@@ -315,7 +315,17 @@ bool MoveTest::testMI() {
         << "movl 0xC0FFEE, (%ecx,%edi,8)\n"
         << "movl fefe, 0xBF000(,%esi,2)\n"
         << "movl 0xFEFE, 0xBF000(%ebp,%eax,1)\n"
-        << "movl 0xDEADBEEF, (0x20)\n"
+        << ".addr32 movl 0xDEADBEEF, (0x20)\n"
+        
+        << "movb start, (%bx)\n"
+        << "movb start, (%bp)\n"
+        << "movb ff, 2(%bx)\n"
+        << "movw 12, (%bx, %di)\n"
+        << "movw 1024, 6(%bp,%si)\n"
+        << "movl 0xC0FFEE, (%di)\n"
+        << "movl fefe, 0xABCD(%si)\n"
+        << ".addr16 movl 0xDEADBEEF, (0x20)\n"
+
         << "fefe := 0xFEFE\n"
         << "ff := 0xFF\n"
     ;
@@ -328,6 +338,15 @@ bool MoveTest::testMI() {
         << (char) 0xC7 << (char) 0x04 << (char) 0x75 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00 << (char) 0xFE << (char) 0xFE << (char) 0x00 << (char) 0x00
         << (char) 0xC7 << (char) 0x84 << (char) 0x05 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00 << (char) 0xFE << (char) 0xFE << (char) 0x00 << (char) 0x00
         << (char) 0xC7 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
+
+        << (char) 0x67 << (char) 0xC6 << (char) 0x07 << (char) 0x00
+        << (char) 0x67 << (char) 0xC6 << (char) 0x46 << (char) 0x00 << (char) 0x00
+        << (char) 0x67 << (char) 0xC6 << (char) 0x47 << (char) 0x02 << (char) 0xFF
+        << (char) 0x66 << (char) 0x67 << (char) 0xC7 << (char) 0x01 << (char) 0x0C << (char) 0x00
+        << (char) 0x66 << (char) 0x67 << (char) 0xC7 << (char) 0x42 << (char) 0x06 << (char) 0x00 << (char) 0x04
+        << (char) 0x67 << (char) 0xC7 << (char) 0x05 << (char) 0xEE << (char) 0xFF << (char) 0xC0 << (char) 0x00
+        << (char) 0x67 << (char) 0xC7 << (char) 0x84 << (char) 0xCD << (char) 0xAB << (char) 0xFE << (char) 0xFE << (char) 0x00 << (char) 0x00
+        << (char) 0x67 << (char) 0xC7 << (char) 0x06 << (char) 0x20 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
     ;
     (pretty = "")
         << ".code32\n"
@@ -340,6 +359,15 @@ bool MoveTest::testMI() {
         << "movl 0xfefe, 0xbf000(,%esi,2)\n"
         << "movl 0xfefe, 0xbf000(%ebp,%eax)\n"
         << "movl 0xdeadbeef, (0x20)\n"
+
+        << "movb start, (%bx)\n"
+        << "movb start, (%bp)\n"
+        << "movb 0xff, 0x2(%bx)\n"
+        << "movw 0xc, (%bx,%di)\n"
+        << "movw 0x400, 0x6(%bp,%si)\n"
+        << "movl 0xc0ffee, (%di)\n"
+        << "movl 0xfefe, 0xabcd(%si)\n"
+        << ".addr16 movl 0xdeadbeef, (0x20)\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"mov imm -> indirect\"");

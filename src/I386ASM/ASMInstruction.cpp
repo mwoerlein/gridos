@@ -36,23 +36,23 @@ void ASMInstruction::writeToStream(OStream & stream) {
 }
 
 // protected
-size_t ASMInstruction::approximateSizeInBytes() {
+size_t ASMInstruction::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
     // 4xpre 3xop 1xmodrm 1xsib 4xdisp 4ximm
     return 17;
 }
 
 void ASMInstruction::checkOperands() {}
 
-void ASMInstruction::sanitizeOperands() {
-    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list) : 0) {
+void ASMInstruction::sanitizeOperands(BitWidth data, BitWidth addr) {
+    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list, addr) : 0) {
         o1->destroy();
         o1 = replacement;
     }
-    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list) : 0) {
+    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list, addr) : 0) {
         o2->destroy();
         o2 = replacement;
     }
-    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list) : 0) {
+    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list, addr) : 0) {
         o3->destroy();
         o3 = replacement;
     }
@@ -60,21 +60,21 @@ void ASMInstruction::sanitizeOperands() {
 
 void ASMInstruction::validateOperands() {}
 
-size_t ASMInstruction::prepare() {
+size_t ASMInstruction::prepare(BitWidth data, BitWidth addr, BitWidth mode) {
     checkOperands();
     if (list->hasErrors()) return 0;
     
-    sanitizeOperands();
+    sanitizeOperands(data, addr);
     if (list->hasErrors()) return 0;
     
-    return approximateSizeInBytes();
+    return approximateSizeInBytes(data, addr, mode);
 }
 
-size_t ASMInstruction::compile() {
+size_t ASMInstruction::compile(BitWidth data, BitWidth addr, BitWidth mode) {
     validateOperands();
     if (list->hasErrors()) return 0;
     
-    size = compileOperands();
+    size = compileOperands(data, addr, mode);
     if (size < 0) {
         list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
         size = 0;
