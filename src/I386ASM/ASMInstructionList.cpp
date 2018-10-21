@@ -113,7 +113,7 @@ size_t ASMInstructionList::compile() {
     }
     pos = 0;
     for (_Elem * cur = first; cur ; cur = cur->next) {
-        cur->pos = pos;
+        cur->prePos = cur->pos = pos;
         if (cur->inst) { pos += cur->inst->prepare(); }
     }
     pos = 0;

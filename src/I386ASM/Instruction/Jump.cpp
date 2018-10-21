@@ -47,7 +47,7 @@ void Jump::validateOperands() {
         return;
     }
     if (r1) {
-        if (r1->kind() != reg_general) {
+        if (r1->kind() != reg_general || (r1->getOperandSize() != bit_16 && r1->getOperandSize() != bit_32)) {
             list->err<<"Invalid register: " << *o1 << '\n';
         }
         return;
@@ -65,7 +65,7 @@ size_t Jump::compileOperands() {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
         BitWidth offsetWidth = id1 ? approximateOffsetWidth(id1) : bit_32; 
-        if (requiresOperandSizeOverride(offsetWidth)) {
+        if (requiresAddressSizeOverride(offsetWidth)) {
             pre3 = 0x66; size++;
         }
         op1 = (offsetWidth == bit_8) ? 0xEB : 0xE9;
@@ -73,11 +73,17 @@ size_t Jump::compileOperands() {
         return size + immSize;
     }
     if (r1) {
+        if (requiresAddressSizeOverride(r1->getOperandSize())) {
+            pre4 = 0x66; size++;
+        }    
         op1 = 0xFF;
         modrmSize = 1;
         return 1 + modrmSize;
     }
     if (i1) {
+        if (requiresAddressSizeOverride(i1)) {
+            pre4 = 0x67; size++;
+        }    
         op1 = 0xFF;
         useIndirectSizes(i1);
         return 1 + modrmSize + sibSize + dispSize;

@@ -51,7 +51,7 @@ size_t ConditionalJump::compileOperands() {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
         BitWidth offsetWidth = id1 ? approximateOffsetWidth(id1) : bit_32; 
-        if (requiresOperandSizeOverride(offsetWidth)) {
+        if (requiresAddressSizeOverride(offsetWidth)) {
             pre3 = 0x66; size++;
         }
         if (offsetWidth == bit_8) {

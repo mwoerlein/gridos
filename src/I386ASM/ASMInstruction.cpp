@@ -149,5 +149,5 @@ BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
 }
 
 BitWidth ASMInstruction::approximateOffsetWidth(Identifier *id) {
-    return getBitWidth(ctx->pos - list->getLabel(*id));
+    return getBitWidth(ctx->approximateOffset(list->getLabel(*id)));
 }
