@@ -1,5 +1,7 @@
 #include "sys/String.hpp"
 
+#include "sys/Digit.hpp"
+
 class String::_Element: public Char {
     public:
     _Element *next;
@@ -149,6 +151,65 @@ void String::operator >>(char *buffer) {
         *buffer++ = (char) *cur;
     }
     *buffer = 0;
+}
+
+void String::operator >>(int & i) {
+    i = 0;
+    if (!first) {
+        return; // zero
+    }
+    int sign = 1;
+    int base = 10;
+    
+    _Element *cur = first;
+    if (*cur == '-') {
+        sign = -1;
+        cur = cur->next;
+    }
+    if (*cur == '0') {
+        if (!cur->next) {
+            return; // zero
+        }
+        switch ((char) *cur->next) {
+            case 'b':
+            case 'B':
+                base = 2;
+                cur = cur->next->next;
+                break;
+            case 'x':
+            case 'X':
+                base = 16;
+                cur = cur->next->next;
+                break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+                base = 8;
+                cur = cur->next;
+                break;
+            default:
+                return; // zero
+        }
+    }
+    
+    int result = 0;
+    Digit d(env());
+    for (; cur; cur = cur->next) {
+        d = (char) *cur;
+        if ((int) d < base) {
+            result *= base;
+            result += (int) d;
+        } else {
+            // end of number
+            break;
+        }
+    }
+    i = sign * result;
 }
 
 // protected
