@@ -14,6 +14,7 @@
 #include "test/sys/collection/PropertyContainerTest.hpp"
 
 #include "test/I386ASM/ParserTest.hpp"
+#include "test/I386ASM/CodeDataAddrTest.hpp"
 #include "test/I386ASM/Instruction/MoveTest.hpp"
 #include "test/I386ASM/Instruction/AddTest.hpp"
 #include "test/I386ASM/Instruction/DivTest.hpp"
@@ -50,6 +51,7 @@ void TestSuite::runAll() {
     run<JumpTest>();
     run<ConditionalJumpTest>();
     run<ParserTest>();
+    run<CodeDataAddrTest>();
 //*/
 }
 

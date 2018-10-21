@@ -36,8 +36,17 @@ bool AddTest::testMI() {
         << "addw 0x400, 0x6(%eax,%edi,4)\n"
         << "addl -1, (%esp)\n"
         << "addl 0xc0ffee, (%esp,%ecx,8)\n"
-        << "addl BEEF, (0x20)\n"
+        << ".addr32 addl BEEF, (0x20)\n"
         << "BEEF := 0xDEADBEEF\n"
+
+        << "addb start, (%bx)\n"
+        << "addb start, (%bp)\n"
+        << "addb 0xff, 0x2(%bx)\n"
+        << "addw 0xc, (%bx,%di)\n"
+        << "addw 0x400, 0x6(%bp,%si)\n"
+        << "addl 0xc0ffee, (%di)\n"
+        << "addl 0xfefe, 0xabcd(%si)\n"
+        << ".addr16 addl 0xdeadbeef, (0x20)\n"
     ;
     (bin = "")
         << (char) 0x04 << (char) 0x00
@@ -53,6 +62,15 @@ bool AddTest::testMI() {
         << (char) 0x83 << (char) 0x04 << (char) 0x24 << (char) 0xFF
         << (char) 0x81 << (char) 0x04 << (char) 0xCC << (char) 0xEE << (char) 0xFF << (char) 0xC0 << (char) 0x00
         << (char) 0x81 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
+
+        << (char) 0x67 << (char) 0x80 << (char) 0x07 << (char) 0x00
+        << (char) 0x67 << (char) 0x80 << (char) 0x46 << (char) 0x00 << (char) 0x00
+        << (char) 0x67 << (char) 0x80 << (char) 0x47 << (char) 0x02 << (char) 0xFF
+        << (char) 0x66 << (char) 0x67 << (char) 0x83 << (char) 0x01 << (char) 0x0C
+        << (char) 0x66 << (char) 0x67 << (char) 0x81 << (char) 0x42 << (char) 0x06 << (char) 0x00 << (char) 0x04
+        << (char) 0x67 << (char) 0x81 << (char) 0x05 << (char) 0xEE << (char) 0xFF << (char) 0xC0 << (char) 0x00
+        << (char) 0x67 << (char) 0x81 << (char) 0x84 << (char) 0xCD << (char) 0xAB << (char) 0xFE << (char) 0xFE << (char) 0x00 << (char) 0x00
+        << (char) 0x67 << (char) 0x81 << (char) 0x06 << (char) 0x20 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
     ;
     (pretty = "")
         << ".code32\n"
@@ -70,9 +88,98 @@ bool AddTest::testMI() {
         << "addl 0xffffffff, (%esp)\n"
         << "addl 0xc0ffee, (%esp,%ecx,8)\n"
         << "addl 0xdeadbeef, (0x20)\n"
+
+        << "addb start, (%bx)\n"
+        << "addb start, (%bp)\n"
+        << "addb 0xff, 0x2(%bx)\n"
+        << "addw 0xc, (%bx,%di)\n"
+        << "addw 0x400, 0x6(%bp,%si)\n"
+        << "addl 0xc0ffee, (%di)\n"
+        << "addl 0xfefe, 0xabcd(%si)\n"
+        << ".addr16 addl 0xdeadbeef, (0x20)\n"
     ;
     
-    success &= test(in, bin, pretty, message = "test \"add imm -> indirect\"");
+    success &= test(in, bin, pretty, message = "test \"add imm -> indirect (32bit)\"");
+    
+    (in = "")
+        << ".code16\n"
+        << "start:\n"
+        << "add start,%al\n"
+        << "add start,%ax\n"
+        << "add start,%eax\n"
+        << "add 0x12,%ah\n"
+        << "addb 0x12,(%eax)\n"
+        << "add 0x12, %edi\n"
+        << "add 0x12345678, %edi\n"
+        << "addb 0xFF, 0x2(%esp)\n"
+        << "addw 0x4, (%edx)\n"
+        << "addw 0x400, 0x6(%eax,%edi,4)\n"
+        << "addl -1, (%esp)\n"
+        << "addl 0xc0ffee, (%esp,%ecx,8)\n"
+        << ".addr32 addl BEEF, (0x20)\n"
+        << "BEEF := 0xDEADBEEF\n"
+
+        << "addb start, (%bx)\n"
+        << "addb start, (%bp)\n"
+        << "addb 0xff, 0x2(%bx)\n"
+        << "addw 0xc, (%bx,%di)\n"
+        << "addw 0x400, 0x6(%bp,%si)\n"
+        << "addl 0xc0ffee, (%di)\n"
+        << "addl 0xfefe, 0xabcd(%si)\n"
+        << ".addr16 addl 0xdeadbeef, (0x20)\n"
+    ;
+    (bin = "")
+        << (char) 0x04 << (char) 0x00
+        << (char) 0x05 << (char) 0x00 << (char) 0x00
+        << (char) 0x66 << (char) 0x05 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0x80 << (char) 0xC4 << (char) 0x12
+        << (char) 0x67 << (char) 0x80 << (char) 0x00 << (char) 0x12
+        << (char) 0x66 << (char) 0x83 << (char) 0xC7 << (char) 0x12
+        << (char) 0x66 << (char) 0x81 << (char) 0xC7 << (char) 0x78 << (char) 0x56 << (char) 0x34 << (char) 0x12
+        << (char) 0x67 << (char) 0x80 << (char) 0x44 << (char) 0x24 << (char) 0x02 << (char) 0xFF
+        << (char) 0x67 << (char) 0x83 << (char) 0x02 << (char) 0x04
+        << (char) 0x67 << (char) 0x81 << (char) 0x44 << (char) 0xB8 << (char) 0x06 << (char) 0x00 << (char) 0x04
+        << (char) 0x66 << (char) 0x67 << (char) 0x83 << (char) 0x04 << (char) 0x24 << (char) 0xFF
+        << (char) 0x66 << (char) 0x67 << (char) 0x81 << (char) 0x04 << (char) 0xCC << (char) 0xEE << (char) 0xFF << (char) 0xC0 << (char) 0x00
+        << (char) 0x66 << (char) 0x67 << (char) 0x81 << (char) 0x05 << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
+
+        << (char) 0x80 << (char) 0x07 << (char) 0x00
+        << (char) 0x80 << (char) 0x46 << (char) 0x00 << (char) 0x00
+        << (char) 0x80 << (char) 0x47 << (char) 0x02 << (char) 0xFF
+        << (char) 0x83 << (char) 0x01 << (char) 0x0C
+        << (char) 0x81 << (char) 0x42 << (char) 0x06 << (char) 0x00 << (char) 0x04
+        << (char) 0x66 << (char) 0x81 << (char) 0x05 << (char) 0xEE << (char) 0xFF << (char) 0xC0 << (char) 0x00
+        << (char) 0x66 << (char) 0x81 << (char) 0x84 << (char) 0xCD << (char) 0xAB << (char) 0xFE << (char) 0xFE << (char) 0x00 << (char) 0x00
+        << (char) 0x66 << (char) 0x81 << (char) 0x06 << (char) 0x20 << (char) 0x00 << (char) 0xEF << (char) 0xBE << (char) 0xAD << (char) 0xDE
+    ;
+    (pretty = "")
+        << ".code16\n"
+        << "start:\n"
+        << "addb start, %al\n"
+        << "addw start, %ax\n"
+        << "addl start, %eax\n"
+        << "addb 0x12, %ah\n"
+        << "addb 0x12, (%eax)\n"
+        << "addl 0x12, %edi\n"
+        << "addl 0x12345678, %edi\n"
+        << "addb 0xff, 0x2(%esp)\n"
+        << "addw 0x4, (%edx)\n"
+        << "addw 0x400, 0x6(%eax,%edi,4)\n"
+        << "addl 0xffffffff, (%esp)\n"
+        << "addl 0xc0ffee, (%esp,%ecx,8)\n"
+        << ".addr32 addl 0xdeadbeef, (0x20)\n"
+
+        << "addb start, (%bx)\n"
+        << "addb start, (%bp)\n"
+        << "addb 0xff, 0x2(%bx)\n"
+        << "addw 0xc, (%bx,%di)\n"
+        << "addw 0x400, 0x6(%bp,%si)\n"
+        << "addl 0xc0ffee, (%di)\n"
+        << "addl 0xfefe, 0xabcd(%si)\n"
+        << "addl 0xdeadbeef, (0x20)\n"
+    ;
+    
+    success &= test(in, bin, pretty, message = "test \"add imm -> indirect (16bit)\"");
     
     return success;
 }
