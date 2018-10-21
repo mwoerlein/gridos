@@ -28,11 +28,21 @@ void Inline::validateOperands() {
         }
         return;
     }
+    if (Identifier *id1 = o1->as<Identifier>(identifier)) {
+        if ((int) ctx->addr > (int) operandSize) {
+            list->err<<"address size "<<(ctx->addr*8)<<" bit does not match "<<(operandSize*8)<<" bit operand size\n";
+        }
+        return;
+    }
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
 size_t Inline::compileOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
+        immSize = (int) operandSize;
+        return immSize;
+    }
+    if (Identifier *id1 = o1->as<Identifier>(identifier)) {
         immSize = (int) operandSize;
         return immSize;
     }
