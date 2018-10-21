@@ -4,6 +4,7 @@
 #include "sys/Object.hpp"
 #include "sys/stream/OStream.hpp"
 #include "I386ASM/ASMTypes.hpp"
+#include "I386ASM/ASMContext.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
@@ -21,19 +22,20 @@ class ASMInstruction: virtual public Object {
     friend class ASMInstructionList;
     const char *mnemonic;
     ASMOperand *o1, *o2, *o3;
-    enum BitWidth operandSize, addrSize;
+    BitWidth operandSize;
     
     char pre1, pre2, pre3, pre4;
     char op1, op2, op3;
     int modrmSize, sibSize, dispSize, immSize;
-    size_t size, pos;
+    size_t size;
+    ASMContext *ctx;
     ASMInstructionList * list;
     
-    virtual size_t approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode);
+    virtual size_t approximateSizeInBytes();
     virtual void checkOperands();
-    virtual void sanitizeOperands(BitWidth data, BitWidth addr);
+    virtual void sanitizeOperands();
     virtual void validateOperands();
-    virtual size_t compileOperands(BitWidth data, BitWidth addr, BitWidth mode) = 0;
+    virtual size_t compileOperands() = 0;
     virtual void writeOperandsToStream(OStream &stream) = 0;
     virtual void writeNumberToStream(OStream &stream, int val, int size);
     virtual void writeOffsetToStream(OStream &stream, ASMOperand *o);
@@ -54,20 +56,25 @@ class ASMInstruction: virtual public Object {
         writeIndirectToStream(stream, i, reg->getOpCodeRegister());
     }
     
+    inline bool requiresOperandSizeOverride() { return ctx->requiresOperandSizeOverride(operandSize); }
+    inline bool requiresOperandSizeOverride(BitWidth operandSize) { return ctx->requiresOperandSizeOverride(operandSize); }
+    inline bool requiresAddressSizeOverride(Indirect *i) { return ctx->requiresAddressSizeOverride(i->getAddrSize()); }
+    inline bool requiresAddressSizeOverride(BitWidth addressSize) { return ctx->requiresAddressSizeOverride(addressSize); }
+    
     public:
-    ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0, BitWidth addrSize = bit_32)
-        :Object(env, mi), mnemonic(mnemonic), o1(o1), o2(o2), o3(o3), operandSize(operandSize), addrSize(addrSize),
+    ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
+        :Object(env, mi), mnemonic(mnemonic), o1(o1), o2(o2), o3(o3), operandSize(operandSize),
          pre1(0), pre2(0), pre3(0), pre4(0),
          op1(0x90), op2(0), op3(0),
-         modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0), pos(-1), list(0) {}
+         modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0), list(0), ctx(0) {}
     virtual ~ASMInstruction() {
         if (o1) { o1->destroy(); }
         if (o2) { o2->destroy(); }
         if (o3) { o3->destroy(); }
     }
     
-    virtual size_t prepare(BitWidth data, BitWidth addr, BitWidth mode);
-    virtual size_t compile(BitWidth data, BitWidth addr, BitWidth mode);
+    virtual size_t prepare();
+    virtual size_t compile();
     
     virtual void writeToStream(OStream &stream);
     virtual OStream & operator >>(OStream & stream) override;

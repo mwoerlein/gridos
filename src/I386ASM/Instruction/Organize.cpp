@@ -1,9 +1,9 @@
 #include "I386ASM/Instruction/Organize.hpp"
 
 // protected
-size_t Organize::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Organize::approximateSizeInBytes() {
     if (Number *n1 = o1->as<Number>(number)) {
-        return n1->value() - pos;
+        return n1->value() - ctx->pos;
     }
     return 0;
 }
@@ -25,17 +25,17 @@ void Organize::checkOperands() {
 
 void Organize::validateOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
-        if (n1->value() < pos) {
-            list->err<<"invalid organize '"<<n1->value()<<"' at pos "<<pos<<"\n";
+        if (n1->value() < ctx->pos) {
+            list->err<<"invalid organize '"<<n1->value()<<"' at pos "<<ctx->pos<<"\n";
         }
         return;
     }
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Organize::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Organize::compileOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
-        immSize = n1->value() - pos;
+        immSize = n1->value() - ctx->pos;
         return immSize;
     }
     return -1;

@@ -3,10 +3,10 @@
 #define isPowerOfTwo(n) ((n) && !((n) & ((n)-1)))
 
 // protected
-size_t Align::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Align::approximateSizeInBytes() {
     if (Number *n1 = o1->as<Number>(number)) {
         int align = n1->value();
-        int offset = pos % align;
+        int offset = ctx->pos % align;
         return offset ? align - offset : 0;
     }
     return 0;
@@ -38,10 +38,10 @@ void Align::validateOperands() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Align::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Align::compileOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
         int align = n1->value();
-        int offset = pos % align;
+        int offset = ctx->pos % align;
         immSize = offset ? align - offset : 0;
         return immSize;
     }

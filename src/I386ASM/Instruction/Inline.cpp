@@ -1,7 +1,7 @@
 #include "I386ASM/Instruction/Inline.hpp"
 
 // protected
-size_t Inline::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Inline::approximateSizeInBytes() {
     return (int) operandSize;
 }
 
@@ -31,7 +31,7 @@ void Inline::validateOperands() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Inline::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Inline::compileOperands() {
     if (Number *n1 = o1->as<Number>(number)) {
         immSize = (int) operandSize;
         return immSize;

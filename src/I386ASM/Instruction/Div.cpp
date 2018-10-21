@@ -1,16 +1,16 @@
 #include "I386ASM/Instruction/Div.hpp"
 
 // protected
-size_t Div::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Div::approximateSizeInBytes() {
     Indirect *i1 = o1->as<Indirect>(indirect);
     
     size_t size = 2; //opcode, modrm
-    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
+    if (requiresOperandSizeOverride()) {
         size++;
     }
     
     if (i1) {
-        if (mode != i1->getAddrSize()) {
+        if (requiresAddressSizeOverride(i1)) {
             size++;
         }
         size += i1->getSibSize();
@@ -59,12 +59,12 @@ void Div::validateOperands() {
     return;
 }
 
-size_t Div::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Div::compileOperands() {
     size_t size = 0;
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
     
-    if ((operandSize == bit_16 && data == bit_32) || (operandSize == bit_32 && data == bit_16)) {
+    if (requiresOperandSizeOverride()) {
         pre3 = 0x66; size++;
     }
     
@@ -74,7 +74,7 @@ size_t Div::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
         return size + 1 + modrmSize;
     }
     if (i1) {
-        if (mode != i1->getAddrSize()) {
+        if (requiresAddressSizeOverride(i1)) {
             pre4 = 0x67; size++;
         }    
         op1 = (operandSize == bit_8) ? 0xF6 : 0xF7;

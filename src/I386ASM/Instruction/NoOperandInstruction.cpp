@@ -10,7 +10,7 @@ NoOperandInstruction::NoOperandInstruction(Environment &env, MemoryInfo &mi, con
 NoOperandInstruction::~NoOperandInstruction() {}
 
 // protected
-size_t NoOperandInstruction::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t NoOperandInstruction::approximateSizeInBytes() {
     if (op1 == 0x0F) {
         if (op2 == 0x38 || op2 == 0x3A) {
             return 3;
@@ -35,8 +35,8 @@ void NoOperandInstruction::checkOperands() {
     }
 }
 
-size_t NoOperandInstruction::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
-    return approximateSizeInBytes(data, addr, mode);
+size_t NoOperandInstruction::compileOperands() {
+    return approximateSizeInBytes();
 }
 
 void NoOperandInstruction::writeOperandsToStream(OStream &stream) {}

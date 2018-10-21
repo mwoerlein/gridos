@@ -36,23 +36,23 @@ void ASMInstruction::writeToStream(OStream & stream) {
 }
 
 // protected
-size_t ASMInstruction::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t ASMInstruction::approximateSizeInBytes() {
     // 4xpre 3xop 1xmodrm 1xsib 4xdisp 4ximm
     return 17;
 }
 
 void ASMInstruction::checkOperands() {}
 
-void ASMInstruction::sanitizeOperands(BitWidth data, BitWidth addr) {
-    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list, addr) : 0) {
+void ASMInstruction::sanitizeOperands() {
+    if (ASMOperand * replacement = o1 ? o1->validateAndReplace(*list, ctx->addr) : 0) {
         o1->destroy();
         o1 = replacement;
     }
-    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list, addr) : 0) {
+    if (ASMOperand * replacement = o2 ? o2->validateAndReplace(*list, ctx->addr) : 0) {
         o2->destroy();
         o2 = replacement;
     }
-    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list, addr) : 0) {
+    if (ASMOperand * replacement = o3 ? o3->validateAndReplace(*list, ctx->addr) : 0) {
         o3->destroy();
         o3 = replacement;
     }
@@ -60,21 +60,21 @@ void ASMInstruction::sanitizeOperands(BitWidth data, BitWidth addr) {
 
 void ASMInstruction::validateOperands() {}
 
-size_t ASMInstruction::prepare(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t ASMInstruction::prepare() {
     checkOperands();
     if (list->hasErrors()) return 0;
     
-    sanitizeOperands(data, addr);
+    sanitizeOperands();
     if (list->hasErrors()) return 0;
     
-    return approximateSizeInBytes(data, addr, mode);
+    return approximateSizeInBytes();
 }
 
-size_t ASMInstruction::compile(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t ASMInstruction::compile() {
     validateOperands();
     if (list->hasErrors()) return 0;
     
-    size = compileOperands(data, addr, mode);
+    size = compileOperands();
     if (size < 0) {
         list->err<<"invalid opcode size determined for \""<<*this<<"\"\n";
         size = 0;
@@ -92,9 +92,9 @@ void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
 
 void ASMInstruction::writeOffsetToStream(OStream &stream, ASMOperand *o) {
     if (Identifier *id = o->as<Identifier>(identifier)) {
-        writeNumberToStream(stream, list->getLabel(*id) - (pos + size), immSize);
+        writeNumberToStream(stream, list->getLabel(*id) - (ctx->pos + size), immSize);
     } else if (Number *num = o->as<Number>(number)) {
-        writeNumberToStream(stream, num->value() - (pos + size), immSize);
+        writeNumberToStream(stream, num->value() - (ctx->pos + size), immSize);
     } else {
         list->err<<"invalid offset operand \""<<*o<<"\"\n";
     }
@@ -149,5 +149,5 @@ BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
 }
 
 BitWidth ASMInstruction::approximateOffsetWidth(Identifier *id) {
-    return getBitWidth(pos - list->getLabel(*id));
+    return getBitWidth(ctx->pos - list->getLabel(*id));
 }

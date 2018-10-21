@@ -1,7 +1,7 @@
 #include "I386ASM/Instruction/Jump.hpp"
 
 // protected
-size_t Jump::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Jump::approximateSizeInBytes() {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1 || n1) {
@@ -56,7 +56,7 @@ void Jump::validateOperands() {
     return;
 }
 
-size_t Jump::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t Jump::compileOperands() {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
@@ -64,24 +64,17 @@ size_t Jump::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
     if (id1) {
         size_t size = 1;
         BitWidth offsetWidth = approximateOffsetWidth(id1); 
-        switch (offsetWidth) {
-            case bit_8:
-                op1 = 0xEB;
-                break;
-            case bit_16:
-                pre3 = 0x66;
-                size++;
-                // fallthrough
-            default:
-                op1 = 0xE9;
+        if (requiresOperandSizeOverride(offsetWidth)) {
+            pre3 = 0x66; size++;
         }
+        op1 = (offsetWidth == bit_8) ? 0xEB : 0xE9;
         immSize = (int) offsetWidth;
         return size + immSize;
     }
     if (n1) {
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
         op1 = 0xE9;
-        immSize = (int) bit_32;
+        immSize = (int) ctx->addr;
         return 1 + immSize;
     }
     if (r1) {

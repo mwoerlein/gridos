@@ -1,7 +1,7 @@
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 
 // protected
-size_t ConditionalJump::approximateSizeInBytes(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t ConditionalJump::approximateSizeInBytes() {
     return 6; // all over maximum
 }
 
@@ -41,32 +41,27 @@ void ConditionalJump::validateOperands() {
     return;
 }
 
-size_t ConditionalJump::compileOperands(BitWidth data, BitWidth addr, BitWidth mode) {
+size_t ConditionalJump::compileOperands() {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1) {
         size_t size = 1;
         BitWidth offsetWidth = approximateOffsetWidth(id1); 
-        switch (offsetWidth) {
-            case bit_8:
-                if (condition == cond_reg_cx) {
-                    pre4 = 0x67;
-                    size++;
-                    op1 = 0xE3;
-                } else if (condition == cond_reg_ecx) {
-                    op1 = 0xE3;
-                } else {
-                    op1 = 0x70 + instruction_condition_encoding[condition];
-                } 
-                break;
-            case bit_16:
-                pre3 = 0x66;
-                size++;
-                // fallthrough
-            default:
-                op1 = 0x0F;
-                size++;
-                op2 = 0x80 + instruction_condition_encoding[condition];
+        if (requiresOperandSizeOverride(offsetWidth)) {
+            pre3 = 0x66; size++;
+        }
+        if (offsetWidth == bit_8) {
+            if (condition == cond_reg_cx || condition == cond_reg_ecx) {
+                if (requiresAddressSizeOverride((condition == cond_reg_cx) ? bit_16 : bit_32)) {
+                    pre4 = 0x67; size++;
+                }
+                op1 = 0xE3;
+            } else {
+                op1 = 0x70 + instruction_condition_encoding[condition];
+            } 
+        } else {
+            op1 = 0x0F; size++;
+            op2 = 0x80 + instruction_condition_encoding[condition];
         }
         immSize = (int) offsetWidth;
         return size + immSize;
@@ -75,7 +70,7 @@ size_t ConditionalJump::compileOperands(BitWidth data, BitWidth addr, BitWidth m
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
         op1 = 0x0F;
         op2 = 0x80 + instruction_condition_encoding[condition];
-        immSize = (int) bit_32;
+        immSize = (int) ctx->addr;
         return 2 + immSize;
     }
     return -1;
