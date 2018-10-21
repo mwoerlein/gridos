@@ -15,6 +15,7 @@ R"(Pool Assembler.
       --version    Show version.
       -o <file>    Place the output into <file>.
       -b --binary  Generate plain binary without module informations.
+      -t <org>     Locates code in the output file at the absolute address given by org.
 )";
 
 class PasmCommand: public CommandLine {
@@ -45,6 +46,11 @@ class PasmCommand: public CommandLine {
             return -1;
         }
         size_t startAddress = 0;
+        if (hasStringProperty("t")) {
+            int t;
+            getStringProperty("t") >> t;
+            startAddress = t;
+        }
         
         OStream &outfile = env().streamFactory().buildOStream(getStringProperty("o"));
         Iterator<String> & argIt = arguments();
