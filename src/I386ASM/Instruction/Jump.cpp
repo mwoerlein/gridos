@@ -5,7 +5,7 @@ size_t Jump::approximateSizeInBytes() {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
     if (id1 || n1) {
-        return 5; // opcode + immediate
+        return 6; // opcode + prefix + immediate
     }
     Register *r1 = o1->as<Register>(reg);
     if (r1) {
@@ -61,21 +61,16 @@ size_t Jump::compileOperands() {
     Number *n1 = o1->as<Number>(number);
     Register *r1 = o1->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
-    if (id1) {
+    if (id1 || n1) {
         size_t size = 1;
-        BitWidth offsetWidth = approximateOffsetWidth(id1); 
+        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
+        BitWidth offsetWidth = id1 ? approximateOffsetWidth(id1) : bit_32; 
         if (requiresOperandSizeOverride(offsetWidth)) {
             pre3 = 0x66; size++;
         }
         op1 = (offsetWidth == bit_8) ? 0xEB : 0xE9;
         immSize = (int) offsetWidth;
         return size + immSize;
-    }
-    if (n1) {
-        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        op1 = 0xE9;
-        immSize = (int) ctx->addr;
-        return 1 + immSize;
     }
     if (r1) {
         op1 = 0xFF;

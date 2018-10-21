@@ -171,7 +171,7 @@ size_t Move::compileOperands() {
         }    
         if (i2->isOffset() && (gr1->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA2 : 0xA3;
-            dispSize = (int) ctx->addr;
+            dispSize = (int) i2->getAddrSize();
             return size + 1 + dispSize;
         }
         op1 = (operandSize == bit_8) ? 0x88 : 0x89;
@@ -184,7 +184,7 @@ size_t Move::compileOperands() {
         }    
         if (i1->isOffset() && (gr2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0xA0 : 0xA1;
-            dispSize = (int) ctx->addr;
+            dispSize = (int) i1->getAddrSize();
             return size + 1 + dispSize;
         }
         op1 = (operandSize == bit_8) ? 0x8A : 0x8B;

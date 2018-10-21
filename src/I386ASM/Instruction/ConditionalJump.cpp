@@ -2,7 +2,10 @@
 
 // protected
 size_t ConditionalJump::approximateSizeInBytes() {
-    return 6; // all over maximum
+    if (condition == cond_reg_cx || condition == cond_reg_ecx) {
+        return 7; // opcode + 2*prefix + offset
+    }
+    return 6; // opcode + prefix + offset
 }
 
 void ConditionalJump::checkOperands() {
@@ -44,9 +47,10 @@ void ConditionalJump::validateOperands() {
 size_t ConditionalJump::compileOperands() {
     Identifier *id1 = o1->as<Identifier>(identifier);
     Number *n1 = o1->as<Number>(number);
-    if (id1) {
+    if (id1 || n1) {
         size_t size = 1;
-        BitWidth offsetWidth = approximateOffsetWidth(id1); 
+        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
+        BitWidth offsetWidth = id1 ? approximateOffsetWidth(id1) : bit_32; 
         if (requiresOperandSizeOverride(offsetWidth)) {
             pre3 = 0x66; size++;
         }
@@ -65,13 +69,6 @@ size_t ConditionalJump::compileOperands() {
         }
         immSize = (int) offsetWidth;
         return size + immSize;
-    }
-    if (n1) {
-        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        op1 = 0x0F;
-        op2 = 0x80 + instruction_condition_encoding[condition];
-        immSize = (int) ctx->addr;
-        return 2 + immSize;
     }
     return -1;
 }
@@ -120,4 +117,3 @@ const char* ConditionalJump::mnemonics[] = {
     "jcxz",
     "jecxz",
 };
-
