@@ -18,12 +18,12 @@ loader_start:
 loader_stage1:
     movw 0x07, %bx
     movw 0x0e2e, %ax
-    .byte 0xcd; .byte 0x10   #// int 0x10    
+    int 0x10    
 
     movw 0x07, %bx
     movw 0, %ax
     addw 0x0e40, %ax
-    .byte 0xcd; .byte 0x10   #// int 0x10
+    int 0x10
 
 /* activate A20 gate */
     .byte 0xe4; .byte 0x92   #// inb 0x92, %al

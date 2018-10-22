@@ -28,5 +28,20 @@ bool NoOperandInstructionTest::runAll() {
         success &= test("nOP", bin, ".code32\nnop\n");
     }
     
+    {
+        const char bin[] = {(char)0xCE, 0};
+        success &= test("Int0", bin, ".code32\nint0\n");
+    }
+    
+    {
+        const char bin[] = {(char)0xF1, 0};
+        success &= test("iNt1", bin, ".code32\nint1\n");
+    }
+    
+    {
+        const char bin[] = {(char)0xCC, 0};
+        success &= test("InT3", bin, ".code32\nint3\n");
+    }
+    
     return success;
 }

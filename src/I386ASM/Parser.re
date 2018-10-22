@@ -4,20 +4,21 @@
 #include "sys/Digit.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 
-#include "I386ASM/Instruction/NoOperandInstruction.hpp"
-#include "I386ASM/Instruction/Jump.hpp"
-#include "I386ASM/Instruction/ConditionalJump.hpp"
-#include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/Add.hpp"
+#include "I386ASM/Instruction/Align.hpp"
+#include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Div.hpp"
 #include "I386ASM/Instruction/Inline.hpp"
+#include "I386ASM/Instruction/Int.hpp"
+#include "I386ASM/Instruction/Jump.hpp"
+#include "I386ASM/Instruction/Move.hpp"
+#include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Organize.hpp"
-#include "I386ASM/Instruction/Align.hpp"
 
+#include "I386ASM/Operand/Identifier.hpp"
+#include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
-#include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Identifier.hpp"
 
 /*!stags:re2c format = 'char *@@;'; */
 /*!max:re2c*/
@@ -482,6 +483,19 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         }
         [nN][oO][pP] {
             return &env().create<NoOperandInstruction, const char *, char>("nop", 0x90);
+        }
+        [iI][nN][tT] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Int, ASMOperand*> (op1);
+        }
+        [iI][nN][tT]"0" {
+            return &env().create<NoOperandInstruction, const char *, char>("int0", 0xCE);
+        }
+        [iI][nN][tT]"1" {
+            return &env().create<NoOperandInstruction, const char *, char>("int1", 0xF1);
+        }
+        [iI][nN][tT]"3" {
+            return &env().create<NoOperandInstruction, const char *, char>("int3", 0xCC);
         }
         [jJ][mM][pP] {
             if (!op1 || op2 || op3) return 0;
