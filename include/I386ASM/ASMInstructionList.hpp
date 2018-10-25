@@ -28,18 +28,21 @@ class ASMInstructionList: virtual public Object {
     
     virtual void setMode(BitWidth mode);
     virtual void addLabel(String &label);
-    virtual void addDefinition(String &definition, ASMOperand &value);
+    virtual void addDefinition(String &definition, Numeric &value);
     virtual void addInstruction(ASMInstruction &inst, BitWidth data = bit_auto, BitWidth addr = bit_auto);
     
     virtual bool hasLabel(String &label);
     virtual bool hasDefinition(String &label);
+    virtual bool isConstantDefinition(String &label);
     virtual size_t getLabel(String &label);
-    virtual Numeric & getNumberForDefinition(String &label);
+    virtual int getValue(String &label);
+    virtual Numeric & getNumeric(String &label);
 
     virtual bool hasLabel(Identifier &id);
     virtual bool hasDefinition(Identifier &id);
     virtual size_t getLabel(Identifier &id);
-    virtual Numeric & getNumberForDefinition(Identifier &id);
+    virtual int getValue(Identifier &id);
+    virtual Numeric & getNumeric(Identifier &id);
     
     virtual size_t compile();
     virtual void finalize(size_t startAddress);

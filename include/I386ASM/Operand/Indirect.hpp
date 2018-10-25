@@ -3,20 +3,19 @@
 
 #include "I386ASM/ASMOperand.hpp"
 
-class Identifier;
-class Register;
-class Number;
+#include "I386ASM/Operand/Numeric.hpp"
+#include "I386ASM/Operand/Register.hpp"
+
 class Indirect: public ASMOperand {
     private:
-    Identifier *_displacementId;
-    Number *_displacement;
+    Numeric *_displacement;
     Register *_base;
     Register *_index;
     int _scale;
     BitWidth addrSize = bit_auto;
     
     public:
-    Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Identifier *displacementId = 0, Number *displacement = 0, Register * index = 0, int scale = 1);
+    Indirect(Environment &env, MemoryInfo &mi, Register *base = 0, Numeric *displacement = 0, Register * index = 0, int scale = 1);
     virtual ~Indirect();
         
     virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;

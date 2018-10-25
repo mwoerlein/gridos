@@ -113,6 +113,8 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         id          = [a-zA-Z_][a-zA-Z0-9_]+;
         formula1    = "(" wsp (id|number) wsp ("+"|"-"|"*"|"/"|"%"|">>"|"<<") wsp (id|number) wsp ")";
         formula     = "(" wsp (id|number|formula1) wsp ("+"|"-"|"*"|"/"|"%"|">>"|"<<") wsp (id|number|formula1) wsp ")";
+        numeric     = id | number | formula;
+        id_num      = id | number;
 */
 
 String & Parser::parseStringValue(char * start, char * end) {
@@ -270,31 +272,31 @@ Formula * Parser::parseFormula(char * start, char * end) {
         re2c:define:YYCTXMARKER = ctx;
         re2c:define:YYLIMIT = end;
 
-        "(" wsp @o1 (id|number|formula) @o2 wsp "+" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "+" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_add, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp "-" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "-" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_sub, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp "*" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "*" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_mul, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp "/" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "/" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_div, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp "%" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "%" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_mod, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp ">>" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp ">>" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_shr, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
-        "(" wsp @o1 (id|number|formula) @o2 wsp "<<" wsp @o3 (id|number|formula) @o4 wsp ")" {
+        "(" wsp @o1 numeric @o2 wsp "<<" wsp @o3 numeric @o4 wsp ")" {
             if (cur != end) break;
             return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_shl, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
         }
@@ -340,38 +342,34 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         @o1 id @o2          { if (cur != end) break; return parseIdentifier(o1, o2); }
         @o1 formula @o2     { if (cur != end) break; return parseFormula(o1, o2); }
         
-        @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+        @o1 id_num @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Numeric *, Register *, int>(
                 parseRegister(o3, o4),
-                0,
-                parseNumber(o1, o2),
+                parseNumericOperand(o1, o2),
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
             );
         }
-        @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
+        @o1 id_num @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Numeric *, Register *>(
                 parseRegister(o3, o4),
-                0,
-                parseNumber(o1, o2),
+                parseNumericOperand(o1, o2),
                 parseRegister(o5, o6)
             );
         }
-        @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp ")" {
+        @o1 id_num @o2 wsp "(" wsp @o3 register @o4 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *>(
+            return &env().create<Indirect, Register *, Numeric *>(
                 parseRegister(o3, o4),
-                0,
-                parseNumber(o1, o2)
+                parseNumericOperand(o1, o2)
             );
         }
         "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Numeric *, Register *, int>(
                 parseRegister(o3, o4),
-                0,
                 0,
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
@@ -379,9 +377,8 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         }
         "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Numeric *, Register *>(
                 parseRegister(o3, o4),
-                0,
                 0,
                 parseRegister(o5, o6)
             );
@@ -392,94 +389,37 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
                 parseRegister(o3, o4)
             );
         }
-        @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
+        @o1 id_num @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
+            return &env().create<Indirect, Register *, Numeric *, Register *, int>(
                 0,
-                0,
-                parseNumber(o1, o2),
+                parseNumericOperand(o1, o2),
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
             );
         }
         "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
-                0,
+            return &env().create<Indirect, Register *, Numeric *, Register *, int>(
                 0,
                 0,
                 parseRegister(o5, o6),
                 parseIntegerValue(o7, o8, 10)
             );
         }
-        @o1 number @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
+        @o1 id_num @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
+            return &env().create<Indirect, Register *, Numeric *, Register *>(
                 0,
-                0,
-                parseNumber(o1, o2),
+                parseNumericOperand(o1, o2),
                 parseRegister(o5, o6)
             );
         }
-        "(" wsp @o1 number @o2 wsp ")" {
+        "(" wsp @o1 id_num @o2 wsp ")" {
             if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *>(
+            return &env().create<Indirect, Register *, Numeric *>(
                 0,
-                0,
-                parseNumber(o1, o2)
-            );
-        }
-
-        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
-                parseRegister(o3, o4),
-                parseIdentifier(o1, o2),
-                0,
-                parseRegister(o5, o6),
-                parseIntegerValue(o7, o8, 10)
-            );
-        }
-        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
-                parseRegister(o3, o4),
-                parseIdentifier(o1, o2),
-                0,
-                parseRegister(o5, o6)
-            );
-        }
-        @o1 id @o2 wsp "(" wsp @o3 register @o4 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *>(
-                parseRegister(o3, o4),
-                parseIdentifier(o1, o2)
-            );
-        }
-        @o1 id @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *, int>(
-                0,
-                parseIdentifier(o1, o2),
-                0,
-                parseRegister(o5, o6),
-                parseIntegerValue(o7, o8, 10)
-            );
-        }
-        @o1 id @o2 wsp "(" wsp comma wsp @o5 register @o6 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *, Number *, Register *>(
-                0,
-                parseIdentifier(o1, o2),
-                0,
-                parseRegister(o5, o6)
-            );
-        }
-        "(" wsp @o1 id @o2 wsp ")" {
-            if (cur != end) break;
-            return &env().create<Indirect, Register *, Identifier *>(
-                0,
-                parseIdentifier(o1, o2)
+                parseNumericOperand(o1, o2)
             );
         }
 
@@ -493,8 +433,25 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
 }
 
 Numeric * Parser::parseNumericOperand(char * start, char * end) {
-    ASMOperand *op = parseOperand(start, end);
-    return op->asNumeric();
+    char *o1, *o2, *o3, *o4, *o5, *o6, *o7, *o8, *mark, *ctx, *cur = start;
+    for (;;) {
+/*!re2c
+        re2c:define:YYCURSOR = cur;
+        re2c:define:YYMARKER = mark;
+        re2c:define:YYCTXMARKER = ctx;
+        re2c:define:YYLIMIT = end;
+        
+        @o1 number @o2      { if (cur != end) break; return parseNumber(o1, o2); }
+        @o1 id @o2          { if (cur != end) break; return parseIdentifier(o1, o2); }
+        @o1 formula @o2     { if (cur != end) break; return parseFormula(o1, o2); }
+        
+        * { break; }
+*/
+    }
+    
+    String s(env(), *notAnInfo, start, end);
+    list->err << "unknown numeric operand '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    return 0;
 }
 
 ASMInstruction * Parser::parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1, ASMOperand *op2, ASMOperand *op3) {
@@ -663,15 +620,8 @@ detect_instruction:
                     list->addLabel(parseStringValue(o1, o2));
                     continue;
                   }
-        @o1 id @o2 wsp assign wsp @o3 number @o4 wsp / eoinst {
-                    list->addDefinition(parseStringValue(o1, o2), *parseNumber(o3, o4));
-                    continue;
-                  }
-        @o1 id @o2 wsp assign wsp @o3 formula @o4 wsp / eoinst {
-                    Formula * formula = parseFormula(o3, o4);
-                    if (formula) {
-                        list->addDefinition(parseStringValue(o1, o2), *formula);
-                    }
+        @o1 id @o2 wsp assign wsp @o3 numeric @o4 wsp / eoinst {
+                    list->addDefinition(parseStringValue(o1, o2), *parseNumericOperand(o3, o4));
                     continue;
                   }
         @o1 inst @o2 wsp / eoinst {

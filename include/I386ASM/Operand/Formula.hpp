@@ -21,8 +21,9 @@ class Formula: public Numeric {
 
     virtual OStream & operator >>(OStream & stream);
         
+    virtual bool isConstant(ASMInstructionList & list) override;
     virtual int getValue(ASMInstructionList & list) override;
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
+    virtual Numeric * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
     virtual Numeric & clone() override;
     
     // TODO #6: implement RTTI correctly

@@ -10,6 +10,10 @@ int Number::value() {
     return _number;
 }
 
+bool Number::isConstant(ASMInstructionList & list) {
+    return true;
+}
+
 int Number::getValue(ASMInstructionList & list) {
     return _number;
 }

@@ -17,31 +17,22 @@ OStream & Identifier::operator >>(OStream & stream) {
     return stream << _id;
 }
 
+bool Identifier::isConstant(ASMInstructionList & list) {
+    return list.isConstantDefinition(_id);
+}
+
 int Identifier::getValue(ASMInstructionList & list) {
-    return list.getLabel(*this);
+    return list.getValue(_id);
 }
 
 Numeric & Identifier::clone() {
     return env().create<Identifier, String&>(env().create<String, String&>(_id));
 }
 
-Number * Identifier::validateAndResolveDefinition(ASMInstructionList & list) {
+Numeric * Identifier::validateAndReplace(ASMInstructionList & list, BitWidth mode) {
     if (list.hasDefinition(_id)) {
-        Numeric & num = list.getNumberForDefinition(_id);
-        if (Number * n = num.as<Number>(number)) {
-            return n;
-        }
-        num.destroy();
-    } else if (!list.hasLabel(_id)) {
-        list.err << "Unknown identifier: " << *this << '\n';
-    }
-    return 0;
-}
-
-ASMOperand * Identifier::validateAndReplace(ASMInstructionList & list, BitWidth mode) {
-    if (list.hasDefinition(_id)) {
-        Numeric & num = list.getNumberForDefinition(_id);
-        if (ASMOperand * op = num.validateAndReplace(list, mode)) {
+        Numeric & num = list.getNumeric(_id);
+        if (Numeric * op = num.validateAndReplace(list, mode)) {
             num.destroy();
             return op;
         }

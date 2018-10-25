@@ -64,13 +64,15 @@ bool MoveTest::testMR() {
     success &= test(in, bin, pretty, message = "test \"mov reg -> reg\"");
     
     (in = "")
-        << "buffer:=0xBF000\n"
+        << "SIX:=6\n"
+        << "six:=SIX\n"
+        << "buffer:=(0xBF000+_start)\n"
         << "foo:=0x200\n"
         << "_start:\n"
         << "movb %al, (%eax)\n"
         << "movb %bh, 2(%eax)\n"
         << "movw %ax, (%ebx, %eax)\n"
-        << "movw %cx, 6(%ebx,%ebp,4)\n"
+        << "movw %cx, six(%ebx,%ebp,4)\n"
         << "movl %edx, (%ecx,%edi,8)\n"
         << "movl %esp, buffer(,%esi,2)\n"
         
@@ -86,7 +88,7 @@ bool MoveTest::testMR() {
         << (char) 0x66 << (char) 0x89 << (char) 0x04 << (char) 0x03
         << (char) 0x66 << (char) 0x89 << (char) 0x4C << (char) 0xAB << (char) 0x06
         << (char) 0x89 << (char) 0x14 << (char) 0xF9
-        << (char) 0x89 << (char) 0x24 << (char) 0x75 << (char) 0x00 << (char) 0xF0 << (char) 0x0B << (char) 0x00
+        << (char) 0x89 << (char) 0x24 << (char) 0x75 << (char) 0x00 << (char) 0xF2 << (char) 0x0B << (char) 0x00
         
         << (char) 0x89 << (char) 0x3D << (char) 0x20 << (char) 0x00 << (char) 0x00 << (char) 0x00
         << (char) 0x89 << (char) 0x1D << (char) 0x00 << (char) 0x02 << (char) 0x00 << (char) 0x00
@@ -96,13 +98,14 @@ bool MoveTest::testMR() {
     ;
     (pretty = "")
         << ".code32\n"
+        << "buffer := (0xbf000+_start)\n"
         << "_start:\n"
         << "movb %al, (%eax)\n"
         << "movb %bh, 0x2(%eax)\n"
         << "movw %ax, (%ebx,%eax)\n"
         << "movw %cx, 0x6(%ebx,%ebp,4)\n"
         << "movl %edx, (%ecx,%edi,8)\n"
-        << "movl %esp, 0xbf000(,%esi,2)\n"
+        << "movl %esp, buffer(,%esi,2)\n"
         
         << "movl %edi, (0x20)\n"
         << "movl %ebx, (0x200)\n"

@@ -1,13 +1,12 @@
 #include "I386ASM/Operand/Indirect.hpp"
 
-#include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Register.hpp"
-#include "I386ASM/Operand/Number.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
-Indirect::Indirect(Environment &env, MemoryInfo &mi, Register *base, Identifier *displacementId, Number *displacement, Register * index, int scale)
-    :Object(env, mi), _base(base), _displacementId(displacementId), _displacement(displacement), _index(index), _scale(scale) {
+Indirect::Indirect(Environment &env, MemoryInfo &mi, Register *base, Numeric *displacement, Register * index, int scale)
+    :Object(env, mi), _base(base), _displacement(displacement), _index(index), _scale(scale) {
 }
 Indirect::~Indirect() {
     if (_base) {
@@ -15,9 +14,6 @@ Indirect::~Indirect() {
     }
     if (_index) {
         _index->destroy();
-    }
-    if (_displacementId) {
-        _displacementId->destroy();
     }
     if (_displacement) {
         _displacement->destroy();
@@ -89,14 +85,21 @@ ASMOperand * Indirect::validateAndReplace(ASMInstructionList & list, BitWidth mo
             list.err << "invalid scale: " << _scale << '\n';
         }
     }
-    if (Number * disp = _displacementId ? _displacementId->validateAndResolveDefinition(list) : 0) {
-        _displacementId->destroy();
-        _displacementId = 0;
-        _displacement = disp;
-    }
-    if (_displacement && (_displacement->value() == 0) && (_base || _index)) {
-        _displacement->destroy();
-        _displacement = 0;
+    if (_displacement) {
+        if (Numeric *num = _displacement->validateAndReplace(list, mode)) {
+            if (Formula *f = num->as<Formula>(formula)) {
+                f->destroy();
+            } else {
+                _displacement->destroy();
+                _displacement = num;
+            }
+        }
+        if (Number *n = _displacement->as<Number>(number)) {
+            if ((n->value() == 0) && (_base || _index)) {
+                _displacement->destroy();
+                _displacement = 0;
+            }
+        }
     }
     return 0;
 }
@@ -120,13 +123,12 @@ int Indirect::getSibSize() {
 }
 
 BitWidth Indirect::getDispSize() {
-    if (_displacementId) {
-        return addrSize;
-    }
     if (_displacement) {
-        int value = _displacement->value();
-        if ((_base || _index) && (-128 <= value && value <= 127)) {
-            return bit_8; 
+        if (Number *num = _displacement->as<Number>(number)) {
+            int value = num->value();
+            if ((_base || _index) && (-128 <= value && value <= 127)) {
+                return bit_8; 
+            }
         }
         return addrSize;
     }
@@ -206,11 +208,8 @@ char Indirect::getSib() {
 }
 
 int Indirect::getDispValue(ASMInstructionList & list) {
-    if (_displacementId) {
-        return list.getLabel(_displacementId->id());
-    }
     if (_displacement) {
-        return _displacement->value();
+        return _displacement->getValue(list);
     }
     return 0;
 }
@@ -220,19 +219,13 @@ bool Indirect::isOffset() {
 }
 
 OStream & Indirect::operator >>(OStream & stream) {
-    if (_displacementId && !_base && !_index) {
-        // memory indirect
-        return stream << '(' << *_displacementId << ')';
-    }
     if (_displacement && !_base && !_index) {
         // memory indirect
         return stream << '(' << *_displacement << ')';
     }
     
     // register indirect
-    if (_displacementId) {
-        stream << *_displacementId;
-    } else if (_displacement) {
+    if (_displacement) {
         stream << *_displacement;
     }
     stream << '(';

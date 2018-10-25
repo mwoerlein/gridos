@@ -26,5 +26,7 @@ class ASMOperand: virtual public Object {
     }
     virtual OperandType type() = 0;
 };
+//#include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 
 #endif //I386ASMOPERAND_HPP_LOCK

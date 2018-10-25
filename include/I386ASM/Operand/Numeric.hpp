@@ -8,6 +8,10 @@ class Numeric: public ASMOperand {
     Numeric(Environment &env, MemoryInfo &mi):Object(env, mi) {}
     virtual ~Numeric() {}
     
+    virtual Numeric * validateAndReplace(ASMInstructionList & list, BitWidth mode) override {
+        return 0;
+    }
+    virtual bool isConstant(ASMInstructionList & list) = 0;
     virtual int getValue(ASMInstructionList & list) = 0;
     virtual Numeric & clone() = 0;
     virtual Numeric * asNumeric() {

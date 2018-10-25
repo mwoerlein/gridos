@@ -14,6 +14,7 @@ class Number: public Numeric {
     virtual int value();
     virtual OStream & operator >>(OStream & stream);
     
+    virtual bool isConstant(ASMInstructionList & list) override;
     virtual int getValue(ASMInstructionList & list) override;
     virtual Numeric & clone() override;
     

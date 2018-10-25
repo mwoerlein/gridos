@@ -79,14 +79,10 @@ void ASMInstructionList::addLabel(String &label) {
     ids.set(label, *e);
 }
 
-void ASMInstructionList::addDefinition(String &definition, ASMOperand &value) {
-    if (Numeric *num = value.asNumeric()) {
-        _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&definition, num, last->mode);
-        last = last->next = e;
-        ids.set(definition, *e);
-        return;
-    }
-    err<<"invalid definition value " << value << " for " << definition << '\n';
+void ASMInstructionList::addDefinition(String &definition, Numeric &value) {
+    _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&definition, &value, last->mode);
+    last = last->next = e;
+    ids.set(definition, *e);
 }
 
 bool ASMInstructionList::hasLabel(String &label) {
@@ -97,11 +93,20 @@ bool ASMInstructionList::hasDefinition(String &label) {
     return ids.has(label) && ids.get(label).value;
 }
 
+bool ASMInstructionList::isConstantDefinition(String &label) {
+    return ids.has(label) && ids.get(label).value && ids.get(label).value->isConstant(*this);
+}
+
 size_t ASMInstructionList::getLabel(String &label) {
     return ids.get(label).pos;
 }
 
-Numeric & ASMInstructionList::getNumberForDefinition(String &label) {
+int ASMInstructionList::getValue(String &label) {
+    _Elem & e = ids.get(label);
+    return e.value ? e.value->getValue(*this) : e.pos;
+}
+
+Numeric & ASMInstructionList::getNumeric(String &label) {
     _Elem & e = ids.get(label);
     return e.value ? e.value->clone() : env().create<Number,int>(e.pos);
 }
@@ -109,7 +114,8 @@ Numeric & ASMInstructionList::getNumberForDefinition(String &label) {
 bool ASMInstructionList::hasLabel(Identifier &id) { return hasLabel(id.id()); }
 bool ASMInstructionList::hasDefinition(Identifier &id) { return hasDefinition(id.id()); }
 size_t ASMInstructionList::getLabel(Identifier &id) { return getLabel(id.id()); }
-Numeric & ASMInstructionList::getNumberForDefinition(Identifier &id) { return getNumberForDefinition(id.id()); }
+int ASMInstructionList::getValue(Identifier &id) { return getValue(id.id()); }
+Numeric & ASMInstructionList::getNumeric(Identifier &id) { return getNumeric(id.id()); }
 
 
 size_t ASMInstructionList::compile() {
@@ -192,8 +198,8 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
             }
         } else if (cur->identifier) {
             if (cur->value) {
-                if (pos != -1) {
-                    // skip definitions after compilation
+                if (pos != -1 && cur->value->isConstant(*this)) {
+                    // skip constant definitions after compilation
                     // instructions replace definition usages with corresponding numbers
                     if (debug) {
                         stream << "// ";

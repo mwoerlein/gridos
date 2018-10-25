@@ -13,8 +13,11 @@ OStream & Formula::operator >>(OStream & stream) {
     return stream << '(' << *_o1 << operations[_op] << *_o2 << ')';
 }
 
+bool Formula::isConstant(ASMInstructionList & list) {
+    return _o1->isConstant(list) && _o2->isConstant(list);
+}
+
 int Formula::getValue(ASMInstructionList & list) {
-//    list.warn<<"get value "<<*this<<"\n";
     return compute(_o1->getValue(list), _o2->getValue(list));
 }
 
@@ -22,19 +25,19 @@ Numeric & Formula::clone() {
     return env().create<Formula, FormulaOperation, Numeric&, Numeric&>(_op, _o1->clone(), _o2->clone());
 }
 
-ASMOperand * Formula::validateAndReplace(ASMInstructionList & list, BitWidth mode) {
-//    list.warn<<"validate "<<*this<<"\n";
-    ASMOperand *o1 = _o1->validateAndReplace(list, mode);
-    Numeric *n1 = o1 ? o1->asNumeric() : 0;
-    _o1 = n1 ? n1 : _o1;
-    ASMOperand *o2 = _o2->validateAndReplace(list, mode);
-    Numeric *n2 = o2 ? o2->asNumeric() : 0;
-    _o2 = n2 ? n2 : _o2;
+Numeric * Formula::validateAndReplace(ASMInstructionList & list, BitWidth mode) {
+    if (Numeric *n1 = _o1->validateAndReplace(list, mode)) {
+        _o1->destroy();
+        _o1 = n1;
+    }
+    if (Numeric *n2 = _o2->validateAndReplace(list, mode)) {
+        _o2->destroy();
+        _o2 = n2;
+    }
     
     Number *num1 = _o1->as<Number>(number);
     Number *num2 = _o2->as<Number>(number);
     if (num1 && num2) {
-//        list.warn<<"compute "<<*this<<"\n";
         return &env().create<Number,int>(compute(num1->value(), num2->value()));
     }
     return 0;

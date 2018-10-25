@@ -4,7 +4,6 @@
 #include "sys/String.hpp"
 #include "I386ASM/Operand/Numeric.hpp"
 
-class Number;
 class Identifier: public Numeric {
     private:
     String &_id;
@@ -15,11 +14,11 @@ class Identifier: public Numeric {
     
     virtual OStream & operator >>(OStream & stream);
     virtual String &id();
-    virtual Number * validateAndResolveDefinition(ASMInstructionList & list);
     
+    virtual bool isConstant(ASMInstructionList & list) override;
     virtual int getValue(ASMInstructionList & list) override;
     virtual Numeric & clone() override;
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
+    virtual Numeric * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
     
     // TODO #6: implement RTTI correctly
     virtual OperandType type() { return identifier; }
