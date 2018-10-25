@@ -1,5 +1,9 @@
 #include "I386ASM/ASMInstruction.hpp"
 
+#include "I386ASM/Operand/Formula.hpp"
+#include "I386ASM/Operand/Register.hpp"
+#include "I386ASM/Operand/Number.hpp"
+
 // public
 OStream & ASMInstruction::operator >>(OStream & stream) {
     stream << mnemonic;
@@ -91,20 +95,24 @@ void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
 }
 
 void ASMInstruction::writeOffsetToStream(OStream &stream, ASMOperand *o) {
-    if (Identifier *id = o->as<Identifier>(identifier)) {
-        writeNumberToStream(stream, list->getLabel(*id) - (ctx->pos + size), immSize);
-    } else if (Number *num = o->as<Number>(number)) {
+    if (Number *num = o->as<Number>(number)) {
         writeNumberToStream(stream, num->value() - (ctx->pos + size), immSize);
+    } else if (Identifier *id = o->as<Identifier>(identifier)) {
+        writeNumberToStream(stream, list->getLabel(*id) - (ctx->pos + size), immSize);
+    } else if (Formula *f1 = o1->as<Formula>(formula)) {
+        writeNumberToStream(stream, f1->getValue(*list) - (ctx->pos + size), immSize);
     } else {
         list->err<<"invalid offset operand \""<<*o<<"\"\n";
     }
 }
 
 void ASMInstruction::writeImmediateToStream(OStream &stream, ASMOperand *o) {
-    if (Identifier *id = o->as<Identifier>(identifier)) {
-        writeNumberToStream(stream, list->getLabel(*id), immSize);
-    } else if (Number *num = o->as<Number>(number)) {
+    if (Number *num = o->as<Number>(number)) {
         writeNumberToStream(stream, num->value(), immSize);
+    } else if (Identifier *id = o->as<Identifier>(identifier)) {
+        writeNumberToStream(stream, list->getLabel(*id), immSize);
+    } else if (Formula *f1 = o1->as<Formula>(formula)) {
+        writeNumberToStream(stream, f1->getValue(*list), immSize);
     } else {
         list->err<<"invalid immediate operand \""<<*o<<"\"\n";
     }

@@ -7,7 +7,8 @@
 #include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ParseErrorStream.hpp"
 
-class Number;
+class ASMOperand;
+class Numeric;
 class Identifier;
 class ASMInstruction;
 class ASMInstructionList: virtual public Object {
@@ -27,18 +28,18 @@ class ASMInstructionList: virtual public Object {
     
     virtual void setMode(BitWidth mode);
     virtual void addLabel(String &label);
-    virtual void addDefinition(String &definition, Number &value);
+    virtual void addDefinition(String &definition, ASMOperand &value);
     virtual void addInstruction(ASMInstruction &inst, BitWidth data = bit_auto, BitWidth addr = bit_auto);
     
     virtual bool hasLabel(String &label);
     virtual bool hasDefinition(String &label);
     virtual size_t getLabel(String &label);
-    virtual Number & getNumberForDefinition(String &label);
+    virtual Numeric & getNumberForDefinition(String &label);
 
     virtual bool hasLabel(Identifier &id);
     virtual bool hasDefinition(Identifier &id);
     virtual size_t getLabel(Identifier &id);
-    virtual Number & getNumberForDefinition(Identifier &id);
+    virtual Numeric & getNumberForDefinition(Identifier &id);
     
     virtual size_t compile();
     virtual void finalize(size_t startAddress);
@@ -49,7 +50,7 @@ class ASMInstructionList: virtual public Object {
 };
 
 #include "I386ASM/ASMOperand.hpp"
-#include "I386ASM/Operand/Number.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 

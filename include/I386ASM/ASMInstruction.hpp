@@ -6,10 +6,11 @@
 #include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ASMContext.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Formula.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Register.hpp"
 #include "I386ASM/Operand/Number.hpp"
+#include "I386ASM/Operand/Register.hpp"
 
 #define useIndirectSizes(i) { \
     modrmSize = (i)->getModRMSize();\

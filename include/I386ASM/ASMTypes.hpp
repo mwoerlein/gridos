@@ -4,7 +4,7 @@
 #define ModRM(mod,regO,regM) ((char) ((((mod)&0x3)<<6) + (((regO)&0x7)<<3) + (((regM)&0x7)))) 
 #define SIB(ss,index,base) ((char) ((((ss)&0x3)<<6) + (((index)&0x7)<<3) + (((base)&0x7)))) 
 
-enum OperandType { reg, indirect, number, identifier };
+enum OperandType { reg, indirect, number, identifier, formula };
 
 enum BitWidth { bit_8 = 1, bit_16 = 2, bit_32 = 4, bit_auto = 0 };
 

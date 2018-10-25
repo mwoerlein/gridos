@@ -1,24 +1,21 @@
 #ifndef I386ASMNUMBER_HPP_LOCK
 #define I386ASMNUMBER_HPP_LOCK
 
-#include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 
-
-class Number: public ASMOperand {
+class Number: public Numeric {
     private:
     int _number;
     
     public:
-    Number(Environment &env, MemoryInfo &mi, int number):Object(env, mi), _number(number) {}
-    virtual ~Number() {}
+    Number(Environment &env, MemoryInfo &mi, int number);
+    virtual ~Number();
     
-    virtual int value() {
-        return _number;
-    }
-
-    virtual OStream & operator >>(OStream & stream) {
-        return stream.printuhex(_number);
-    }
+    virtual int value();
+    virtual OStream & operator >>(OStream & stream);
+    
+    virtual int getValue(ASMInstructionList & list) override;
+    virtual Numeric & clone() override;
     
     // TODO #6: implement RTTI correctly
     virtual OperandType type() { return number; }

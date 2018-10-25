@@ -15,6 +15,7 @@
 #include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Organize.hpp"
 
+#include "I386ASM/Operand/Formula.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
 #include "I386ASM/Operand/Number.hpp"
@@ -110,6 +111,8 @@ bool Parser::fillBuffer(size_t need, IStream & input)
         condition   = [nN]?(([aA]|[bB]|[gG|[lL])[eE]?|[cC]|[eE]|[oO]|[pP]|[sS]|[zZ]) | [pP]([oO]|[eE]);
         register    = "%" [a-zA-Z][a-zA-Z0-9]+;
         id          = [a-zA-Z_][a-zA-Z0-9_]+;
+        formula1    = "(" wsp (id|number) wsp ("+"|"-"|"*"|"/"|"%"|">>"|"<<") wsp (id|number) wsp ")";
+        formula     = "(" wsp (id|number|formula1) wsp ("+"|"-"|"*"|"/"|"%"|">>"|"<<") wsp (id|number|formula1) wsp ")";
 */
 
 String & Parser::parseStringValue(char * start, char * end) {
@@ -201,6 +204,7 @@ InstructionCondition Parser::parseInstructionCondition(char * start, char * end)
     list->err << "unknown condition '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
     return cond_above;
 }
+
 Register * Parser::parseRegister(char * start, char * end) {
     char *mark, *ctx, *cur = start;
     for (;;) {
@@ -257,6 +261,52 @@ Identifier * Parser::parseIdentifier(char * start, char * end) {
     return &env().create<Identifier, String&>(parseStringValue(start, end));
 }
 
+Formula * Parser::parseFormula(char * start, char * end) {
+    char *o1, *o2, *o3, *o4, *mark, *ctx, *cur = start;
+    for (;;) {
+/*!re2c
+        re2c:define:YYCURSOR = cur;
+        re2c:define:YYMARKER = mark;
+        re2c:define:YYCTXMARKER = ctx;
+        re2c:define:YYLIMIT = end;
+
+        "(" wsp @o1 (id|number|formula) @o2 wsp "+" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_add, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp "-" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_sub, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp "*" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_mul, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp "/" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_div, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp "%" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_mod, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp ">>" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_shr, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+        "(" wsp @o1 (id|number|formula) @o2 wsp "<<" wsp @o3 (id|number|formula) @o4 wsp ")" {
+            if (cur != end) break;
+            return &env().create<Formula, FormulaOperation, Numeric&, Numeric&>(op_shl, *parseNumericOperand(o1, o2), *parseNumericOperand(o3, o4));
+        }
+
+        * { break; }
+*/
+    }
+    String s(env(), *notAnInfo, start, end);
+    list->err << "unknown formula '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
+    return 0;
+}
+
 BitWidth Parser::parseOperandSize(char * start, char * end) {
     if (end - start != 1) {
         return bit_auto;
@@ -288,6 +338,7 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
         @o1 register @o2    { if (cur != end) break; return parseRegister(o1, o2); }
         @o1 number @o2      { if (cur != end) break; return parseNumber(o1, o2); }
         @o1 id @o2          { if (cur != end) break; return parseIdentifier(o1, o2); }
+        @o1 formula @o2     { if (cur != end) break; return parseFormula(o1, o2); }
         
         @o1 number @o2 wsp "(" wsp @o3 register @o4 wsp comma wsp @o5 register @o6 wsp comma wsp @o7 [1248] @o8 wsp ")" {
             if (cur != end) break;
@@ -441,6 +492,11 @@ ASMOperand * Parser::parseOperand(char * start, char * end) {
     return 0;
 }
 
+Numeric * Parser::parseNumericOperand(char * start, char * end) {
+    ASMOperand *op = parseOperand(start, end);
+    return op->asNumeric();
+}
+
 ASMInstruction * Parser::parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1, ASMOperand *op2, ASMOperand *op3) {
     char *o1, *o2, *mark, *ctx, *cur = start;
     for (;;) {
@@ -568,7 +624,7 @@ detect_instruction:
         re2c:define:YYFILL:naked = 1;
         
         inst        = id | "."[bB][yY][tT][eE] | "."[wW][oO][rR][dD] | "."[lL][oO][nN][gG] | "."[oO][rR][gG] | "."[aA][lL][iI][gG][nN];
-        operand     = register | id | number
+        operand     = register | id | number | formula
                         | "(" wsp (number | id ) wsp ")"
                         | ((number | id) wsp)? "(" (wsp register)? ( wsp comma wsp register ( wsp comma wsp (id | number) )? )? wsp ")"
                     ;
@@ -594,6 +650,13 @@ detect_instruction:
                   }
         @o1 id @o2 wsp assign wsp @o3 number @o4 wsp / eoinst {
                     list->addDefinition(parseStringValue(o1, o2), *parseNumber(o3, o4));
+                    continue;
+                  }
+        @o1 id @o2 wsp assign wsp @o3 formula @o4 wsp / eoinst {
+                    Formula * formula = parseFormula(o3, o4);
+                    if (formula) {
+                        list->addDefinition(parseStringValue(o1, o2), *formula);
+                    }
                     continue;
                   }
         @o1 inst @o2 wsp / eoinst {

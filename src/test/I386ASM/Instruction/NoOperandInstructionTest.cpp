@@ -7,41 +7,56 @@ NoOperandInstructionTest::~NoOperandInstructionTest() {};
 
 bool NoOperandInstructionTest::runAll() {
     bool success = true;
+    String in(env());
+    String bin(env());
+    String pretty(env());
+    String message(env());
     
-    {
-        const char bin[] = {(char)0xf4, 0};
-        success &= test("HLT", bin, ".code32\nhlt\n");
-    }
+    (in = "")
+        << "HLT\n"
+        << "Clc\n"
+        << "ClD\n"
+        << "ClI\n"
+        << "Clts\n"
+        << "STC\n"
+        << "STd\n"
+        << "STi\n"
+        << "nOP\n"
+        << "Int0\n"
+        << "iNt1\n"
+        << "InT3\n"
+    ;
+    (bin = "")
+        << (char) 0xF4
+        << (char) 0xF8
+        << (char) 0xFC
+        << (char) 0xFA
+        << (char) 0x0F << (char) 0x06
+        << (char) 0xF9
+        << (char) 0xFD
+        << (char) 0xFB
+        << (char) 0x90
+        << (char) 0xCE
+        << (char) 0xF1
+        << (char) 0xCC
+    ; 
+    (pretty = "")
+        << ".code32\n"
+        << "hlt\n"
+        << "clc\n"
+        << "cld\n"
+        << "cli\n"
+        << "clts\n"
+        << "stc\n"
+        << "std\n"
+        << "sti\n"
+        << "nop\n"
+        << "int0\n"
+        << "int1\n"
+        << "int3\n"
+    ;
     
-    {
-        const char bin[] = {(char)0xfa, 0};
-        success &= test("ClI", bin, ".code32\ncli\n");
-    }
-    
-    {
-        const char bin[] = {(char)0xfb, 0};
-        success &= test("STi", bin, ".code32\nsti\n");
-    }
-    
-    {
-        const char bin[] = {(char)0x90, 0};
-        success &= test("nOP", bin, ".code32\nnop\n");
-    }
-    
-    {
-        const char bin[] = {(char)0xCE, 0};
-        success &= test("Int0", bin, ".code32\nint0\n");
-    }
-    
-    {
-        const char bin[] = {(char)0xF1, 0};
-        success &= test("iNt1", bin, ".code32\nint1\n");
-    }
-    
-    {
-        const char bin[] = {(char)0xCC, 0};
-        success &= test("InT3", bin, ".code32\nint3\n");
-    }
+    success &= test(in, bin, pretty, message = "test \"no operands\"");
     
     return success;
 }

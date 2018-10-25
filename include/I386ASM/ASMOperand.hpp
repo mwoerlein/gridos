@@ -6,6 +6,7 @@
 #include "I386ASM/ASMTypes.hpp"
 
 class ASMInstructionList;
+class Numeric;
 class ASMOperand: virtual public Object {
     public:
     virtual ~ASMOperand() {}
@@ -20,9 +21,10 @@ class ASMOperand: virtual public Object {
     template <class As> As * as(OperandType type) {
         return (As *) ((this->type() == type) ? this->_memory_info->buf : 0);
     }
+    virtual Numeric * asNumeric() {
+        return 0;
+    }
     virtual OperandType type() = 0;
 };
-
-#include "I386ASM/ASMInstructionList.hpp"
 
 #endif //I386ASMOPERAND_HPP_LOCK

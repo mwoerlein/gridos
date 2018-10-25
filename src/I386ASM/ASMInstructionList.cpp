@@ -1,15 +1,17 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
+#include "I386ASM/Operand/Formula.hpp"
+
 class ASMInstructionList::_Elem: public ASMContext {
     public:
     _Elem * next;
     ASMInstruction *inst;
     String *identifier;
-    Number *value;
+    Numeric *value;
     
     _Elem(Environment &env, MemoryInfo &mi, BitWidth mode)
         :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(0), value(0), next(0) {}
-    _Elem(Environment &env, MemoryInfo &mi, String *identifier, Number *value, BitWidth mode)
+    _Elem(Environment &env, MemoryInfo &mi, String *identifier, Numeric *value, BitWidth mode)
         :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(identifier), value(value), next(0) {}
     _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst, BitWidth mode, BitWidth data, BitWidth addr)
         :ASMContext(env, mi, mode, data, addr), Object(env, mi), inst(inst), identifier(0), value(0), next(0) {}
@@ -77,10 +79,14 @@ void ASMInstructionList::addLabel(String &label) {
     ids.set(label, *e);
 }
 
-void ASMInstructionList::addDefinition(String &definition, Number &value) {
-    _Elem * e = &env().create<_Elem, String*, Number*, BitWidth>(&definition, &value, last->mode);
-    last = last->next = e;
-    ids.set(definition, *e);
+void ASMInstructionList::addDefinition(String &definition, ASMOperand &value) {
+    if (Numeric *num = value.asNumeric()) {
+        _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&definition, num, last->mode);
+        last = last->next = e;
+        ids.set(definition, *e);
+        return;
+    }
+    err<<"invalid definition value " << value << " for " << definition << '\n';
 }
 
 bool ASMInstructionList::hasLabel(String &label) {
@@ -95,15 +101,15 @@ size_t ASMInstructionList::getLabel(String &label) {
     return ids.get(label).pos;
 }
 
-Number & ASMInstructionList::getNumberForDefinition(String &label) {
+Numeric & ASMInstructionList::getNumberForDefinition(String &label) {
     _Elem & e = ids.get(label);
-    return env().create<Number,int>(e.value ? e.value->value(): e.pos);
+    return e.value ? e.value->clone() : env().create<Number,int>(e.pos);
 }
 
 bool ASMInstructionList::hasLabel(Identifier &id) { return hasLabel(id.id()); }
 bool ASMInstructionList::hasDefinition(Identifier &id) { return hasDefinition(id.id()); }
 size_t ASMInstructionList::getLabel(Identifier &id) { return getLabel(id.id()); }
-Number & ASMInstructionList::getNumberForDefinition(Identifier &id) { return getNumberForDefinition(id.id()); }
+Numeric & ASMInstructionList::getNumberForDefinition(Identifier &id) { return getNumberForDefinition(id.id()); }
 
 
 size_t ASMInstructionList::compile() {

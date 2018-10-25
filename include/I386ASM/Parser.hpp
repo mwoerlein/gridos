@@ -8,6 +8,7 @@
 #include "I386ASM/ASMInstructionList.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 #include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/Operand/Formula.hpp"
 #include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/Operand/Register.hpp"
@@ -36,10 +37,12 @@ class Parser: virtual public Object {
     virtual int parseIntegerValue(char * start, char * end, int base = 10);
     virtual BitWidth parseOperandSize(char * start, char * end);
     virtual Number * parseNumber(char * start, char * end);
+    virtual Formula * parseFormula(char * start, char * end);
     virtual InstructionCondition parseInstructionCondition(char * start, char * end);
     virtual Register * parseRegister(char * start, char * end);
     virtual Identifier * parseIdentifier(char * start, char * end);
     virtual ASMOperand * parseOperand(char * start, char * end);
+    virtual Numeric * parseNumericOperand(char * start, char * end);
     virtual ASMInstruction * parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1 = 0, ASMOperand *op2 = 0, ASMOperand *op3 = 0);
     
     public:

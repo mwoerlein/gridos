@@ -2,38 +2,24 @@
 #define I386ASMIDENTIFIER_HPP_LOCK
 
 #include "sys/String.hpp"
-#include "I386ASM/ASMOperand.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 
-class Identifier: public ASMOperand {
+class Number;
+class Identifier: public Numeric {
     private:
     String &_id;
     
     public:
-    Identifier(Environment &env, MemoryInfo &mi, String &id):Object(env, mi), _id(id) {}
-    virtual ~Identifier() {
-        _id.destroy();
-    }
+    Identifier(Environment &env, MemoryInfo &mi, String &id);
+    virtual ~Identifier();
     
-    virtual String &id() {
-        return _id;
-    }
-
-    virtual OStream & operator >>(OStream & stream) {
-        return stream << _id;
-    }
-
-    virtual Number * validateAndResolveDefinition(ASMInstructionList & list) {
-        if (list.hasDefinition(_id)) {
-            return &list.getNumberForDefinition(_id);
-        } else if (!list.hasLabel(_id)) {
-            list.err << "Unknown identifier: " << *this << '\n';
-        }
-        return 0;
-    }
+    virtual OStream & operator >>(OStream & stream);
+    virtual String &id();
+    virtual Number * validateAndResolveDefinition(ASMInstructionList & list);
     
-    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override {
-        return validateAndResolveDefinition(list);
-    }
+    virtual int getValue(ASMInstructionList & list) override;
+    virtual Numeric & clone() override;
+    virtual ASMOperand * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
     
     // TODO #6: implement RTTI correctly
     virtual OperandType type() { return identifier; }
