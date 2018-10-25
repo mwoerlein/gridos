@@ -528,8 +528,23 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
         }
+        [cC][lL][cC] {
+            return &env().create<NoOperandInstruction, const char *, char>("clc", 0xF8);
+        }
+        [cC][lL][dD] {
+            return &env().create<NoOperandInstruction, const char *, char>("cld", 0xFC);
+        }
         [cC][lL][iI] {
             return &env().create<NoOperandInstruction, const char *, char>("cli", 0xFA);
+        }
+        [cC][lL][tT][sS] {
+            return &env().create<NoOperandInstruction, const char *, char>("clts", 0x0F, 0x06);
+        }
+        [sS][tT][cC] {
+            return &env().create<NoOperandInstruction, const char *, char>("stc", 0xF9);
+        }
+        [sS][tT][dD] {
+            return &env().create<NoOperandInstruction, const char *, char>("std", 0xFD);
         }
         [sS][tT][iI] {
             return &env().create<NoOperandInstruction, const char *, char>("sti", 0xFB);

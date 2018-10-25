@@ -22,7 +22,7 @@ $(LIB): $(LIBOBJS)
 
 $(SRCDIR)/$(LIBNAME)/%.cpp: $(SRCDIR)/$(LIBNAME)/%.re 
 	echo "creating $@"
-	re2c -o $@ $<
+	re2c -bo $@ $<
 
 $(OBJDIR)/$(LIBNAME)/%.o: $(SRCDIR)/$(LIBNAME)/%.cpp $(OBJDIR)/$(LIBNAME) 
 	echo "creating $@"

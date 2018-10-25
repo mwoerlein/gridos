@@ -3,6 +3,19 @@
 loader_start:
 /* set up the REAL stack */
     movw GRIDOS_STACK_ADDR, %sp
+/* BIOS stores boot device in %dl => remember for later */
+    .byte 0x52;              #//pushw   %dx
+    
+/* move bootsector to loader segment */
+    movw    GRIDOS_BIOS_BOOTSECTOR_SEG, %ax
+    movw    %ax, %ds                # %ds = BOOTSEG
+    movw    GRIDOS_LOADER_SEG, %ax
+    movw    %ax, %es                # %ax = %es = INITSEG
+    movw    0x100, %cx
+    movw    0, %si
+    movw    0, %di
+    cld
+    .byte 0xf3; .byte 0xa5;  #//rep movsw
 
 /* Segmentpointer richtig setzen */
     movw    GRIDOS_LOADER_SEG, %ax
@@ -46,8 +59,9 @@ loader_stage1:
 /* real to prod */
     movw 1, %ax # protected mode (PE) bit
     .byte 0x0f; .byte 0x01; .byte 0xf0   #//lmsw    %ax     # This is it!
-    .byte 0x66; .byte 0xea;              #//jmpl    0x08, (GRIDOS_LOADER_ADDR+loader_stage2)
-    .long loader_stage2
+    .byte 0x66; .byte 0xea;              #//jmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage2)
+//    .long loader_stage2
+    .long ( ( GRIDOS_LOADER_SEG << 4 ) + loader_stage2 )
     .word 0x8
     
 .code32
@@ -97,9 +111,10 @@ idt_48:
     
 .align 32
 gdt_48:
-    .word   0x18                    # gdt limit=32,
-                                    #  4 GDT entries
-    .long   gdt  # gdt base (filled in later)
+    .word   0x18             # gdt limit=24,
+                             # 3 GDT entries
+//    .long   gdt
+    .long   (GRIDOS_LOADER_ADDR + gdt)
 
 .org GRIDOS_LOADER_MPT_START
 .org GRIDOS_LOADER_MPT_END
@@ -115,6 +130,7 @@ GRIDOS_LOADER_MPT_END := 0x1fe
 GRIDOS_STACK_ADDR := 0x1000
 
 GRIDOS_BIOS_BOOTSECTOR_SEG := 0x07C0
-GRIDOS_LOADER_SEG := 0x0 //0x1000
+GRIDOS_LOADER_SEG := 0x1000
+GRIDOS_LOADER_ADDR := (GRIDOS_LOADER_SEG << 4)
 
 cga_lastline := 0xb8f00

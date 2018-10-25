@@ -39,7 +39,7 @@ $(BOOTDIR)/$(MASCHINE)_loader.block: $(BOOTDIR)/$(MASCHINE)_loader.o
 
 $(BOOTDIR)/$(MASCHINE)_loader.bin: $(BOOTDIR)/$(MASCHINE)_loader.pasm
 	echo "creating $@"
-	$(BINDIR)/pasm -t 0x7C00 -bo $@ $<
+	$(BINDIR)/pasm -bo $@ $<
 
 $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 	echo "creating $@"
