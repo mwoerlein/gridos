@@ -1,5 +1,7 @@
 #include "I386ASM/Instruction/Organize.hpp"
 
+#include "I386ASM/Operand/Number.hpp"
+
 // protected
 size_t Organize::approximateSizeInBytes() {
     if (Number *n1 = o1->as<Number>(number)) {

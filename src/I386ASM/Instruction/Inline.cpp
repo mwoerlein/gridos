@@ -21,19 +21,16 @@ void Inline::checkOperands() {
 }
 
 void Inline::validateOperands() {
-    Number *n1 = o1->as<Number>(number);
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Formula *f1 = o1->as<Formula>(formula);
-    if (n1) {
-        BitWidth nw = getUnsignedBitWidth(n1->value());
-        if ((int) nw > (int) operandSize) {
-            list->err<<"value '"<<n1->value()<<"' does not match "<<(operandSize*8)<<" bit operand size\n";
-        }
-        return;
-    }
-    if (id1 || f1) {
-        if ((int) ctx->addr > (int) operandSize) {
-            list->err<<"address size "<<(ctx->addr*8)<<" bit does not match "<<(operandSize*8)<<" bit operand size\n";
+    if (Numeric *num1 = o1->asNumeric()) { 
+        if (num1->isConstant(*list)) {
+            int value = num1->getValue(*list);
+            if ((int) getUnsignedBitWidth(value) > (int) operandSize) {
+                list->err<<"value '"<<value<<"' does not match "<<(operandSize*8)<<" bit operand size\n";
+            }
+        } else {
+            if ((int) ctx->addr > (int) operandSize) {
+                list->err<<"address size "<<(ctx->addr*8)<<" bit does not match "<<(operandSize*8)<<" bit operand size\n";
+            }
         }
         return;
     }
@@ -41,10 +38,7 @@ void Inline::validateOperands() {
 }
 
 size_t Inline::compileOperands() {
-    Number *n1 = o1->as<Number>(number);
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Formula *f1 = o1->as<Formula>(formula);
-    if (n1 || id1 || f1) {
+    if (Numeric *num1 = o1->asNumeric()) {
         immSize = (int) operandSize;
         return immSize;
     }

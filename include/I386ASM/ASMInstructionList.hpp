@@ -9,7 +9,6 @@
 
 class ASMOperand;
 class Numeric;
-class Identifier;
 class ASMInstruction;
 class ASMInstructionList: virtual public Object {
     private:
@@ -38,12 +37,6 @@ class ASMInstructionList: virtual public Object {
     virtual int getValue(String &label);
     virtual Numeric & getNumeric(String &label);
 
-    virtual bool hasLabel(Identifier &id);
-    virtual bool hasDefinition(Identifier &id);
-    virtual size_t getLabel(Identifier &id);
-    virtual int getValue(Identifier &id);
-    virtual Numeric & getNumeric(Identifier &id);
-    
     virtual size_t compile();
     virtual void finalize(size_t startAddress);
     virtual bool hasErrors();
@@ -54,7 +47,6 @@ class ASMInstructionList: virtual public Object {
 
 #include "I386ASM/ASMOperand.hpp"
 #include "I386ASM/Operand/Numeric.hpp"
-#include "I386ASM/Operand/Identifier.hpp"
 #include "I386ASM/ASMInstruction.hpp"
 
 #endif //I386ASMINSTRUCTIONLIST_HPP_LOCK

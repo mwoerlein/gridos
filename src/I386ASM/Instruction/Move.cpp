@@ -2,8 +2,7 @@
 
 // protected
 size_t Move::approximateSizeInBytes() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
@@ -12,7 +11,7 @@ size_t Move::approximateSizeInBytes() {
         size++;
     }
     
-    if (n1 || id1) {
+    if (num1) {
         size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
     }
     if (i1) {
@@ -73,8 +72,7 @@ void Move::checkOperands() {
 }
 
 void Move::validateOperands() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -92,16 +90,7 @@ void Move::validateOperands() {
     }
     if (list->hasErrors()) return;
     
-    if ((n1 || id1) && gr2) {
-        return;
-    }
-    if ((n1 || id1) && i2) {
-        return;
-    }
-    if (gr1 && gr2) {
-        return;
-    }
-    if (gr1 && i2) {
+    if ((num1 || gr1) && (gr2 || i2)) {
         return;
     }
     if (i1 && gr2) {
@@ -130,8 +119,7 @@ void Move::validateOperands() {
 
 size_t Move::compileOperands() {
     size_t size = 0;
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -145,13 +133,13 @@ size_t Move::compileOperands() {
         pre3 = 0x66; size++;
     }
     
-    if ((n1 || id1) && gr2) {
+    if (num1 && gr2) {
         immSize = (int) operandSize;
         op1 = (operandSize == bit_8) ? 0xB0 : 0xB8;
         op1 += gr2->getOpCodeRegister();
         return size + 1 + immSize;
     }
-    if ((n1 || id1) && i2) {
+    if (num1 && i2) {
         if (requiresAddressSizeOverride(i2)) {
             pre4 = 0x67; size++;
         }    

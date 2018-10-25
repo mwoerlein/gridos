@@ -1,6 +1,7 @@
 #include "I386ASM/Operand/Formula.hpp"
 
 #include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Number.hpp"
 
 // public
 Formula::Formula(Environment &env, MemoryInfo &mi, FormulaOperation op, Numeric &o1, Numeric &o2):Numeric(env, mi), Object(env, mi), _op(op), _o1(&o1), _o2(&o2) {}
@@ -35,10 +36,8 @@ Numeric * Formula::validateAndReplace(ASMInstructionList & list, BitWidth mode) 
         _o2 = n2;
     }
     
-    Number *num1 = _o1->as<Number>(number);
-    Number *num2 = _o2->as<Number>(number);
-    if (num1 && num2) {
-        return &env().create<Number,int>(compute(num1->value(), num2->value()));
+    if (isConstant(list)) {
+        return &env().create<Number,int>(getValue(list));
     }
     return 0;
 }

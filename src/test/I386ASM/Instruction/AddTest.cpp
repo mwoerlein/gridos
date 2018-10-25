@@ -26,10 +26,10 @@ bool AddTest::testMI() {
         << "start:\n"
         << "add start,%al\n"
         << "add start,%ax\n"
-        << "add start,%eax\n"
+        << "add ((1<<1) + start),%eax\n"
         << "add 0x12,%ah\n"
         << "addb 0x12,(%eax)\n"
-        << "add 0x12, %edi\n"
+        << "add (2 * 9), %edi\n"
         << "add 0x12345678, %edi\n"
         << "addb 0xFF, 0x2(%esp)\n"
         << "addw 0x4, (%edx)\n"
@@ -51,7 +51,7 @@ bool AddTest::testMI() {
     (bin = "")
         << (char) 0x04 << (char) 0x00
         << (char) 0x66 << (char) 0x05 << (char) 0x00 << (char) 0x00
-        << (char) 0x05 << (char) 0x00 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0x05 << (char) 0x02 << (char) 0x00 << (char) 0x00 << (char) 0x00
         << (char) 0x80 << (char) 0xC4 << (char) 0x12
         << (char) 0x80 << (char) 0x00 << (char) 0x12
         << (char) 0x83 << (char) 0xC7 << (char) 0x12
@@ -77,7 +77,7 @@ bool AddTest::testMI() {
         << "start:\n"
         << "addb start, %al\n"
         << "addw start, %ax\n"
-        << "addl start, %eax\n"
+        << "addl (0x2+start), %eax\n"
         << "addb 0x12, %ah\n"
         << "addb 0x12, (%eax)\n"
         << "addl 0x12, %edi\n"

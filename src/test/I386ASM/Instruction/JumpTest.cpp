@@ -98,9 +98,9 @@ bool JumpTest::testRelative() {
         << ".code16\n"
         << "startDef:=0x10000\n"
         << "start:\n"
-        << "jmp near_start\n" // 0 <= offset <= 127
-        << "jmp end\n" // 127 < offset <= 32767
-        << "jmp 0x10025\n" // 0 <= offset <= 127
+        << "jmp (near_start+16)\n" // 0 <= offset <= 127
+        << "jmp ((end<<16)>>16)\n" // 127 < offset <= 32767
+        << "jmp (startDef + 0x25)\n" // 0 <= offset <= 127
         << "jmp 0x10095\n" // 127 < offset <= 32767
         << "jmp 0x1ffff\n" // 32767 < offset
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
@@ -121,7 +121,7 @@ bool JumpTest::testRelative() {
         << "jmp 0x0\n" // offset < -32768
     ;
     (bin = "")
-        << (char) 0xEB << (char) 0x25
+        << (char) 0xEB << (char) 0x35
         << (char) 0xE9 << (char) 0x92 << (char) 0x00
         << (char) 0x66 << (char) 0xE9 << (char) 0x1A << (char) 0x00 << (char) 0x00 << (char) 0x00
         << (char) 0x66 << (char) 0xE9 << (char) 0x84 << (char) 0x00 << (char) 0x00 << (char) 0x00
@@ -143,8 +143,8 @@ bool JumpTest::testRelative() {
     (pretty = "")
         << ".code16\n"
         << "start:\n"
-        << "jmp near_start\n" // 0 <= offset <= 127
-        << "jmp end\n" // 127 < offset <= 32767
+        << "jmp (near_start+0x10)\n" // 0 <= offset <= 127
+        << "jmp ((end<<0x10)>>0x10)\n" // 127 < offset <= 32767
         << "jmp 0x10025\n" // 0 <= offset <= 127
         << "jmp 0x10095\n" // 127 < offset <= 32767
         << "jmp 0x1ffff\n" // 32767 < offset

@@ -1,6 +1,6 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
-#include "I386ASM/Operand/Formula.hpp"
+#include "I386ASM/Operand/Number.hpp"
 
 class ASMInstructionList::_Elem: public ASMContext {
     public:
@@ -74,7 +74,7 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst, BitWidth data, Bit
 }
 
 void ASMInstructionList::addLabel(String &label) {
-    _Elem * e = &env().create<_Elem, String*, Number*, BitWidth>(&label, 0, last->mode);
+    _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&label, 0, last->mode);
     last = last->next = e;
     ids.set(label, *e);
 }
@@ -110,13 +110,6 @@ Numeric & ASMInstructionList::getNumeric(String &label) {
     _Elem & e = ids.get(label);
     return e.value ? e.value->clone() : env().create<Number,int>(e.pos);
 }
-
-bool ASMInstructionList::hasLabel(Identifier &id) { return hasLabel(id.id()); }
-bool ASMInstructionList::hasDefinition(Identifier &id) { return hasDefinition(id.id()); }
-size_t ASMInstructionList::getLabel(Identifier &id) { return getLabel(id.id()); }
-int ASMInstructionList::getValue(Identifier &id) { return getValue(id.id()); }
-Numeric & ASMInstructionList::getNumeric(Identifier &id) { return getNumeric(id.id()); }
-
 
 size_t ASMInstructionList::compile() {
     if (pos != -1) {

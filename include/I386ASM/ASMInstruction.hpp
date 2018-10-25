@@ -6,10 +6,8 @@
 #include "I386ASM/ASMTypes.hpp"
 #include "I386ASM/ASMContext.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
-#include "I386ASM/Operand/Formula.hpp"
-#include "I386ASM/Operand/Identifier.hpp"
+#include "I386ASM/Operand/Numeric.hpp"
 #include "I386ASM/Operand/Indirect.hpp"
-#include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/Operand/Register.hpp"
 
 #define useIndirectSizes(i) { \
@@ -38,14 +36,14 @@ class ASMInstruction: virtual public Object {
     virtual void validateOperands();
     virtual size_t compileOperands() = 0;
     virtual void writeOperandsToStream(OStream &stream) = 0;
-    virtual void writeNumberToStream(OStream &stream, int val, int size);
+    virtual void writeValueToStream(OStream &stream, int val, int size);
     virtual void writeOffsetToStream(OStream &stream, ASMOperand *o);
     virtual void writeImmediateToStream(OStream &stream, ASMOperand *o);
     virtual void writeModRMToStream(OStream &stream, int regO, int regM);
     virtual void writeIndirectToStream(OStream &stream, Indirect *i, int reg);
     virtual BitWidth getBitWidth(int value);
     virtual BitWidth getUnsignedBitWidth(unsigned int value);
-    virtual BitWidth approximateOffsetWidth(Identifier *id);
+    virtual BitWidth approximateOffsetWidth(Numeric *num);
 
     inline void writeModRMToStream(OStream &stream, Register *regO, Register *regM) {
         writeModRMToStream(stream, regO->getOpCodeRegister(), regM->getOpCodeRegister());

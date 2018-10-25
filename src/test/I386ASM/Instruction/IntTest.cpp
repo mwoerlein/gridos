@@ -16,7 +16,7 @@ bool IntTest::runAll() {
         << ".code32\n"
         << "int 0\n"
         << "int 1\n"
-        << "int 222\n"
+        << "int (2*111)\n"
         << ".code16\n"
         << "int 3\n"
         << "int 13\n"

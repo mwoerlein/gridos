@@ -1,5 +1,7 @@
 #include "I386ASM/Instruction/Align.hpp"
 
+#include "I386ASM/Operand/Number.hpp"
+
 #define isPowerOfTwo(n) ((n) && !((n) & ((n)-1)))
 
 // protected

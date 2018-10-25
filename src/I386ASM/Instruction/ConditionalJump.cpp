@@ -1,5 +1,7 @@
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 
+#include "I386ASM/Operand/Identifier.hpp"
+
 // protected
 size_t ConditionalJump::approximateSizeInBytes() {
     if (condition == cond_reg_cx || condition == cond_reg_ecx) {
@@ -24,20 +26,21 @@ void ConditionalJump::checkOperands() {
 }
 
 void ConditionalJump::validateOperands() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     
     if (condition == cond_reg_cx || condition == cond_reg_ecx) {
-        if (n1) {
+        Identifier *id1 = o1->as<Identifier>(identifier);
+        if (!id1) {
             list->err<<"Only label based addressing allowed in: " << *this << '\n';
+            return
         }
-        if (id1 && (approximateOffsetWidth(id1) != bit_8)) {
+        if (approximateOffsetWidth(id1) != bit_8) {
             list->err<<"Only byte offset allowed in: " << *this << '\n';
+            return;
         }
-        return;
     }
     
-    if (id1 || n1) {
+    if (num1) {
         return;
     }
     list->err<<"Invalid operand: " << *o1 << '\n';
@@ -45,12 +48,11 @@ void ConditionalJump::validateOperands() {
 }
 
 size_t ConditionalJump::compileOperands() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
-    if (id1 || n1) {
+    Numeric *num1 = o1->asNumeric();
+    if (num1) {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = id1 ? approximateOffsetWidth(id1) : bit_32; 
+        BitWidth offsetWidth = num1->isConstant(*list) ? bit_32 : approximateOffsetWidth(num1); 
         if (requiresAddressSizeOverride(offsetWidth)) {
             pre3 = 0x66; size++;
         }

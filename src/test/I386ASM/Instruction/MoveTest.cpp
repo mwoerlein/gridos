@@ -380,24 +380,32 @@ bool MoveTest::testOI() {
     String message(env());
     
     (in = "")
+        << "_zero:\n"
         << "zero := 0x0\n"
         << "movb zero, %al\n"
         << "movb 0x1A, %bh\n"
         << "movw 1, %sp\n"
         << "movl 12345678, %esi\n"
+        << "movl ((0x1234<<16) + 0x5678), %esi\n"
+        << "movl (0x1234+_zero), %esi\n"
     ;
     (bin = "")
         << (char) 0xB0 << (char) 0x00
         << (char) 0xB7 << (char) 0x1A
         << (char) 0x66 << (char) 0xBC << (char) 0x01 << (char) 0x00
         << (char) 0xBE << (char) 0x4E << (char) 0x61 << (char) 0xBC << (char) 0x00
+        << (char) 0xBE << (char) 0x78 << (char) 0x56 << (char) 0x34 << (char) 0x12
+        << (char) 0xBE << (char) 0x34 << (char) 0x12 << (char) 0x00 << (char) 0x00
     ;
     (pretty = "")
         << ".code32\n"
+        << "_zero:\n"
         << "movb 0x0, %al\n"
         << "movb 0x1a, %bh\n"
         << "movw 0x1, %sp\n"
         << "movl 0xbc614e, %esi\n"
+        << "movl 0x12345678, %esi\n"
+        << "movl (0x1234+_zero), %esi\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"mov imm -> reg\"");

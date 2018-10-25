@@ -1,9 +1,5 @@
 #include "I386ASM/ASMInstruction.hpp"
 
-#include "I386ASM/Operand/Formula.hpp"
-#include "I386ASM/Operand/Register.hpp"
-#include "I386ASM/Operand/Number.hpp"
-
 // public
 OStream & ASMInstruction::operator >>(OStream & stream) {
     stream << mnemonic;
@@ -86,7 +82,7 @@ size_t ASMInstruction::compile() {
     return size;
 }
 
-void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
+void ASMInstruction::writeValueToStream(OStream &stream, int val, int size) {
     switch (size) {
         case 1: stream << (char)val; break;
         case 2: stream << (char)val << (char)(val>>8); break;
@@ -95,24 +91,16 @@ void ASMInstruction::writeNumberToStream(OStream &stream, int val, int size) {
 }
 
 void ASMInstruction::writeOffsetToStream(OStream &stream, ASMOperand *o) {
-    if (Number *num = o->as<Number>(number)) {
-        writeNumberToStream(stream, num->value() - (ctx->pos + size), immSize);
-    } else if (Identifier *id = o->as<Identifier>(identifier)) {
-        writeNumberToStream(stream, list->getLabel(*id) - (ctx->pos + size), immSize);
-    } else if (Formula *f1 = o1->as<Formula>(formula)) {
-        writeNumberToStream(stream, f1->getValue(*list) - (ctx->pos + size), immSize);
+    if (Numeric *num = o->asNumeric()) {
+        writeValueToStream(stream, num->getValue(*list) - (ctx->pos + size), immSize);
     } else {
         list->err<<"invalid offset operand \""<<*o<<"\"\n";
     }
 }
 
 void ASMInstruction::writeImmediateToStream(OStream &stream, ASMOperand *o) {
-    if (Number *num = o->as<Number>(number)) {
-        writeNumberToStream(stream, num->value(), immSize);
-    } else if (Identifier *id = o->as<Identifier>(identifier)) {
-        writeNumberToStream(stream, list->getLabel(*id), immSize);
-    } else if (Formula *f1 = o1->as<Formula>(formula)) {
-        writeNumberToStream(stream, f1->getValue(*list), immSize);
+    if (Numeric *num = o->asNumeric()) {
+        writeValueToStream(stream, num->getValue(*list), immSize);
     } else {
         list->err<<"invalid immediate operand \""<<*o<<"\"\n";
     }
@@ -132,7 +120,7 @@ void ASMInstruction::writeIndirectToStream(OStream &stream, Indirect * i, int re
         stream << i->getSib();
     }
     if (dispSize) {
-        writeNumberToStream(stream, i->getDispValue(*list), dispSize);
+        writeValueToStream(stream, i->getDispValue(*list), dispSize);
     }
 }
 
@@ -156,6 +144,6 @@ BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
     return bit_32;
 }
 
-BitWidth ASMInstruction::approximateOffsetWidth(Identifier *id) {
-    return getBitWidth(ctx->approximateOffset(list->getLabel(*id)));
+BitWidth ASMInstruction::approximateOffsetWidth(Numeric *num) {
+    return getBitWidth(ctx->approximateOffset(num->getValue(*list)));
 }

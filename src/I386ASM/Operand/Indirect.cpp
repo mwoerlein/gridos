@@ -1,8 +1,8 @@
 #include "I386ASM/Operand/Indirect.hpp"
 
-#include "I386ASM/Operand/Register.hpp"
-#include "I386ASM/Operand/Numeric.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Operand/Formula.hpp"
+#include "I386ASM/Operand/Number.hpp"
 
 // public
 Indirect::Indirect(Environment &env, MemoryInfo &mi, Register *base, Numeric *displacement, Register * index, int scale)

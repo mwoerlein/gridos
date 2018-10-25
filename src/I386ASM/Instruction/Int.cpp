@@ -1,5 +1,7 @@
 #include "I386ASM/Instruction/Int.hpp"
 
+#include "I386ASM/Operand/Number.hpp"
+
 // protected
 size_t Int::approximateSizeInBytes() {
     return 2;

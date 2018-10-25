@@ -2,15 +2,14 @@
 
 // protected
 size_t Add::approximateSizeInBytes() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
     
     size_t size = 2; //opcode, modrm
     if (requiresOperandSizeOverride()) { size++; }
     
-    if (n1 || id1) {
+    if (num1) {
         size += (operandSize == bit_auto) ? (int) bit_32 : (int) operandSize;
     }
     if (i1) {
@@ -59,8 +58,7 @@ void Add::checkOperands() {
 }
 
 void Add::validateOperands() {
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -80,10 +78,7 @@ void Add::validateOperands() {
     }
     if (list->hasErrors()) return;
     
-    if ((n1 || id1) && (r2 || i2)) {
-        return;
-    }
-    if (r1 && (r2 || i2)) {
+    if ((num1 || r1) && (r2 || i2)) {
         return;
     }
     if (i1 && r2) {
@@ -94,8 +89,7 @@ void Add::validateOperands() {
 
 size_t Add::compileOperands() {
     size_t size = 0;
-    Identifier *id1 = o1->as<Identifier>(identifier);
-    Number *n1 = o1->as<Number>(number);
+    Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -105,7 +99,7 @@ size_t Add::compileOperands() {
         pre3 = 0x66; size++;
     }
     
-    if ((n1 || id1) && (r2 || i2)) {
+    if (num1 && (r2 || i2)) {
         immSize = (int) operandSize;
         if (r2 && (r2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
             op1 = (operandSize == bit_8) ? 0x04 : 0x05;
@@ -115,7 +109,7 @@ size_t Add::compileOperands() {
             op1 = 0x80;
         } else {
             op1 = 0x81;
-            if (n1 && (getBitWidth(n1->value()) == bit_8)) {
+            if (num1->isConstant(*list) && (getBitWidth(num1->getValue(*list)) == bit_8)) {
                 op1 = 0x83;
                 immSize = (int) bit_8;
             }

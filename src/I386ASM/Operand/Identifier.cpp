@@ -1,6 +1,5 @@
 #include "I386ASM/Operand/Identifier.hpp"
 
-#include "I386ASM/Operand/Number.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
