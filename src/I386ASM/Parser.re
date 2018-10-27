@@ -8,12 +8,14 @@
 #include "I386ASM/Instruction/Align.hpp"
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Div.hpp"
+#include "I386ASM/Instruction/In.hpp"
 #include "I386ASM/Instruction/Inline.hpp"
 #include "I386ASM/Instruction/Int.hpp"
 #include "I386ASM/Instruction/Jump.hpp"
 #include "I386ASM/Instruction/Move.hpp"
 #include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Organize.hpp"
+#include "I386ASM/Instruction/Out.hpp"
 
 #include "I386ASM/Operand/Formula.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
@@ -484,6 +486,14 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             String s(env(), *notAnInfo, start, operandsEnd);
             list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
             return 0;
+        }
+        [iI][nN] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<In, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
+        }
+        [oO][uU][tT] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<Out, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
         }
         [cC][lL][cC] {
             return &env().create<NoOperandInstruction, const char *, char>("clc", 0xF8);

@@ -32,7 +32,7 @@ void ConditionalJump::validateOperands() {
         Identifier *id1 = o1->as<Identifier>(identifier);
         if (!id1) {
             list->err<<"Only label based addressing allowed in: " << *this << '\n';
-            return
+            return;
         }
         if (approximateOffsetWidth(id1) != bit_8) {
             list->err<<"Only byte offset allowed in: " << *this << '\n';

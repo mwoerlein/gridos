@@ -39,28 +39,27 @@ loader_stage1:
     int 0x10
 
 /* activate A20 gate */
-    .byte 0xe4; .byte 0x92   #// inb 0x92, %al
+    inb 0x92, %al
     .byte 0x0c; .byte 0x02   #// orb 2, %al
-    .byte 0xe6; .byte 0x92   #// outb %al, 0x92
+    outb %al, 0x92
     
 /* disable interrupts */
     cli
     
 /* disable NMI */
     movb 0x80, %al
-    .byte 0xe6; .byte 0x70   #// outb %al, 0x70
+    outb %al, 0x70
     
 /* initialize IDT and GDT*/
-    .byte 0x66; .byte 0x0f; .byte 0x01; .byte 0x1e   #//lidtl idt_48
-    .word idt_48
-    .byte 0x66; .byte 0x0f; .byte 0x01; .byte 0x16   #//lgdtl gdt_48
-    .word gdt_48
+    .byte 0x0f; .byte 0x01; .byte 0x1e   #//lidtl idt_48
+    .long (GRIDOS_LOADER_ADDR + idt_48)
+    .byte 0x0f; .byte 0x01; .byte 0x16   #//lgdtl gdt_48
+    .long (GRIDOS_LOADER_ADDR + gdt_48)
     
 /* real to prod */
     movw 1, %ax # protected mode (PE) bit
     .byte 0x0f; .byte 0x01; .byte 0xf0   #//lmsw    %ax     # This is it!
     .byte 0x66; .byte 0xea;              #//jmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage2)
-//    .long loader_stage2
     .long ( ( GRIDOS_LOADER_SEG << 4 ) + loader_stage2 )
     .word 0x8
     
@@ -113,7 +112,6 @@ idt_48:
 gdt_48:
     .word   0x18             # gdt limit=24,
                              # 3 GDT entries
-//    .long   gdt
     .long   (GRIDOS_LOADER_ADDR + gdt)
 
 .org GRIDOS_LOADER_MPT_START
