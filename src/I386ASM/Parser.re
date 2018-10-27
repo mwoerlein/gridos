@@ -16,6 +16,8 @@
 #include "I386ASM/Instruction/NoOperandInstruction.hpp"
 #include "I386ASM/Instruction/Organize.hpp"
 #include "I386ASM/Instruction/Out.hpp"
+#include "I386ASM/Instruction/Pop.hpp"
+#include "I386ASM/Instruction/Push.hpp"
 
 #include "I386ASM/Operand/Formula.hpp"
 #include "I386ASM/Operand/Identifier.hpp"
@@ -494,6 +496,14 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         [oO][uU][tT] @o1 bitwidth? @o2 {
             if (!op1 || !op2 || op3) return 0;
             return &env().create<Out, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
+        }
+        [pP][uU][sS][hH] @o1 [wWlL]? @o2 {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Push, ASMOperand*, BitWidth> (op1, parseOperandSize(o1, o2));
+        }
+        [pP][oO][pP] @o1 [wWlL]? @o2 {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Pop, ASMOperand*, BitWidth> (op1, parseOperandSize(o1, o2));
         }
         [pP][uU][sS][hH][aA] @o1 [wWlL]? @o2 {
             return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pusha", 0x60, 0, 0, parseOperandSize(o1, o2, bit_16));

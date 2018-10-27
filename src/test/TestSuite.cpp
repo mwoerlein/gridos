@@ -22,6 +22,7 @@
 #include "test/I386ASM/Instruction/ConditionalJumpTest.hpp"
 #include "test/I386ASM/Instruction/IntTest.hpp"
 #include "test/I386ASM/Instruction/InOutTest.hpp"
+#include "test/I386ASM/Instruction/PushPopTest.hpp"
 #include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
 #include "test/I386ASM/Instruction/InlineAlignOrgTest.hpp"
 
@@ -54,6 +55,7 @@ void TestSuite::runAll() {
     run<ConditionalJumpTest>();
     run<IntTest>();
     run<InOutTest>();
+    run<PushPopTest>();
     run<ParserTest>();
     run<CodeDataAddrTest>();
 //*/

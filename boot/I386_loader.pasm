@@ -4,7 +4,7 @@ loader_start:
 /* set up the REAL stack */
     movw GRIDOS_STACK_ADDR, %sp
 /* BIOS stores boot device in %dl => remember for later */
-    .byte 0x52;              #//pushw   %dx
+    pushw %dx
     
 /* move bootsector to loader segment */
     movw    GRIDOS_BIOS_BOOTSECTOR_SEG, %ax
@@ -24,7 +24,7 @@ loader_start:
     movw    %ax, %fs
     movw    %ax, %gs
     movw    %ax, %ss
-    .byte 0xea;              #//jmpl    GRIDOS_LOADER_SEG, loader_stage1
+    .byte 0xea;              #//fjmpw    GRIDOS_LOADER_SEG, loader_stage1
     .word loader_stage1
     .word GRIDOS_LOADER_SEG
 
@@ -59,7 +59,7 @@ loader_stage1:
 /* real to prod */
     movw 1, %ax # protected mode (PE) bit
     .byte 0x0f; .byte 0x01; .byte 0xf0   #//lmsw    %ax     # This is it!
-    .byte 0x66; .byte 0xea;              #//jmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage2)
+    .byte 0x66; .byte 0xea;              #//fjmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage2)
     .long ( ( GRIDOS_LOADER_SEG << 4 ) + loader_stage2 )
     .word 0x8
     
