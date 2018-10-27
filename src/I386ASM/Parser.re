@@ -311,9 +311,9 @@ Formula * Parser::parseFormula(char * start, char * end) {
     return 0;
 }
 
-BitWidth Parser::parseOperandSize(char * start, char * end) {
+BitWidth Parser::parseOperandSize(char * start, char * end, BitWidth defaultWidth) {
     if (end - start != 1) {
-        return bit_auto;
+        return defaultWidth;
     }
     switch (*start) {
         case 'l':
@@ -326,7 +326,7 @@ BitWidth Parser::parseOperandSize(char * start, char * end) {
         case 'B':
             return bit_8;
         default:
-            return bit_auto;
+            return defaultWidth;
     }
 }
 
@@ -494,6 +494,30 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         [oO][uU][tT] @o1 bitwidth? @o2 {
             if (!op1 || !op2 || op3) return 0;
             return &env().create<Out, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
+        }
+        [pP][uU][sS][hH][aA] @o1 [wWlL]? @o2 {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pusha", 0x60, 0, 0, parseOperandSize(o1, o2, bit_16));
+        }
+        [pP][uU][sS][hH][aA][dD] {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pusha", 0x60, 0, 0, bit_32);
+        }
+        [pP][oO][pP][aA] @o1 [wWlL]? @o2 {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popa", 0x61, 0, 0, parseOperandSize(o1, o2, bit_16));
+        }
+        [pP][oO][pP][aA][dD] {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popa", 0x61, 0, 0, bit_32);
+        }
+        [pP][uU][sS][hH][fF] @o1 [wWlL]? @o2 {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pushf", 0x9C, 0, 0, parseOperandSize(o1, o2, bit_16));
+        }
+        [pP][uU][sS][hH][fF][dD] {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pushf", 0x9C, 0, 0, bit_32);
+        }
+        [pP][oO][pP][fF] @o1 [wWlL]? @o2 {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popf", 0x9D, 0, 0, parseOperandSize(o1, o2, bit_16));
+        }
+        [pP][oO][pP][fF][dD] {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popf", 0x9D, 0, 0, bit_32);
         }
         [cC][lL][cC] {
             return &env().create<NoOperandInstruction, const char *, char>("clc", 0xF8);

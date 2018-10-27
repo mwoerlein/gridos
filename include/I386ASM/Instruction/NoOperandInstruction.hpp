@@ -11,7 +11,7 @@ class NoOperandInstruction: public ASMInstruction {
     virtual void writeOperandsToStream(OStream &stream) override;
     
     public:
-    NoOperandInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, char opCode1 = 90, char opCode2 = 0, char opCode3 = 0);
+    NoOperandInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, char opCode1 = 90, char opCode2 = 0, char opCode3 = 0, BitWidth operandSize = bit_auto);
     virtual ~NoOperandInstruction();
 };
 

@@ -35,7 +35,7 @@ class Parser: virtual public Object {
     protected:
     virtual String & parseStringValue(char * start, char * end);
     virtual int parseIntegerValue(char * start, char * end, int base = 10);
-    virtual BitWidth parseOperandSize(char * start, char * end);
+    virtual BitWidth parseOperandSize(char * start, char * end, BitWidth defaultWidth = bit_auto);
     virtual Number * parseNumber(char * start, char * end);
     virtual Formula * parseFormula(char * start, char * end);
     virtual InstructionCondition parseInstructionCondition(char * start, char * end);

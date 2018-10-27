@@ -25,6 +25,25 @@ bool NoOperandInstructionTest::runAll() {
         << "Int0\n"
         << "iNt1\n"
         << "InT3\n"
+        
+        << "pusha\n"
+        << "pushad\n"
+        << "pushf\n"
+        << "pushfd\n"
+        << "popa\n"
+        << "popad\n"
+        << "popf\n"
+        << "popfd\n"
+        
+        << ".code16\n"
+        << "pusha\n"
+        << "pushad\n"
+        << "pushf\n"
+        << "pushfd\n"
+        << "popa\n"
+        << "popad\n"
+        << "popf\n"
+        << "popfd\n"
     ;
     (bin = "")
         << (char) 0xF4
@@ -39,6 +58,24 @@ bool NoOperandInstructionTest::runAll() {
         << (char) 0xCE
         << (char) 0xF1
         << (char) 0xCC
+        
+        << (char) 0x66 << (char) 0x60
+        << (char) 0x60
+        << (char) 0x66 << (char) 0x9C
+        << (char) 0x9C
+        << (char) 0x66 << (char) 0x61
+        << (char) 0x61
+        << (char) 0x66 << (char) 0x9D
+        << (char) 0x9D
+        
+        << (char) 0x60
+        << (char) 0x66 << (char) 0x60
+        << (char) 0x9C
+        << (char) 0x66 << (char) 0x9C
+        << (char) 0x61
+        << (char) 0x66 << (char) 0x61
+        << (char) 0x9D
+        << (char) 0x66 << (char) 0x9D
     ; 
     (pretty = "")
         << ".code32\n"
@@ -54,6 +91,24 @@ bool NoOperandInstructionTest::runAll() {
         << "int0\n"
         << "int1\n"
         << "int3\n"
+        << "pushaw\n"
+        << "pushal\n"
+        << "pushfw\n"
+        << "pushfl\n"
+        << "popaw\n"
+        << "popal\n"
+        << "popfw\n"
+        << "popfl\n"
+        
+        << ".code16\n"
+        << "pushaw\n"
+        << "pushal\n"
+        << "pushfw\n"
+        << "pushfl\n"
+        << "popaw\n"
+        << "popal\n"
+        << "popfw\n"
+        << "popfl\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"no operands\"");
