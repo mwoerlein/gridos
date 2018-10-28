@@ -24,6 +24,9 @@ bool InlineAlignOrgTest::runAll() {
         << ".org ((1<<4)+6)\n"
         << ".align 0x20\n"
         << ".long 0x87654321\n"
+        << ".ascii \"Hallo \\\"Welt\\\"\"\n"
+        << ".asciz \'Hello \"World\"\'\n"
+        << ".asciz \'\\n\\t\\r\\\'\\\"\'\n"
     ;
     (bin = "")
         << (char) 0x00 << (char) 0x12 << (char) 0x90 << (char) 0x90
@@ -35,6 +38,9 @@ bool InlineAlignOrgTest::runAll() {
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x21 << (char) 0x43 << (char) 0x65 << (char) 0x87
+        << "Hallo \"Welt\""
+        << "Hello \"World\"" << (char) 0x00
+        << '\n' << '\t' << '\r' << '\'' << '"' << (char) 0x00
     ;
     
     (pretty = "")
@@ -50,6 +56,9 @@ bool InlineAlignOrgTest::runAll() {
         << ".org 0x16\n"
         << ".align 0x20\n"
         << ".long 0x87654321\n"
+        << ".ascii \"Hallo \\\"Welt\\\"\"\n"
+        << ".asciz \"Hello \\\"World\\\"\"\n"
+        << ".asciz \"\\n\\t\\r'\\\"\"\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"inline align org\"");

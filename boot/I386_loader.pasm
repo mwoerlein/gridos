@@ -28,7 +28,23 @@ loader_start:
     .word loader_stage1
     .word GRIDOS_LOADER_SEG
 
+loadmsg:    .asciz "Loading "
+readerr:    .asciz "read error"
+memerr:     .asciz "memory error"
+
 loader_stage1:
+
+    movw loadmsg, %si
+    jmp message
+write_char:
+    movw    0x07, %bx  # page 0, attribute 7 (normal)
+    movb    0xe, %ah
+    int 0x10           # display a byte
+message:
+    lodsb
+    addb    0, %al
+    jnz write_char /* if not end of string, write next char */
+    
     movw 0x07, %bx
     movw 0x0e2e, %ax
     int 0x10    
@@ -130,5 +146,6 @@ GRIDOS_STACK_ADDR := 0x1000
 GRIDOS_BIOS_BOOTSECTOR_SEG := 0x07C0
 GRIDOS_LOADER_SEG := 0x1000
 GRIDOS_LOADER_ADDR := (GRIDOS_LOADER_SEG << 4)
+GRIDOS_LOADER_SECTORS := ((loader_end-loader_start) >> 9)
 
 cga_lastline := 0xb8f00

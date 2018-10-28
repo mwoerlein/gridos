@@ -34,6 +34,9 @@ bool NoOperandInstructionTest::runAll() {
         << "popad\n"
         << "popf\n"
         << "popfd\n"
+        << "lodsb\n"
+        << "lodsw\n"
+        << "lodsd\n"
         
         << ".code16\n"
         << "pusha\n"
@@ -44,6 +47,9 @@ bool NoOperandInstructionTest::runAll() {
         << "popad\n"
         << "popf\n"
         << "popfd\n"
+        << "lodsb\n"
+        << "lodsw\n"
+        << "lodsd\n"
     ;
     (bin = "")
         << (char) 0xF4
@@ -67,6 +73,9 @@ bool NoOperandInstructionTest::runAll() {
         << (char) 0x61
         << (char) 0x66 << (char) 0x9D
         << (char) 0x9D
+        << (char) 0xAC
+        << (char) 0x66 << (char) 0xAD
+        << (char) 0xAD
         
         << (char) 0x60
         << (char) 0x66 << (char) 0x60
@@ -76,6 +85,9 @@ bool NoOperandInstructionTest::runAll() {
         << (char) 0x66 << (char) 0x61
         << (char) 0x9D
         << (char) 0x66 << (char) 0x9D
+        << (char) 0xAC
+        << (char) 0xAD
+        << (char) 0x66 << (char) 0xAD
     ; 
     (pretty = "")
         << ".code32\n"
@@ -91,6 +103,7 @@ bool NoOperandInstructionTest::runAll() {
         << "int0\n"
         << "int1\n"
         << "int3\n"
+        
         << "pushaw\n"
         << "pushal\n"
         << "pushfw\n"
@@ -99,6 +112,9 @@ bool NoOperandInstructionTest::runAll() {
         << "popal\n"
         << "popfw\n"
         << "popfl\n"
+        << "lodsb\n"
+        << "lodsw\n"
+        << "lodsl\n"
         
         << ".code16\n"
         << "pushaw\n"
@@ -109,6 +125,9 @@ bool NoOperandInstructionTest::runAll() {
         << "popal\n"
         << "popfw\n"
         << "popfl\n"
+        << "lodsb\n"
+        << "lodsw\n"
+        << "lodsl\n"
     ;
     
     success &= test(in, bin, pretty, message = "test \"no operands\"");

@@ -146,6 +146,25 @@ OStream & String::operator >>(OStream & stream) {
     return stream;
 }
 
+void String::escapeToStream(OStream &stream, char enclosure, char escape) {
+    stream << enclosure;
+    for (_Element * cur = first; cur; cur = cur->next) {
+        char c = (char) *cur;
+        if ((c == enclosure) || (c == escape)) {
+            stream << escape << *cur;
+        } else if (c == '\n') {
+            stream << escape << 'n';
+        } else if (c == '\r') {
+            stream << escape << 'r';
+        } else if (c == '\t') {
+            stream << escape << 't';
+        } else {
+            stream << *cur;
+        }
+    }
+    stream << enclosure;
+}
+
 void String::operator >>(char *buffer) {
     for (_Element * cur = first; cur; cur = cur->next) {
         *buffer++ = (char) *cur;

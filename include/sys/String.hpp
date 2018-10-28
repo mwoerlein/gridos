@@ -38,6 +38,7 @@ class String: public OStream, public ComparableC<char *>, public ComparableC<con
     virtual OStream & operator >>(OStream & stream) override;
     virtual void operator >>(char *buffer);
     virtual void operator >>(int &i);
+    virtual void escapeToStream(OStream &stream, char enclosure = '"', char escape = '\\');
     virtual int hash() override;
     
     virtual IStream &toIStream();

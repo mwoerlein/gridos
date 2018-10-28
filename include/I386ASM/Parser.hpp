@@ -45,6 +45,7 @@ class Parser: virtual public Object {
     virtual Numeric * parseNumericOperand(char * start, char * end);
     virtual ASMInstruction * parseInstruction(char * start, char * end, char * operandsEnd, ASMOperand *op1 = 0, ASMOperand *op2 = 0, ASMOperand *op3 = 0);
     
+    virtual String * parseString(IStream & input, char enclosure);
     public:
     Parser(Environment &env, MemoryInfo &mi);
     virtual ~Parser();

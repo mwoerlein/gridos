@@ -6,6 +6,7 @@
 
 #include "I386ASM/Instruction/Add.hpp"
 #include "I386ASM/Instruction/Align.hpp"
+#include "I386ASM/Instruction/Ascii.hpp"
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Div.hpp"
 #include "I386ASM/Instruction/In.hpp"
@@ -320,6 +321,8 @@ BitWidth Parser::parseOperandSize(char * start, char * end, BitWidth defaultWidt
     switch (*start) {
         case 'l':
         case 'L':
+        case 'd':
+        case 'D':
             return bit_32;
         case 'w':
         case 'W':
@@ -505,29 +508,23 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             if (!op1 || op2 || op3) return 0;
             return &env().create<Pop, ASMOperand*, BitWidth> (op1, parseOperandSize(o1, o2));
         }
-        [pP][uU][sS][hH][aA] @o1 [wWlL]? @o2 {
+        [pP][uU][sS][hH][aA] @o1 [wWlLdD]? @o2 {
             return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pusha", 0x60, 0, 0, parseOperandSize(o1, o2, bit_16));
         }
-        [pP][uU][sS][hH][aA][dD] {
-            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pusha", 0x60, 0, 0, bit_32);
-        }
-        [pP][oO][pP][aA] @o1 [wWlL]? @o2 {
+        [pP][oO][pP][aA] @o1 [wWlLdD]? @o2 {
             return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popa", 0x61, 0, 0, parseOperandSize(o1, o2, bit_16));
         }
-        [pP][oO][pP][aA][dD] {
-            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popa", 0x61, 0, 0, bit_32);
-        }
-        [pP][uU][sS][hH][fF] @o1 [wWlL]? @o2 {
+        [pP][uU][sS][hH][fF] @o1 [wWlLdD]? @o2 {
             return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pushf", 0x9C, 0, 0, parseOperandSize(o1, o2, bit_16));
         }
-        [pP][uU][sS][hH][fF][dD] {
-            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("pushf", 0x9C, 0, 0, bit_32);
-        }
-        [pP][oO][pP][fF] @o1 [wWlL]? @o2 {
+        [pP][oO][pP][fF] @o1 [wWlLdD]? @o2 {
             return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popf", 0x9D, 0, 0, parseOperandSize(o1, o2, bit_16));
         }
-        [pP][oO][pP][fF][dD] {
-            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("popf", 0x9D, 0, 0, bit_32);
+        [lL][oO][dD][sS][bB] {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("lods", 0xAC, 0, 0, bit_8);
+        }
+        [lL][oO][dD][sS] @o1 [wWlLdD]? @o2 {
+            return &env().create<NoOperandInstruction, const char *, char, char, char, BitWidth>("lods", 0xAD, 0, 0, parseOperandSize(o1, o2));
         }
         [cC][lL][cC] {
             return &env().create<NoOperandInstruction, const char *, char>("clc", 0xF8);
@@ -616,6 +613,36 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
     return 0;
 }
 
+String * Parser::parseString(IStream & input, char enclosure) {
+    String &s = env().create<String>();
+    int startLine = linesBuffer[current-buffer];
+    int startColumn = columnsBuffer[current-buffer];
+    for (;;) {
+        char * tok = current;
+/*!re2c
+        re2c:define:YYCURSOR = current;
+        re2c:define:YYMARKER = marker;
+        re2c:define:YYCTXMARKER = ctxmarker;
+        re2c:define:YYLIMIT = limit;
+        re2c:yyfill:enable = 1;
+        re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
+        re2c:define:YYFILL:naked = 1;
+        
+        *                    { break; }
+        [^\n\\]              { if (enclosure == *tok) { return &s; }; s << *tok; continue; }
+        "\\n"                { s << '\n'; continue; }
+        "\\r"                { s << '\r'; continue; }
+        "\\t"                { s << '\t'; continue; }
+        "\\\\"               { s << '\\'; continue; }
+        "\\'"                { s << '\''; continue; }
+        "\\\""               { s << '"';  continue; }
+*/
+    }
+    list->err << "unterminated string '" << s << "' at line: " << startLine << " column: "  << startColumn << '\n';
+    s.destroy();
+    return 0;
+}
+
 // public
 ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, int column) {
     list = &env().create<ASMInstructionList, OStream&>(error);
@@ -653,12 +680,19 @@ detect_instruction:
         ( "//" | "#" ) @o1 [^\n]* @o2 eol { continue; }
         "/*" @o1 ([^*] | ("*" [^/]))* @o2 "*""/" { continue; }
 
-        ".code16" wsp / eoinst { list->setMode(bit_16); continue; }
-        ".code32" wsp / eoinst { list->setMode(bit_32); continue; }
-        ".data16" wsp { data = bit_16; goto detect_instruction; }
-        ".data32" wsp { data = bit_32; goto detect_instruction; }
-        ".addr16" wsp { addr = bit_16; goto detect_instruction; }
-        ".addr32" wsp { addr = bit_32; goto detect_instruction; }
+        "."[cC][oO][dD][eE]"16" wsp / eoinst { list->setMode(bit_16); continue; }
+        "."[cC][oO][dD][eE]"32" wsp / eoinst { list->setMode(bit_32); continue; }
+        "."[dD][aA][tT][aA]"16" wsp { data = bit_16; goto detect_instruction; }
+        "."[dD][aA][tT][aA]"32" wsp { data = bit_32; goto detect_instruction; }
+        "."[aA][dD][dD][rR]"16" wsp { addr = bit_16; goto detect_instruction; }
+        "."[aA][dD][dD][rR]"32" wsp { addr = bit_32; goto detect_instruction; }
+        
+        "."[aA][sS][cC][iI] @o1 [iIzZ] wsp @o2 ['"] {
+                    String *s = parseString(input, *o2);
+                    if (!s) break;
+                    list->addInstruction(env().create<Ascii, String&, bool>(*s, (*o1 == 'z' || *o1 == 'Z')), data, addr);
+                    continue;
+                  }
  
         @o1 id @o2 wsp colon {
                     list->addLabel(parseStringValue(o1, o2));
