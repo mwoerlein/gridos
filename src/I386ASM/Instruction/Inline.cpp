@@ -29,7 +29,7 @@ void Inline::validateOperands() {
             }
         } else {
             if ((int) ctx->addr > (int) operandSize) {
-                list->err<<"address size "<<(ctx->addr*8)<<" bit does not match "<<(operandSize*8)<<" bit operand size\n";
+                list->warn<<"address size "<<(ctx->addr*8)<<" bit does not match "<<(operandSize*8)<<" bit operand size: " << *this <<"\n";
             }
         }
         return;

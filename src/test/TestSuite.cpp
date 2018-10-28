@@ -15,16 +15,17 @@
 
 #include "test/I386ASM/ParserTest.hpp"
 #include "test/I386ASM/CodeDataAddrTest.hpp"
-#include "test/I386ASM/Instruction/MoveTest.hpp"
 #include "test/I386ASM/Instruction/AddTest.hpp"
-#include "test/I386ASM/Instruction/DivTest.hpp"
-#include "test/I386ASM/Instruction/JumpTest.hpp"
+#include "test/I386ASM/Instruction/CallTest.hpp"
 #include "test/I386ASM/Instruction/ConditionalJumpTest.hpp"
-#include "test/I386ASM/Instruction/IntTest.hpp"
-#include "test/I386ASM/Instruction/InOutTest.hpp"
-#include "test/I386ASM/Instruction/PushPopTest.hpp"
-#include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
+#include "test/I386ASM/Instruction/DivTest.hpp"
 #include "test/I386ASM/Instruction/InlineAlignOrgTest.hpp"
+#include "test/I386ASM/Instruction/InOutTest.hpp"
+#include "test/I386ASM/Instruction/IntTest.hpp"
+#include "test/I386ASM/Instruction/JumpTest.hpp"
+#include "test/I386ASM/Instruction/MoveTest.hpp"
+#include "test/I386ASM/Instruction/NoOperandInstructionTest.hpp"
+#include "test/I386ASM/Instruction/PushPopTest.hpp"
 
 // public
 TestSuite::TestSuite(Environment &env, MemoryInfo &mi): Object(env, mi) {}
@@ -52,6 +53,7 @@ void TestSuite::runAll() {
     run<AddTest>();
     run<DivTest>();
     run<JumpTest>();
+    run<CallTest>();
     run<ConditionalJumpTest>();
     run<IntTest>();
     run<InOutTest>();

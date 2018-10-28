@@ -7,6 +7,7 @@
 #include "I386ASM/Instruction/Add.hpp"
 #include "I386ASM/Instruction/Align.hpp"
 #include "I386ASM/Instruction/Ascii.hpp"
+#include "I386ASM/Instruction/Call.hpp"
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Div.hpp"
 #include "I386ASM/Instruction/In.hpp"
@@ -569,6 +570,14 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         [jJ][mM][pP] {
             if (!op1 || op2 || op3) return 0;
             return &env().create<Jump, ASMOperand*>(op1);
+        }
+        [cC][aA][lL][lL] {
+            if (!op1 || op2 || op3) return 0;
+            return &env().create<Call, ASMOperand*>(op1);
+        }
+        [rR][eE][tT] {
+            if (op1 || op2 || op3) return 0;
+            return &env().create<NoOperandInstruction, const char *, char>("ret", 0xC3);
         }
         [jJ] @o1 condition @o2 {
             if (!op1 || op2 || op3) return 0;

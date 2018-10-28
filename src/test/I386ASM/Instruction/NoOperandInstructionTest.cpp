@@ -25,6 +25,7 @@ bool NoOperandInstructionTest::runAll() {
         << "Int0\n"
         << "iNt1\n"
         << "InT3\n"
+        << "ret\n"
         
         << "pusha\n"
         << "pushad\n"
@@ -64,6 +65,7 @@ bool NoOperandInstructionTest::runAll() {
         << (char) 0xCE
         << (char) 0xF1
         << (char) 0xCC
+        << (char) 0xC3
         
         << (char) 0x66 << (char) 0x60
         << (char) 0x60
@@ -103,6 +105,7 @@ bool NoOperandInstructionTest::runAll() {
         << "int0\n"
         << "int1\n"
         << "int3\n"
+        << "ret\n"
         
         << "pushaw\n"
         << "pushal\n"
