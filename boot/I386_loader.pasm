@@ -92,6 +92,7 @@ loader_halt:
  */
 load_sectors:
     pushad
+    pushw %es
     /* store dap address in %si */
     movw %ax, %si
     
@@ -125,6 +126,7 @@ ls_lba_load:
     
     /* draw "." */
     movb 0x2e, %al; call write_char
+    popw %es
     popad
     ret
 
@@ -133,6 +135,7 @@ ls_chs_load:
     movl 0, %edi
     addw 2(%si), %di              # segments to read
     jnz ls_chs_check_max
+    popw %es
     popad
     ret
     
@@ -248,6 +251,75 @@ wm_load_char:
 
 /* stage1 functions/helper */
 
+/*
+ * mb2_generate_mmap_tag (%si)
+ *
+ * generates the multiboot 2 mmap tag at %si
+ */
+mb2_generate_mmap_tag:
+    pusha
+    movl %esi, %edi // current end
+    
+    movl MULTIBOOT_TAG_TYPE_MMAP, (%di)
+    movl 24, 8(%di) # entry_size
+    movl 0, 12(%di) # entry_version
+    addw 16, %di
+    
+    movl 0, %ebx
+    movl GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC, %edx
+    
+mb2mmap_e820_read:
+    movl 0xe820, %eax
+    movl 1, 20(%di)
+    movl 24, %ecx
+    int 0x15
+    jc memory_error
+    movl GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC, %edx
+    addl -0x0534d4150, %eax #// cmpl %edx, %eax
+    jnz memory_error
+    
+    addl -20, %ecx
+    jbe mb2mmap_e820_valid
+    movl 20(%di), %eax; addl -1, %eax #// testl 1, 20(%di)
+    jz  mb2mmap_e820_ignore
+    
+mb2mmap_e820_valid:
+    movl 12(%di), %eax
+    .byte 0x66; .byte 0x0b; .byte 0x45; .byte 0x08 #// orl  8(%di), %eax
+    addl 0, %eax
+    jz  mb2mmap_e820_ignore
+/* keep valid, non-empty entry */   
+    addw 24, %di
+    
+mb2mmap_e820_ignore:
+    addl 0, %ebx
+    jnz mb2mmap_e820_read
+    
+/* adjust mbi_tag_mmap_size */
+    movw %di, %ax
+    .byte 0x66; .byte 0x29; .byte 0xf7 #// subl %esi, %edi
+    movl %edi, 4(%si)
+    popa
+    ret
+
+/*
+ * mb2_finalize_mbi (%si, %bx)
+ *
+ * generates a multiboot 2 end tag at %si and adjusts mbi size of mbi at %bx
+ */
+mb2_finalize_mbi:
+    pusha
+/* generate new end tag */
+    movl MULTIBOOT_TAG_TYPE_END, (%si)
+    movl 8, 4(%si)
+    addw 8, %si
+    
+/* adjust mbi_size */
+    .byte 0x29; .byte 0xde #// subw %bx, %si
+    movl %esi, (%bx)
+    popa
+    ret
+
 /* stage1 functions/helper END */
 
 /* prepare kernel/modules/multiboot information and switch to protected mode */
@@ -262,7 +334,14 @@ loader_stage1:
     /* draw newline */
     movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
     
-/* TODO: initialize mmap entries from bios */
+/* initialize mmap entries from bios */
+    movw mbi, %bx
+    movw mbi_tag_module_text_end, %si
+    call mb2_generate_mmap_tag
+    // step over mmap_tag
+    addw 4(%si), %si
+    call mb2_finalize_mbi
+    
     /* draw newline */
     movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
 
@@ -371,8 +450,7 @@ mod_text_disk_address_packet:
 /* mbi-structures */
 .align MULTIBOOT_TAG_ALIGN
 mbi:
-mbi_size:
-    .long   (mbi_end - mbi) # size (will be filled after memory-detection)
+    .long   0 # size (will be filled after memory-detection)
     .long   0 # reserved
 mbi_tag_name:
     .long   MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME
@@ -395,27 +473,9 @@ mbi_tag_module_text:
     .asciz  "kernel --debug=1" // MOD_TEXT_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_module_text_end:
-mbi_tag_mmap:
-    .long   MULTIBOOT_TAG_TYPE_MMAP
-mbi_tag_mmap_size:
-    .long   (mbi_tag_mmap_end-mbi_tag_mmap)  # size (will be filled after memory-detection)
-    .long   24  # entry_size
-    .long   0   # entry_version
-/* TODO: initialize mmap entries from bios */
-mbi_tag_mmap_entries:
-    .long 0x01000000
-    .long 0
-    .long 0x01000000
-    .long 0
-    .long 1
-    .long 0
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_mmap_end:
-mbi_tag_end:
-    .long   MULTIBOOT_TAG_TYPE_END
-    .long   (mbi_tag_end_end - mbi_tag_end)
-mbi_tag_end_end:
-mbi_end:
+
+/* further mb2 tags will be generated here */
+
 /* stage1 data END*/
 
 .align 512
@@ -436,6 +496,7 @@ MULTIBOOT_TAG_TYPE_FRAMEBUFFER       := 8
 GRIDOS_MULTIBOOT2_HEADER_MAGIC := 0xe85250d6
 GRIDOS_MULTIBOOT2_HEADER_ARCH_I386 := 0
 GRIDOS_MULTIBOOT2_LOADER_MAGIC := 0x36d76289
+GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC := 0x0534d4150
 
 //GRIDOS_LOADER_NAME := "GridOS Loader 0.2"
 GRIDOS_LOADER_MBR_SIGNATURE := 0xaa55
