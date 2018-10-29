@@ -266,16 +266,29 @@ mb2_generate_mmap_tag:
     addw 16, %di
     
     movl 0, %ebx
-    movl GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC, %edx
+    movl GRIDOS_MULTIBOOT2_MMAP_SIGNATURE, %edx
     
 mb2mmap_e820_read:
+/*
+ * BIOS call "INT 0x15 Function 0xe820" to query system address map
+ *	Call with	%eax = 0xe820
+ *			%ebx = continuation or 0 (at start)
+ *			%ecx = buffer size (20)
+ *			%edx = signature ('SMAP')
+ *			%es:%di = segment:offset of buffer
+ *	Return:
+ *          CF on error
+ *			%eax = signature ('SMAP') to verify correct BIOS revision.
+ *			%ebx = continuation or 0 (if last)
+ *			%ecx = bytes written to buffer
+ */
     movl 0xe820, %eax
     movl 1, 20(%di)
     movl 24, %ecx
     int 0x15
     jc memory_error
-    movl GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC, %edx
-    addl -0x0534d4150, %eax #// cmpl %edx, %eax
+    movl GRIDOS_MULTIBOOT2_MMAP_SIGNATURE, %edx
+    addl -0x534d4150, %eax #// cmpl %edx, %eax
     jnz memory_error
     
     addl -20, %ecx
@@ -335,16 +348,14 @@ loader_stage1:
     movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
     
 /* initialize mmap entries from bios */
-    movw mbi, %bx
     movw mbi_tag_module_text_end, %si
     call mb2_generate_mmap_tag
+    
     // step over mmap_tag
     addw 4(%si), %si
+    movw mbi, %bx
     call mb2_finalize_mbi
     
-    /* draw newline */
-    movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
-
 /* activate A20 gate */
     inb 0x92, %al
     .byte 0x0c; .byte 0x02   #// orb 2, %al
@@ -496,7 +507,7 @@ MULTIBOOT_TAG_TYPE_FRAMEBUFFER       := 8
 GRIDOS_MULTIBOOT2_HEADER_MAGIC := 0xe85250d6
 GRIDOS_MULTIBOOT2_HEADER_ARCH_I386 := 0
 GRIDOS_MULTIBOOT2_LOADER_MAGIC := 0x36d76289
-GRIDOS_MULTIBOOT2_MMAP_E820_MAGIC := 0x0534d4150
+GRIDOS_MULTIBOOT2_MMAP_SIGNATURE := 0x534d4150 // 'SMAP'
 
 //GRIDOS_LOADER_NAME := "GridOS Loader 0.2"
 GRIDOS_LOADER_MBR_SIGNATURE := 0xaa55
