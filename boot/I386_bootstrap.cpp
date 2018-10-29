@@ -58,7 +58,9 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     env.destroyModules();
     
     if (debugLevel >= 2) {
-        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<k<<'\n';
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();
+        if (&k) { env.out()<<' '<<k; }
+        env.out()<<'\n';
         env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     

@@ -87,7 +87,7 @@ bool Module::parseHeader() {
         
         "[" wsp @b1 id @b2 wsp "]" wsp eol { continue; }
         ";" [^\n]* wsp eol { continue; }
-        @o1 id @o2 wsp "=" wsp @o3 [^\n]* @o4 wsp eol {
+        @o1 id @o2 wsp "=" wsp @o3 [^\r\n]* @o4 wsp eol {
                     String &key = createOwn<String, char*, char*>(b1, b2);
                     key << '.';
                     for (char *cur = o1; cur < o2; cur++) {

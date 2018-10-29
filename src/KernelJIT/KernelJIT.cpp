@@ -68,5 +68,6 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         return osk;
     }
     
+    env().err()<<"Unsupported mimetype: "<<module.getStringProperty("meta.mimetype")<<'\n';
     return *(Kernel *) 0;
 }
