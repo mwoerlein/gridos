@@ -11,3 +11,4 @@
 /img/disk.img
 /src/I386ASM/Parser.cpp
 /src/KernelJIT/Module.cpp
+/boot/I386_loader_dynamic_settings.pasm
