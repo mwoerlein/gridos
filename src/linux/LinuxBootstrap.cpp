@@ -29,6 +29,23 @@ class StdOStream: public OStream {
     }
 };
 
+class StdIStream: public IStream {
+    private:
+    std::istream &in;
+    
+    public:
+    using IStream::operator >>;
+    StdIStream(Environment &env, MemoryInfo &mi)
+        : Object(env, mi), in(std::cin) {};
+    virtual ~StdIStream() {}
+    
+    virtual IStream &operator >>(char &c) override {
+        in.get(c);
+        return *this;
+    }
+    virtual bool isEmpty() { return in.eof(); }
+};
+
 class StdFileOStream: public OStream {
     private:
     std::FILE *file;
@@ -84,6 +101,9 @@ class StdFileStreamFactory: public StreamFactory {
         return env().create<StdFileIStream, const char *>(name);
     }
     virtual IStream & buildIStream(String & name) override {
+        if (name == "-") {
+            return env().create<StdIStream>();
+        }
         char buffer[FILENAME_MAX];
         name >> buffer;
         return env().create<StdFileIStream, const char *>(buffer);

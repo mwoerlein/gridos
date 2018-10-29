@@ -148,6 +148,11 @@ bool CommandLine::parse(int argc, char* argv[]) {
             PUSH_ARG(arg);
             break;
         case MODE_SHORT_OPT:
+            if (!(opt).length()) {
+                arg << '-';
+                PUSH_ARG(arg);
+                break;
+            }
         case MODE_LONG_OPT:
             PUSH_OPT(opt);
             break;

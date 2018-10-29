@@ -46,8 +46,7 @@ $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/Kernel-TEXT.bloc
 
 $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
 	echo "creating $@"
-	cat $(LOADER_PASMS) > /tmp/loader.pasm
-	$(BINDIR)/pasm -bo $@ /tmp/loader.pasm
+	cat $(LOADER_PASMS) | $(BINDIR)/pasm -bo $@ -
 
 $(BOOTDIR)/Kernel-TEXT.bin: $(BOOTDIR)/Kernel-TEXT
 	echo "creating $@"
