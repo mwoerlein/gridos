@@ -5,27 +5,27 @@ LDTAIL =# $(shell g++ --print-file-name=crtend.o && g++ --print-file-name=crtn.o
 KERNELLIBS = test.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM.a memory.a sys.a
 
 $(BOOTDIR)/$(MASCHINE)_loader_config.s $(BOOTDIR)/$(MASCHINE)_Kernel-TEXT.block $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block: $(BOOTDIR)/Kernel-TEXT.bin $(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin
-	echo "#define DISK_HEADS       2" >> $@
-	echo "#define DISK_TRACKS      80" >> $@
-	echo "#define DISK_SECTORS     36" >> $@
-	echo "" >> $@
-	echo "#define JIT_CMD          \"--test = 0 --debug=1\"" >> $@
-	echo "#define JIT_BLOCKS       `dd if=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin of=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`" >> $@
-	echo "#define JIT_SIZE         (JIT_BLOCKS << 9)" >> $@
-	echo "#define JIT_LBA          (GRIDOS_LOADER_SECTORS)" >> $@
-	echo "#define JIT_SEGMENT      0x2000" >> $@
-	echo "#define JIT_OFFSET       0x0000" >> $@
-	echo "#define BSS_SEGMENT      (JIT_SEGMENT+((JIT_BLOCKS >> 3) << 8) + 0x200)" >> $@
-	echo "#define BSS_SIZE         (GRIDOS_BOOTSTRAP_STACK_SIZE + 0x100)" >> $@
-	echo "" >> $@
-	echo "#define TEXT_CMD         \"kernel --debug=2\"" >> $@
-	echo "#define TEXT_BLOCKS      `dd if=$(BOOTDIR)/Kernel-TEXT.bin of=$(BOOTDIR)/Kernel-TEXT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`">> $@
-	echo "#define TEXT_SIZE        (TEXT_BLOCKS << 9)" >> $@
-	echo "#define TEXT_LBA         (JIT_LBA+JIT_BLOCKS)" >> $@
-	echo "#define TEXT_SEGMENT     (BSS_SEGMENT + (BSS_SIZE >> 4))" >> $@
-	echo "#define TEXT_OFFSET      0x0000" >> $@
-	echo "#define TEXT_ADDR        ((TEXT_SEGMENT << 4) + TEXT_OFFSET)" >> $@
-	echo "" >> $@
+	echo "#define DISK_HEADS       2" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define DISK_TRACKS      80" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define DISK_SECTORS     36" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_CMD          \"--test = 0 --debug=2\"" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_BLOCKS       `dd if=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.bin of=$(BOOTDIR)/$(MASCHINE)_Kernel-JIT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_SIZE         (JIT_BLOCKS << 9)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_LBA          (GRIDOS_LOADER_SECTORS)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_SEGMENT      0x2000" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define JIT_OFFSET       0x0000" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define BSS_SEGMENT      (JIT_SEGMENT+((JIT_BLOCKS >> 3) << 8) + 0x200)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define BSS_SIZE         (GRIDOS_BOOTSTRAP_STACK_SIZE + 0x100)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_CMD         \"kernel --debug=1\"" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_BLOCKS      `dd if=$(BOOTDIR)/Kernel-TEXT.bin of=$(BOOTDIR)/Kernel-TEXT.block bs=512 conv=sync 2>&1 | head -n 2 | tail -n 1 | cut -d '+' -f1`">> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_SIZE        (TEXT_BLOCKS << 9)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_LBA         (JIT_LBA+JIT_BLOCKS)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_SEGMENT     (BSS_SEGMENT + (BSS_SIZE >> 4))" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_OFFSET      0x0000" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "#define TEXT_ADDR        ((TEXT_SEGMENT << 4) + TEXT_OFFSET)" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
+	echo "" >> $(BOOTDIR)/$(MASCHINE)_loader_config.s
 
 $(BOOTDIR)/$(MASCHINE)_loader.s: $(BOOTDIR)/$(MASCHINE)_loader.S $(BOOTDIR)/$(MASCHINE)_loader_config.s
 	$(CC) -E -traditional -S -o $@ $<

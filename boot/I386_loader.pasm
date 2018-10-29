@@ -1,4 +1,3 @@
-// TODO: cdq, idiv, cmp, and/or, shr/shl, sub/mul/..., fjmp, lmsw, lidt/lgdt
 /* Code */
 .code16
 loader_start:
@@ -7,7 +6,7 @@ loader_start:
     .word loader_stage0
     .word GRIDOS_BIOS_BOOTSECTOR_SEGMENT
 
-/* loader-sectors */
+/* stage0 data */
 .align 4
 disk_address_packet:
     .byte 0x10
@@ -31,6 +30,8 @@ msg_loading:       .asciz "Loading "
 msg_read:          .asciz "read"
 msg_memory:        .asciz "memory"
 msg_general_error: .asciz " error\r\n"
+
+/* stage0 data END */
 
 /* prepare loader */
 loader_stage0:
@@ -64,6 +65,7 @@ loader_stage0:
     .word loader_stage1
     .word GRIDOS_LOADER_SEGMENT
 
+/* stage0 functions/helper */
 read_error:
     movw msg_read, %ax
     jmp error_message
@@ -126,24 +128,49 @@ ls_lba_load:
     popad
     ret
 
-ls_chs_load: // TODO: split and loop sectors, to fit into segments and heads 
+ls_chs_load:
     /* %si = dap address */
-    movl 8(%si), %eax             # src segment (lba)
-    movl 12(%si), %edx            # src segment (lba)
+    movl 0, %edi
+    addw 2(%si), %di              # segments to read
+    jnz ls_chs_check_max
+    popad
+    ret
     
-    # convert %edx:%eax to CHS
-    # Temp = LBA / (Sectors per Track)
-    # Sector = (LBA % (Sectors per Track)) + 1
+    /* determine allowed segments to read */
+ls_chs_check_max:
+    // maximal 127 segments
+    .byte 0x81; .byte 0xff; .word 0x7f #// cmpw 127, %di
+    jl ls_chs_check_offset
+    movw 127, %di 
+ls_chs_check_offset:
+    // do not cross offset limit
+    movw %di, %ax
+    .byte 0xc1; .byte 0xe0; .byte 0x09 #// shlw 9, %ax
+    addw 4(%si), %ax              # dest offset
+    jnc ls_chs_convert
+    .byte 0xc1; .byte 0xe8; .byte 0x09 #// shrw 9, %ax
+    .byte 0x29; .byte 0xc7  #// subw %ax, %di
+
+ls_chs_convert:
+    /*
+     * convert LBA to CHS
+     *
+     * Temp = LBA / (Sectors per Track)
+     * Sector = (LBA % (Sectors per Track)) + 1
+     * Head = Temp % (Number of Heads)
+     * Cylinder = Temp / (Number of Heads)
+     */
+    movl 8(%si), %eax    # LBA
+    movl 12(%si), %edx   # LBA
+    
     .byte 0x66; .byte 0xf7; .byte 0x3e; .word bd_sectors  #// idiv (bd_sectors)
     addb 1, %dl
-    movb %dl, %cl     # store sector
-    # Head = Temp % (Number of Heads)
-    # Cylinder = Temp / (Number of Heads)
+    movb %dl, %cl        # store sector
     .byte 0x66; .byte 0x99      #// cdq
     .byte 0x66; .byte 0xf7; .byte 0x3e; .word bd_heads    #// idiv (bd_heads)
-    movb %al, %ch     # store cylinder
-    movb %dl, %dh     # store head
-    
+    movb %al, %ch        # store cylinder
+    movb %dl, %dh        # store head
+
 /*
  * BIOS call "INT 0x13 Function 0x2" to read sectors from disk into memory
  *	Call with	%ah = 0x2
@@ -156,20 +183,28 @@ ls_chs_load: // TODO: split and loop sectors, to fit into segments and heads
  *	Return:
  *			%al = 0x0 on success; err code on failure
  */
-    movw 6(%si), %ax              # dest segment
-    movw %ax, %es
-    movw 2(%si), %ax              # segments to read
+    movw 6(%si), %bx              # dest segment
+    movw %bx, %es
     movw 4(%si), %bx              # dest offset
+    movw %di, %ax                 # segments to read
     movb 2, %ah
     movb (boot_device), %dl
     int 0x13
     jc  read_error
     addb 0, %ah
     jnz read_error
+    
     /* draw "." */
     movb 0x2e, %al; call write_char
-    popad
-    ret
+    
+    /* step count/segment/lba in dap */
+    .byte 0x29; .byte 0x7c; .byte 0x02 #// subw %di, 2(%si) // count
+    addl %edi, 8(%si) // lba
+    .byte 0xc1; .byte 0xe7; .byte 0x09 #// shlw 9, %di
+    addw %di, 4(%si) // offset
+    jnc ls_chs_load
+    addw 0x1000, 6(%si) // segment
+    jmp ls_chs_load
 
 /*
  * write_char (%al)
@@ -205,73 +240,31 @@ wm_load_char:
     popa
     ret
 
-/*
-write_digit:
-    pusha
-wd_write:
-    .byte 0x83; .byte 0xe0; .byte 0x0f #// andw 0xf, %ax
-    addw 48, %ax
-    .byte 0x83; .byte 0xf8; .byte 0x3a #// cmpw 58, %ax
-    jl wc_write
-    addw 7, %ax
-    jmp wc_write
-*/
-
-/*
-write_hex:
-    pusha
-    movw %ax, %bx
-    movb 0x20, %al; call write_char
-    movb 0x30, %al; call write_char
-    movb 0x78, %al; call write_char
-    movw %bx, %ax; .byte 0xc1; .byte 0xe8; .byte 0x0c; #// shrw 12, %ax;
-       call write_digit
-    movw %bx, %ax; .byte 0xc1; .byte 0xe8; .byte 0x08; #// shrw 8, %ax;
-       call write_digit
-    movw %bx, %ax; .byte 0xc1; .byte 0xe8; .byte 0x04; #// shrw 4, %ax;
-       call write_digit
-    movw %bx, %ax
-    jmp wd_write
-*/
-
-/*
-write_reg:
-    pusha
-    call write_char
-    movb 0x3A, %al; call write_char
-    movw %bx, %ax;  call write_hex
-    movb 0x0a, %al; call write_char
-    movb 0x0d, %al;
-    jmp wc_write
-*/
-
-/*
-write_regs:
-    pusha
-    pushw %bx
-    movw %ax, %bx; movb 0x61, %al; call write_reg
-    popw %bx; movb 0x62, %al; call write_reg
-    movw %cx, %bx; movb 0x63, %al; call write_reg
-    movw %dx, %bx; movb 0x64, %al; call write_reg
-    movw %es, %bx; movb 0x65, %al; call write_reg
-    movw %si, %bx; movb 0x66, %al; call write_reg
-    popa
-    ret
-*/
+/* stage0 functions/helper END*/
 
 .org GRIDOS_LOADER_MPT_START
 .org GRIDOS_LOADER_MPT_END
     .word GRIDOS_LOADER_MBR_SIGNATURE
 
+/* stage1 functions/helper */
+
+/* stage1 functions/helper END */
+
 /* prepare kernel/modules/multiboot information and switch to protected mode */
 loader_stage1:
-/* TODO: load kernel/modules */
-    movb 0x0a, %al; call write_char
-    movb 0x0d, %al; call write_char
+/* TODO: load dap-list instead of hardcoded startup/mod_text */
+    movw startup_disk_address_packet, %ax
+    call load_sectors
+    
+    movw mod_text_disk_address_packet, %ax
+    call load_sectors
+
+    /* draw newline */
+    movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
     
 /* TODO: initialize mmap entries from bios */
-    movb 0x2e, %al; call write_char
-    movb 0x40, %al; call write_char
+    /* draw newline */
+    movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
 
 /* activate A20 gate */
     inb 0x92, %al
@@ -294,13 +287,13 @@ loader_stage1:
 /* real to prod */
     movw 1, %ax # protected mode (PE) bit
     .byte 0x0f; .byte 0x01; .byte 0xf0   #//lmsw    %ax     # This is it!
-    .byte 0x66; .byte 0xea;              #//fjmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage2)
-    .long (GRIDOS_LOADER_ADDR + loader_stage2)
+    .byte 0x66; .byte 0xea;              #//fjmpl    0x08, (GRIDOS_LOADER_ADDR + loader_stage1_32)
+    .long (GRIDOS_LOADER_ADDR + loader_stage1_32)
     .word 0x8
     
 .code32
 /* start kernel */
-loader_stage2:
+loader_stage1_32:
 /* init segment-pointer */
     movl    0x10, %edx
     movw    %dx, %ds
@@ -316,6 +309,8 @@ loader_stage2:
 kernel_halt:
     hlt
     jmp kernel_halt
+
+/* stage1 data */
 
 /* descriptor tables */
 .align 32
@@ -349,6 +344,28 @@ gdt_48:
     .word   0x18             # gdt limit=24, 3 GDT entries
     .long   (GRIDOS_LOADER_ADDR + gdt)
 
+/* TODO: load dap-list instead of hardcoded startup/mod_text */
+.align 4
+startup_disk_address_packet:
+    .byte 0x10
+    .byte 0x0
+    .word STARTUP_SECTORS  # count
+    .word STARTUP_OFFSET   # destination offset
+    .word STARTUP_SEGMENT  # destination segment
+    .long STARTUP_LBA      # lba block
+    .long 0                # lba block
+.align 4
+mod_text_disk_address_packet:
+    .byte 0x10
+    .byte 0x0
+    .word MOD_TEXT_SECTORS # count
+    .word MOD_TEXT_OFFSET  # destination offset
+    .word MOD_TEXT_SEGMENT # destination segment
+    .long MOD_TEXT_LBA     # lba block
+    .long 0                # lba block
+
+/* stage1 data END*/
+
 .align 512
 loader_end:
 
@@ -363,9 +380,30 @@ GRIDOS_LOADER_SEGMENT := 0x0800
 GRIDOS_LOADER_OFFSET := 0x0000
 GRIDOS_LOADER_ADDR := ((GRIDOS_LOADER_SEGMENT << 4) + GRIDOS_LOADER_OFFSET)
 GRIDOS_LOADER_SECTORS := ((loader_end-loader_start) >> 9)
+GRIDOS_BOOTSTRAP_STACK_SIZE := 0x3000
 
 DISK_HEADS   := 2
 DISK_TRACKS  := 80
 DISK_SECTORS := 36
+
+// TODO: inject dynamical
+STARTUP_LBA      := GRIDOS_LOADER_SECTORS
+STARTUP_SECTORS  := 913
+STARTUP_SIZE     := (STARTUP_SECTORS << 9)
+STARTUP_SEGMENT  := 0x2000
+STARTUP_OFFSET   := 0x0000
+STARTUP_ADDR     := ((STARTUP_SEGMENT << 4) + STARTUP_OFFSET)
+//STARTUP_CMD      := "--test = 0 --debug=2"
+BSS_TMP1         := ((STARTUP_SECTORS >> 3) << 8)
+BSS_SEGMENT      := (STARTUP_SEGMENT + (BSS_TMP1 + 0x200))
+BSS_SIZE         := (GRIDOS_BOOTSTRAP_STACK_SIZE + 0x100)
+
+MOD_TEXT_LBA     := (STARTUP_LBA+STARTUP_SECTORS)
+MOD_TEXT_SECTORS := 2
+MOD_TEXT_SIZE    := (MOD_TEXT_SECTORS << 9)
+MOD_TEXT_SEGMENT := (BSS_SEGMENT + (BSS_SIZE >> 4))
+MOD_TEXT_OFFSET  := 0x0000
+MOD_TEXT_ADDR    := ((MOD_TEXT_SEGMENT << 4) + MOD_TEXT_OFFSET)
+//MOD_TEXT_CMD     := "kernel --debug=1"
 
 cga_lastline := 0xb8f00
