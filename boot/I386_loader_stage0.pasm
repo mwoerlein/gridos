@@ -138,11 +138,11 @@ ls_chs_convert:
     movl 8(%si), %eax    # LBA
     movl 12(%si), %edx   # LBA
     
-    .byte 0x66; .byte 0xf7; .byte 0x3e; .word bd_sectors  #// idiv (bd_sectors)
+    divl (bd_sectors)
     addb 1, %dl
     movb %dl, %cl        # store sector
     .byte 0x66; .byte 0x99      #// cdq
-    .byte 0x66; .byte 0xf7; .byte 0x3e; .word bd_heads    #// idiv (bd_heads)
+    divl (bd_heads)
     movb %al, %ch        # store cylinder
     movb %dl, %dh        # store head
 
