@@ -40,11 +40,11 @@ loader_stage0:
     movw %ax, %ss
     movw GRIDOS_STACK_ADDR, %sp
 /* setup segment registers */
-    movw    GRIDOS_BIOS_BOOTSECTOR_SEGMENT, %ax
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %fs
-    movw    %ax, %gs
+    movw GRIDOS_BIOS_BOOTSECTOR_SEGMENT, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
     sti
     
     movw msg_loading, %ax
@@ -53,11 +53,11 @@ loader_stage0:
     call load_sectors
     
 /* setup segment registers */
-    movw    GRIDOS_LOADER_SEGMENT, %ax
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %fs
-    movw    %ax, %gs
+    movw GRIDOS_LOADER_SEGMENT, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
     
 /* BIOS stores boot device in %dl => remember for later */    
     movb %dl, (boot_device)
@@ -295,15 +295,19 @@ loader_stage1:
 /* start kernel */
 loader_stage1_32:
 /* init segment-pointer */
-    movl    0x10, %edx
-    movw    %dx, %ds
-    movw    %dx, %es
-    movw    %dx, %fs
-    movw    %dx, %gs
-    movw    %dx, %ss
+    movl 0x10, %edx
+    movw %dx, %ds
+    movw %dx, %es
+    movw %dx, %fs
+    movw %dx, %gs
+    movw %dx, %ss
 
-/* TODO: jmp to kernel */
-    movw 0xf40, (cga_lastline) // draw @
+/* jmp to kernel */
+    movl GRIDOS_MULTIBOOT2_LOADER_MAGIC, %eax
+    movl (GRIDOS_LOADER_ADDR + mbi), %ebx
+    .byte 0xea;              #//fjmpl    0x08, STARTUP_ADDR
+    .long STARTUP_ADDR
+    .word 0x8
 
 /* stop bootloader */
 kernel_halt:
@@ -364,12 +368,76 @@ mod_text_disk_address_packet:
     .long MOD_TEXT_LBA     # lba block
     .long 0                # lba block
 
+/* mbi-structures */
+.align MULTIBOOT_TAG_ALIGN
+mbi:
+mbi_size:
+    .long   (mbi_end - mbi) # size (will be filled after memory-detection)
+    .long   0 # reserved
+mbi_tag_name:
+    .long   MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME
+    .long   (mbi_tag_name_end - mbi_tag_name)
+    .asciz  "GridOS Loader 0.2" // GRIDOS_LOADER_NAME
+.align MULTIBOOT_TAG_ALIGN
+mbi_tag_name_end:
+/* TODO: generate from load dap-list instead of hardcoded startup/mod_text */
+mbi_tag_command_line:
+    .long   MULTIBOOT_TAG_TYPE_CMDLINE
+    .long   (mbi_tag_command_line_end - mbi_tag_command_line)
+    .asciz  "--test = 0 --debug=2" // STARTUP_CMD
+.align MULTIBOOT_TAG_ALIGN
+mbi_tag_command_line_end:
+mbi_tag_module_text:
+    .long   MULTIBOOT_TAG_TYPE_MODULE
+    .long   (mbi_tag_module_text_end - mbi_tag_module_text)
+    .long   MOD_TEXT_ADDR
+    .long   (MOD_TEXT_ADDR + MOD_TEXT_SIZE)
+    .asciz  "kernel --debug=1" // MOD_TEXT_CMD
+.align MULTIBOOT_TAG_ALIGN
+mbi_tag_module_text_end:
+mbi_tag_mmap:
+    .long   MULTIBOOT_TAG_TYPE_MMAP
+mbi_tag_mmap_size:
+    .long   (mbi_tag_mmap_end-mbi_tag_mmap)  # size (will be filled after memory-detection)
+    .long   24  # entry_size
+    .long   0   # entry_version
+/* TODO: initialize mmap entries from bios */
+mbi_tag_mmap_entries:
+    .long 0x01000000
+    .long 0
+    .long 0x01000000
+    .long 0
+    .long 1
+    .long 0
+.align MULTIBOOT_TAG_ALIGN
+mbi_tag_mmap_end:
+mbi_tag_end:
+    .long   MULTIBOOT_TAG_TYPE_END
+    .long   (mbi_tag_end_end - mbi_tag_end)
+mbi_tag_end_end:
+mbi_end:
 /* stage1 data END*/
 
 .align 512
 loader_end:
 
 // TODO: include constants via "header"
+MULTIBOOT_TAG_ALIGN                  := 8
+MULTIBOOT_TAG_TYPE_END               := 0
+MULTIBOOT_TAG_TYPE_CMDLINE           := 1
+MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME  := 2
+MULTIBOOT_TAG_TYPE_MODULE            := 3
+MULTIBOOT_TAG_TYPE_BASIC_MEMINFO     := 4
+MULTIBOOT_TAG_TYPE_BOOTDEV           := 5
+MULTIBOOT_TAG_TYPE_MMAP              := 6
+MULTIBOOT_TAG_TYPE_VBE               := 7
+MULTIBOOT_TAG_TYPE_FRAMEBUFFER       := 8
+
+GRIDOS_MULTIBOOT2_HEADER_MAGIC := 0xe85250d6
+GRIDOS_MULTIBOOT2_HEADER_ARCH_I386 := 0
+GRIDOS_MULTIBOOT2_LOADER_MAGIC := 0x36d76289
+
+//GRIDOS_LOADER_NAME := "GridOS Loader 0.2"
 GRIDOS_LOADER_MBR_SIGNATURE := 0xaa55
 GRIDOS_LOADER_MPT_START := 0x1be
 GRIDOS_LOADER_MPT_END := 0x1fe
