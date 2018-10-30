@@ -22,6 +22,11 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         debugLevel = 3;
     }
     
+    if (!module.hasStringProperty("meta.mimetype")) {
+        env().err()<<"Missing mimetype\n";
+        return *(Kernel *) 0;
+    }
+    
     if (module.testStringProperty("meta.mimetype", "text/x-pasm")) {
         Parser &parser = env().create<Parser>();
         IStream &in = module.getContentIStream();
