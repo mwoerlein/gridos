@@ -13,7 +13,7 @@ loader_stage1:
     
     
 /* initialize mmap entries from bios */
-    movw mbi_tag_module_text_end, %si
+    movw mbi_static_end, %si
     call mb2_generate_mmap_tag
     
     // step over mmap_tag
@@ -63,7 +63,7 @@ mb2_generate_mmap_tag:
     addw 16, %di
     
     movl 0, %ebx
-    movl MULTIBOOT_MMAP_SIGNATURE, %edx
+    movl BIOS_INT15_E820_SIGNATURE, %edx
     
 mb2mmap_e820_read:
 /*
@@ -84,7 +84,7 @@ mb2mmap_e820_read:
     movl 24, %ecx
     int 0x15
     jc memory_error
-    movl MULTIBOOT_MMAP_SIGNATURE, %edx
+    movl BIOS_INT15_E820_SIGNATURE, %edx
     addl -0x534d4150, %eax #// cmpl %edx, %eax
     jnz memory_error
     
@@ -144,7 +144,7 @@ loader_stage1_32:
     movw %dx, %ss
 
 /* jmp to kernel */
-    movl MULTIBOOT_LOADER_MAGIC, %eax
+    movl MULTIBOOT2_BOOTLOADER_MAGIC, %eax
     movl (LOADER_ADDR + mbi), %ebx
     .byte 0xea;              #//fjmpl    0x08, STARTUP_ADDR
     .long STARTUP_ADDR
@@ -203,10 +203,10 @@ startup_disk_address_packet:
 mod_text_disk_address_packet:
     .byte 0x10
     .byte 0x0
-    .word MOD_TEXT_SECTORS # count
-    .word MOD_TEXT_OFFSET  # destination offset
-    .word MOD_TEXT_SEGMENT # destination segment
-    .long MOD_TEXT_LBA     # lba block
+    .word MOD_KERNEL_SECTORS # count
+    .word MOD_KERNEL_OFFSET  # destination offset
+    .word MOD_KERNEL_SEGMENT # destination segment
+    .long MOD_KERNEL_LBA     # lba block
     .long 0                # lba block
 
 /* mbi-structures */
@@ -220,22 +220,22 @@ mbi_tag_name:
     .asciz  "GridOS Loader 0.2" // LOADER_NAME
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_name_end:
-/* TODO: generate from load dap-list instead of hardcoded startup/mod_text */
+/* TODO: generate from load dap-list instead of static startup/mod_kernel */
 mbi_tag_command_line:
     .long   MULTIBOOT_TAG_TYPE_CMDLINE
     .long   (mbi_tag_command_line_end - mbi_tag_command_line)
     .asciz  "--test = 0 --debug=2" // STARTUP_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_command_line_end:
-mbi_tag_module_text:
+mbi_tag_mod_kernel:
     .long   MULTIBOOT_TAG_TYPE_MODULE
-    .long   (mbi_tag_module_text_end - mbi_tag_module_text)
-    .long   MOD_TEXT_ADDR
-    .long   (MOD_TEXT_ADDR + MOD_TEXT_SIZE)
-    .asciz  "kernel --debug=1" // MOD_TEXT_CMD
+    .long   (mbi_tag_mod_kernel_end - mbi_tag_mod_kernel)
+    .long   MOD_KERNEL_ADDR
+    .long   (MOD_KERNEL_ADDR + MOD_KERNEL_SIZE)
+    .asciz  "kernel --debug=1" // MOD_KERNEL_CMD
 .align MULTIBOOT_TAG_ALIGN
-mbi_tag_module_text_end:
-
+mbi_tag_mod_kernel_end:
+mbi_static_end:
 /* further mb2 tags will be generated here */
 
 /* stage1 data END*/

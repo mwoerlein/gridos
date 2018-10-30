@@ -1,14 +1,15 @@
 #define ASM_FILE
 #include "../include/multiboot2/multiboot2.h"
-#include "I386_loader.h"
 
-.extern bootstrap
+#define GRIDOS_STARTUP_STACK_SIZE 0x3000
+
+.extern startup
 .text
-.global bootstrap_start, stack, multiboot_header_address_tag, multiboot_header_entry_address_tag
+.global startup_start, stack, multiboot_header_address_tag, multiboot_header_entry_address_tag
 
 .code32
-bootstrap_start:
-    jmp bootstrap_entry
+startup_start:
+    jmp startup_entry
     
 /* multiboot header */
 .align MULTIBOOT_TAG_ALIGN
@@ -24,7 +25,7 @@ multiboot_header_address_tag:
      .short MULTIBOOT_HEADER_TAG_OPTIONAL
      .long multiboot_header_address_tag_end - multiboot_header_address_tag
      .long multiboot_header
-     .long bootstrap_start
+     .long startup_start
      .long _edata
      .long _end
 multiboot_header_address_tag_end:
@@ -34,7 +35,7 @@ multiboot_header_entry_address_tag:
      .short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS
      .short MULTIBOOT_HEADER_TAG_OPTIONAL
      .long multiboot_header_entry_address_tag_end - multiboot_header_entry_address_tag
-     .long bootstrap_entry
+     .long startup_entry
 multiboot_header_entry_address_tag_end:
 
 .align MULTIBOOT_TAG_ALIGN
@@ -44,7 +45,7 @@ multiboot_header_tag_end:
     .long 8
 multiboot_header_end:
     
-bootstrap_entry:
+startup_entry:
 /* initialize IDT and GDT*/
     lidtl   idt_48
     lgdtl   gdt_48
@@ -56,7 +57,7 @@ bootstrap_entry:
     movw    %dx, %fs
     movw    %dx, %gs
     movw    %dx, %ss
-    movl    $(stack + GRIDOS_BOOTSTRAP_STACK_SIZE), %esp
+    movl    $(stack + GRIDOS_STARTUP_STACK_SIZE), %esp
     movl    %esp, %ebp
     
 /*  Reset EFLAGS. */
@@ -66,12 +67,12 @@ bootstrap_entry:
     pushl $multiboot_header # arg *mbh
     pushl %ebx              # arg *mbi
     pushl %eax              # arg magic
-	call bootstrap
+	call startup
 _halt:
 	hlt
 	jmp _halt
 	
-/* bootstrap descriptor tables */
+/* startup descriptor tables */
 .p2align 5
 gdt_48:
     .word   0x18        # gdt limit=32,
@@ -97,5 +98,5 @@ idt_48:
     .word   0, 0        # idt base = 0L
     
     
-    /*  bootstrap stack area. */
-    .comm   stack, GRIDOS_BOOTSTRAP_STACK_SIZE
+    /*  startup stack area. */
+    .comm   stack, GRIDOS_STARTUP_STACK_SIZE

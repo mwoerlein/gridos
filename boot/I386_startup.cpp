@@ -7,13 +7,13 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "KernelJIT/HaltKernel.hpp"
-#include "test/TestSuite.hpp"
+//#include "test/TestSuite.hpp"
 
 #define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
 
 extern "C" {
 
-void bootstrap(unsigned long magic, void *mbi, void *mbh){
+void startup(unsigned long magic, void *mbi, void *mbh){
     // create environment
     KernelEnvironment &env = I386Bootstrap::buildEnvironment(magic, mbi, mbh);
     if (!&env) {
@@ -22,8 +22,8 @@ void bootstrap(unsigned long magic, void *mbi, void *mbh){
     assertHALT(env.hasModule("startup"), "No startup loaded!");
     
     if (env.testSetting("startup", "meta.test", "1")) {
-        TestSuite ts(env);
-        ts.runAll();
+//        TestSuite ts(env); // startup code will be too large with included tests :-(
+//        ts.runAll();
     }
     
     // TODO: improve debug handling 

@@ -18,6 +18,7 @@ BINDIR=./bin
 IMGDIR=./img
 INCDIR=./include
 BOOTDIR=./boot
+MODDIR=./modules
 ifndef MASCHINE
 MASCHINE=I386
 endif
