@@ -7,7 +7,7 @@ enum FormulaOperation { op_add, op_sub, op_mul, op_div, op_mod, op_shr, op_shl }
 
 class Formula: public Numeric {
     private:
-    static const char* operations[];
+    const char* getOperation(FormulaOperation op);
     
     FormulaOperation _op;
     Numeric *_o1, *_o2;

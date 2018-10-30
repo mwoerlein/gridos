@@ -82,40 +82,43 @@ void ConditionalJump::writeOperandsToStream(OStream & stream) {
 }
 
 // private
-const char* ConditionalJump::mnemonics[] = {
-    "ja", //cond_above
-    "jae", //cond_above_or_equal
-    "jb", //cond_below
-    "jbe", //cond_below_or_equal
-    "jc", //cond_carry
-    "je", //cond_equal
-    "jg", //cond_greater
-    "jge", //cond_greater_or_equal
-    "jl", //cond_lesser
-    "jle", //cond_lesser_or_equal
-    "jo", //cond_overflow
-    "jp", //cond_parity
-    "js", //cond_sign
-    "jz", //cond_zero
-
-    "jna", //cond_not_above
-    "jnae", //cond_not_above_or_equal
-    "jnb", //cond_not_below
-    "jnbe", //cond_not_below_or_equal
-    "jnc", //cond_not_carry
-    "jne", //cond_not_equal
-    "jng", //cond_not_greater
-    "jnge", //cond_not_greater_or_equal
-    "jnl", //cond_not_lesser
-    "jnle", //cond_not_lesser_or_equal
-    "jno", //cond_not_overflow
-    "jnp", //cond_not_parity
-    "jns", //cond_not_sign
-    "jnz", //cond_not_zero
-
-    "jpe", //cond_parity_even
-    "jpo", //cond_parity_odd
-    
-    "jcxz",
-    "jecxz",
-};
+const char* ConditionalJump::getMnemonic(InstructionCondition cond) {
+    switch (cond) {
+        case cond_above: return "ja";
+        case cond_above_or_equal: return "jae";
+        case cond_below: return "jb";
+        case cond_below_or_equal: return "jbe";
+        case cond_carry: return "jc";
+        case cond_equal: return "je";
+        case cond_greater: return "jg";
+        case cond_greater_or_equal: return "jge";
+        case cond_lesser: return "jl";
+        case cond_lesser_or_equal: return "jle";
+        case cond_overflow: return "jo";
+        case cond_parity: return "jp";
+        case cond_sign: return "js";
+        case cond_zero: return "jz";
+        
+        case cond_not_above: return "jna";
+        case cond_not_above_or_equal: return "jnae";
+        case cond_not_below: return "jnb";
+        case cond_not_below_or_equal: return "jnbe";
+        case cond_not_carry: return "jnc";
+        case cond_not_equal: return "jne";
+        case cond_not_greater: return "jng";
+        case cond_not_greater_or_equal: return "jnge";
+        case cond_not_lesser: return "jnl";
+        case cond_not_lesser_or_equal: return "jnle";
+        case cond_not_overflow: return "jno";
+        case cond_not_parity: return "jnp";
+        case cond_not_sign: return "jns";
+        case cond_not_zero: return "jnz";
+        
+        case cond_parity_even: return "jpe";
+        case cond_parity_odd: return "jpo";
+        
+        case cond_reg_cx: return "jcxz"; 
+        case cond_reg_ecx: return "jecxz"; 
+    }
+    return "j??";
+}

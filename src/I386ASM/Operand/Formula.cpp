@@ -11,7 +11,7 @@ Formula::~Formula() {
 }
 
 OStream & Formula::operator >>(OStream & stream) {
-    return stream << '(' << *_o1 << operations[_op] << *_o2 << ')';
+    return stream << '(' << *_o1 << getOperation(_op) << *_o2 << ')';
 }
 
 bool Formula::isConstant(ASMInstructionList & list) {
@@ -45,23 +45,27 @@ Numeric * Formula::validateAndReplace(ASMInstructionList & list, BitWidth mode) 
 // protected
 int Formula::compute(int v1, int v2) {
     switch (_op) {
-        case op_add:
-            return v1 + v2;
-        case op_sub:
-            return v1 - v2;
-        case op_mul:
-            return v1 * v2;
-        case op_div:
-            return v1 / v2;
-        case op_mod:
-            return v1 % v2;
-        case op_shr:
-            return v1 >> v2;
-        case op_shl:
-            return v1 << v2;
+        case op_add: return v1 + v2;
+        case op_sub: return v1 - v2;
+        case op_mul: return v1 * v2;
+        case op_div: return v1 / v2;
+        case op_mod: return v1 % v2;
+        case op_shr: return v1 >> v2;
+        case op_shl: return v1 << v2;
     }
-    return 0; //TODO;
+    return 0;
 }
 
 // private
-const char* Formula::operations[] = { "+", "-", "*", "/", "%", ">>", "<<" };
+const char* Formula::getOperation(FormulaOperation op) {
+    switch (_op) {
+        case op_add: return "+";
+        case op_sub: return "-";
+        case op_mul: return "*";
+        case op_div: return "/";
+        case op_mod: return "%";
+        case op_shr: return ">>";
+        case op_shl: return "<<";
+    }
+    return "?";
+}

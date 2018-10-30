@@ -5,7 +5,7 @@
 
 class ConditionalJump: public ASMInstruction {
     private:
-    static const char* mnemonics[];
+    const char* getMnemonic(InstructionCondition cond);
     
     protected:
     InstructionCondition condition;
@@ -18,7 +18,7 @@ class ConditionalJump: public ASMInstruction {
     
     public:
     ConditionalJump(Environment &env, MemoryInfo &mi, InstructionCondition cond, ASMOperand *o1)
-        :ASMInstruction(env, mi, mnemonics[cond], bit_auto, o1), Object(env, mi), condition(cond) {}
+        :ASMInstruction(env, mi, getMnemonic(cond), bit_auto, o1), Object(env, mi), condition(cond) {}
     virtual ~ConditionalJump() {}
 };
 
