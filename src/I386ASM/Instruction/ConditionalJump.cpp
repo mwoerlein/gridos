@@ -63,11 +63,11 @@ size_t ConditionalJump::compileOperands() {
                 }
                 op1 = 0xE3;
             } else {
-                op1 = 0x70 + instruction_condition_encoding[condition];
+                op1 = 0x70 + getConditionEncoding(condition);
             } 
         } else {
             op1 = 0x0F; size++;
-            op2 = 0x80 + instruction_condition_encoding[condition];
+            op2 = 0x80 + getConditionEncoding(condition);
         }
         immSize = (int) offsetWidth;
         return size + immSize;

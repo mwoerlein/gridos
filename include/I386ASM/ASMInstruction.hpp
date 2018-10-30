@@ -44,6 +44,7 @@ class ASMInstruction: virtual public Object {
     virtual BitWidth getBitWidth(int value);
     virtual BitWidth getUnsignedBitWidth(unsigned int value);
     virtual BitWidth approximateOffsetWidth(Numeric *num);
+    virtual int getConditionEncoding(InstructionCondition cond);
 
     inline void writeModRMToStream(OStream &stream, Register *regO, Register *regM) {
         writeModRMToStream(stream, regO->getOpCodeRegister(), regM->getOpCodeRegister());
@@ -61,16 +62,8 @@ class ASMInstruction: virtual public Object {
     inline bool requiresAddressSizeOverride(BitWidth addressSize) { return ctx->requiresAddressSizeOverride(addressSize); }
     
     public:
-    ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0)
-        :Object(env, mi), mnemonic(mnemonic), o1(o1), o2(o2), o3(o3), operandSize(operandSize),
-         pre1(0), pre2(0), pre3(0), pre4(0),
-         op1(0x90), op2(0), op3(0),
-         modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0), list(0), ctx(0) {}
-    virtual ~ASMInstruction() {
-        if (o1) { o1->destroy(); }
-        if (o2) { o2->destroy(); }
-        if (o3) { o3->destroy(); }
-    }
+    ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize = bit_auto, ASMOperand *o1 = 0, ASMOperand *o2 = 0, ASMOperand *o3 = 0);
+    virtual ~ASMInstruction();
     
     virtual size_t prepare();
     virtual size_t compile();

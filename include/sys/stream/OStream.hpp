@@ -5,7 +5,7 @@
 
 class OStream: virtual public Object {
     public:
-    virtual ~OStream() {}
+    virtual ~OStream();
     
     virtual OStream &operator <<(char c) = 0;
     virtual OStream &operator <<(int i);

@@ -27,18 +27,9 @@ class Formula: public Numeric {
     virtual Numeric & clone() override;
     
     // TODO #6: implement RTTI correctly
-    virtual OperandType type() { return formula; }
-    virtual int hash() override {
-        return (_o1->hash()<<(int)_op) + _o2->hash();
-    }
-    virtual bool equals(Object &o) override {
-        if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
-            if (Formula *id = op->as<Formula>(formula)) {
-                return (_op == id->_op) && (_o1->equals(*id->_o1)) && (_o2->equals(*id->_o2));
-            }
-        }
-        return false;
-    }
+    virtual OperandType type() override;
+    virtual int hash() override;
+    virtual bool equals(Object &o) override;
 };
 
 #endif //I386ASM_OPERAND_FORMULA_HPP_LOCK

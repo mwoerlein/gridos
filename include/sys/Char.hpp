@@ -25,7 +25,7 @@ class Char: public ComparableC<char>, public Comparable<Char> {
     virtual int hash() override;
     
     // TODO #6: implement RTTI correctly
-    virtual RTTI rtti() override { return character; }
+    virtual RTTI rtti() override;
 };
 
 #endif //CHAR_HPP_LOCK

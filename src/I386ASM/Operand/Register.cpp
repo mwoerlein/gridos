@@ -197,3 +197,16 @@ OStream & Register::operator >>(OStream & stream) {
     }
     return stream;
 }
+
+OperandType Register::type() { return reg; }
+int Register::hash() {
+    return (int) _reg;
+}
+bool Register::equals(Object &o) {
+    if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+        if (Register *r = op->as<Register>(reg)) {
+            return _reg == r->_reg;
+        }
+    }
+    return false;
+}

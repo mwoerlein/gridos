@@ -93,3 +93,7 @@ OStream & Integer::operator >>(OStream & stream) {
 int Integer::hash() {
     return _i;
 }
+
+RTTI Integer::rtti() {
+    return integer;
+}

@@ -39,7 +39,7 @@ class Integer: public ComparableC<int>, public Comparable<Integer> {
     virtual int hash() override;
         
     // TODO #6: implement RTTI correctly
-    virtual RTTI rtti() override { return integer; }
+    virtual RTTI rtti() override;
 };
 
 #endif //INTEGER_HPP_LOCK

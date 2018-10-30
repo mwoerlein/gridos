@@ -1,5 +1,8 @@
 #include "sys/Object.hpp"
 
+Object::Object(Environment &env, MemoryInfo &mi):_environment(env),_memory_info(&mi) {}
+Object::~Object() {}
+
 Environment & Object::env() {
     return _environment;
 }
@@ -10,6 +13,10 @@ void Object::destroy() {
 
 int Object::hash() {
     return (int) _memory_info->buf;
+}
+
+RTTI Object::rtti() {
+    return object;
 }
 
 bool Object::equals(Object &o) {

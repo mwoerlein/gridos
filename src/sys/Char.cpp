@@ -34,3 +34,7 @@ OStream & Char::operator >>(OStream & stream) {
 int Char::hash() {
     return _c;
 }
+
+RTTI Char::rtti() {
+    return character;
+}

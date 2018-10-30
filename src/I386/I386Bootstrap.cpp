@@ -16,6 +16,7 @@ KernelEnvironment & I386Bootstrap::buildEnvironment(unsigned long magic, void *m
     I386CgaOStream bsOut(bsEnv);
     bsEnv.setOut(bsOut);
     bsEnv.setErr(bsOut);
+    
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         bsOut<<"Invalid magic number: "<<(void *) magic<<'\n';
         return *((KernelEnvironment *) 0);

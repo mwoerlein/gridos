@@ -1,6 +1,19 @@
 #include "I386/I386CgaOStream.hpp"
 #include "I386/I386IO_Port.hpp"
 
+class I386CgaOStream::FormattedOStream: public OStream {
+    private:
+    char format;
+    I386CgaOStream &cga;
+    
+    public:
+    using OStream::operator <<;
+    FormattedOStream(Environment &env, MemoryInfo &mi, I386CgaOStream &cga, char format);
+    virtual ~FormattedOStream();
+    
+    virtual OStream &operator <<(char c) override;
+};
+
 I386CgaOStream::I386CgaOStream(Environment &env, MemoryInfo &mi, char* scr): Object(env, mi), screen(scr), pos(0) {
     I386IO_Port(index_port).outb(14);
     pos = I386IO_Port(data_port).inb()*512;

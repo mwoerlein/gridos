@@ -25,3 +25,16 @@ Numeric & Number::clone() {
 OStream & Number::operator >>(OStream & stream) {
     return stream.printuhex(_number);
 }
+
+OperandType Number::type() { return number; }
+int Number::hash() {
+    return _number;
+}
+bool Number::equals(Object &o) {
+    if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+        if (Number *n = op->as<Number>(number)) {
+            return _number == n->_number;
+        }
+    }
+    return false;
+}

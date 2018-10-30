@@ -240,3 +240,5 @@ OStream & Indirect::operator >>(OStream & stream) {
     }
     return stream << ')';
 }
+
+OperandType Indirect::type() { return indirect; }

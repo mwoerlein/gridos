@@ -27,6 +27,10 @@ int Bool::hash() {
     return (int) _b;
 }
 
+RTTI Bool::rtti() {
+    return boolean;
+}
+
 bool Bool::equals(Object &o) {
     if (Bool *b = env().as<Bool>(o, rtti())) {
         return _b == (bool) b->_b;

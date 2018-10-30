@@ -57,7 +57,7 @@ class String: public OStream, public ComparableC<char *>, public ComparableC<con
     inline String &operator +=(String &s) { *this << s; return *this; }
 
     // TODO #6: implement RTTI correctly
-    virtual RTTI rtti() override { return string; }
+    virtual RTTI rtti() override;
 };
 
 #endif //STRING_HPP_LOCK

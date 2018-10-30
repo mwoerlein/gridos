@@ -21,18 +21,9 @@ class Identifier: public Numeric {
     virtual Numeric * validateAndReplace(ASMInstructionList & list, BitWidth mode) override;
     
     // TODO #6: implement RTTI correctly
-    virtual OperandType type() { return identifier; }
-    virtual int hash() override {
-        return _id.hash();
-    }
-    virtual bool equals(Object &o) override {
-        if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
-            if (Identifier *id = op->as<Identifier>(identifier)) {
-                return _id.equals(id->_id);
-            }
-        }
-        return false;
-    }
+    virtual OperandType type() override;
+    virtual int hash() override;
+    virtual bool equals(Object &o) override;
 };
 
 #endif //I386ASMIDENTIFIER_HPP_LOCK

@@ -29,7 +29,7 @@ class Indirect: public ASMOperand {
     virtual bool isOffset();
     virtual OStream & operator >>(OStream & stream);
     
-    virtual OperandType type() { return indirect; }
+    virtual OperandType type() override;
 };
 
 #endif //I386ASMINDIRECT_HPP_LOCK

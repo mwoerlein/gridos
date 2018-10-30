@@ -42,6 +42,21 @@ Numeric * Formula::validateAndReplace(ASMInstructionList & list, BitWidth mode) 
     return 0;
 }
 
+OperandType Formula::type() { return formula; }
+
+int Formula::hash() {
+    return (_o1->hash()<<(int)_op) + _o2->hash();
+}
+
+bool Formula::equals(Object &o) {
+    if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+        if (Formula *id = op->as<Formula>(formula)) {
+            return (_op == id->_op) && (_o1->equals(*id->_o1)) && (_o2->equals(*id->_o2));
+        }
+    }
+    return false;
+}
+
 // protected
 int Formula::compute(int v1, int v2) {
     switch (_op) {

@@ -139,6 +139,10 @@ int String::hash() {
     return _hash;
 }
 
+RTTI String::rtti() {
+    return string;
+}
+
 OStream & String::operator >>(OStream & stream) {
     for (_Element * cur = first; cur; cur = cur->next) {
         stream << *cur;

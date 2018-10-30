@@ -5,18 +5,7 @@
 
 class I386CgaOStream: public OStream {
     private:
-    class FormattedOStream: public OStream {
-        private:
-        char format;
-        I386CgaOStream &cga;
-        
-        public:
-        using OStream::operator <<;
-        FormattedOStream(Environment &env, MemoryInfo &mi, I386CgaOStream &cga, char format);
-        virtual ~FormattedOStream();
-        
-        virtual OStream &operator <<(char c) override;
-    };
+    class FormattedOStream;
     enum { index_port = 0x3d4, data_port = 0x3d5, cga_ram = 0xB8000 };
     enum { maxx = 80, maxy = 25 };
     char* screen;

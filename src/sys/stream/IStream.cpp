@@ -1,6 +1,8 @@
 #include "sys/stream/IStream.hpp"
 
 // public
+IStream::~IStream() {};
+
 IStream & IStream::operator >>(Char &c) {
     char tmp;
     *this >> tmp;

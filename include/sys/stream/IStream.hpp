@@ -7,7 +7,7 @@
 
 class IStream: virtual public Object {
     public:
-    virtual ~IStream() {}
+    virtual ~IStream();
     
     virtual bool isEmpty() = 0;
     

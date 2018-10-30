@@ -17,15 +17,15 @@ class Object {
     friend class Environment;
     
     public:
-    Object(Environment &env, MemoryInfo &mi):_environment(env),_memory_info(&mi) {}
-    virtual ~Object() {}
+    Object(Environment &env, MemoryInfo &mi);
+    virtual ~Object();
     virtual void destroy();
     
     Environment &env();
     virtual int hash();
     virtual bool equals(Object &o);
     // TODO #6: implement RTTI correctly
-    virtual RTTI rtti() { return object; };
+    virtual RTTI rtti();
     virtual OStream & operator >>(OStream & stream);
 };
 

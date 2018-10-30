@@ -1,6 +1,7 @@
 #include "sys/stream/OStream.hpp"
 
 // public
+OStream::~OStream() {};
 
 OStream & OStream::operator <<(int i) {
     return printint(i);

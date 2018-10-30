@@ -41,3 +41,16 @@ Numeric * Identifier::validateAndReplace(ASMInstructionList & list, BitWidth mod
     }
     return 0;
 }
+
+OperandType Identifier::type() { return identifier; }
+int Identifier::hash() {
+    return _id.hash();
+}
+bool Identifier::equals(Object &o) {
+    if (ASMOperand *op = env().as<ASMOperand>(o, asm_operand)) {
+        if (Identifier *id = op->as<Identifier>(identifier)) {
+            return _id.equals(id->_id);
+        }
+    }
+    return false;
+}

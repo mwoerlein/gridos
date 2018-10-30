@@ -21,7 +21,7 @@ class Bool: public Object {
     virtual bool equals(Object &o) override;
     
     // TODO #6: implement RTTI correctly
-    virtual RTTI rtti() override { return boolean; }
+    virtual RTTI rtti() override;
 };
 
 #endif //BOOL_HPP_LOCK

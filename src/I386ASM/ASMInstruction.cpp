@@ -1,6 +1,17 @@
 #include "I386ASM/ASMInstruction.hpp"
 
 // public
+ASMInstruction::ASMInstruction(Environment &env, MemoryInfo &mi, const char * mnemonic, BitWidth operandSize, ASMOperand *o1, ASMOperand *o2, ASMOperand *o3)
+    :Object(env, mi), mnemonic(mnemonic), o1(o1), o2(o2), o3(o3), operandSize(operandSize),
+     pre1(0), pre2(0), pre3(0), pre4(0),
+     op1(0x90), op2(0), op3(0),
+     modrmSize(0), sibSize(0), dispSize(0), immSize(0), size(0), list(0), ctx(0) {}
+ASMInstruction::~ASMInstruction() {
+    if (o1) { o1->destroy(); }
+    if (o2) { o2->destroy(); }
+    if (o3) { o3->destroy(); }
+}
+
 OStream & ASMInstruction::operator >>(OStream & stream) {
     stream << mnemonic;
     switch (operandSize) {
@@ -146,4 +157,14 @@ BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
 
 BitWidth ASMInstruction::approximateOffsetWidth(Numeric *num) {
     return getBitWidth(ctx->approximateOffset(num->getValue(*list)));
+}
+
+int ASMInstruction::getConditionEncoding(InstructionCondition cond) {
+    const int encodings[] = {
+        7, 3, 2, 6, 2, 4, 15, 13, 12, 14, 0, 10, 8, 4,
+        6, 2, 3, 7, 3, 5, 14, 12, 13, 15, 1, 11, 9, 5,
+        10, 11,
+        0, 0,
+    };
+    return encodings[cond];
 }
