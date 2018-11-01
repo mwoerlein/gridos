@@ -19,7 +19,7 @@ class I386OStreamKernel: public OStreamKernel {
     }
     
     virtual void run() {
-        I386InterruptVectorTable vt;
+        I386InterruptVectorTable &vt = env().create<I386InterruptVectorTable>();
         I386PIC pic;
         I386Keyboard kbd(pic);
         
@@ -33,7 +33,6 @@ class I386OStreamKernel: public OStreamKernel {
         kbd.plugin(vt);
         
         vt.activate();
-        __asm__("sti");
         
         __asm__ __volatile__ ("jmp *%0" : : "a"(mem.buf));
     }

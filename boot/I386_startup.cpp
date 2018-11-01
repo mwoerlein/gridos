@@ -55,7 +55,8 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     Kernel &k = jit.kernel_compile(env.getModule("kernel"));
     
     jit.destroy();
-    env.destroyModules();
+    // do not destroy modules, yet! I386OStreamKernel still requires startup/jit code and interrupt handler 
+    //env.destroyModules();
     
     if (debugLevel >= 2) {
         env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();

@@ -1,9 +1,10 @@
 #ifndef INTERRUPTVECTORTABLE_HPP_LOCK
 #define INTERRUPTVECTORTABLE_HPP_LOCK
 
+#include "sys/Object.hpp"
 #include "sys/InterruptHandler.hpp"
 
-class InterruptVectorTable {
+class InterruptVectorTable: virtual public Object {
     public:
     virtual ~InterruptVectorTable() {}
     virtual void insert(int i, InterruptHandler &hdl) = 0;

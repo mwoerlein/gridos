@@ -4,6 +4,7 @@
 #include "I386/I386PIC.hpp"
 #include "sys/InterruptHandler.hpp"
 
+// TODO: InterruptHandler extends Object and use env().out() 
 class I386Keyboard: public InterruptHandler {
     private:
     I386PIC &pic;
@@ -32,21 +33,31 @@ class I386Keyboard: public InterruptHandler {
     
     inline void call(int nr) {
         char* s = &((char*) 0xb8000)[pos];
+        unsigned char code = I386IO_Port(0x60).inb();
         pic.finalize(I386PIC::keyboard);
-        *s++ = 'r'; *s++ = 7;
-        *s++ = 'e'; *s++ = 7;
-        *s++ = 'b'; *s++ = 7;
-        *s++ = 'o'; *s++ = 7;
-        *s++ = 'o'; *s++ = 7;
-        *s++ = 't'; *s++ = 7;
-        *s++ = 'i'; *s++ = 7;
-        *s++ = 'n'; *s++ = 7;
-        *s++ = 'g'; *s++ = 7;
-        for (; (int32_t)s-0xb8000<160; ) {
-            *s++ = ' '; *s++ = 7;
+        if (code == 0x81) { // ESC release
+            *s++ = 'r'; *s++ = 7;
+            *s++ = 'e'; *s++ = 7;
+            *s++ = 'b'; *s++ = 7;
+            *s++ = 'o'; *s++ = 7;
+            *s++ = 'o'; *s++ = 7;
+            *s++ = 't'; *s++ = 7;
+            *s++ = 'i'; *s++ = 7;
+            *s++ = 'n'; *s++ = 7;
+            *s++ = 'g'; *s++ = 7;
+            for (; (int32_t)s-0xb8000<160; ) {
+                *s++ = ' '; *s++ = 7;
+            }
+            for (int w = 0x9ffffff; w; w--);
+            reboot();
         }
-        for (int w = 0x9ffffff; w; w--);
-        reboot();
+        *s++ = 'c'; *s++ = 7;
+        *s++ = 'o'; *s++ = 7;
+        *s++ = 'd'; *s++ = 7;
+        *s++ = 'e'; *s++ = 7;
+        *s++ = '0'+(code/100);     *s++ = 7;
+        *s++ = '0'+((code%100)/10);*s++ = 7;
+        *s++ = '0'+(code%10);      *s++ = 7;
     }
 
     inline void reboot() {

@@ -8,7 +8,7 @@
 
 void I386Bootstrap::trickCompiler() {
     // force compiler to initiate static parts of I386InterruptVectorTable
-    I386InterruptVectorTable vt;
+    I386InterruptVectorTable vt(*(Environment *)0);
 }
 
 KernelEnvironment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
