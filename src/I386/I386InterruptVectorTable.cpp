@@ -1,25 +1,72 @@
 #include "I386/I386InterruptVectorTable.hpp"
 
 #include "sys/String.hpp"
-#include "memory/MemoryIStream.hpp"
 #include "memory/MemoryOStream.hpp"
 #include "I386ASM/Parser.hpp"
-#include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
-#include "I386ASM/Operand/Number.hpp"
 
-void trampoline(I386InterruptVectorTable *table, int32_t nr) {
+void I386_interrupt_trampoline(I386InterruptVectorTable *table, int32_t nr) {
     table->ITable[nr]->call(nr);
 }
 
-MemoryInfo & I386InterruptVectorTable::generateIdt() {
-    String input = env().create<String>();
-    input << R"(.code32
-idt_activate:
-    .byte 0x0f; .byte 0x01; .byte 0x1d #// lidtl idt_global_48
-    .long idt
-    ret
+class I386InterruptVectorTable::IgnoreHandler: public InterruptHandler {
+    public:
+    IgnoreHandler(Environment &env, MemoryInfo &mi = *notAnInfo):Object(env,mi) {}
+    virtual ~IgnoreHandler() {}
     
+    virtual void call(int nr) override {
+        if (nr == 0) {
+            return; // ignore overflow silently
+        }
+        env().out() << "interrupt(" << nr << ") ignored\n";
+    }
+};
+
+// public
+I386InterruptVectorTable::I386InterruptVectorTable(Environment &env, MemoryInfo &mi)
+        :Object(env,mi), ignore(env.create<IgnoreHandler>()), idtInfo(compileIdt()) {
+    for (int i = 0; i < TABLESIZE; i++) ITable[i] = &ignore;
+}
+
+I386InterruptVectorTable::~I386InterruptVectorTable() {
+    if (idtInfo != notAnInfo) {
+        env().getAllocator().free(*idtInfo);
+    }
+    ignore.destroy();
+}
+
+void I386InterruptVectorTable::insert(int nr, InterruptHandler &hdl) {
+    ITable[nr] = &hdl;
+}
+
+void I386InterruptVectorTable::deactivate() {
+    //warten bis aktuell laufende Interrupts abgearbeitet sind
+    //Speicherfreigeben, ...
+}
+
+void I386InterruptVectorTable::activate() {
+    if (idtInfo == notAnInfo) {
+        env().err()<<"idt generation failed => skip activate\n";
+        return;
+    }
+
+    __asm__("cli");
+    //if (active) active->deactivate();
+    //active = this;
+    __asm__("lidt %0": : "m"(*((void**) idtInfo->buf)));
+    __asm__("sti");
+}
+
+int I386InterruptVectorTable::getSize() {
+    return TABLESIZE;
+}
+
+//private
+MemoryInfo * I386InterruptVectorTable::compileIdt() {
+    String input = env().create<String>();
+    input << "trampoline := "<<(void*) I386_interrupt_trampoline<<'\n';
+    input << "table_ref := "<<(void*) this<<'\n';
+    input << R"(.code32
 idt:
     .word ((idt_end - idt_start) - 1)
     .long idt_start
@@ -30,7 +77,7 @@ idt_start:
     }
     input << "idt_end:\n";
     for (int i = 0; i < TABLESIZE; i++) {
-        input << "idt_entry_"<<i<<": pushl %eax; pushl "<<i<<"; jmp idt_common\n";
+        input << "idt_entry_"<<i<<": pushad; pushl "<<i<<"; jmp idt_common\n";
     }
     input << R"(
 idt_common:
@@ -38,21 +85,12 @@ idt_common:
     movl trampoline, %eax
     call %eax
     addl 8, %esp
-    popl %eax
+    popad
     .byte 0xCF  #// iret
 )";
-    // TODO: generate InstructionList directly?
     IStream &in = input.toIStream();
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, env().err());
-    list.addDefinition(
-        env().create<String, const char*>("trampoline"),
-        env().create<Number, int>((int) trampoline)
-    );
-    list.addDefinition(
-        env().create<String, const char*>("table_ref"),
-        env().create<Number, int>((int) this)
-    );
     parser.destroy();
     in.destroy();
     input.destroy();
@@ -60,28 +98,27 @@ idt_common:
     if (list.hasErrors()) {
         env().err()<<"parsing error\n";
         list.destroy();
-        return *notAnInfo;
+        return notAnInfo;
     }
     
     size_t size = list.compile();
     if (list.hasErrors()) {
         env().err()<<"compile error\n";
         list.destroy();
-        return *notAnInfo;
+        return notAnInfo;
     }
     
-    MemoryInfo &idtInfo = env().getAllocator().allocate(size);
-    MemoryOStream &idtOStream = env().create<MemoryOStream, MemoryInfo&>(idtInfo);
+    MemoryInfo *idtInfo = &env().getAllocator().allocate(size);
     
-    list.finalize((size_t)idtInfo.buf);
+    list.finalize((size_t) idtInfo->buf);
     if (list.hasErrors()) {
         env().err()<<"finalize error\n";
-        idtOStream.destroy();
-        env().getAllocator().free(idtInfo);
+        env().getAllocator().free(*idtInfo);
         list.destroy();
-        return *notAnInfo;
+        return notAnInfo;
     }
     
+    MemoryOStream &idtOStream = env().create<MemoryOStream, MemoryInfo&>(*idtInfo);
     list.writeToStream(idtOStream);
     idtOStream.destroy();
     list.destroy();

@@ -1,9 +1,10 @@
 #ifndef INTERRUPTHANDLER_HPP_LOCK
 #define INTERRUPTHANDLER_HPP_LOCK
 
-class InterruptHandler {
+#include "sys/Object.hpp"
+
+class InterruptHandler: virtual public Object {
     public:
-    virtual ~InterruptHandler() {}
     virtual void call(int nr) = 0;
 };
 

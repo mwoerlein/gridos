@@ -1,5 +1,5 @@
-#ifndef I386CGAOSTREAM_HPP_LOCK
-#define I386CGAOSTREAM_HPP_LOCK
+#ifndef I386_I386CGAOSTREAM_HPP_LOCK
+#define I386_I386CGAOSTREAM_HPP_LOCK
 
 #include "sys/stream/OStream.hpp"
 
@@ -23,4 +23,4 @@ class I386CgaOStream: public OStream {
     virtual OStream &operator <<(char c) override;
 };
 
-#endif //I386CGAOSTREAM_HPP_LOCK
+#endif //I386_I386CGAOSTREAM_HPP_LOCK

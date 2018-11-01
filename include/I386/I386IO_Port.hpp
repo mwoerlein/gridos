@@ -1,7 +1,7 @@
-#ifndef I386IO_PORT_HPP_LOCK
-#define I386IO_PORT_HPP_LOCK
+#ifndef I386_I386IO_PORT_HPP_LOCK
+#define I386_I386IO_PORT_HPP_LOCK
 
-class I386IO_Port{
+class I386IO_Port {
     private:
     const int port;
     
@@ -19,4 +19,4 @@ class I386IO_Port{
     }
 };
 
-#endif //I386IO_PORT_HPP_LOCK
+#endif //I386_I386IO_PORT_HPP_LOCK

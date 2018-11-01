@@ -1,16 +1,11 @@
 #include "I386/I386Bootstrap.hpp"
-#include "I386/I386CgaOStream.hpp"
-#include "I386/I386InterruptVectorTable.hpp"
 
+#include "I386/I386CgaOStream.hpp"
 #include "memory/MemoryManager.hpp"
 #include "memory/MemoryRegistry.hpp"
 #include "multiboot2/BootInformation.hpp"
 
-void I386Bootstrap::trickCompiler() {
-    // force compiler to initiate static parts of I386InterruptVectorTable
-    I386InterruptVectorTable vt(*(Environment *)0);
-}
-
+//public
 KernelEnvironment & I386Bootstrap::buildEnvironment(unsigned long magic, void *mbi, void *mbh) {
     Environment bsEnv;
     I386CgaOStream bsOut(bsEnv);

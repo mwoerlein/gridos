@@ -30,8 +30,7 @@ OStream &I386CgaOStream::operator <<(char c) {
 OStream &I386CgaOStream::printChar(char c, char format) {
     switch (c) {
     case '\n':
-        pos -= pos%(2*maxx);
-        pos += 2*maxx;
+        while (pos%(2*maxx)) { *this<<(' '); }
         break;
     case '\t':
         do { *this<<(' '); } while (pos%16);
