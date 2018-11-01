@@ -3,14 +3,16 @@
 
 #include "I386/I386IntTypes.hpp"
 #include "sys/InterruptVectorTable.hpp"
-#define TABLESIZE 64
+#define TABLESIZE 256
+
+class I386InterruptVectorTable;
+extern "C" {
+    void trampoline(I386InterruptVectorTable *table, int32_t nr);
+}
 
 class I386InterruptVectorTable: public InterruptVectorTable {
     private:
-    // TODO: avoid static completely
-    static void trampoline(I386InterruptVectorTable *table, int32_t nr) {
-        table->ITable[nr]->call(nr);
-    }
+    friend void trampoline(I386InterruptVectorTable *table, int32_t nr);
     
     // TODO: InterruptHandler extends Object and use env().out() 
     class IgnoreHandler: public InterruptHandler {
@@ -37,13 +39,13 @@ class I386InterruptVectorTable: public InterruptVectorTable {
     
     MemoryInfo &idtInfo;
     void (*activateIdt)();
-    virtual MemoryInfo & generateIdt(int entries, void *idt_trampoline);
+    virtual MemoryInfo & generateIdt();
 
     public:
     enum { timer = 32, keyboard = 33 };
     
     I386InterruptVectorTable(Environment &env, MemoryInfo &mi = *notAnInfo)
-            :Object(env,mi), ignore(0), idtInfo(generateIdt(TABLESIZE, (void*)trampoline)),
+            :Object(env,mi), ignore(0), idtInfo(generateIdt()),
              activateIdt((void (*)())(&idtInfo != notAnInfo ? idtInfo.buf : 0)) {
         for (int i = 0; i < TABLESIZE; i++) ITable[i] = &ignore;
     }
