@@ -22,21 +22,21 @@ void I386Keyboard::plugin(InterruptVectorTable &ivt) {
 }
 
 void I386Keyboard::reboot() {
-    int status;
     // 0x1234: Warm boot without memory check, 0x0: Cold boot with memory check
     *(unsigned short*) 0x472 = 0x1234; 
 
-    while((status = I386IO_Port(0x64).inb()) & 0x02);
+    while(I386IO_Port(0x64).inb() & 0x02);
     I386IO_Port(0x64).outb(0xfe);
 }
 
 void I386Keyboard::call(int nr) {
-    unsigned char code = I386IO_Port(0x60).inb();
+    unsigned char scancode = I386IO_Port(0x60).inb();
     pic.finalize(I386PIC::keyboard);
-    if (code == 0x81) { // ESC release
+    // TODO: implement scancode/keycode/... handling
+    if (scancode == 0x81) { // ESC release
         Object::env().out() << "rebooting\n";
-        for (int w = 0x9ffffff; w; w--);
+        for (int w = 0x9ffffff; w; w--); // sleep awhile
         reboot();
     }
-    (Object::env().out() << "code ").printhex(code) << '\n';
+    (Object::env().out() << "scancode ").printhex(scancode) << '\n';
 }
