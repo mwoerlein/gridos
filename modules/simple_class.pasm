@@ -98,6 +98,8 @@ class_A_desc:
 class_A_vtabs:
 class_A_vtab_A:
     .long class_A_method_run
+    .long class_A_method_test
+    .long class_A_method_getRow
 
 class_A_method_run:
     pushl %ebp
@@ -106,21 +108,61 @@ class_A_method_run:
     
     movl 0, %eax  // column 0
     movl 0, %ebx  // row 0
-    movl 84, %ecx // 'T'
+    movl 82, %ecx // 'R'
     call _print
     
     movl 1, %eax  // column 1
     movl 0, %ebx  // row 0
-    movl 101, %ecx // 'e'
+    movl 117, %ecx // 'u'
     call _print
     
     movl 2, %eax  // column 1
     movl 0, %ebx  // row 0
+    movl 110, %ecx // 'n'
+    call _print
+    
+    addl -4, %esp  # return value of getRow
+    movl 12(%ebp), %ecx
+    pushl %ecx     # this
+	pushl 2        # method number
+	call (%ecx)
+	addl 8, %esp
+    
+    popl %eax
+    
+    pushl %eax     # row
+    movl 12(%ebp), %ecx
+    pushl %ecx     # this
+	pushl 1        # method number
+	call (%ecx)
+	addl 12, %esp
+    
+    popl %ecx
+    .byte 0xc9 #// leave
+    ret
+
+class_A_method_test:
+    pushl %ebp
+    movl %esp, %ebp
+    pushl %ecx
+    
+    movl 0, %eax  // column 0
+    movl 16(%ebp), %ebx  // row
+    movl 84, %ecx // 'T'
+    call _print
+    
+    movl 1, %eax  // column 1
+    movl 16(%ebp), %ebx  // row
+    movl 101, %ecx // 'e'
+    call _print
+    
+    movl 2, %eax  // column 1
+    movl 16(%ebp), %ebx  // row
     movl 115, %ecx // 's'
     call _print
     
     movl 3, %eax  // column 1
-    movl 0, %ebx  // row 0
+    movl 16(%ebp), %ebx  // row
     movl 116, %ecx // 't'
     call _print
     
@@ -128,6 +170,15 @@ class_A_method_run:
     .byte 0xc9 #// leave
     ret
 
+class_A_method_getRow:
+    pushl %ebp
+    movl %esp, %ebp
+    
+    movl 8, %eax  # row
+    movl %eax, 16(%ebp)
+    
+    .byte 0xc9 #// leave
+    ret
 
 /* Obj-Handles */
 handle_A_1_A:
