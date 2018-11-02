@@ -18,7 +18,8 @@ $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
 
 $(BOOTDIR)/mod_kernel.bin: 
 	echo "creating $@"
-	cp $(MODDIR)/blinking.pasm $@
+	cp $(MODDIR)/simple_class.pasm $@
+#	cp $(MODDIR)/blinking.pasm $@
 #	$(BINDIR)/pasm -o $@ $(MODDIR)/blinking.pasm
 #	cp $(MODDIR)/at_relocateable.pasm $@
 #	$(BINDIR)/pasm -o $@ $(MODDIR)/at_relocateable.pasm

@@ -29,7 +29,7 @@
 
 /*!stags:re2c format = 'char *@@;'; */
 /*!max:re2c*/
-#define SIZE 500
+#define SIZE 5000
 
 Parser::Parser(Environment &env, MemoryInfo &mi):
     Object(env, mi),
