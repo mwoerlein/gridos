@@ -4,21 +4,25 @@
 size_t Call::approximateSizeInBytes() {
     Numeric *num1 = o1->asNumeric();
     if (num1) {
-        return 6; // opcode + prefix + immediate
+        return 1 + (int) ctx->addr; // opcode + immediate
     }
     Register *r1 = o1->as<Register>(reg);
     if (r1) {
+        if (requiresAddressSizeOverride(r1->getOperandSize())) {
+            return 3; // opcode + prefix + modmr
+        }    
         return 2; // opcode + modmr
     }
     Indirect *i1 = o1->as<Indirect>(indirect);
     if (i1) {
         size_t size = 1; // opcode
+        if (requiresAddressSizeOverride(i1)) { size++; }
         size += i1->getModRMSize();
         size += i1->getSibSize();
         size += (int) i1->getDispSize();
         return size;
     }
-    return 7; // all over maximum
+    return 8; // all over maximum
 }
 
 void Call::checkOperands() {
@@ -60,16 +64,8 @@ size_t Call::compileOperands() {
     Indirect *i1 = o1->as<Indirect>(indirect);
     if (num1) {
         size_t size = 1;
-        // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = num1->isConstant(*list) ? bit_32 : approximateOffsetWidth(num1);
-        if (offsetWidth == bit_8) {
-            offsetWidth = bit_16;
-        }
-        if (requiresAddressSizeOverride(offsetWidth)) {
-            pre3 = 0x66; size++;
-        }
         op1 = 0xE8;
-        immSize = (int) offsetWidth;
+        immSize = (int) ctx->addr;
         return size + immSize;
     }
     if (r1) {

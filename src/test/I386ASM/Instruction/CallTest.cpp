@@ -47,11 +47,11 @@ bool CallTest::testRelative() {
         << "call 0x0\n" // offset < -32768
     ;
     (bin = "")
-        << (char) 0x66 << (char) 0xE8 << (char) 0x23 << (char) 0x00
-        << (char) 0x66 << (char) 0xE8 << (char) 0x8F << (char) 0x00
-        << (char) 0xE8 << (char) 0x18 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0xE8 << (char) 0x83 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0xE8 << (char) 0xE8 << (char) 0xFF << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0x24 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0x8F << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0x16 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0x81 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0xE6 << (char) 0xFF << (char) 0x00 << (char) 0x00
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
@@ -60,11 +60,11 @@ bool CallTest::testRelative() {
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
-        << (char) 0x66 << (char) 0xE8 << (char) 0xEC << (char) 0xFF
-        << (char) 0x66 << (char) 0xE8 << (char) 0x61 << (char) 0xFF
-        << (char) 0xE8 << (char) 0xDA << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0xE8 << (char) 0x57 << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0xE8 << (char) 0x52 << (char) 0xFF << (char) 0xFE << (char) 0xFF
+        << (char) 0xE8 << (char) 0xEB << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE8 << (char) 0x5D << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE8 << (char) 0xD6 << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE8 << (char) 0x53 << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE8 << (char) 0x4E << (char) 0xFF << (char) 0xFE << (char) 0xFF
     ;
     (pretty = "")
         << ".code32\n"
@@ -96,13 +96,13 @@ bool CallTest::testRelative() {
     
     (in = "")
         << ".code16\n"
-        << "startDef:=0x10000\n"
+        << "startDef:=0x1000\n"
         << "start:\n"
         << "call (near_start+16)\n" // 0 <= offset <= 127
         << "call ((end<<16)>>16)\n" // 127 < offset <= 32767
         << "call (startDef + 0x25)\n" // 0 <= offset <= 127
-        << "call 0x10095\n" // 127 < offset <= 32767
-        << "call 0x1ffff\n" // 32767 < offset
+        << "call 0x1095\n" // 127 < offset <= 32767
+        << "call 0x1fff\n" // 32767 < offset
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
         << "near_start:\n"
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
@@ -116,16 +116,16 @@ bool CallTest::testRelative() {
         << "end:\n"
         << "call near_end\n" // -128 <= offset <= 0
         << "call start\n" // -32768 <= offset < -128
-        << "call 0x1007e\n" // -128 <= offset <= 0
+        << "call 0x107e\n" // -128 <= offset <= 0
         << "call startDef\n" // -32768 <= offset < -128
         << "call 0x0\n" // offset < -32768
     ;
     (bin = "")
-        << (char) 0xE8 << (char) 0x35 << (char) 0x00
-        << (char) 0xE8 << (char) 0x92 << (char) 0x00
-        << (char) 0x66 << (char) 0xE8 << (char) 0x19 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0x66 << (char) 0xE8 << (char) 0x83 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0x66 << (char) 0xE8 << (char) 0xE7 << (char) 0xFF << (char) 0x00 << (char) 0x00
+        << (char) 0xE8 << (char) 0x2C << (char) 0x00
+        << (char) 0xE8 << (char) 0x89 << (char) 0x00
+        << (char) 0xE8 << (char) 0x1C << (char) 0x00
+        << (char) 0xE8 << (char) 0x89 << (char) 0x00
+        << (char) 0xE8 << (char) 0xF0 << (char) 0x0F
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
@@ -135,19 +135,19 @@ bool CallTest::testRelative() {
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0xE8 << (char) 0xED << (char) 0xFF
-        << (char) 0xE8 << (char) 0x62 << (char) 0xFF
-        << (char) 0x66 << (char) 0xE8 << (char) 0xDA << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0x66 << (char) 0xE8 << (char) 0x56 << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0x66 << (char) 0xE8 << (char) 0x50 << (char) 0xFF << (char) 0xFE << (char) 0xFF
+        << (char) 0xE8 << (char) 0x6B << (char) 0xFF
+        << (char) 0xE8 << (char) 0xE6 << (char) 0xFF
+        << (char) 0xE8 << (char) 0x65 << (char) 0xFF
+        << (char) 0xE8 << (char) 0x62 << (char) 0xEF
     ;
     (pretty = "")
         << ".code16\n"
         << "start:\n"
         << "call (near_start+0x10)\n" // 0 <= offset <= 127
         << "call ((end<<0x10)>>0x10)\n" // 127 < offset <= 32767
-        << "call 0x10025\n" // 0 <= offset <= 127
-        << "call 0x10095\n" // 127 < offset <= 32767
-        << "call 0x1ffff\n" // 32767 < offset
+        << "call 0x1025\n" // 0 <= offset <= 127
+        << "call 0x1095\n" // 127 < offset <= 32767
+        << "call 0x1fff\n" // 32767 < offset
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
         << "near_start:\n"
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
@@ -161,12 +161,12 @@ bool CallTest::testRelative() {
         << "end:\n"
         << "call near_end\n" // -128 <= offset <= 0
         << "call start\n" // -32768 <= offset < -128
-        << "call 0x1007e\n" // -128 <= offset <= 0
-        << "call 0x10000\n" // -32768 <= offset < -128
+        << "call 0x107e\n" // -128 <= offset <= 0
+        << "call 0x1000\n" // -32768 <= offset < -128
         << "call 0x0\n" // offset < -32768
     ;
     
-    success &= test(in, bin, pretty, message = "test \"call relative (16bit)\"", 0x10000);
+    success &= test(in, bin, pretty, message = "test \"call relative (16bit)\"", 0x1000);
     
     return success;
 }
