@@ -13,12 +13,42 @@ class I386InterruptVectorTable::IgnoreHandler: public InterruptHandler {
     public:
     IgnoreHandler(Environment &env, MemoryInfo &mi = *notAnInfo):Object(env,mi) {}
     virtual ~IgnoreHandler() {}
-    
     virtual void call(int nr) override {
-        if (nr == 0) {
-            return; // ignore overflow silently
+        const char* name = getName(nr);
+        if (name) {
+            env().out() << name << "(int " << nr << ") => halting\n";
+            while(1) {__asm__("hlt");}
+        } 
+        env().out() << "(int " << nr << ") => ignored\n";
+    }
+    inline const char* getName(int nr) {
+        switch (nr) {
+            case  0: return "Divide-by-zero";
+            case  1: return "Debug";
+            case  2: return "NMI";
+            case  3: return "Breakpoint";
+            case  4: return "Overflow";
+            case  5: return "Bound Range Exceeded";
+            case  6: return "Invalid Opcode";
+            case  7: return "Device Not Available";
+            case  8: return "Double Fault";
+            case  9: return "Coprocessor Segment Overrun";
+            case 10: return "Invalid TSS";
+            case 11: return "Segment Not Present";
+            case 12: return "Stack-Segment Fault";
+            case 13: return "General Protection Fault";
+            case 14: return "Page Fault";
+            case 16: return "x87 Floating-Point Exception";
+            case 17: return "Alignment Check";
+            case 18: return "Machine Check";
+            case 19: return "SIMD Floating-Point Exception";
+            case 20: return "Virtualization Exception";
+            case 30: return "Security Exception";
         }
-        env().out() << "interrupt(" << nr << ") ignored\n";
+        if (nr < 32) {
+            return "Reserved";
+        }
+        return 0;
     }
 };
 
