@@ -49,14 +49,16 @@ startup_entry:
 /* initialize IDT and GDT*/
     lidtl   idt_48
     lgdtl   gdt_48
-    
-/* init segment- and stack-pointer */
+/* init segment-register */
+    jmpl    $0x08, $init_cs
+init_cs:    
     movl    $0x10, %edx
     movw    %dx, %ds
     movw    %dx, %es
     movw    %dx, %fs
     movw    %dx, %gs
     movw    %dx, %ss
+/* init stack */
     movl    $(stack + GRIDOS_STARTUP_STACK_SIZE), %esp
     movl    %esp, %ebp
     
