@@ -661,8 +661,8 @@ String * Parser::parseString(IStream & input, char enclosure) {
 }
 
 // public
-ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, int column) {
-    list = &env().create<ASMInstructionList, OStream&>(error);
+ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, int column, bool silent) {
+    list = &env().create<ASMInstructionList, OStream&, bool>(error, silent);
     
     // reset parsing buffer
     token = current = marker = ctxmarker = limit = buffer + SIZE;

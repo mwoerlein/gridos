@@ -1,5 +1,6 @@
 #include "I386ASM/ASMInstructionList.hpp"
 
+#include "sys/stream/IgnoreOStream.hpp"
 #include "I386ASM/Operand/Number.hpp"
 
 class ASMInstructionList::_Elem: public ASMContext {
@@ -29,9 +30,11 @@ class ASMInstructionList::_Elem: public ASMContext {
 };
 
 // public
-ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error)
-    : Object(env, mi), warn(error), err(env.create<ParseErrorStream, OStream&>(error)),
-      ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {
+ASMInstructionList::ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error, bool silent)
+        :Object(env, mi),
+         warn(silent ? (OStream&) env.create<IgnoreOStream>() : (OStream&) env.create<ParseErrorStream, OStream&>(error)),
+         err(env.create<ParseErrorStream, OStream&>(error)),
+         ids(env.create<HashMap<String, _Elem>>()), pos(-1), first(0), last(0) {
     setMode(bit_32);
 }
 ASMInstructionList::~ASMInstructionList() {
@@ -44,6 +47,7 @@ ASMInstructionList::~ASMInstructionList() {
     last = first = 0;
     pos = -1;
     ids.destroy();
+    warn.destroy();
     err.destroy();
 }
 

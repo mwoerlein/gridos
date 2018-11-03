@@ -168,7 +168,7 @@ isr_common:
     
     IStream &in = input.toIStream();
     Parser &parser = env().create<Parser>();
-    ASMInstructionList &list = parser.parse(in, env().err());
+    ASMInstructionList &list = parser.parse(in, env().err(), 1, 1, true); // silent
     parser.destroy();
     in.destroy();
     input.destroy();

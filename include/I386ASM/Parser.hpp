@@ -50,7 +50,7 @@ class Parser: virtual public Object {
     Parser(Environment &env, MemoryInfo &mi);
     virtual ~Parser();
     
-    virtual ASMInstructionList & parse(IStream & input, OStream & error, int line = 1, int column = 1);
+    virtual ASMInstructionList & parse(IStream & input, OStream & error, int line = 1, int column = 1, bool silent = false);
 };
 
 #endif //I386ASMPARSER_HPP_LOCK

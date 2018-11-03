@@ -22,7 +22,7 @@ class ASMInstructionList: virtual public Object {
     OStream &warn;
     ParseErrorStream &err;
     
-    ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error);
+    ASMInstructionList(Environment &env, MemoryInfo &mi, OStream &error, bool silent = false);
     virtual ~ASMInstructionList();
     
     virtual void setMode(BitWidth mode);
