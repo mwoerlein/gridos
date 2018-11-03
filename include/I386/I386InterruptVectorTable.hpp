@@ -7,13 +7,13 @@
 
 class I386InterruptVectorTable;
 extern "C" {
-    void I386_interrupt_trampoline(I386InterruptVectorTable *table, int32_t nr);
+    void* I386_interrupt_trampoline(I386InterruptVectorTable *table, void* frame);
 }
 
 class I386InterruptVectorTable: public InterruptVectorTable {
     private:
     class IgnoreHandler;
-    friend void I386_interrupt_trampoline(I386InterruptVectorTable *table, int32_t nr);
+    friend void* I386_interrupt_trampoline(I386InterruptVectorTable *table, void* frame);
     
     // TODO: create and use ArrayList<InterruptHandler>/Vector<InterruptHandler> and allow creation time size of vector table
     InterruptHandler* ITable[TABLESIZE];

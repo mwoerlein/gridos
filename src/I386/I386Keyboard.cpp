@@ -29,7 +29,7 @@ void I386Keyboard::reboot() {
     I386IO_Port(0x64).outb(0xfe);
 }
 
-void I386Keyboard::call(int nr) {
+void I386Keyboard::call(int nr, int errorCode) {
     unsigned char scancode = I386IO_Port(0x60).inb();
     pic.finalize(I386PIC::keyboard);
     // TODO: implement scancode/keycode/... handling
@@ -38,5 +38,5 @@ void I386Keyboard::call(int nr) {
         for (int w = 0x9ffffff; w; w--); // sleep awhile
         reboot();
     }
-    (Object::env().out() << "scancode ").printhex(scancode) << '\n';
+    ((Object::env().out() << "scan code ").printhex(scancode) << " error code ").printhex(errorCode) << '\n';
 }

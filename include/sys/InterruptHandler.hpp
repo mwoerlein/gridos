@@ -5,7 +5,7 @@
 
 class InterruptHandler: virtual public Object {
     public:
-    virtual void call(int nr) = 0;
+    virtual void call(int nr, int errorCode) = 0;
 };
 
 #endif //INTERRUPTHANDLER_HPP_LOCK

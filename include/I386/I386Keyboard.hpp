@@ -16,7 +16,7 @@ class I386Keyboard: public InterruptHandler {
     virtual void plugin(InterruptVectorTable &ivt);
     virtual void reboot();
     
-    virtual void call(int nr) override;
+    virtual void call(int nr, int errorCode) override;
 };
 
 #endif //I386_I386KEYBOARD_HPP_LOCK

@@ -5,21 +5,31 @@
 #include "I386ASM/Parser.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
-void I386_interrupt_trampoline(I386InterruptVectorTable *table, int32_t nr) {
-    table->ITable[nr]->call(nr);
+// https://www.lowlevel.eu/wiki/Interrupt_Service_Routine
+struct interrupt_stack_frame {
+   unsigned int gs, fs, es, ds;
+   unsigned int edi, esi, ebp, _esp, ebx, edx, ecx, eax;
+   unsigned int interrupt, error;
+   unsigned int eip, cs, eflags, esp, ss;
+} interrupt_stack_frame;
+
+void* I386_interrupt_trampoline(I386InterruptVectorTable *table, void* frame) {
+    struct interrupt_stack_frame * isf = (struct interrupt_stack_frame *) frame;
+    table->ITable[isf->interrupt]->call(isf->interrupt, isf->error);
+    return frame;
 }
 
 class I386InterruptVectorTable::IgnoreHandler: public InterruptHandler {
     public:
     IgnoreHandler(Environment &env, MemoryInfo &mi = *notAnInfo):Object(env,mi) {}
     virtual ~IgnoreHandler() {}
-    virtual void call(int nr) override {
+    virtual void call(int nr, int errorCode) override {
         const char* name = getName(nr);
         if (name) {
-            env().out() << name << "(int " << nr << ") => halting\n";
+            env().out() << name << "(int " << nr << " err " << errorCode << ") => halting\n";
             while(1) {__asm__("hlt");}
         } 
-        env().out() << "(int " << nr << ") => ignored\n";
+        env().out() << "(int " << nr << " err " << errorCode << ") => ignored\n";
     }
     inline const char* getName(int nr) {
         switch (nr) {
@@ -93,6 +103,7 @@ int I386InterruptVectorTable::getSize() {
 
 //private
 MemoryInfo * I386InterruptVectorTable::compileIdt() {
+
     String input = env().create<String>();
     input << "trampoline := "<<(void*) I386_interrupt_trampoline<<'\n';
     input << "table_ref := "<<(void*) this<<'\n';
@@ -100,24 +111,61 @@ MemoryInfo * I386InterruptVectorTable::compileIdt() {
 idt:
     .word ((idt_end - idt_start) - 1)
     .long idt_start
-idt_start:
-)";
-    for (int i = 0; i < TABLESIZE; i++) {
-        input << ".word idt_entry_"<<i<<"; .word 0x0008; .word 0x8e00; .word (idt_entry_"<<i<<" >> 16)\n";
-    }
-    input << "idt_end:\n";
-    for (int i = 0; i < TABLESIZE; i++) {
-        input << "idt_entry_"<<i<<": pushad; pushl "<<i<<"; jmp idt_common\n";
-    }
-    input << R"(
-idt_common:
+isr_common:
+    // store all registers in stack frame
+    pushad
+    push %ds
+    push %es
+    push %fs
+    push %gs
+    
+    // ensure kernel segment in all segment registers
+    mov %ss, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    
+    // call trampoline
+    pushl %esp
     pushl table_ref
-    movl trampoline, %eax
-    call %eax
-    addl 8, %esp
+    call trampoline
+    // replace stack frame (for context switch)
+    movl %eax, %esp
+    
+    // restore all registers from stack frame
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
     popad
+    // remove interrupt number and error code
+    addl 8, %esp
     .byte 0xCF  #// iret
 )";
+    for (int i = 0; i < TABLESIZE; i++) {
+        switch (i) {
+            case 8:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 17:
+            case 30:
+                input << "isr_"<<i<<": pushl "<<i<<"; jmp isr_common\n";
+                break;
+            default:
+                // fake error code
+                input << "isr_"<<i<<": pushl 0; pushl "<<i<<"; jmp isr_common\n";
+        }
+    }
+    input << "idt_start:\n";
+    for (int i = 0; i < TABLESIZE; i++) {
+        input << ".word isr_"<<i<<"; .word 0x0008; .word 0x8e00; .word (isr_"<<i<<" >> 16)\n";
+    }
+    input << "idt_end:\n";
+    
     IStream &in = input.toIStream();
     Parser &parser = env().create<Parser>();
     ASMInstructionList &list = parser.parse(in, env().err());
