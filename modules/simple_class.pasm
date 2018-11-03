@@ -249,7 +249,7 @@ class_Dummy_vtabs:
 handle_A_1_A:
     .long _call_entry
     .long class_A_desc
-    .long inst_A_1_vars
+    .long inst_A_1_vars_A
     .long class_A_vtab_A
 
 handle_B_1_B:
