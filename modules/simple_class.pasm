@@ -188,7 +188,7 @@ class_A_method_run:
 	
     popl %edx
     popl %ecx
-    .byte 0xc9 #// leave
+    leave
     ret
 
 class_A_method_test:
@@ -223,7 +223,7 @@ class_A_method_test:
     add 1, %edx
     
     popl %ecx
-    .byte 0xc9 #// leave
+    leave
     ret
 
 class_A_method_getRow:
@@ -236,7 +236,7 @@ class_A_method_getRow:
     movl %eax, 16(%ebp)  // return
     
     pop %ecx
-    .byte 0xc9 #// leave
+    leave
     ret
 
 // CLASS B
@@ -274,7 +274,7 @@ class_B_method_getRow:
     movl %eax, 16(%ebp)  // return
     
     pop %ecx
-    .byte 0xc9 #// leave
+    leave
     ret
     
 // CLASS Dummy
@@ -360,7 +360,7 @@ class_Runtime_method_allocate:
     addl 8, %esp
     movl %eax, 20(%ebp)  // return info
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_free:
@@ -370,7 +370,7 @@ class_Runtime_method_free:
     pushl _env_allocator; call _allocator_free
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_printChar:
@@ -380,7 +380,7 @@ class_Runtime_method_printChar:
     pushl _env_out; call _ostream_print_char
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_printString:
@@ -390,7 +390,7 @@ class_Runtime_method_printString:
     pushl _env_out; call _ostream_print_string
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_printInt:
@@ -400,7 +400,7 @@ class_Runtime_method_printInt:
     pushl _env_out; call _ostream_print_int
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_printHex:
@@ -410,7 +410,7 @@ class_Runtime_method_printHex:
     pushl _env_out; call _ostream_print_hex
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_errChar:
@@ -420,7 +420,7 @@ class_Runtime_method_errChar:
     pushl _env_err; call _ostream_print_char
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_errString:
@@ -430,7 +430,7 @@ class_Runtime_method_errString:
     pushl _env_err; call _ostream_print_string
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_errInt:
@@ -440,7 +440,7 @@ class_Runtime_method_errInt:
     pushl _env_err; call _ostream_print_int
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 class_Runtime_method_errHex:
@@ -450,7 +450,7 @@ class_Runtime_method_errHex:
     pushl _env_err; call _ostream_print_hex
     addl 8, %esp
     
-    popad; .byte 0xc9 #// leave
+    popad; leave
     ret
 
 handle_Runtime:

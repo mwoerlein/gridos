@@ -141,7 +141,7 @@ isr_common:
     popad
     // remove interrupt number and error code
     addl 8, %esp
-    .byte 0xCF  #// iret
+    iret
 )";
     for (int i = 0; i < TABLESIZE; i++) {
         switch (i) {

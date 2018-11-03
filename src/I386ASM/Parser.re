@@ -575,9 +575,17 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
             if (!op1 || op2 || op3) return 0;
             return &env().create<Call, ASMOperand*>(op1);
         }
+        [lL][eE][aA][vV][eE] {
+            if (op1 || op2 || op3) return 0;
+            return &env().create<NoOperandInstruction, const char *, char>("leave", 0xC9);
+        }
         [rR][eE][tT] {
             if (op1 || op2 || op3) return 0;
             return &env().create<NoOperandInstruction, const char *, char>("ret", 0xC3);
+        }
+        [iI][rR][eE][tT] {
+            if (op1 || op2 || op3) return 0;
+            return &env().create<NoOperandInstruction, const char *, char>("iret", 0xCF);
         }
         [jJ] @o1 condition @o2 {
             if (!op1 || op2 || op3) return 0;
