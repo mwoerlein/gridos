@@ -85,9 +85,7 @@ entry:
     // load init object handle
 	movl handle_A_1_A, %ecx
 	// call "run"
-    pushl %ecx
-	pushl 0        # method number
-	call (%ecx)
+    pushl %ecx; pushl A_m_run; call (%ecx)
 	addl 8, %esp
 
     movw 0xf40, (cga_testline)
@@ -108,60 +106,97 @@ class_A_vtab_A:
     .long 0; .long class_A_method_run
     .long 0; .long class_A_method_test
     .long 0; .long class_A_method_getRow
+// Method IDs
+A_m_run    := 0
+A_m_test   := 1
+A_m_getRow := 2
+// Vars IDs
+A_i_column := 0
+A_i_row    := 4
 
+_text_run: .asciz "Run\n"
 class_A_method_run:
-    pushl %ebp
-    movl %esp, %ebp
+    pushl %ebp; movl %esp, %ebp
     pushl %ecx
+    pushl %edx
     
-    movl 0, %eax  // column 0
-    movl 0, %ebx  // row 0
-    movl 82, %ecx // 'R'
-    call _print
+    movl handle_Runtime, %ecx # Runtime(Type Runtime)
     
-    movl 1, %eax  // column 1
-    movl 0, %ebx  // row 0
-    movl 117, %ecx // 'u'
-    call _print
+    pushl 0x40 // '@'
+    pushl %ecx; pushl Runtime_m_printChar; call (%ecx)
+    addl 12, %esp
     
-    movl 2, %eax  // column 1
-    movl 0, %ebx  // row 0
-    movl 110, %ecx // 'n'
-    call _print
+    pushl _text_run
+    pushl %ecx; pushl Runtime_m_printString; call (%ecx)
+    addl 12, %esp
+
+    addl -4, %esp  # return value of allocate
+    pushl 0x124
+    pushl %ecx; pushl Runtime_m_allocate; call (%ecx)
+	addl 12, %esp
+    popl %edx
+    
+    pushl %edx 
+    pushl %ecx; pushl Runtime_m_printHex; call (%ecx)
+    addl 12, %esp
+    
+    pushl 0x20 // ' '
+    pushl %ecx; pushl Runtime_m_printChar; call (%ecx)
+    addl 12, %esp
+    
+    pushl (%edx) 
+    pushl %ecx; pushl Runtime_m_printHex; call (%ecx)
+    addl 12, %esp
+    
+    pushl 0x20 // ' '
+    pushl %ecx; pushl Runtime_m_printChar; call (%ecx)
+    addl 12, %esp
+    
+    pushl 4(%edx) 
+    pushl %ecx; pushl Runtime_m_printHex; call (%ecx)
+    addl 12, %esp
+    
+    pushl 0xa // '/n'
+    pushl %ecx; pushl Runtime_m_printChar; call (%ecx)
+    addl 12, %esp
+    
+    pushl %edx 
+    pushl %ecx; pushl Runtime_m_free; call (%ecx)
+    addl 12, %esp
     
     movl 12(%ebp), %ecx # this/A_1(Type A)
     
     addl -4, %esp  # return value of getRow
-    pushl %ecx; pushl 2; call (%ecx)
+    pushl %ecx; pushl A_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax
     
     pushl %eax     # row
-    pushl %ecx; pushl 1; call (%ecx)
+    pushl %ecx; pushl A_m_test; call (%ecx)
 	addl 12, %esp
 
     movl handle_B_1_A, %ecx # B_1(Type A)
 	
     addl -4, %esp  # return value of getRow
-    pushl %ecx; pushl 2; call (%ecx)
+    pushl %ecx; pushl A_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax
     
     pushl %eax     # row
-    pushl %ecx; pushl 1; call (%ecx)
+    pushl %ecx; pushl A_m_test; call (%ecx)
 	addl 12, %esp
 	
+    popl %edx
     popl %ecx
     .byte 0xc9 #// leave
     ret
 
 class_A_method_test:
-    pushl %ebp
-    movl %esp, %ebp
+    pushl %ebp; movl %esp, %ebp
     pushl %ecx
 
     movl 8(%ebp), %ecx   // this.vars(A)
-    movl (%ecx), %edx    // column
+    movl A_i_column(%ecx), %edx
     
     movl %edx, %eax      // column
     movl 16(%ebp), %ebx  // row
@@ -192,13 +227,12 @@ class_A_method_test:
     ret
 
 class_A_method_getRow:
-    pushl %ebp
-    movl %esp, %ebp
+    pushl %ebp; movl %esp, %ebp
     push %ecx
 
     movl 8(%ebp), %ecx   // this.vars(A)
     
-    movl 4(%ecx), %eax   // row
+    movl A_i_row(%ecx), %eax
     movl %eax, 16(%ebp)  // return
     
     pop %ecx
@@ -220,16 +254,22 @@ class_B_vtab_A:
     .long 8; .long class_A_method_run
     .long 8; .long class_A_method_test
     .long 0; .long class_B_method_getRow
+// Method IDs
+B_m_run    := 0
+B_m_test   := 1
+B_m_getRow := 2
+// Super Vars Offsets
+B_vars_Dummy := 0
+B_vars_A     := 0
 
 class_B_method_getRow:
-    pushl %ebp
-    movl %esp, %ebp
+    pushl %ebp; movl %esp, %ebp
     push %ecx
 
     movl 8(%ebp), %ecx   // this.vars(B)
-    movl (%ecx), %ecx    // this.vars(A)
+    movl B_vars_A(%ecx), %ecx    // this.vars(A)
     
-    movl 4(%ecx), %eax   // row
+    movl A_i_row(%ecx), %eax
     addl %eax, %eax      // *2
     movl %eax, 16(%ebp)  // return
     
@@ -243,6 +283,7 @@ class_Dummy_desc:
     .long class_Dummy_name
     .long class_Dummy_vtabs
 class_Dummy_vtabs:
+// Method IDs
 
 
 /* Obj-Handles */
@@ -277,6 +318,147 @@ inst_B_1_vars_Dummy:
 inst_B_1_vars_A:
     .long 10 // column
     .long 2 // row
+
+
+// TODO: #9 improve/separate runtime injection
+/* RUNTIME */
+    
+// CLASS Runtime
+class_Runtime_name: .asciz "/my/Runtime"
+class_Runtime_desc:
+    .long class_Runtime_name
+    .long class_Runtime_vtabs
+class_Runtime_vtabs:
+class_Runtime_vtab_Runtime:
+    .long 0; .long class_Runtime_method_allocate
+    .long 0; .long class_Runtime_method_free
+    .long 0; .long class_Runtime_method_printChar
+    .long 0; .long class_Runtime_method_printString
+    .long 0; .long class_Runtime_method_printInt
+    .long 0; .long class_Runtime_method_printHex
+    .long 0; .long class_Runtime_method_errChar
+    .long 0; .long class_Runtime_method_errString
+    .long 0; .long class_Runtime_method_errInt
+    .long 0; .long class_Runtime_method_errHex
+// Method IDs
+Runtime_m_allocate    := 0
+Runtime_m_free        := 1
+Runtime_m_printChar   := 2
+Runtime_m_printString := 3
+Runtime_m_printInt    := 4
+Runtime_m_printHex    := 5
+Runtime_m_errChar     := 6
+Runtime_m_errString   := 7
+Runtime_m_errInt      := 8
+Runtime_m_errHex      := 9
+
+class_Runtime_method_allocate:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param size
+    pushl _env_allocator; call _allocator_allocate
+    addl 8, %esp
+    movl %eax, 20(%ebp)  // return info
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_free:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param info
+    pushl _env_allocator; call _allocator_free
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_printChar:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param c
+    pushl _env_out; call _ostream_print_char
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_printString:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param s
+    pushl _env_out; call _ostream_print_string
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_printInt:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param i
+    pushl _env_out; call _ostream_print_int
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_printHex:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param i
+    pushl _env_out; call _ostream_print_hex
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_errChar:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param c
+    pushl _env_err; call _ostream_print_char
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_errString:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param s
+    pushl _env_err; call _ostream_print_string
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_errInt:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param i
+    pushl _env_err; call _ostream_print_int
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+class_Runtime_method_errHex:
+    pushl %ebp; movl %esp, %ebp; pushad
+
+    pushl 16(%ebp)       // param i
+    pushl _env_err; call _ostream_print_hex
+    addl 8, %esp
+    
+    popad; .byte 0xc9 #// leave
+    ret
+
+handle_Runtime:
+    .long _call_entry
+    .long class_Runtime_desc
+    .long inst_Runtime
+    .long class_Runtime_vtab_Runtime
+inst_Runtime:
 
 
 /* STATIC HELPER */
