@@ -6,7 +6,9 @@ LDTAIL =# $(shell g++ --print-file-name=crtend.o && g++ --print-file-name=crtn.o
 STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM.a memory.a sys.a
 
 LOADER_PARTS = dynamic_settings settings stage0 stage1
-LOADER_PASMS=$(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
+LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
+MODSIMPLE_PARTS = __startup _core Runtime A B
+MODSIMPLE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_PARTS))
 
 $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@
@@ -18,7 +20,7 @@ $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
 
 $(BOOTDIR)/mod_kernel.bin: 
 	echo "creating $@"
-	cp $(MODDIR)/simple_class.pasm $@
+	cat $(MODSIMPLE_PASMS) > $@
 #	cp $(MODDIR)/blinking.pasm $@
 #	$(BINDIR)/pasm -o $@ $(MODDIR)/blinking.pasm
 #	cp $(MODDIR)/at_relocateable.pasm $@
