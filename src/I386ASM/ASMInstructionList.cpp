@@ -78,12 +78,20 @@ void ASMInstructionList::addInstruction(ASMInstruction &inst, BitWidth data, Bit
 }
 
 void ASMInstructionList::addLabel(String &label) {
+    if (ids.has(label)) {
+        err << "Duplicate definition of id '" << label << "'\n";
+        return;
+    }
     _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&label, 0, last->mode);
     last = last->next = e;
     ids.set(label, *e);
 }
 
 void ASMInstructionList::addDefinition(String &definition, Numeric &value) {
+    if (ids.has(definition)) {
+        err << "Duplicate definition of id '" << definition << "'\n";
+        return;
+    }
     _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&definition, &value, last->mode);
     last = last->next = e;
     ids.set(definition, *e);
