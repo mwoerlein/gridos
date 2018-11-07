@@ -9,10 +9,19 @@ version = 0.2.0+20181102070000
 entry:
     movw 0xc40, (cga_testline)
     
-    // load init object handle
-	movl handle_A_1_A, %ecx
-	// call "run"
-    pushl %ecx; pushl A_m_run; call (%ecx)
+    movl handle_A_1_A, %ecx
+    pushl 5
+    pushl 2
+    pushl %ecx; pushl A_m_init; call (%ecx)
+	addl 16, %esp
+    
+    movl handle_B_1_B, %ecx
+    pushl 20
+    pushl 2
+    pushl %ecx; pushl B_m_init; call (%ecx)
+	addl 16, %esp
+    
+    pushl %ecx; pushl B_m_run; call (%ecx)
 	addl 8, %esp
 
     movw 0xf40, (cga_testline)
