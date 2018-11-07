@@ -9,13 +9,13 @@ version = 0.2.0+20181102070000
 entry:
     movw 0xc40, (cga_testline)
     
-    movl handle_A_1_A, %ecx
+    movl inst_A_1_handle_A, %ecx
     pushl 5
     pushl 2
     pushl %ecx; pushl A_m_init; call (%ecx)
 	addl 16, %esp
     
-    movl handle_B_1_B, %ecx
+    movl inst_B_1_handle_B, %ecx
     pushl 20
     pushl 2
     pushl %ecx; pushl B_m_init; call (%ecx)

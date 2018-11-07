@@ -11,13 +11,21 @@
  * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
+ * | instance size
+ * +----------------------+
+ * | instance-template-Offset
+ * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
  * | Class-VTab-Offset
  * +----------------------+
+ * | Class-Handle-Offset
+ * +----------------------+
  * | Super1-classname-Offset
  * +----------------------+
  * | Super1-VTab-Offset
+ * +----------------------+
+ * | Super1-Handle-Offset
  * +----------------------+
  * | ...
  * +----------------------+
@@ -25,17 +33,15 @@
  * +----------------------+
  * | SuperN-VTab-Offset
  * +----------------------+
+ * | SuperN-Handle-Offset
+ * +----------------------+
  */
 /* **** VTab unresolved ***
  * 31                     0
  * +----------------------+
- * | Meth 0 - Var Offset
- * +----------------------+
  * | Meth 0 - Method Offset
  * +----------------------+
  * | Meth 0 - Class-Desc-Offset
- * +----------------------+
- * | Meth 1 - Var Offset
  * +----------------------+
  * | Meth 1 - Method Offset
  * +----------------------+
@@ -49,13 +55,21 @@
  * +----------------------+
  * | @Class-Handle
  * +----------------------+
+ * | instance size
+ * +----------------------+
+ * | instance-template-Offset
+ * +----------------------+
  * | @Class-Desc
  * +----------------------+
  * | Class-VTab-Offset
  * +----------------------+
+ * | Class-Handle-Offset
+ * +----------------------+
  * | @Super1-Desc
  * +----------------------+
  * | Super1-VTab-Offset
+ * +----------------------+
+ * | Super1-Handle-Offset
  * +----------------------+
  * | ...
  * +----------------------+
@@ -63,17 +77,15 @@
  * +----------------------+
  * | SuperN-VTab-Offset
  * +----------------------+
+ * | SuperN-Handle-Offset
+ * +----------------------+
  */
 /* ***** VTab resolved ****
  * 31                     0
  * +----------------------+
- * | Meth 0 - Var Offset
- * +----------------------+
  * | Meth 0 - @Method
  * +----------------------+
  * | Meth 0 - Class-Desc-Offset
- * +----------------------+
- * | Meth 1 - Var Offset
  * +----------------------+
  * | Meth 1 - @Method
  * +----------------------+
@@ -82,37 +94,48 @@
  * | ...
  * +----------------------+
  */
-/* ****** Obj-Handle ******
- * +----------------------+
- * | @Call-Entry
+/* ******* Instance *******
  * +----------------------+
  * | @Obj-Class-Desc
  * +----------------------+
- * | @Obj-Class-Vars
+ * | @Inst-MemInfo
+ * +----------------------+ < Ref Class
+ * | @Call-Entry
  * +----------------------+
- * | @Ref-Class-VTab
+ * | @Inst
  * +----------------------+
- */
-/* ******* Obj-Vars *******
+ * | Class-VTab-Offset
  * +----------------------+
- * | Super1-Obj-Vars-Offset
+ * | Class-Vars-Offset
  * +----------------------+
- * | Super2-Obj-Vars-Offset
+ * | Super1-Vars-Offset
+ * +----------------------+
+ * | ..
+ * +----------------------+
+ * | Ref-SuperN-Vars-Offset
+ * +----------------------+ < Ref Super1
+ * | @Call-Entry
+ * +----------------------+
+ * | @Inst
+ * +----------------------+
+ * | Super1-VTab-Offset
+ * +----------------------+
+ * | Super1-Class-Vars-Offset
+ * +----------------------+
+ * | Super1-Super1-Vars-Offset
  * +----------------------+
  * | ...
- * +----------------------+
- * | SuperN-Obj-Vars-Offset
- * +----------------------+
+ * +----------------------+ < Ref ...
+ * | ...
+ * +----------------------+ < Vars Class
  * | This-Var1
  * +----------------------+
  * | This-Var4
  * +----------------------+
  * | This-Var2 | This-Var3
- * +----------------------+
- * | S1.-Super1-Obj-Vars-Offset
- * +----------------------+
+ * +----------------------+ < Vars Super1
  * | Super1-Var1
- * +----------------------+
+ * +----------------------+ < Vars ...
  * | ...
  * +----------------------+
  */
@@ -121,29 +144,58 @@
     
 // Class Object
 class_Object_desc:
-    .long handle_Class_Object # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
-    .long class_Object_desc   # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long inst_Class_Object_handle_Class # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
+    .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
+class_Object_vtabs:
+class_Object_vtabs_entry_Object:
+    .long class_Object_desc   # (class_Class_string_classname - class_Object_desc)  // filled/adjusted on class loading
     .long (class_Object_vtab_Object - class_Object_desc)
+class_Object_handle_Object:
+    .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
+class_Object_vtab_end_entry:
+    .long 0
+    .long 0
     .long 0
 class_Object_vtab_Object:
-    .long 0; .long (class_Object_method_getClass - class_Object_desc); .long 4
-    .long 0; .long (class_Object_method_hash - class_Object_desc); .long 12
-    .long 0; .long (class_Object_method_equals - class_Object_desc); .long 12
-    .long 0; .long (class_Object_method_rt - class_Object_desc); .long 12
+class_Object_vtab_Object_method_getClass:
+    .long (class_Object_method_getClass - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+class_Object_vtab_Object_method_hash:
+    .long (class_Object_method_hash - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+class_Object_vtab_Object_method_equals:
+    .long (class_Object_method_equals - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+class_Object_vtab_Object_method_rt:
+    .long (class_Object_method_rt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+
+class_Object_inst_tpl:
+    .long class_Object_desc                // filled/adjusted on class loading
+    .long 0  // Object_inst_meminfo        // filled during instatiation
+class_Object_inst_tpl_handle_Object:
+    .long _call_entry_unresolved_vtab      // filled/adjusted on class loading
+    .long 0  // Object_inst                // filled during instatiation
+    .long (class_Object_vtab_Object - class_Object_desc)
+class_Object_inst_tpl_handle_Object_vars_Object:
+    .long (class_Object_inst_tpl_vars_Object - class_Object_inst_tpl) // @Super-Obj-Vars
+class_Object_inst_tpl_vars_Object:
+class_Object_inst_tpl_end:
+
 class_Object_string_classname:
     .asciz "/my/Object"
 // Method Offsets
-Object_m_getClass := (0 * 12)
-Object_m_hash     := (1 * 12)
-Object_m_equals   := (2 * 12)
-Object_m_rt       := (3 * 12)
+Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vtab_Object)
+Object_m_hash     := (class_Object_vtab_Object_method_hash - class_Object_vtab_Object)
+Object_m_equals   := (class_Object_vtab_Object_method_equals - class_Object_vtab_Object)
+Object_m_rt       := (class_Object_vtab_Object_method_rt - class_Object_vtab_Object)
 // Vars Offsets
+// Super Vars Offsets
+handle_Object_vars_Object := (class_Object_inst_tpl_handle_Object_vars_Object - class_Object_inst_tpl_handle_Object)
 
 class_Object_method_getClass:
     pushl %ebp; movl %esp, %ebp;
 
-    movl 12(%ebp), %eax    // @this
-    movl 4(%eax), %eax     // @class desc
+    movl 12(%ebp), %eax    // @this (Type Object)
+    movl 4(%eax), %eax     // @this
+    movl (%eax), %eax      // @class desc
     movl (%eax), %eax      // @class handle
     movl %eax, 16(%ebp)    // return @class handle
     
@@ -153,8 +205,8 @@ class_Object_method_getClass:
 class_Object_method_hash:
     pushl %ebp; movl %esp, %ebp;
 
-    movl 12(%ebp), %eax    // @this
-    movl 8(%eax), %eax     // @this.vars(<class>)
+    movl 12(%ebp), %eax    // @this (Type Object)
+    movl 4(%eax), %eax     // @this
     movl %eax, 16(%ebp)    // return obj vars as hash
     
     leave
@@ -165,11 +217,12 @@ class_Object_method_equals:
     
     movl 0, 20(%ebp)       // default return: false
 
-    movl 12(%ebp), %eax    // @this
-    movl 8(%eax), %eax     // @this.vars(<class>)
+    movl 12(%ebp), %eax    // @this (Type Object)
+    movl 4(%eax), %eax     // @this
     
-    movl 16(%ebp), %ebx    // @obj
-    movl 8(%ebx), %ebx     // @obj.vars(<class>)
+    movl 16(%ebp), %ebx    // @obj (Type Object)
+    movl 4(%ebx), %ebx     // @obj
+    
     .byte 0x29; .byte 0xc3 #// subl %eax, %ebx
     
     jnz class_Object_method_equals_ret
@@ -183,52 +236,96 @@ class_Object_method_rt:
     pushl %ebp; movl %esp, %ebp;
 
 // TODO: #9 improve/separate runtime injection
-    movl handle_Runtime, 16(%ebp)    // return @runtime handle
+    movl inst_Runtime_handle_Runtime, 16(%ebp)    // return @runtime handle
     
     leave
     ret
 
 // CLASS Class extends Object
 class_Class_desc:
-    .long handle_Class_Class # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long inst_Class_Class_handle_Class # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long (class_Class_inst_tpl_end - class_Class_inst_tpl) // instance size
+    .long (class_Class_inst_tpl - class_Class_desc)         // instance template offset
+class_Class_vtabs:
+class_Class_vtabs_entry_Class:
     .long class_Class_desc   # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
     .long (class_Class_vtab_Class - class_Class_desc)
-    .long class_Object_desc  # (class_Class_string_super1 - class_Class_desc) // filled/adjusted on class loading
+class_Class_handle_Class:
+    .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
+class_Class_vtabs_entry_Object:
+    .long class_Object_desc  # (class_Class_string_super1 - class_Class_desc)    // filled/adjusted on class loading
     .long (class_Class_vtab_Object - class_Class_desc)
+class_Class_handle_Object:
+    .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
+class_Class_vtab_end_entry:
+    .long 0
+    .long 0
     .long 0
 class_Class_vtab_Class:
-    .long 4; .long (class_Object_method_getClass - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_hash - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_equals - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_rt - class_Object_desc); .long 12
-    .long 0; .long (class_Class_method_getName - class_Class_desc); .long 4
+class_Class_vtab_Class_method_getClass:
+    .long (class_Object_method_getClass - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_hash:
+    .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_equals:
+    .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_rt:
+    .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_getName:
+    .long (class_Class_method_getName - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
 class_Class_vtab_Object:
-    .long 4; .long (class_Object_method_getClass - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_hash - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_equals - class_Object_desc); .long 12
-    .long 4; .long (class_Object_method_rt - class_Object_desc); .long 12
+    .long (class_Object_method_getClass - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+
+class_Class_inst_tpl:
+    .long class_Class_desc                  // filled/adjusted on class loading
+    .long 0  // Class_inst_meminfo          // filled during instatiation
+class_Class_inst_tpl_handle_Class:
+    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
+    .long 0  // Class_inst                  // filled during instatiation
+    .long (class_Class_vtab_Class - class_Class_desc)
+class_Class_inst_tpl_handle_Class_vars_Object:
+    .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Super-Obj-Vars
+class_Class_inst_tpl_handle_Class_vars_Class:
+    .long (class_Class_inst_tpl_vars_Class - class_Class_inst_tpl)  // @Class-Obj-Vars
+class_Class_inst_tpl_handle_Object:
+    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
+    .long 0  // Class_inst                  // filled during instatiation
+    .long (class_Class_vtab_Object - class_Class_desc)
+class_Class_inst_tpl_handle_Object_vars_Object:
+    .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Object-Obj-Vars
+class_Class_inst_tpl_vars_Class:
+class_Class_inst_tpl_vars_Class_name:
+    .long 0  // class name
+class_Class_inst_tpl_vars_Object:
+class_Class_inst_tpl_end:
+
 class_Class_string_classname:
     .asciz "/my/Class"
 class_Class_string_super1:
     .asciz "/my/Object"
     
 // Method Offsets
-Class_m_getClass   := (0 * 12)
-Class_m_hash       := (1 * 12)
-Class_m_equals     := (2 * 12)
-Class_m_rt         := (3 * 12)
-Class_m_getName    := (4 * 12)
+Class_m_getClass   := (class_Class_vtab_Class_method_getClass - class_Class_vtab_Class)
+Class_m_hash       := (class_Class_vtab_Class_method_hash - class_Class_vtab_Class)
+Class_m_equals     := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
+Class_m_rt         := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
+Class_m_getName    := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
 // Vars Offsets
-Class_i_name := 4
+Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_vars_Class)
 // Super Vars Offsets
-Class_vars_Object := 0
+handle_Class_vars_Class  := (class_Class_inst_tpl_handle_Class_vars_Class - class_Class_inst_tpl_handle_Class)
+handle_Class_vars_Object := (class_Class_inst_tpl_handle_Class_vars_Object - class__inst_tpl_handle_Class)
 
 class_Class_method_getName:
     pushl %ebp; movl %esp, %ebp;
 
-    movl 8(%ebp), %eax            // this.vars(Class)
-    movl Class_i_name(%eax), %eax // load reference to cstring-ref
-    movl %eax, 16(%ebp)           // return cstring-ref
+    movl 12(%ebp), %eax                       // @this (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx                        // @this.vars(Class)
+    movl Class_i_name(%ebx), %ebx // load reference to cstring-ref
+    movl %ebx, 16(%ebp)           // return cstring-ref
     
     leave
     ret
@@ -237,27 +334,25 @@ class_Class_method_getName:
 /* STATIC HELPER */
 _call_entry_resolved_vtab:
 	movl 8(%esp), %ebx	        # load object handle
-	movl 4(%esp), %eax	        # get method-offset number
-	addl 12(%ebx), %eax         # get vtab-entry
-	movl 8(%ebx), %ebx          # load obj vars
-	addl 0(%eax), %ebx          # add var offset
-	movl %ebx, 4(%esp)          # store vars in stack
-	jmp 4(%eax)                 # goto method
+	movl 4(%ebx), %eax          # get object
+	movl 0(%eax), %eax          # get class-desc
+	addl 8(%ebx), %eax          # get vtab
+	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
+	jmp (%eax)                  # goto method
 
 _call_entry_unresolved_vtab:
 	movl 8(%esp), %ebx	        # load object handle
-	movl 4(%esp), %eax	        # get method-offset number
-	addl 12(%ebx), %eax         # get vtab-entry
+	movl 4(%ebx), %eax          # get object
+	movl 0(%eax), %eax          # get class-desc
+	addl 8(%ebx), %eax          # get vtab
+	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
 	
-	movl 8(%ebx), %ebx          # load obj vars
-	addl 0(%eax), %ebx          # add var offset
-	movl %ebx, 4(%esp)          # store vars in stack
+	movl 4(%ebx), %ebx	        # get object
+	movl 0(%ebx), %ebx	        # get class-desc
+	addl 4(%eax), %ebx          # get method-class-desc-addr
+	movl 0(%ebx), %ebx          # get method-class-desc
+	addl 0(%eax), %ebx          # compute method-addr
 	
-	movl 8(%esp), %ebx	        # load object handle
-	movl 4(%ebx), %ebx	        # get class-desc
-	addl 8(%eax), %ebx          # get method-class-desc-addr
-	movl (%ebx), %ebx           # get method-class-desc
-	addl 4(%eax), %ebx          # compute method-addr
 	jmp %ebx                    # goto method
 
 _print: # %eax:column, %ebx:row, %cl:character
@@ -278,23 +373,53 @@ cga_testline  := (print_cga_buffer + (test_row * print_line_offset))
 
 
 /* Static Instances */
-handle_Class_Object: // created on class loading
-    .long _call_entry_unresolved_vtab
-    .long class_Class_desc
+inst_Class_Object_meminfo: // created on class loading
     .long inst_Class_Object
-    .long class_Class_vtab_Class
-inst_Class_Object:   // created on class loading
-    .long (inst_Class_Object_vars_Object - inst_Class_Object) // @Super-Obj-Vars
-    .long class_Object_string_classname
-inst_Class_Object_vars_Object:    
-
-handle_Class_Class: // created on class loading
-    .long _call_entry_unresolved_vtab
+    .long (inst_Class_Object_end - inst_Class_Object)
+inst_Class_Object:
     .long class_Class_desc
+    .long inst_Class_Object_meminfo
+inst_Class_Object_handle_Class:
+    .long _call_entry_unresolved_vtab
+    .long inst_Class_Object
+    .long (class_Class_vtab_Class - class_Class_desc)
+inst_Class_Object_handle_Class_vars_Object:
+    .long (inst_Class_Object_vars_Object - inst_Class_Object) // @Super-Obj-Vars
+inst_Class_Object_handle_Class_vars_Class:
+    .long (inst_Class_Object_vars_Class - inst_Class_Object)  // @Class-Obj-Vars
+inst_Class_Object_handle_Object:
+    .long _call_entry_unresolved_vtab
+    .long inst_Class_Object
+    .long (class_Class_vtab_Object - class_Class_desc)
+inst_Class_Object_handle_Object_vars_Object:
+    .long (inst_Class_Object_vars_Object - inst_Class_Object) // @Object-Obj-Vars
+inst_Class_Object_vars_Class:
+    .long class_Object_string_classname // classname
+inst_Class_Object_vars_Object:
+inst_Class_Object_end:
+
+inst_Class_Class_meminfo: // created on class loading
     .long inst_Class_Class
-    .long class_Class_vtab_Class
-inst_Class_Class:   // created on class loading
+    .long (inst_Class_Class_end - inst_Class_Class)
+inst_Class_Class:
+    .long class_Class_desc
+    .long inst_Class_Class_meminfo
+inst_Class_Class_handle_Class:
+    .long _call_entry_unresolved_vtab
+    .long inst_Class_Class
+    .long (class_Class_vtab_Class - class_Class_desc)
+inst_Class_Class_handle_Class_vars_Object:
     .long (inst_Class_Class_vars_Object - inst_Class_Class) // @Super-Obj-Vars
-    .long class_Class_string_classname
-inst_Class_Class_vars_Object:    
+inst_Class_Class_handle_Class_vars_Class:
+    .long (inst_Class_Class_vars_Class - inst_Class_Class)  // @Class-Obj-Vars
+inst_Class_Class_handle_Object:
+    .long _call_entry_unresolved_vtab
+    .long inst_Class_Class
+    .long (class_Class_vtab_Object - class_Class_desc)
+inst_Class_Class_handle_Object_vars_Object:
+    .long (inst_Class_Class_vars_Object - inst_Class_Class) // @Object-Obj-Vars
+inst_Class_Class_vars_Class:
+    .long class_Class_string_classname // classname
+inst_Class_Class_vars_Object:
+inst_Class_Class_end:
 
