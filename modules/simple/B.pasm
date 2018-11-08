@@ -3,6 +3,7 @@ class_B_desc:
     .long inst_Class_B_handle_Class # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
+    .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
 class_B_vtabs:
 class_B_vtabs_entry_B:
     .long class_B_desc   # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading
@@ -81,11 +82,12 @@ class_B_inst_tpl_handle_Object:
     .long (class_B_vtab_Object - class_B_desc)
 class_B_inst_tpl_handle_Object_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Object-Obj-Vars
-class_B_inst_tpl_vars_B:
+class_B_inst_tpl_vars_Object:
+    .long 0  // Runtime-handle
 class_B_inst_tpl_vars_A:
     .long 0 // column
     .long 0 // row
-class_B_inst_tpl_vars_Object:
+class_B_inst_tpl_vars_B:
 class_B_inst_tpl_end:
 
 class_B_string_classname:
@@ -261,9 +263,10 @@ inst_Class_B_handle_Object:
     .long (class_Class_vtab_Object - class_Class_desc)
 inst_Class_B_handle_Object_vars_Object:
     .long (inst_Class_B_vars_Object - inst_Class_B) // @Object-Obj-Vars
+inst_Class_B_vars_Object:
+    .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_B_vars_Class:
     .long class_B_string_classname // classname
-inst_Class_B_vars_Object:
 inst_Class_B_end:
 
 // Obj-Instances
@@ -292,6 +295,7 @@ inst_B_1_handle_Object:
     .long (class_B_vtab_Object - class_B_desc)
     .long (inst_B_1_vars_Object - inst_B_1) // @Object-Obj-Vars
 inst_B_1_vars_Object:
+    .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_B_1_vars_A:
     .long 0 // column
     .long 0 // row

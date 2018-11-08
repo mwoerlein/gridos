@@ -4,6 +4,7 @@ class_Runtime_desc:
     .long inst_Class_Runtime_handle_Class # (class_Runtime_string_classname - class_Runtime_desc) // filled/adjusted on class loading
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl) // instance size
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
+    .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
 class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
     .long class_Runtime_desc   # (class_Class_string_classname - class_Runtime_desc)    // filled/adjusted on class loading
@@ -71,8 +72,9 @@ class_Runtime_inst_tpl_handle_Object:
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
 class_Runtime_inst_tpl_handle_Object_vars_Object:
     .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Object-Obj-Vars
-class_Runtime_inst_tpl_vars_Runtime:
 class_Runtime_inst_tpl_vars_Object:
+    .long 0  // Runtime-handle
+class_Runtime_inst_tpl_vars_Runtime:
 class_Runtime_inst_tpl_end:
 
 class_Runtime_string_classname:
@@ -221,9 +223,10 @@ inst_Class_Runtime_handle_Object:
     .long (class_Class_vtab_Object - class_Class_desc)
 inst_Class_Runtime_handle_Object_vars_Object:
     .long (inst_Class_Runtime_vars_Object - inst_Class_Runtime) // @Object-Obj-Vars
+inst_Class_Runtime_vars_Object:
+    .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_Runtime_vars_Class:
     .long class_Runtime_string_classname // classname
-inst_Class_Runtime_vars_Object:
 inst_Class_Runtime_end:
 
 // Obj-Instances
@@ -247,6 +250,7 @@ inst_Runtime_handle_Object:
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
 inst_Runtime_handle_Object_vars_Object:
     .long (inst_Runtime_vars_Object - inst_Runtime)  // @Object-Obj-Vars
-inst_Runtime_vars_Runtime:
 inst_Runtime_vars_Object:
+    .long inst_Runtime_handle_Runtime  // Runtime-handle
+inst_Runtime_vars_Runtime:
 inst_Runtime_end:
