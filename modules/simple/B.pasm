@@ -33,6 +33,10 @@ class_B_vtab_B_method_equals:
     .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
 class_B_vtab_B_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+class_B_vtab_B_method_setRt:
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+class_B_vtab_B_method_as:
+    .long (class_Object_method_as - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
 class_B_vtab_B_method_init:
     .long (class_A_method_init - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
 class_B_vtab_B_method_test:
@@ -46,6 +50,8 @@ class_B_vtab_A:
     .long (class_Object_method_hash - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_as - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
     .long (class_A_method_init - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
     .long (class_A_method_test - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
     .long (class_B_method_getRow - class_B_desc); .long (class_B_vtabs_entry_B - class_B_desc)
@@ -54,6 +60,8 @@ class_B_vtab_Object:
     .long (class_Object_method_hash - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_as - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
 
 class_B_inst_tpl:
     .long class_B_desc                      // filled/adjusted on class loading
@@ -101,6 +109,8 @@ B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
 B_m_hash     := (class_B_vtab_B_method_hash - class_B_vtab_B)
 B_m_equals   := (class_B_vtab_B_method_equals - class_B_vtab_B)
 B_m_rt       := (class_B_vtab_B_method_rt - class_B_vtab_B)
+B_m_setRt    := (class_B_vtab_B_method_setRt - class_B_vtab_B)
+B_m_as       := (class_B_vtab_B_method_as - class_B_vtab_B)
 B_m_init     := (class_B_vtab_B_method_init - class_B_vtab_B)
 B_m_test     := (class_B_vtab_B_method_test - class_B_vtab_B)
 B_m_getRow   := (class_B_vtab_B_method_getRow - class_B_vtab_B)
@@ -267,6 +277,7 @@ inst_Class_B_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_B_vars_Class:
     .long class_B_string_classname // classname
+    .long class_B_desc // class desc
 inst_Class_B_end:
 
 // Obj-Instances

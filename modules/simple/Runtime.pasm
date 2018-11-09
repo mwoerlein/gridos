@@ -29,6 +29,16 @@ class_Runtime_vtab_Runtime_method_equals:
     .long (class_Object_method_equals - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
+class_Runtime_vtab_Runtime_method_setRt:
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
+class_Runtime_vtab_Runtime_method_as:
+    .long (class_Object_method_as - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
+class_Runtime_vtab_Runtime_method_findClass:
+    .long (class_Runtime_method_findClass - class_Runtime_desc); .long (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
+class_Runtime_vtab_Runtime_method_createInstance:
+    .long (class_Runtime_method_createInstance - class_Runtime_desc); .long (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
+class_Runtime_vtab_Runtime_method_destroyInstance:
+    .long (class_Runtime_method_destroyInstance - class_Runtime_desc); .long (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_allocate:
     .long (class_Runtime_method_allocate - class_Runtime_desc); .long (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_free:
@@ -54,6 +64,8 @@ class_Runtime_vtab_Object:
     .long (class_Object_method_hash - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
+    .long (class_Object_method_as - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
     .long class_Runtime_desc                // filled/adjusted on class loading
@@ -82,25 +94,80 @@ class_Runtime_string_classname:
 class_Runtime_string_super1:
     .asciz "/my/Object"
 // Method Offsets
-Runtime_m_getClass    := (class_Runtime_vtab_Runtime_method_getClass - class_Runtime_vtab_Runtime)
-Runtime_m_hash        := (class_Runtime_vtab_Runtime_method_hash - class_Runtime_vtab_Runtime)
-Runtime_m_equals      := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
-Runtime_m_rt          := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
-Runtime_m_allocate    := (class_Runtime_vtab_Runtime_method_allocate - class_Runtime_vtab_Runtime)
-Runtime_m_free        := (class_Runtime_vtab_Runtime_method_free - class_Runtime_vtab_Runtime)
-Runtime_m_printChar   := (class_Runtime_vtab_Runtime_method_printChar - class_Runtime_vtab_Runtime)
-Runtime_m_printString := (class_Runtime_vtab_Runtime_method_printString - class_Runtime_vtab_Runtime)
-Runtime_m_printInt    := (class_Runtime_vtab_Runtime_method_printInt - class_Runtime_vtab_Runtime)
-Runtime_m_printHex    := (class_Runtime_vtab_Runtime_method_printHex - class_Runtime_vtab_Runtime)
-Runtime_m_errChar     := (class_Runtime_vtab_Runtime_method_errChar - class_Runtime_vtab_Runtime)
-Runtime_m_errString   := (class_Runtime_vtab_Runtime_method_errString - class_Runtime_vtab_Runtime)
-Runtime_m_errInt      := (class_Runtime_vtab_Runtime_method_errInt - class_Runtime_vtab_Runtime)
-Runtime_m_errHex      := (class_Runtime_vtab_Runtime_method_errHex - class_Runtime_vtab_Runtime)
+Runtime_m_getClass        := (class_Runtime_vtab_Runtime_method_getClass - class_Runtime_vtab_Runtime)
+Runtime_m_hash            := (class_Runtime_vtab_Runtime_method_hash - class_Runtime_vtab_Runtime)
+Runtime_m_equals          := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
+Runtime_m_rt              := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
+Runtime_m_setRt           := (class_Runtime_vtab_Runtime_method_setRt - class_Runtime_vtab_Runtime)
+Runtime_m_as              := (class_Runtime_vtab_Runtime_method_as - class_Runtime_vtab_Runtime)
+Runtime_m_findClass       := (class_Runtime_vtab_Runtime_method_findClass - class_Runtime_vtab_Runtime)
+Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
+Runtime_m_destroyInstance := (class_Runtime_vtab_Runtime_method_destroyInstance - class_Runtime_vtab_Runtime)
+Runtime_m_allocate        := (class_Runtime_vtab_Runtime_method_allocate - class_Runtime_vtab_Runtime)
+Runtime_m_free            := (class_Runtime_vtab_Runtime_method_free - class_Runtime_vtab_Runtime)
+Runtime_m_printChar       := (class_Runtime_vtab_Runtime_method_printChar - class_Runtime_vtab_Runtime)
+Runtime_m_printString     := (class_Runtime_vtab_Runtime_method_printString - class_Runtime_vtab_Runtime)
+Runtime_m_printInt        := (class_Runtime_vtab_Runtime_method_printInt - class_Runtime_vtab_Runtime)
+Runtime_m_printHex        := (class_Runtime_vtab_Runtime_method_printHex - class_Runtime_vtab_Runtime)
+Runtime_m_errChar         := (class_Runtime_vtab_Runtime_method_errChar - class_Runtime_vtab_Runtime)
+Runtime_m_errString       := (class_Runtime_vtab_Runtime_method_errString - class_Runtime_vtab_Runtime)
+Runtime_m_errInt          := (class_Runtime_vtab_Runtime_method_errInt - class_Runtime_vtab_Runtime)
+Runtime_m_errHex          := (class_Runtime_vtab_Runtime_method_errHex - class_Runtime_vtab_Runtime)
 // Vars Offsets
 // Super Vars Offsets
 handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runtime - class_Runtime_inst_tpl_handle_Runtime)
 handle_Runtime_vars_Object  := (class_Runtime_inst_tpl_handle_Runtime_vars_Object - class__inst_tpl_handle_Runtime)
 
+// TODO: use loaded-class-registry
+class_Runtime_method_findClass:
+    pushl %ebp; movl %esp, %ebp;
+    pushl %esi
+    pushl %edi
+    
+_crmft_B:
+    movl 16(%ebp), %esi       // param @classname
+    movl class_B_string_classname, %edi
+    call _string_compare
+    addb 0, %al
+    jnz _crmft_A
+    movl inst_Class_B_handle_Class, 20(%ebp)  // return Class B
+    jmp _crmf_return
+    
+_crmft_A:
+    movl 16(%ebp), %esi       // param @classname
+    movl class_A_string_classname, %edi
+    call _string_compare
+    addb 0, %al
+    jnz _crmft_NONE
+    movl inst_Class_A_handle_Class, 20(%ebp)  // return Class A
+    jmp _crmf_return
+    
+_crmft_NONE:
+    movl 0, 20(%ebp)  // return NULL
+    
+_crmf_return:
+    popl %edi
+    popl %esi
+    leave
+    ret
+    
+class_Runtime_method_createInstance:
+    pushl %ebp; movl %esp, %ebp
+    
+    // TODO
+    movl inst_B_1_handle_Object, 20(%ebp)  // return Object handle
+    
+    leave
+    ret
+    
+class_Runtime_method_destroyInstance:
+    pushl %ebp; movl %esp, %ebp
+
+    // TODO
+    
+    leave
+    ret
+    
 class_Runtime_method_allocate:
     pushl %ebp; movl %esp, %ebp; pushad
 
@@ -227,6 +294,7 @@ inst_Class_Runtime_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_Runtime_vars_Class:
     .long class_Runtime_string_classname // classname
+    .long class_Runtime_desc // class desc
 inst_Class_Runtime_end:
 
 // Obj-Instances

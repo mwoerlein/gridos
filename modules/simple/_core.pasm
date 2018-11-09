@@ -177,6 +177,10 @@ class_Object_vtab_Object_method_equals:
     .long (class_Object_method_equals - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
 class_Object_vtab_Object_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+class_Object_vtab_Object_method_setRt:
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+class_Object_vtab_Object_method_as:
+    .long (class_Object_method_as - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
 
 class_Object_inst_tpl:
     .long class_Object_desc                // filled/adjusted on class loading
@@ -199,6 +203,8 @@ Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vt
 Object_m_hash     := (class_Object_vtab_Object_method_hash - class_Object_vtab_Object)
 Object_m_equals   := (class_Object_vtab_Object_method_equals - class_Object_vtab_Object)
 Object_m_rt       := (class_Object_vtab_Object_method_rt - class_Object_vtab_Object)
+Object_m_setRt    := (class_Object_vtab_Object_method_setRt - class_Object_vtab_Object)
+Object_m_as       := (class_Object_vtab_Object_method_as - class_Object_vtab_Object)
 // Vars Offsets
 Object_i_runtime  := (class_Object_inst_tpl_vars_Object_runtime - class_Object_inst_tpl_vars_Object)
 // Super Vars Offsets
@@ -258,6 +264,29 @@ class_Object_method_rt:
     leave
     ret
 
+class_Object_method_setRt:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                         // @this (Type Object)
+    movl handle_Object_vars_Object(%eax), %ebx  // inst vars offset (Object)
+    addl 4(%eax), %ebx                          // @this.vars(Object)
+    movl 16(%ebp), %eax                         // arg @runtime (Type Runtime)
+    movl %eax, Object_i_runtime(%ebx)           // store @runtime (Type Runtime)
+    
+    leave
+    ret
+
+class_Object_method_as:
+    pushl %ebp; movl %esp, %ebp;
+
+    movl 12(%ebp), %eax    // @this (Type ANY)
+    movl 16(%ebp), %ebx    // @class-desc
+    // TODO
+    movl inst_B_1_handle_B, 20(%ebp)  // return correct handle
+    
+    leave
+    ret
+
 // CLASS Class extends Object
 class_Class_desc:
     .long inst_Class_Class_handle_Class # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
@@ -288,6 +317,10 @@ class_Class_vtab_Class_method_equals:
     .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 class_Class_vtab_Class_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_setRt:
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+class_Class_vtab_Class_method_as:
+    .long (class_Object_method_as - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 class_Class_vtab_Class_method_getName:
     .long (class_Class_method_getName - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
 class_Class_vtab_Object:
@@ -295,6 +328,8 @@ class_Class_vtab_Object:
     .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_as - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 
 class_Class_inst_tpl:
     .long class_Class_desc                  // filled/adjusted on class loading
@@ -318,6 +353,8 @@ class_Class_inst_tpl_vars_Object:
 class_Class_inst_tpl_vars_Class:
 class_Class_inst_tpl_vars_Class_name:
     .long 0  // class name
+class_Class_inst_tpl_vars_Class_desc:
+    .long 0  // class desc
 class_Class_inst_tpl_end:
 
 class_Class_string_classname:
@@ -330,9 +367,13 @@ Class_m_getClass   := (class_Class_vtab_Class_method_getClass - class_Class_vtab
 Class_m_hash       := (class_Class_vtab_Class_method_hash - class_Class_vtab_Class)
 Class_m_equals     := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
 Class_m_rt         := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
+Class_m_setRt      := (class_Class_vtab_Class_method_setRt - class_Class_vtab_Class)
+Class_m_as         := (class_Class_vtab_Class_method_as - class_Class_vtab_Class)
 Class_m_getName    := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
+Class_m_getDesc    := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
 // Vars Offsets
 Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_vars_Class)
+Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
 // Super Vars Offsets
 handle_Class_vars_Class  := (class_Class_inst_tpl_handle_Class_vars_Class - class_Class_inst_tpl_handle_Class)
 handle_Class_vars_Object := (class_Class_inst_tpl_handle_Class_vars_Object - class__inst_tpl_handle_Class)
@@ -343,8 +384,20 @@ class_Class_method_getName:
     movl 12(%ebp), %eax                       // @this (Type Class)
     movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
     addl 4(%eax), %ebx                        // @this.vars(Class)
-    movl Class_i_name(%ebx), %eax // load reference to cstring-ref
+    movl Class_i_name(%ebx), %eax // load reference to cstring
     movl %eax, 16(%ebp)           // return cstring-ref
+    
+    leave
+    ret
+
+class_Class_method_getDesc:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                       // @this (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx                        // @this.vars(Class)
+    movl Class_i_desc(%ebx), %eax // @class desc
+    movl %eax, 16(%ebp)           // return @class desc
     
     leave
     ret
@@ -384,6 +437,20 @@ _print: # %eax:column, %ebx:row, %cl:character
 	popl %ecx
 	popl %ebx
 	ret
+
+_string_compare: # %esi:string 1, %edi:string 2, return %al:<0, =0, >0
+    addl -1, %edi
+_string_compare_loop:   	
+    addl 1, %edi
+    lodsb
+    .byte 0x2a; .byte 0x07 #// subb (%edi), %al
+    jnz _string_compare_return // differrent chars
+    addb (%edi), %al
+    jz _string_compare_return  // end of string
+    jmp _string_compare_loop
+
+_string_compare_return:
+    ret
 	
 print_cga_buffer  := 0xB8000
 print_line_offset := 160
@@ -417,6 +484,7 @@ inst_Class_Object_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_Object_vars_Class:
     .long class_Object_string_classname // classname
+    .long class_Object_desc // class desc
 inst_Class_Object_end:
 
 inst_Class_Class_meminfo: // created on class loading
@@ -443,5 +511,6 @@ inst_Class_Class_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_Class_vars_Class:
     .long class_Class_string_classname // classname
+    .long class_Class_desc // class desc
 inst_Class_Class_end:
 

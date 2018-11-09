@@ -26,6 +26,10 @@ class_A_vtab_A_method_equals:
     .long (class_Object_method_equals - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
 class_A_vtab_A_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
+class_A_vtab_A_method_setRt:
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
+class_A_vtab_A_method_as:
+    .long (class_Object_method_as - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
 class_A_vtab_A_method_init:
     .long (class_A_method_init - class_A_desc); .long (class_A_vtabs_entry_A - class_A_desc)
 class_A_vtab_A_method_getRow:
@@ -37,6 +41,8 @@ class_A_vtab_Object:
     .long (class_Object_method_hash - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
+    .long (class_Object_method_as - class_Object_desc); .long (class_A_vtabs_entry_Object - class_A_desc)
 
 class_A_inst_tpl:
     .long class_A_desc                      // filled/adjusted on class loading
@@ -73,6 +79,8 @@ A_m_getClass := (class_A_vtab_A_method_getClass - class_A_vtab_A)
 A_m_hash     := (class_A_vtab_A_method_hash - class_A_vtab_A)
 A_m_equals   := (class_A_vtab_A_method_equals - class_A_vtab_A)
 A_m_rt       := (class_A_vtab_A_method_rt - class_A_vtab_A)
+A_m_setRt    := (class_A_vtab_A_method_setRt - class_A_vtab_A)
+A_m_as       := (class_A_vtab_A_method_as - class_A_vtab_A)
 A_m_init     := (class_A_vtab_A_method_init - class_A_vtab_A)
 A_m_getRow   := (class_A_vtab_A_method_getRow - class_A_vtab_A)
 A_m_test     := (class_A_vtab_A_method_test - class_A_vtab_A)
@@ -156,6 +164,7 @@ inst_Class_A_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_A_vars_Class:
     .long class_A_string_classname // classname
+    .long class_A_desc // class desc
 inst_Class_A_end:
 
 // Obj-Instances
