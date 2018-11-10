@@ -274,36 +274,3 @@ inst_Class_B_vars_Class:
     .long class_B_string_classname // classname
     .long class_B_desc // class desc
 inst_Class_B_end:
-
-// Obj-Instances
-inst_B_1_meminfo:
-    .long inst_B_1
-    .long (inst_B_1_end - inst_B_1)
-inst_B_1:
-    .long class_B_desc
-    .long inst_B_1_meminfo
-inst_B_1_handle_B:
-    .long _call_entry_unresolved_vtab
-    .long inst_B_1
-    .long (class_B_vtab_B - class_B_desc)
-    .long (inst_B_1_vars_Object - inst_B_1) // @Super-Obj-Vars
-    .long (inst_B_1_vars_A - inst_B_1)      // @Super-Obj-Vars
-    .long (inst_B_1_vars_B - inst_B_1)      // @B-Obj-Vars
-inst_B_1_handle_A:
-    .long _call_entry_unresolved_vtab
-    .long inst_B_1
-    .long (class_B_vtab_A - class_B_desc)
-    .long (inst_B_1_vars_Object - inst_B_1) // @Super-Obj-Vars
-    .long (inst_B_1_vars_A - inst_B_1)      // @A-Obj-Vars
-inst_B_1_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_B_1
-    .long (class_B_vtab_Object - class_B_desc)
-    .long (inst_B_1_vars_Object - inst_B_1) // @Object-Obj-Vars
-inst_B_1_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_B_1_vars_A:
-    .long 0 // column
-    .long 0 // row
-inst_B_1_vars_B:
-inst_B_1_end:

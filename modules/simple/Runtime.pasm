@@ -149,10 +149,38 @@ _crmf_return:
     
 class_Runtime_method_createInstance:
     pushl %ebp; movl %esp, %ebp
+    pushl %ecx
+    pushl %edx
+_crmc_start:
+    movl 0, 20(%ebp)          // default handle: NULL
+    movl 12(%ebp), %ecx       // @this (Type Runtime)
+    movl 16(%ebp), %edx       // param @classname
+
+    movl 0, 20(%ebp)  // return Object handle
+    addl -4, %esp  # return value of findClass
+    pushl %edx
+    pushl %ecx; pushl Runtime_m_findClass; call (%ecx)
+	addl 12, %esp
+    popl %edx                       // @class (Type Class)
+    addl 0, %edx; jz _crmc_return   // return NULL if class not exists
     
-    // TODO
-    movl inst_B_1_handle_Object, 20(%ebp)  // return Object handle
+    addl -4, %esp  # return value of instantiate
+    pushl %edx; pushl Class_m_instantiate; call (%edx)
+	addl 8, %esp
+    popl %ecx                       // @object (type Object)
+    addl 0, %ecx; jz _crmc_return   // return NULL if instance could not be generated
     
+    addl -4, %esp  # return value of as
+    pushl %ecx
+    pushl %edx; pushl Class_m_cast; call (%edx)
+	addl 12, %esp
+    popl %ecx                       // @object (type <classname>)
+    
+    movl %ecx, 20(%ebp)             // return correct handle
+    
+_crmc_return:
+    popl %edx
+    popl %ecx
     leave
     ret
     

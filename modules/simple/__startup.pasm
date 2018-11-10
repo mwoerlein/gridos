@@ -13,19 +13,7 @@ entry:
     
     addl -4, %esp  # return value of findClass
     pushl classname_B
-    pushl %edi; pushl Runtime_m_findClass; call (%edi)
-	addl 12, %esp
-    popl %edx; // class B
-    
-    addl -4, %esp  # return value of createInstance
-    pushl %edx
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
-	addl 12, %esp
-    popl %ecx; // inst_B (type Object)
-    
-    addl -4, %esp  # return value of as
-    pushl %ecx
-    pushl %edx; pushl Class_m_cast; call (%edx)
 	addl 12, %esp
     popl %ecx; // inst_B (type B)
 
