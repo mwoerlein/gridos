@@ -162,31 +162,3 @@ inst_Class_A_vars_Class:
     .long class_A_string_classname // classname
     .long class_A_desc // class desc
 inst_Class_A_end:
-
-// Obj-Instances
-inst_A_1_meminfo:
-    .long inst_A_1
-    .long (inst_A_1_end - inst_A_1)
-inst_A_1:
-    .long class_A_desc
-    .long inst_A_1_meminfo
-inst_A_1_handle_A:
-    .long _call_entry_unresolved_vtab
-    .long inst_A_1
-    .long (class_A_vtab_A - class_A_desc)
-inst_A_1_handle_A_vars_Object:
-    .long (inst_A_1_vars_Object - inst_A_1) // @Super-Obj-Vars
-inst_A_1_handle_A_vars_A:
-    .long (inst_A_1_vars_A - inst_A_1)      // @A-Obj-Vars
-inst_A_1_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_A_1
-    .long (class_A_vtab_Object - class_A_desc)
-inst_A_1_handle_Object_vars_Object:
-    .long (inst_A_1_vars_Object - inst_A_1) // @Object-Obj-Vars
-inst_A_1_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_A_1_vars_A:
-    .long 0 // column
-    .long 0 // row
-inst_A_1_end:

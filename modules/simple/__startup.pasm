@@ -16,22 +16,35 @@ entry:
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
     popl %ecx; // inst_B (type B)
-
+    
     pushl 20
     pushl 2
     pushl %ecx; pushl B_m_init; call (%ecx)
 	addl 16, %esp
 	
-	// TODO: instanciate A dynamically and call run(A_INST)
-    movl inst_A_1_handle_A, %edx
+    addl -4, %esp  # return value of findClass
+    pushl classname_A
+    pushl %edi; pushl Runtime_m_createInstance; call (%edi)
+	addl 12, %esp
+    popl %edx; // inst_A (type A)
+    
     pushl 5
     pushl 2
     pushl %edx; pushl A_m_init; call (%edx)
 	addl 16, %esp
     
+    pushl %edx    
     pushl %ecx; pushl B_m_run; call (%ecx)
-	addl 8, %esp
-
+	addl 12, %esp
+    
+    pushl %edx
+    pushl %edi; pushl Runtime_m_destroyInstance; call (%edi)
+	addl 12, %esp
+    
+    pushl %ecx
+    pushl %edi; pushl Runtime_m_destroyInstance; call (%edi)
+	addl 12, %esp
+    
     movw 0xf40, (cga_testline)
 halt:
 	hlt
@@ -41,5 +54,3 @@ classname_B:
     .asciz "/my/B"
 classname_A:
     .asciz "/my/A"
-classname_Object:
-    .asciz "/my/Object"

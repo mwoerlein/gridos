@@ -122,7 +122,7 @@ class_B_method_run:
     pushl %ecx
     pushl %edx
     
-    movl 12(%ebp), %ecx # this/B_1(Type B)
+    movl 12(%ebp), %ecx # @this (Type B)
 
     addl -4, %esp  # return value of rt
     pushl %ecx; pushl B_m_rt; call (%ecx)
@@ -133,7 +133,7 @@ class_B_method_run:
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 12, %esp
     
-    movl inst_A_1_handle_A, %eax # A_1(Type A)
+    movl 16(%ebp), %eax # param @a (Type A)
     addl -4, %esp  # return value of getClass
     pushl %ecx; pushl B_m_getClass; call (%ecx)
     //pushl %eax; pushl A_m_getClass; call (%eax)
@@ -160,8 +160,8 @@ class_B_method_run:
     addl 12, %esp
     
     addl -4, %esp  # return value of equals
-    pushl inst_A_1_handle_Object
-    //pushl inst_B_1_handle_Object
+    pushl 16(%ebp) # param @a (Type A)
+    //pushl 12(%ebp) # @this (Type B)
     pushl %ecx; pushl B_m_equals; call (%ecx)
     addl 12, %esp
     popl %eax
@@ -217,7 +217,7 @@ class_B_method_run:
     pushl %ecx; pushl B_m_test; call (%ecx)
 	addl 12, %esp
 
-    movl inst_A_1_handle_A, %ecx # A_1(Type A)
+    movl 16(%ebp), %ecx # param @a (Type A)
 	
     addl -4, %esp  # return value of getRow
     pushl %ecx; pushl A_m_getRow; call (%ecx)

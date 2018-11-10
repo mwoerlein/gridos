@@ -187,7 +187,13 @@ _crmc_return:
 class_Runtime_method_destroyInstance:
     pushl %ebp; movl %esp, %ebp
 
-    // TODO
+    movl 16(%ebp), %eax       // @obj (Type ANY)
+    movl 4(%eax), %eax        // @obj
+    movl 12(%ebp), %ebx       // @this (Type Runtime)
+
+    pushl 4(%eax)             // @obj meminfo
+    pushl %ebx; pushl Runtime_m_free; call (%ebx)
+    addl 12, %esp
     
     leave
     ret
