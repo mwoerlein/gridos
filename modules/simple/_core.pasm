@@ -16,7 +16,7 @@
  * | instance-template-Offset
  * +----------------------+
  * | Object-Handle-Offset
- * +----------------------+
+ * +======================+
  * | Class-classname-Offset
  * +----------------------+
  * | Class-VTab-Offset
@@ -61,6 +61,8 @@
  * +----------------------+
  * | instance-template-Offset
  * +----------------------+
+ * | Object-Handle-Offset
+ * +======================+
  * | @Class-Desc
  * +----------------------+
  * | Class-VTab-Offset
@@ -101,37 +103,41 @@
  * | @Obj-Class-Desc
  * +----------------------+
  * | @Inst-MemInfo
- * +----------------------+ < Ref Class
+ * +======================+ < Ref Class
  * | @Call-Entry
  * +----------------------+
  * | @Inst
  * +----------------------+
  * | Class-VTab-Offset
  * +----------------------+
- * | Class-Vars-Offset
+ * | Object-Vars-Offset
  * +----------------------+
- * | Super1-Vars-Offset
+ * | SuperN-Vars-Offset
  * +----------------------+
  * | ..
  * +----------------------+
- * | Ref-SuperN-Vars-Offset
- * +----------------------+ < Ref Super1
+ * | Super1-Vars-Offset
+ * +----------------------+
+ * | Class-Vars-Offset
+ * +======================+ < Ref Super1
  * | @Call-Entry
  * +----------------------+
  * | @Inst
  * +----------------------+
  * | Super1-VTab-Offset
  * +----------------------+
- * | Super1-Class-Vars-Offset
+ * | Object-Vars-Offset
+ * +----------------------+
+ * | ...
  * +----------------------+
  * | Super1-Super1-Vars-Offset
  * +----------------------+
+ * | Super1-Class-Vars-Offset
+ * +======================+ < Ref ...
  * | ...
- * +----------------------+ < Ref ...
+ * +======================+ < Ref Object
  * | ...
- * +----------------------+ < Ref Object
- * | ...
- * +----------------------+ < Vars Object
+ * +======================+ < Vars Object
  * | ...
  * +----------------------+ < Vars ...
  * | ...
@@ -179,8 +185,6 @@ class_Object_vtab_Object_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
 class_Object_vtab_Object_method_setRt:
     .long (class_Object_method_setRt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
-class_Object_vtab_Object_method_as:
-    .long (class_Object_method_as - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
 
 class_Object_inst_tpl:
     .long class_Object_desc                // filled/adjusted on class loading
@@ -204,7 +208,6 @@ Object_m_hash     := (class_Object_vtab_Object_method_hash - class_Object_vtab_O
 Object_m_equals   := (class_Object_vtab_Object_method_equals - class_Object_vtab_Object)
 Object_m_rt       := (class_Object_vtab_Object_method_rt - class_Object_vtab_Object)
 Object_m_setRt    := (class_Object_vtab_Object_method_setRt - class_Object_vtab_Object)
-Object_m_as       := (class_Object_vtab_Object_method_as - class_Object_vtab_Object)
 // Vars Offsets
 Object_i_runtime  := (class_Object_inst_tpl_vars_Object_runtime - class_Object_inst_tpl_vars_Object)
 // Super Vars Offsets
@@ -240,7 +243,7 @@ class_Object_method_equals:
     movl 12(%ebp), %eax    // @this (Type Object)
     movl 4(%eax), %eax     // @this
     
-    movl 16(%ebp), %ebx    // @obj (Type Object)
+    movl 16(%ebp), %ebx    // @obj (Type ANY)
     movl 4(%ebx), %ebx     // @obj
     
     .byte 0x29; .byte 0xc3 #// subl %eax, %ebx
@@ -276,16 +279,9 @@ class_Object_method_setRt:
     leave
     ret
 
-class_Object_method_as:
-    pushl %ebp; movl %esp, %ebp;
-
-    movl 12(%ebp), %eax    // @this (Type ANY)
-    movl 16(%ebp), %ebx    // @class-desc
-    // TODO
-    movl inst_B_1_handle_B, 20(%ebp)  // return correct handle
-    
-    leave
-    ret
+class_vtabs_offset := (class_Class_vtabs - class_Class_desc)
+class_vtab_size := (class_Class_vtabs_entry_Object - class_Class_vtabs_entry_Class)
+class_vtab_handle_offset := (class_Class_handle_Class - class_Class_vtabs_entry_Class)
 
 // CLASS Class extends Object
 class_Class_desc:
@@ -319,17 +315,18 @@ class_Class_vtab_Class_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 class_Class_vtab_Class_method_setRt:
     .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-class_Class_vtab_Class_method_as:
-    .long (class_Object_method_as - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 class_Class_vtab_Class_method_getName:
     .long (class_Class_method_getName - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+class_Class_vtab_Class_method_getDesc:
+    .long (class_Class_method_getDesc - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+class_Class_vtab_Class_method_cast:
+    .long (class_Class_method_cast - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
 class_Class_vtab_Object:
     .long (class_Object_method_getClass - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
     .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-    .long (class_Object_method_as - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
 
 class_Class_inst_tpl:
     .long class_Class_desc                  // filled/adjusted on class loading
@@ -368,9 +365,9 @@ Class_m_hash       := (class_Class_vtab_Class_method_hash - class_Class_vtab_Cla
 Class_m_equals     := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
 Class_m_rt         := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
 Class_m_setRt      := (class_Class_vtab_Class_method_setRt - class_Class_vtab_Class)
-Class_m_as         := (class_Class_vtab_Class_method_as - class_Class_vtab_Class)
 Class_m_getName    := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
 Class_m_getDesc    := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
+Class_m_cast       := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
 // Vars Offsets
 Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_vars_Class)
 Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
@@ -399,6 +396,34 @@ class_Class_method_getDesc:
     movl Class_i_desc(%ebx), %eax // @class desc
     movl %eax, 16(%ebp)           // return @class desc
     
+    leave
+    ret
+
+class_Class_method_cast:
+    pushl %ebp; movl %esp, %ebp;
+    pushl %ecx
+_ccmc_start:
+    movl 0, 20(%ebp)                // not-found default handle: NULL
+    movl 12(%ebp), %eax             // @class (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx              // @this.vars(Class)
+    movl Class_i_desc(%ebx), %ecx   // @class desc
+    movl 16(%ebp), %eax             // @this (Type ANY)
+    movl 4(%eax), %ebx              // @this
+    movl (%ebx), %eax               // @this-class desc
+    addl class_vtabs_offset, %eax   // @this-class vtabs
+_ccmc_loop:
+    .byte 0x39; .byte 0x08 #// cmpl (%eax), %ecx
+    je _ccmc_found
+    addl class_vtab_size, %eax
+    .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
+    je _ccmc_return
+    jmp _ccmc_loop
+_ccmc_found:
+    addl class_vtab_handle_offset(%eax), %ebx
+    movl %ebx, 20(%ebp)     // return correct handle
+_ccmc_return:
+    popl %ecx
     leave
     ret
 
@@ -446,9 +471,7 @@ _string_compare_loop:
     .byte 0x2a; .byte 0x07 #// subb (%edi), %al
     jnz _string_compare_return // differrent chars
     addb (%edi), %al
-    jz _string_compare_return  // end of string
-    jmp _string_compare_loop
-
+    jnz _string_compare_loop  // not end of string
 _string_compare_return:
     ret
 	

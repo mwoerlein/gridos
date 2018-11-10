@@ -24,8 +24,8 @@ entry:
     popl %ecx; // inst_B (type Object)
     
     addl -4, %esp  # return value of as
-    pushl %edx
-    pushl %ecx; pushl Object_m_as; call (%ecx)
+    pushl %ecx
+    pushl %edx; pushl Class_m_cast; call (%edx)
 	addl 12, %esp
     popl %ecx; // inst_B (type B)
 

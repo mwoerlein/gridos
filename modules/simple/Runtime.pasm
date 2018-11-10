@@ -31,8 +31,6 @@ class_Runtime_vtab_Runtime_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_setRt:
     .long (class_Object_method_setRt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
-class_Runtime_vtab_Runtime_method_as:
-    .long (class_Object_method_as - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_findClass:
     .long (class_Runtime_method_findClass - class_Runtime_desc); .long (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 class_Runtime_vtab_Runtime_method_createInstance:
@@ -65,7 +63,6 @@ class_Runtime_vtab_Object:
     .long (class_Object_method_equals - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
     .long (class_Object_method_rt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
     .long (class_Object_method_setRt - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
-    .long (class_Object_method_as - class_Object_desc); .long (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
     .long class_Runtime_desc                // filled/adjusted on class loading
@@ -99,7 +96,6 @@ Runtime_m_hash            := (class_Runtime_vtab_Runtime_method_hash - class_Run
 Runtime_m_equals          := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
 Runtime_m_rt              := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
 Runtime_m_setRt           := (class_Runtime_vtab_Runtime_method_setRt - class_Runtime_vtab_Runtime)
-Runtime_m_as              := (class_Runtime_vtab_Runtime_method_as - class_Runtime_vtab_Runtime)
 Runtime_m_findClass       := (class_Runtime_vtab_Runtime_method_findClass - class_Runtime_vtab_Runtime)
 Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
 Runtime_m_destroyInstance := (class_Runtime_vtab_Runtime_method_destroyInstance - class_Runtime_vtab_Runtime)
