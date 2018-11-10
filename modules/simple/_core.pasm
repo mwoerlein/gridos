@@ -89,11 +89,11 @@
  * +----------------------+
  * | Meth 0 - @Method
  * +----------------------+
- * | Meth 0 - Class-Desc-Offset
+ * | Meth 0 - Class-Handle-Offset
  * +----------------------+
  * | Meth 1 - @Method
  * +----------------------+
- * | Meth 1 - Class-Desc-Offset
+ * | Meth 1 - Class-Handle-Offset
  * +----------------------+
  * | ...
  * +----------------------+
@@ -507,22 +507,26 @@ _call_entry_resolved_vtab:
 	movl 0(%eax), %eax          # get class-desc
 	addl 8(%ebx), %eax          # get vtab
 	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
-	// TODO: convert @this on stack to correct handle
+	movl 4(%ebx), %ebx	        # get object
+	addl 4(%eax), %ebx          # compute method-@this
+	movl %ebx, 8(%esp)          # store method-@this
 	jmp (%eax)                  # goto method
 
 _call_entry_unresolved_vtab:
-	movl 8(%esp), %ebx	        # load object handle
+	pushl %ecx
+	movl 12(%esp), %ebx	        # load object handle
 	movl 4(%ebx), %eax          # get object
 	movl 0(%eax), %eax          # get class-desc
 	addl 8(%ebx), %eax          # get vtab
-	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
-	// TODO: convert @this on stack to correct handle
-	movl 4(%ebx), %ebx	        # get object
-	movl 0(%ebx), %ebx	        # get class-desc
-	addl 4(%eax), %ebx          # get method-class-desc-addr
+	addl 8(%esp), %eax	        # get vtab-entry by adding method-offset number
+	movl 4(%ebx), %ecx	        # get object
+	movl 0(%ecx), %ebx	        # get class-desc
+	addl 4(%eax), %ebx          # get method-class-context
+	addl 8(%ebx), %ecx          # compute method-@this
+	movl %ecx, 12(%esp)         # store method-@this
 	movl 0(%ebx), %ebx          # get method-class-desc
 	addl 0(%eax), %ebx          # compute method-addr
-	
+	popl %ecx
 	jmp %ebx                    # goto method
 
 _print: # %eax:column, %ebx:row, %cl:character

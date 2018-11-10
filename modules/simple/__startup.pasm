@@ -11,7 +11,7 @@ entry:
     
     movl inst_Runtime_handle_Runtime, %edi
     
-    addl -4, %esp  # return value of findClass
+    addl -4, %esp  # return value of createInstance
     pushl classname_B
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
@@ -22,7 +22,7 @@ entry:
     pushl %ecx; pushl B_m_init; call (%ecx)
 	addl 16, %esp
 	
-    addl -4, %esp  # return value of findClass
+    addl -4, %esp  # return value of createInstance
     pushl classname_A
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
