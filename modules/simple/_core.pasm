@@ -438,7 +438,6 @@ _ccmc_return:
 
 class_Class_method_instantiate:
     pushl %ebp; movl %esp, %ebp;
-    addl -4, %esp  // local: @Runtime
     pushl %ecx
     pushl %edx
     pushl %edi
@@ -446,14 +445,13 @@ class_Class_method_instantiate:
 _ccmi_start:
     movl 0, 16(%ebp)                // default handle: NULL
     
-    movl 12(%ebp), %edx             // @class (Type Class)
-
+    movl 12(%ebp), %edx             // @this (Type Class)
+    
     addl -4, %esp                   // return value of rt
     pushl %edx; pushl Class_m_rt; call (%edx)
 	addl 8, %esp
-    popl %eax                       // @Runtime (Type Runtime)
-    movl %eax, -4(%ebp)
-
+    popl %edi                       // @Runtime (Type Runtime)
+    
     movl handle_Class_vars_Class(%edx), %ebx    // inst vars offset (Class)
     addl 4(%edx), %ebx                          // @this.vars(Class)
     movl Class_i_desc(%ebx), %edx               // @class desc
@@ -461,11 +459,12 @@ _ccmi_start:
     
     addl -4, %esp  # return value of allocate
     pushl %ecx
-    pushl %eax; pushl Runtime_m_allocate; call (%eax)
+    pushl %edi; pushl Runtime_m_allocate; call (%edi)
 	addl 12, %esp
     popl %eax                       // @object-meminfo
     addl 0, %eax; jz _ccmi_return
     
+    pushl %edi     // @Runtime (for later setRT)
     movl (%eax), %edi               // @object
     movl %edx, %esi
     addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
@@ -474,7 +473,7 @@ _ccmi_start:
     movl (%eax), %edi   // @object
     movl %edx, (%edi)   // store class desc in instance 
     movl %eax, 4(%edi)  // store meminfo in instance
-
+    
     movl %edx, %eax                 // @obj-class desc
     addl class_vtabs_offset, %eax   // @obj-class vtabs
 _ccmi_loop:
@@ -485,12 +484,11 @@ _ccmi_loop:
     jne _ccmi_loop
     
     addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
-    pushl -4(%ebp)     // @Runtime
+    // @Runtime already pushed
     pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
-    
+	
     movl %edi, 16(%ebp)                // default handle: NULL
-
 _ccmi_return:
     popl %esi
     popl %edi
