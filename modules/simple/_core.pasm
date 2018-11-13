@@ -9,6 +9,8 @@
 /* *** Class-Desc unres. **
  * 31                     0
  * +----------------------+
+ * | 0
+ * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
  * | instance size
@@ -56,6 +58,8 @@
  * 31                     0
  * +----------------------+
  * | @Class-Handle
+ * +----------------------+
+ * | @Class-classname
  * +----------------------+
  * | instance size
  * +----------------------+
@@ -160,7 +164,8 @@
     
 // Class Object
 class_Object_desc:
-    .long inst_Class_Object_handle_Class # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long 0                             # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long class_Object_string_classname # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
@@ -176,15 +181,17 @@ class_Object_vtab_end_entry:
     .long 0
 class_Object_vtab_Object:
 class_Object_vtab_Object_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cObjectVEObject
 class_Object_vtab_Object_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+    .long (class_Object_method_hash - class_Object_desc); .long _cObjectVEObject
 class_Object_vtab_Object_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+    .long (class_Object_method_equals - class_Object_desc); .long _cObjectVEObject
 class_Object_vtab_Object_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+    .long (class_Object_method_rt - class_Object_desc); .long _cObjectVEObject
 class_Object_vtab_Object_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_Object_vtabs_entry_Object - class_Object_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long _cObjectVEObject
+
+_cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
 
 class_Object_inst_tpl:
     .long class_Object_desc                // filled/adjusted on class loading
@@ -282,6 +289,7 @@ class_Object_method_setRt:
 class_vtabs_offset := (class_Class_vtabs - class_Class_desc)
 class_vtab_size := (class_Class_vtabs_entry_Object - class_Class_vtabs_entry_Class)
 class_vtab_handle_offset := (class_Class_handle_Class - class_Class_vtabs_entry_Class)
+class_name_offset := (class_Class_name - class_Class_desc)
 class_instance_size_offset := (class_Class_instance_size - class_Class_desc)
 class_instance_tpl_offset_offset := (class_Class_instance_tpl_offset - class_Class_desc)
 class_instance_Object_handle_offset := (class_Class_instance_Object_handle_offset - class_Class_desc)
@@ -289,6 +297,8 @@ class_instance_Object_handle_offset := (class_Class_instance_Object_handle_offse
 // CLASS Class extends Object
 class_Class_desc:
     .long inst_Class_Class_handle_Class # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+class_Class_name:
+    .long class_Class_string_classname # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
 class_Class_instance_size:
     .long (class_Class_inst_tpl_end - class_Class_inst_tpl) // instance size
 class_Class_instance_tpl_offset:
@@ -312,29 +322,36 @@ class_Class_vtab_end_entry:
     .long 0
 class_Class_vtab_Class:
 class_Class_vtab_Class_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cClassVEObject
 class_Class_vtab_Class_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_hash - class_Object_desc); .long _cClassVEObject
 class_Class_vtab_Class_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_equals - class_Object_desc); .long _cClassVEObject
 class_Class_vtab_Class_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_rt - class_Object_desc); .long _cClassVEObject
 class_Class_vtab_Class_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-class_Class_vtab_Class_method_getName:
-    .long (class_Class_method_getName - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long _cClassVEObject
 class_Class_vtab_Class_method_getDesc:
-    .long (class_Class_method_getDesc - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+    .long (class_Class_method_getDesc - class_Class_desc); .long _cClassVEClass
+class_Class_vtab_Class_method_setDesc:
+    .long (class_Class_method_setDesc - class_Class_desc); .long _cClassVEClass
+class_Class_vtab_Class_method_getName:
+    .long (class_Class_method_getName - class_Class_desc); .long _cClassVEClass
+class_Class_vtab_Class_method_sizeofInst:
+    .long (class_Class_method_sizeofInst - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Class_method_cast:
-    .long (class_Class_method_cast - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+    .long (class_Class_method_cast - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Class_method_instantiate:
-    .long (class_Class_method_instantiate - class_Class_desc); .long (class_Class_vtabs_entry_Class - class_Class_desc)
+    .long (class_Class_method_instantiate - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Object:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-    .long (class_Object_method_hash - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-    .long (class_Object_method_equals - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-    .long (class_Object_method_rt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_Class_vtabs_entry_Object - class_Class_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cClassVEObject
+    .long (class_Object_method_hash - class_Object_desc); .long _cClassVEObject
+    .long (class_Object_method_equals - class_Object_desc); .long _cClassVEObject
+    .long (class_Object_method_rt - class_Object_desc); .long _cClassVEObject
+    .long (class_Object_method_setRt - class_Object_desc); .long _cClassVEObject
+
+_cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
+_cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
 
 class_Class_inst_tpl:
     .long class_Class_desc                  // filled/adjusted on class loading
@@ -356,8 +373,6 @@ class_Class_inst_tpl_handle_Object_vars_Object:
 class_Class_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_Class_inst_tpl_vars_Class:
-class_Class_inst_tpl_vars_Class_name:
-    .long 0  // class name
 class_Class_inst_tpl_vars_Class_desc:
     .long 0  // class desc
 class_Class_inst_tpl_end:
@@ -373,8 +388,10 @@ Class_m_hash        := (class_Class_vtab_Class_method_hash - class_Class_vtab_Cl
 Class_m_equals      := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
 Class_m_rt          := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
 Class_m_setRt       := (class_Class_vtab_Class_method_setRt - class_Class_vtab_Class)
-Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
 Class_m_getDesc     := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
+Class_m_setDesc     := (class_Class_vtab_Class_method_setDesc - class_Class_vtab_Class)
+Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
+Class_m_sizeofInst  := (class_Class_vtab_Class_method_sizeofInst - class_Class_vtab_Class)
 Class_m_cast        := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
 Class_m_instantiate := (class_Class_vtab_Class_method_instantiate - class_Class_vtab_Class)
 // Vars Offsets
@@ -382,19 +399,7 @@ Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_var
 Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
 // Super Vars Offsets
 handle_Class_vars_Class  := (class_Class_inst_tpl_handle_Class_vars_Class - class_Class_inst_tpl_handle_Class)
-handle_Class_vars_Object := (class_Class_inst_tpl_handle_Class_vars_Object - class__inst_tpl_handle_Class)
-
-class_Class_method_getName:
-    pushl %ebp; movl %esp, %ebp;
-    
-    movl 12(%ebp), %eax                       // @this (Type Class)
-    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
-    addl 4(%eax), %ebx                        // @this.vars(Class)
-    movl Class_i_name(%ebx), %eax // load reference to cstring
-    movl %eax, 16(%ebp)           // return cstring-ref
-    
-    leave
-    ret
+handle_Class_vars_Object := (class_Class_inst_tpl_handle_Class_vars_Object - class_Class_inst_tpl_handle_Class)
 
 class_Class_method_getDesc:
     pushl %ebp; movl %esp, %ebp;
@@ -404,6 +409,46 @@ class_Class_method_getDesc:
     addl 4(%eax), %ebx                        // @this.vars(Class)
     movl Class_i_desc(%ebx), %eax // @class desc
     movl %eax, 16(%ebp)           // return @class desc
+    
+    leave
+    ret
+
+class_Class_method_setDesc:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                       // @this (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx                        // @this.vars(Class)
+    movl 16(%ebp), %eax           // param @class desc
+    movl %eax, Class_i_desc(%ebx) // store @class desc
+    movl 12(%ebp), %ebx           // @this (Type Class)
+    movl %ebx, (%eax)             // store @instace in class desc
+    
+    leave
+    ret
+
+class_Class_method_getName:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                       // @this (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx                        // @this.vars(Class)
+    movl Class_i_desc(%ebx), %eax             // @class desc
+    movl class_name_offset(%eax), %eax        // load reference to cstring
+    movl %eax, 16(%ebp)                       // return cstring-ref
+    
+    leave
+    ret
+
+class_Class_method_sizeofInst:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                       // @this (Type Class)
+    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
+    addl 4(%eax), %ebx                        // @this.vars(Class)
+    movl Class_i_desc(%ebx), %eax // @class desc
+    movl class_instance_size_offset(%eax), %eax            // load instance size
+    movl %eax, 16(%ebp)           // return instance size
     
     leave
     ret
@@ -443,29 +488,20 @@ class_Class_method_instantiate:
     pushl %edi
     pushl %esi
 _ccmi_start:
-    movl 0, 16(%ebp)                // default handle: NULL
+    movl 0, 20(%ebp)                // default handle: NULL
     
-    movl 12(%ebp), %edx             // @this (Type Class)
-    
-    addl -4, %esp                   // return value of rt
-    pushl %edx; pushl Class_m_rt; call (%edx)
-	addl 8, %esp
-    popl %edi                       // @Runtime (Type Runtime)
-    
+    movl 12(%ebp), %edx                         // @this (Type Class)
     movl handle_Class_vars_Class(%edx), %ebx    // inst vars offset (Class)
     addl 4(%edx), %ebx                          // @this.vars(Class)
     movl Class_i_desc(%ebx), %edx               // @class desc
     movl class_instance_size_offset(%edx), %ecx // instance size
     
-    addl -4, %esp  # return value of allocate
-    pushl %ecx
-    pushl %edi; pushl Runtime_m_allocate; call (%edi)
-	addl 12, %esp
-    popl %eax                       // @object-meminfo
+    movl 16(%ebp), %eax                         // @object-meminfo
     addl 0, %eax; jz _ccmi_return
+    .byte 0x3b; .byte 0x48; .byte 0x04 #// cmpl 4(%eax), %ecx
+    jl _ccmi_return
     
-    pushl %edi     // @Runtime (for later setRT)
-    movl (%eax), %edi               // @object
+    movl (%eax), %edi   // @object
     movl %edx, %esi
     addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
     .byte 0xf3; .byte 0xa4 #// rep movsb // copy template to object
@@ -484,11 +520,19 @@ _ccmi_loop:
     jne _ccmi_loop
     
     addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
-    // @Runtime already pushed
+
+    movl 12(%ebp), %ecx // @this (Type Class)
+    addl -4, %esp       // return value of rt
+    pushl %ecx; pushl Class_m_rt; call (%ecx)
+	addl 8, %esp
+    popl %eax           // @Runtime (Type Runtime)
+    
+    pushl %eax
     pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
 	
-    movl %edi, 16(%ebp)                // default handle: NULL
+    movl %edi, 20(%ebp) // return @object (Type Object)
+
 _ccmi_return:
     popl %esi
     popl %edi
@@ -557,33 +601,6 @@ cga_testline  := (print_cga_buffer + (test_row * print_line_offset))
 
 
 /* Static Instances */
-inst_Class_Object_meminfo: // created on class loading
-    .long inst_Class_Object
-    .long (inst_Class_Object_end - inst_Class_Object)
-inst_Class_Object:
-    .long class_Class_desc
-    .long inst_Class_Object_meminfo
-inst_Class_Object_handle_Class:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_Object
-    .long (class_Class_vtab_Class - class_Class_desc)
-inst_Class_Object_handle_Class_vars_Object:
-    .long (inst_Class_Object_vars_Object - inst_Class_Object) // @Super-Obj-Vars
-inst_Class_Object_handle_Class_vars_Class:
-    .long (inst_Class_Object_vars_Class - inst_Class_Object)  // @Class-Obj-Vars
-inst_Class_Object_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_Object
-    .long (class_Class_vtab_Object - class_Class_desc)
-inst_Class_Object_handle_Object_vars_Object:
-    .long (inst_Class_Object_vars_Object - inst_Class_Object) // @Object-Obj-Vars
-inst_Class_Object_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_Class_Object_vars_Class:
-    .long class_Object_string_classname // classname
-    .long class_Object_desc // class desc
-inst_Class_Object_end:
-
 inst_Class_Class_meminfo: // created on class loading
     .long inst_Class_Class
     .long (inst_Class_Class_end - inst_Class_Class)
@@ -607,7 +624,6 @@ inst_Class_Class_handle_Object_vars_Object:
 inst_Class_Class_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Class_Class_vars_Class:
-    .long class_Class_string_classname // classname
     .long class_Class_desc // class desc
 inst_Class_Class_end:
 

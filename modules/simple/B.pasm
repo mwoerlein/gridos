@@ -1,6 +1,7 @@
 // CLASS B extends A
 class_B_desc:
-    .long inst_Class_B_handle_Class # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading
+    .long 0                         # (class_B_string_classname - class_B_desc) // filled/adjusted on class loading
+    .long class_B_string_classname  # (class_B_string_classname - class_B_desc) // filled/adjusted on class loading
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
@@ -26,38 +27,42 @@ class_B_vtab_end_entry:
     .long 0
 class_B_vtab_B:
 class_B_vtab_B_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
 class_B_vtab_B_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
 class_B_vtab_B_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
 class_B_vtab_B_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
 class_B_vtab_B_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
 class_B_vtab_B_method_init:
-    .long (class_A_method_init - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
+    .long (class_A_method_init - class_A_desc); .long _cBVEA
 class_B_vtab_B_method_test:
-    .long (class_A_method_test - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
+    .long (class_A_method_test - class_A_desc); .long _cBVEA
 class_B_vtab_B_method_getRow:
-    .long (class_B_method_getRow - class_B_desc); .long (class_B_vtabs_entry_B - class_B_desc)
+    .long (class_B_method_getRow - class_B_desc); .long _cBVEB
 class_B_vtab_B_method_run:
-    .long (class_B_method_run - class_B_desc); .long (class_B_vtabs_entry_B - class_B_desc)
+    .long (class_B_method_run - class_B_desc); .long _cBVEB
 class_B_vtab_A:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_hash - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_A_method_init - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
-    .long (class_A_method_test - class_A_desc); .long (class_B_vtabs_entry_A - class_B_desc)
-    .long (class_B_method_getRow - class_B_desc); .long (class_B_vtabs_entry_B - class_B_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
+    .long (class_A_method_init - class_A_desc); .long _cBVEA
+    .long (class_A_method_test - class_A_desc); .long _cBVEA
+    .long (class_B_method_getRow - class_B_desc); .long _cBVEB
 class_B_vtab_Object:
-    .long (class_Object_method_getClass - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_hash - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_equals - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_rt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
-    .long (class_Object_method_setRt - class_Object_desc); .long (class_B_vtabs_entry_Object - class_B_desc)
+    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
+    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
+
+_cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
+_cBVEA := (class_B_vtabs_entry_A - class_B_desc)
+_cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 
 class_B_inst_tpl:
     .long class_B_desc                      // filled/adjusted on class loading
@@ -100,6 +105,7 @@ class_B_string_super1:
     .asciz "/my/A"
 class_B_string_super2:
     .asciz "/my/Object"
+
 // Method Offsets
 B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
 B_m_hash     := (class_B_vtab_B_method_hash - class_B_vtab_B)
@@ -246,31 +252,3 @@ class_B_method_getRow:
     
     leave
     ret
-
-/* Static Instances */
-inst_Class_B_meminfo: // created on class loading
-    .long inst_Class_B
-    .long (inst_Class_B_end - inst_Class_B)
-inst_Class_B:
-    .long class_Class_desc
-    .long inst_Class_B_meminfo
-inst_Class_B_handle_Class:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_B
-    .long (class_Class_vtab_Class - class_Class_desc)
-inst_Class_B_handle_Class_vars_Object:
-    .long (inst_Class_B_vars_Object - inst_Class_B) // @Super-Obj-Vars
-inst_Class_B_handle_Class_vars_Class:
-    .long (inst_Class_B_vars_Class - inst_Class_B)  // @Class-Obj-Vars
-inst_Class_B_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_B
-    .long (class_Class_vtab_Object - class_Class_desc)
-inst_Class_B_handle_Object_vars_Object:
-    .long (inst_Class_B_vars_Object - inst_Class_B) // @Object-Obj-Vars
-inst_Class_B_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_Class_B_vars_Class:
-    .long class_B_string_classname // classname
-    .long class_B_desc // class desc
-inst_Class_B_end:
