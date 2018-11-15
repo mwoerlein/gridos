@@ -300,7 +300,7 @@ class_instance_class_handle_offset := (class_Class_instance_class_handle_offset 
 
 // CLASS Class extends Object
 class_Class_desc:
-    .long inst_Class_Class_handle_Class # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long 0 # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
 class_Class_name:
     .long class_Class_string_classname # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
 class_Class_instance_size:
@@ -526,31 +526,4 @@ print_cga_color   := 15
 test_row := 10
 cga_testline  := (print_cga_buffer + (test_row * print_line_offset))
 
-
-/* Static Instances */
-inst_Class_Class_meminfo: // created on class loading
-    .long inst_Class_Class
-    .long (inst_Class_Class_end - inst_Class_Class)
-inst_Class_Class:
-    .long class_Class_desc
-    .long inst_Class_Class_meminfo
-inst_Class_Class_handle_Class:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_Class
-    .long (class_Class_vtab_Class - class_Class_desc)
-inst_Class_Class_handle_Class_vars_Object:
-    .long (inst_Class_Class_vars_Object - inst_Class_Class) // @Super-Obj-Vars
-inst_Class_Class_handle_Class_vars_Class:
-    .long (inst_Class_Class_vars_Class - inst_Class_Class)  // @Class-Obj-Vars
-inst_Class_Class_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_Class_Class
-    .long (class_Class_vtab_Object - class_Class_desc)
-inst_Class_Class_handle_Object_vars_Object:
-    .long (inst_Class_Class_vars_Object - inst_Class_Class) // @Object-Obj-Vars
-inst_Class_Class_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_Class_Class_vars_Class:
-    .long class_Class_desc // class desc
-inst_Class_Class_end:
 

@@ -344,52 +344,56 @@ class_Runtime_method_errHex:
     popad; leave
     ret
 
-/* Static Instances */
-inst_Runtime_meminfo:
-    .long inst_Runtime
-    .long (inst_Runtime_end - inst_Runtime)
-inst_Runtime:
-    .long class_Runtime_desc
-    .long inst_Runtime_meminfo
-inst_Runtime_handle_Runtime:
-    .long _call_entry_unresolved_vtab
-    .long inst_Runtime
-    .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
-inst_Runtime_handle_Runtime_vars_Object:
-    .long (inst_Runtime_vars_Object - inst_Runtime)  // @Super-Obj-Vars
-inst_Runtime_handle_Runtime_vars_Runtime:
-    .long (inst_Runtime_vars_Runtime - inst_Runtime) // @Runtime-Obj-Vars
-inst_Runtime_handle_Object:
-    .long _call_entry_unresolved_vtab
-    .long inst_Runtime
-    .long (class_Runtime_vtab_Object - class_Runtime_desc)
-inst_Runtime_handle_Object_vars_Object:
-    .long (inst_Runtime_vars_Object - inst_Runtime)  // @Object-Obj-Vars
-inst_Runtime_vars_Object:
-    .long inst_Runtime_handle_Runtime  // Runtime-handle
-inst_Runtime_vars_Runtime:
-inst_Runtime_end:
-
 _init_Runtime:
-    pushl %ebp; movl %esp, %ebp; addl -16, %esp; pushad
-/*
-    pushl (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl)
-    pushl _env_allocator; call _allocator_allocate
-    addl 8, %esp
-    movl %eax, -4(%ebp)  // @runtime-info
-    movl class_Runtime_desc, -8(%ebp)
-
-    pushl (class_Class_inst_tpl_end - class_Class_inst_tpl)
-    pushl _env_allocator; call _allocator_allocate
-    addl 8, %esp
-    movl %eax, -12(%ebp)  // @Class-Class-info
-    movl class_Class_desc, -16(%ebp)
-*/    
-    movl inst_Runtime_meminfo, -4(%ebp)
+    pushl %ebp; movl %esp, %ebp; addl -8, %esp; pushad
+    movl 0, -4(%ebp) // default result: NULL
     
+    movl class_Class_desc, %edx
+    pushl class_instance_size_offset(%edx) // instance size
+    pushl _env_allocator; call _allocator_allocate
+    addl 8, %esp
+    addl 0, %eax; jz _iR_return  // return NULL on allocate error
+    
+    movl class_Class_desc, %edx
+    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+	movl %edi, -8(%ebp) // store @Class (Type Object)
+	
+    pushl class_Class_desc
+    pushl %esi; pushl Class_m_setDesc; call (%esi)
+	addl 12, %esp
+	
+    movl class_Runtime_desc, %edx
+    pushl class_instance_size_offset(%edx) // instance size
+    pushl _env_allocator; call _allocator_allocate
+    addl 8, %esp
+    addl 0, %eax; jz _iR_return  // return NULL on allocate error
+    
+    movl class_Runtime_desc, %edx
+    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+    
+    pushl %esi
+    pushl %edi; pushl Object_m_setRt; call (%edi)
+	addl 12, %esp
+	
+	movl -8(%ebp), %edi // load @Class (Type Object)
+    pushl %esi
+    pushl %edi; pushl Object_m_setRt; call (%edi)
+	addl 12, %esp
+    
+    addl -4, %esp  # return value of createInstance
+    pushl class_Runtime_string_class // @classname
+    pushl %esi; pushl Runtime_m_createInstance; call (%esi)
+	addl 12, %esp
+    popl %eax   // @class (Type Class)
+    addl 0, %eax; jz _crmci_return  // return NULL if class could not be initialized
+    
+    pushl class_Runtime_desc
+    pushl %eax; pushl Class_m_setDesc; call (%eax)
+	addl 12, %esp
+	
+    movl %esi, -4(%ebp) // store @runtime (Type Runtime) as result
+_iR_return:
     popad
-    movl -4(%ebp), %eax
-    movl (%eax), %eax
-    addl (class_Runtime_handle_Runtime), %eax // return @runtime (Type Runtime)
+    movl -4(%ebp), %eax // return @runtime (Type Runtime)
     leave
     ret
