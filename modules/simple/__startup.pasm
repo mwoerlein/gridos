@@ -9,7 +9,7 @@ version = 0.2.0+20181102070000
 entry:
     movw 0xc40, (cga_testline)
     
-    movl inst_Runtime_handle_Runtime, %edi
+    call _init_Runtime; movl %eax, %edi
     
     addl -4, %esp  # return value of createInstance
     pushl classname_B

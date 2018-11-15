@@ -18,6 +18,8 @@
  * | instance-template-Offset
  * +----------------------+
  * | Object-Handle-Offset
+ * +----------------------+
+ * | Class-Handle-Offset
  * +======================+
  * | Class-classname-Offset
  * +----------------------+
@@ -169,6 +171,7 @@ class_Object_desc:
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
+    .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtabs:
 class_Object_vtabs_entry_Object:
     .long class_Object_desc   # (class_Class_string_classname - class_Object_desc)  // filled/adjusted on class loading
@@ -293,6 +296,7 @@ class_name_offset := (class_Class_name - class_Class_desc)
 class_instance_size_offset := (class_Class_instance_size - class_Class_desc)
 class_instance_tpl_offset_offset := (class_Class_instance_tpl_offset - class_Class_desc)
 class_instance_Object_handle_offset := (class_Class_instance_Object_handle_offset - class_Class_desc)
+class_instance_class_handle_offset := (class_Class_instance_class_handle_offset - class_Class_desc)
 
 // CLASS Class extends Object
 class_Class_desc:
@@ -305,6 +309,8 @@ class_Class_instance_tpl_offset:
     .long (class_Class_inst_tpl - class_Class_desc)         // instance template offset
 class_Class_instance_Object_handle_offset:
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
+class_Class_instance_class_handle_offset:
+    .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs:
 class_Class_vtabs_entry_Class:
     .long class_Class_desc   # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
@@ -337,12 +343,8 @@ class_Class_vtab_Class_method_setDesc:
     .long (class_Class_method_setDesc - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Class_method_getName:
     .long (class_Class_method_getName - class_Class_desc); .long _cClassVEClass
-class_Class_vtab_Class_method_sizeofInst:
-    .long (class_Class_method_sizeofInst - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Class_method_cast:
     .long (class_Class_method_cast - class_Class_desc); .long _cClassVEClass
-class_Class_vtab_Class_method_instantiate:
-    .long (class_Class_method_instantiate - class_Class_desc); .long _cClassVEClass
 class_Class_vtab_Object:
     .long (class_Object_method_getClass - class_Object_desc); .long _cClassVEObject
     .long (class_Object_method_hash - class_Object_desc); .long _cClassVEObject
@@ -391,9 +393,7 @@ Class_m_setRt       := (class_Class_vtab_Class_method_setRt - class_Class_vtab_C
 Class_m_getDesc     := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
 Class_m_setDesc     := (class_Class_vtab_Class_method_setDesc - class_Class_vtab_Class)
 Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
-Class_m_sizeofInst  := (class_Class_vtab_Class_method_sizeofInst - class_Class_vtab_Class)
 Class_m_cast        := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
-Class_m_instantiate := (class_Class_vtab_Class_method_instantiate - class_Class_vtab_Class)
 // Vars Offsets
 Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_vars_Class)
 Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
@@ -440,19 +440,6 @@ class_Class_method_getName:
     leave
     ret
 
-class_Class_method_sizeofInst:
-    pushl %ebp; movl %esp, %ebp;
-    
-    movl 12(%ebp), %eax                       // @this (Type Class)
-    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
-    addl 4(%eax), %ebx                        // @this.vars(Class)
-    movl Class_i_desc(%ebx), %eax // @class desc
-    movl class_instance_size_offset(%eax), %eax            // load instance size
-    movl %eax, 16(%ebp)           // return instance size
-    
-    leave
-    ret
-
 class_Class_method_cast:
     pushl %ebp; movl %esp, %ebp;
     pushl %ecx
@@ -477,66 +464,6 @@ _ccmc_found:
     addl class_vtab_handle_offset(%eax), %ebx
     movl %ebx, 20(%ebp)     // return correct handle
 _ccmc_return:
-    popl %ecx
-    leave
-    ret
-
-class_Class_method_instantiate:
-    pushl %ebp; movl %esp, %ebp;
-    pushl %ecx
-    pushl %edx
-    pushl %edi
-    pushl %esi
-_ccmi_start:
-    movl 0, 20(%ebp)                // default handle: NULL
-    
-    movl 12(%ebp), %edx                         // @this (Type Class)
-    movl handle_Class_vars_Class(%edx), %ebx    // inst vars offset (Class)
-    addl 4(%edx), %ebx                          // @this.vars(Class)
-    movl Class_i_desc(%ebx), %edx               // @class desc
-    movl class_instance_size_offset(%edx), %ecx // instance size
-    
-    movl 16(%ebp), %eax                         // @object-meminfo
-    addl 0, %eax; jz _ccmi_return
-    .byte 0x3b; .byte 0x48; .byte 0x04 #// cmpl 4(%eax), %ecx
-    jl _ccmi_return
-    
-    movl (%eax), %edi   // @object
-    movl %edx, %esi
-    addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
-    .byte 0xf3; .byte 0xa4 #// rep movsb // copy template to object
-    
-    movl (%eax), %edi   // @object
-    movl %edx, (%edi)   // store class desc in instance 
-    movl %eax, 4(%edi)  // store meminfo in instance
-    
-    movl %edx, %eax                 // @obj-class desc
-    addl class_vtabs_offset, %eax   // @obj-class vtabs
-_ccmi_loop:
-    movl class_vtab_handle_offset(%eax), %ebx
-    movl %edi, 4(%edi, %ebx)    // store @object in each handle
-    addl class_vtab_size, %eax
-    .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
-    jne _ccmi_loop
-    
-    addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
-
-    movl 12(%ebp), %ecx // @this (Type Class)
-    addl -4, %esp       // return value of rt
-    pushl %ecx; pushl Class_m_rt; call (%ecx)
-	addl 8, %esp
-    popl %eax           // @Runtime (Type Runtime)
-    
-    pushl %eax
-    pushl %edi; pushl Object_m_setRt; call (%edi)
-	addl 12, %esp
-	
-    movl %edi, 20(%ebp) // return @object (Type Object)
-
-_ccmi_return:
-    popl %esi
-    popl %edi
-    popl %edx
     popl %ecx
     leave
     ret

@@ -5,6 +5,7 @@ class_B_desc:
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
+    .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs:
 class_B_vtabs_entry_B:
     .long class_B_desc   # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading

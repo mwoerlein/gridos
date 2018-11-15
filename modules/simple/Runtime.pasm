@@ -6,6 +6,7 @@ class_Runtime_desc:
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl) // instance size
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
+    .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
     .long class_Runtime_desc   # (class_Class_string_classname - class_Runtime_desc)    // filled/adjusted on class loading
@@ -32,8 +33,8 @@ class_Runtime_vtab_Runtime_method_rt:
     .long (class_Object_method_rt - class_Object_desc); .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_setRt:
     .long (class_Object_method_setRt - class_Object_desc); .long _cRuntimeVEObject
-class_Runtime_vtab_Runtime_method_findClass:
-    .long (class_Runtime_method_findClass - class_Runtime_desc); .long _cRuntimeVERuntime
+class_Runtime_vtab_Runtime_method_getClassDesc:
+    .long (class_Runtime_method_getClassDesc - class_Runtime_desc); .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_createInstance:
     .long (class_Runtime_method_createInstance - class_Runtime_desc); .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_destroyInstance:
@@ -94,6 +95,8 @@ class_Runtime_string_classname:
     .asciz "/my/Runtime"
 class_Runtime_string_super1:
     .asciz "/my/Object"
+class_Runtime_string_class:
+    .asciz "/my/Class"
 
 // Method Offsets
 Runtime_m_getClass        := (class_Runtime_vtab_Runtime_method_getClass - class_Runtime_vtab_Runtime)
@@ -101,7 +104,7 @@ Runtime_m_hash            := (class_Runtime_vtab_Runtime_method_hash - class_Run
 Runtime_m_equals          := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
 Runtime_m_rt              := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
 Runtime_m_setRt           := (class_Runtime_vtab_Runtime_method_setRt - class_Runtime_vtab_Runtime)
-Runtime_m_findClass       := (class_Runtime_vtab_Runtime_method_findClass - class_Runtime_vtab_Runtime)
+Runtime_m_getClassDesc    := (class_Runtime_vtab_Runtime_method_getClassDesc - class_Runtime_vtab_Runtime)
 Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
 Runtime_m_destroyInstance := (class_Runtime_vtab_Runtime_method_destroyInstance - class_Runtime_vtab_Runtime)
 Runtime_m_allocate        := (class_Runtime_vtab_Runtime_method_allocate - class_Runtime_vtab_Runtime)
@@ -119,7 +122,7 @@ Runtime_m_errHex          := (class_Runtime_vtab_Runtime_method_errHex - class_R
 handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runtime - class_Runtime_inst_tpl_handle_Runtime)
 handle_Runtime_vars_Object  := (class_Runtime_inst_tpl_handle_Runtime_vars_Object - class_Runtime_inst_tpl_handle_Runtime)
 
-_crmf_descs:
+_crmgcd_descs:
     .long 0
     .long class_B_desc
     .long class_A_desc
@@ -128,108 +131,102 @@ _crmf_descs:
     .long class_Runtime_desc
     .long 0
 // TODO: use loaded-class-registry
-class_Runtime_method_findClass:
-    pushl %ebp; movl %esp, %ebp;
-    pushl %ecx
-    pushl %edx
-    pushl %esi
-    pushl %edi
-    
+class_Runtime_method_getClassDesc:
+    pushl %ebp; movl %esp, %ebp; pushad
+_crmgcd_start:
     movl 0, 20(%ebp)  // default: return NULL
+    movl _crmgcd_descs, %edx // @@class-desc
     
-    movl _crmf_descs, %edx // @@class-desc
-    
-_crmft_loop:
+_crmgcd_loop:
     addl 4, %edx
     .byte 0x83; .byte 0x3a; .byte 0x00 #// cmpl 0, (%edx)
-    jz _crmf_return
+    jz _crmgcd_return
 
     movl 16(%ebp), %esi // param @classname
     movl (%edx), %ecx   // @class-desc
     movl class_name_offset(%ecx), %edi
     call _string_compare
     addb 0, %al
-    jnz _crmft_loop
+    jnz _crmgcd_loop
     
-    movl %ecx, %edi
-    .byte 0x83; .byte 0x3f; .byte 0x00 #// cmpl 0, (%edi)
-    jne _crmf_return_handle // Class handle already instantiated
+    movl %ecx, 20(%ebp)  // return @class desc
     
-    // init class
-    movl 12(%ebp), %ecx       // @this (Type Runtime)
-    movl (class_Class_desc), %edx   // @class (Type Class)
-
-    call _crh_instanciate
-    addl 0, %ecx; jz _crmf_return
-    
-    pushl %edi       // @class desc
-    pushl %ecx; pushl Class_m_setDesc; call (%ecx)
-	addl 12, %esp
-    
-_crmf_return_handle:
-    movl (%edi), %eax
-    movl %eax, 20(%ebp)  // return Class handle
-    
-_crmf_return:
-    popl %edi
-    popl %esi
-    popl %edx
-    popl %ecx
-    leave
+_crmgcd_return:
+    popad; leave
     ret
     
 class_Runtime_method_createInstance:
-    pushl %ebp; movl %esp, %ebp
-    pushl %ecx
-    pushl %edx
-_crmc_start:
+    pushl %ebp; movl %esp, %ebp; pushad
+_crmci_start:
     movl 0, 20(%ebp)          // default handle: NULL
-    movl 12(%ebp), %ecx       // @this (Type Runtime)
-    movl 16(%ebp), %edx       // param @classname
-
-    addl -4, %esp  # return value of findClass
-    pushl %edx
-    pushl %ecx; pushl Runtime_m_findClass; call (%ecx)
+    movl 12(%ebp), %esi       // @this (Type Runtime)
+    
+    addl -4, %esp  # return value of getClassDesc
+    pushl 16(%ebp)  // param @classname
+    pushl %esi; pushl Runtime_m_getClassDesc; call (%esi)
 	addl 12, %esp
-    popl %edx                       // @class (Type Class)
-    addl 0, %edx; jz _crmc_return   // return NULL if class not exists
+    popl %edx       // @class-desc
+    addl 0, %edx; jz _crmci_return  // return NULL if class not exists
     
-    call _crh_instanciate
-    addl 0, %ecx; jz _crmc_return   // return NULL if instance could not be generated
+    .byte 0x83; .byte 0x3a; .byte 0x00 #// cmpl 0, (%edx)
+    jnz _crmci_instantiate // class already initialized
     
-    movl %ecx, 20(%ebp)             // return correct handle
-_crmc_return:
-    popl %edx
-    popl %ecx
-    leave
-    ret
-
-_crh_instanciate: // %ecx: @Runtime (Type Runtime) %edx: Class-handle, return %ecx: @object (Type <class>) | NULL
-    addl -4, %esp  # return value of sizeofInst
-    pushl %edx; pushl Class_m_sizeofInst; call (%edx)
-	addl 8, %esp
-    popl %eax                       // instance size
+    addl -4, %esp  # return value of getClassDesc
+    pushl class_Runtime_string_class // @classname
+    pushl %esi; pushl Runtime_m_createInstance; call (%esi)
+	addl 12, %esp
+    popl %eax   // @class (Type Class)
+    addl 0, %eax; jz _crmci_return  // return NULL if class could not be initialized
+    
+    pushl %edx                      // @class-desc
+    pushl %eax; pushl Class_m_setDesc; call (%eax)
+	addl 12, %esp
+    
+_crmci_instantiate:
+    movl class_instance_size_offset(%edx), %eax // instance size
     
     addl -4, %esp  # return value of allocate
     pushl %eax
-    pushl %ecx; pushl Runtime_m_allocate; call (%ecx)
+    pushl %esi; pushl Runtime_m_allocate; call (%esi)
 	addl 12, %esp
-    popl %ecx                       // @object-meminfo
-    addl 0, %ecx; jz _crh_return
-
-    addl -4, %esp  # return value of instantiate
-    pushl %ecx
-    pushl %edx; pushl Class_m_instantiate; call (%edx)
-	addl 12, %esp
-    popl %ecx                       // @object (type Object)
-    addl 0, %ecx; jz _crh_return
+    popl %eax                       // @object-meminfo
+    addl 0, %eax; jz _crmci_return
     
-    addl -4, %esp  # return value of cast
-    pushl %ecx
-    pushl %edx; pushl Class_m_cast; call (%edx)
+    pushl %esi // @Runtime for later setRt
+    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+    pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
-    popl %ecx                       // @object (type <classname>)
-_crh_return:    
+    
+    addl 0, %esi; jz _crmci_return  // return NULL if instance could not be generated
+    movl %esi, 20(%ebp)             // return correct handle
+    
+_crmci_return:
+    popad; leave
+    ret
+
+_crh_instantiate: // %eax: @object-meminfo %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+    movl (%eax), %edi   // @object
+    movl %edx, %esi
+    addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
+    movl class_instance_size_offset(%edx), %ecx // instance size
+    .byte 0xf3; .byte 0xa4 #// rep movsb // copy template to object
+    
+    movl (%eax), %edi   // @object
+    movl %edx, (%edi)   // store class desc in instance 
+    movl %eax, 4(%edi)  // store meminfo in instance
+    
+    movl %edx, %eax                 // @obj-class desc
+    addl class_vtabs_offset, %eax   // @obj-class vtabs
+_crhi_loop:
+    movl class_vtab_handle_offset(%eax), %ebx
+    movl %edi, 4(%edi, %ebx)    // store @object in each handle
+    addl class_vtab_size, %eax
+    .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
+    jne _crhi_loop
+    
+    movl %edi, %esi
+    addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
+    addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
     ret
     
 class_Runtime_method_destroyInstance:
@@ -372,3 +369,27 @@ inst_Runtime_vars_Object:
     .long inst_Runtime_handle_Runtime  // Runtime-handle
 inst_Runtime_vars_Runtime:
 inst_Runtime_end:
+
+_init_Runtime:
+    pushl %ebp; movl %esp, %ebp; addl -16, %esp; pushad
+/*
+    pushl (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl)
+    pushl _env_allocator; call _allocator_allocate
+    addl 8, %esp
+    movl %eax, -4(%ebp)  // @runtime-info
+    movl class_Runtime_desc, -8(%ebp)
+
+    pushl (class_Class_inst_tpl_end - class_Class_inst_tpl)
+    pushl _env_allocator; call _allocator_allocate
+    addl 8, %esp
+    movl %eax, -12(%ebp)  // @Class-Class-info
+    movl class_Class_desc, -16(%ebp)
+*/    
+    movl inst_Runtime_meminfo, -4(%ebp)
+    
+    popad
+    movl -4(%ebp), %eax
+    movl (%eax), %eax
+    addl (class_Runtime_handle_Runtime), %eax // return @runtime (Type Runtime)
+    leave
+    ret
