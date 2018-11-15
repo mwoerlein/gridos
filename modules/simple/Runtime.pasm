@@ -68,20 +68,20 @@ _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
-    .long class_Runtime_desc                // filled/adjusted on class loading
-    .long 0  // Runtime_inst_meminfo        // filled during instatiation
+    .long 0  // @class-desc
+    .long 0  // @meminfo
 class_Runtime_inst_tpl_handle_Runtime:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // Runtime_inst                // filled during instatiation
-    .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_Runtime_inst_tpl_handle_Runtime_vars_Object:
     .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Super-Obj-Vars
 class_Runtime_inst_tpl_handle_Runtime_vars_Runtime:
     .long (class_Runtime_inst_tpl_vars_Runtime - class_Runtime_inst_tpl) // @Runtime-Obj-Vars
 class_Runtime_inst_tpl_handle_Object:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // Runtime_inst                // filled during instatiation
-    .long (class_Runtime_vtab_Object - class_Runtime_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_Runtime_inst_tpl_handle_Object_vars_Object:
     .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Object-Obj-Vars
 class_Runtime_inst_tpl_vars_Object:
@@ -210,14 +210,17 @@ _crh_instantiate: // %eax: @object-meminfo %edx: @Class-desc, return %edi: @obje
     .byte 0xf3; .byte 0xa4 #// rep movsb // copy template to object
     
     movl (%eax), %edi   // @object
-    movl %edx, (%edi)   // store class desc in instance 
-    movl %eax, 4(%edi)  // store meminfo in instance
+    movl %edx, (%edi)   // store @class desc in instance 
+    movl %eax, 4(%edi)  // store @meminfo in instance
     
     movl %edx, %eax                 // @obj-class desc
     addl class_vtabs_offset, %eax   // @obj-class vtabs
 _crhi_loop:
     movl class_vtab_handle_offset(%eax), %ebx
-    movl %edi, 4(%edi, %ebx)    // store @object in each handle
+    movl 4(%eax), %ecx
+    movl _call_entry, (%edi, %ebx)  // store @call-entry in handle
+    movl %edi, 4(%edi, %ebx)        // store @object in handle
+    movl %ecx, 8(%edi, %ebx)        // store vtab-offset in handle
     addl class_vtab_size, %eax
     .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
     jne _crhi_loop

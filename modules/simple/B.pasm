@@ -63,12 +63,12 @@ _cBVEA := (class_B_vtabs_entry_A - class_B_desc)
 _cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 
 class_B_inst_tpl:
-    .long class_B_desc                      // filled/adjusted on class loading
-    .long 0  // B_inst_meminfo              // filled during instatiation
+    .long 0  // @class-desc
+    .long 0  // @meminfo
 class_B_inst_tpl_handle_B:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // B_inst                      // filled during instatiation
-    .long (class_B_vtab_B - class_B_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_B_inst_tpl_handle_B_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Super-Obj-Vars
 class_B_inst_tpl_handle_B_vars_A:
@@ -76,17 +76,17 @@ class_B_inst_tpl_handle_B_vars_A:
 class_B_inst_tpl_handle_B_vars_B:
     .long (class_B_inst_tpl_vars_B - class_B_inst_tpl)      // @B-Obj-Vars
 class_B_inst_tpl_handle_A:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // B_inst                      // filled during instatiation
-    .long (class_B_vtab_A - class_B_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_B_inst_tpl_handle_A_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Super-Obj-Vars
 class_B_inst_tpl_handle_A_vars_A:
     .long (class_B_inst_tpl_vars_A - class_B_inst_tpl)      // @A-Obj-Vars
 class_B_inst_tpl_handle_Object:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // B_inst                      // filled during instatiation
-    .long (class_B_vtab_Object - class_B_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_B_inst_tpl_handle_Object_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Object-Obj-Vars
 class_B_inst_tpl_vars_Object:

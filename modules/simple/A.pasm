@@ -47,20 +47,20 @@ _cAVEA := (class_A_vtabs_entry_A - class_A_desc)
 _cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
 
 class_A_inst_tpl:
-    .long class_A_desc                      // filled/adjusted on class loading
-    .long 0  // A_inst_meminfo              // filled during instatiation
+    .long 0  // @class-desc
+    .long 0  // @meminfo
 class_A_inst_tpl_handle_A:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // A_inst                      // filled during instatiation
-    .long (class_A_vtab_A - class_A_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_A_inst_tpl_handle_A_vars_Object:
     .long (class_A_inst_tpl_vars_Object - class_A_inst_tpl) // @Super-Obj-Vars
 class_A_inst_tpl_handle_A_vars_A:
     .long (class_A_inst_tpl_vars_A - class_A_inst_tpl)      // @A-Obj-Vars
 class_A_inst_tpl_handle_Object:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // A_inst                      // filled during instatiation
-    .long (class_A_vtab_Object - class_A_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_A_inst_tpl_handle_Object_vars_Object:
     .long (class_A_inst_tpl_vars_Object - class_A_inst_tpl) // @Object-Obj-Vars
 class_A_inst_tpl_vars_Object:

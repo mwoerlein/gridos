@@ -196,12 +196,12 @@ class_Object_vtab_Object_method_setRt:
 _cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
 
 class_Object_inst_tpl:
-    .long class_Object_desc                // filled/adjusted on class loading
-    .long 0  // Object_inst_meminfo        // filled during instatiation
+    .long 0  // @class-desc
+    .long 0  // @meminfo
 class_Object_inst_tpl_handle_Object:
-    .long _call_entry_unresolved_vtab      // filled/adjusted on class loading
-    .long 0  // Object_inst                // filled during instatiation
-    .long (class_Object_vtab_Object - class_Object_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_Object_inst_tpl_handle_Object_vars_Object:
     .long (class_Object_inst_tpl_vars_Object - class_Object_inst_tpl) // @Super-Obj-Vars
 class_Object_inst_tpl_vars_Object:
@@ -354,20 +354,20 @@ _cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
 _cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
 
 class_Class_inst_tpl:
-    .long class_Class_desc                  // filled/adjusted on class loading
-    .long 0  // Class_inst_meminfo          // filled during instatiation
+    .long 0  // @class-desc
+    .long 0  // @meminfo
 class_Class_inst_tpl_handle_Class:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // Class_inst                  // filled during instatiation
-    .long (class_Class_vtab_Class - class_Class_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_Class_inst_tpl_handle_Class_vars_Object:
     .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Super-Obj-Vars
 class_Class_inst_tpl_handle_Class_vars_Class:
     .long (class_Class_inst_tpl_vars_Class - class_Class_inst_tpl)  // @Class-Obj-Vars
 class_Class_inst_tpl_handle_Object:
-    .long _call_entry_unresolved_vtab       // filled/adjusted on class loading
-    .long 0  // Class_inst                  // filled during instatiation
-    .long (class_Class_vtab_Object - class_Class_desc)
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
 class_Class_inst_tpl_handle_Object_vars_Object:
     .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Object-Obj-Vars
 class_Class_inst_tpl_vars_Object:
@@ -468,25 +468,13 @@ _ccmc_return:
 
 
 /* STATIC HELPER */
-_call_entry_resolved_vtab:
-	movl 8(%esp), %ebx	        # load object handle
-	movl 4(%ebx), %eax          # get object
-	movl 0(%eax), %eax          # get class-desc
-	addl 8(%ebx), %eax          # get vtab
-	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
-	movl 4(%ebx), %ebx	        # get object
-	addl 4(%eax), %ebx          # compute method-@this
-	movl %ebx, 8(%esp)          # store method-@this
-	jmp (%eax)                  # goto method
-
-_call_entry_unresolved_vtab:
+_call_entry:
 	pushl %ecx
 	movl 12(%esp), %ebx	        # load object handle
-	movl 4(%ebx), %eax          # get object
-	movl 0(%eax), %eax          # get class-desc
+	movl 4(%ebx), %ecx	        # get object
+	movl 0(%ecx), %eax          # get class-desc
 	addl 8(%ebx), %eax          # get vtab
 	addl 8(%esp), %eax	        # get vtab-entry by adding method-offset number
-	movl 4(%ebx), %ecx	        # get object
 	movl 0(%ecx), %ebx	        # get class-desc
 	addl 4(%eax), %ebx          # get method-class-context
 	addl 8(%ebx), %ecx          # compute method-@this
@@ -495,16 +483,6 @@ _call_entry_unresolved_vtab:
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method
-
-_print: # %eax:column, %ebx:row, %cl:character
-    pushl %ebx
-    pushl %ecx
-	.byte 0x69; .byte 0xdb; .long print_line_offset #// imull print_line_offset, %ebx
-	movb print_cga_color, %ch
-	movw %cx, print_cga_buffer(%ebx,%eax,2)
-	popl %ecx
-	popl %ebx
-	ret
 
 _string_compare: # %esi:string 1, %edi:string 2, return %al:<0, =0, >0
     addl -1, %edi
@@ -517,6 +495,27 @@ _string_compare_loop:
     jnz _string_compare_loop  // not end of string
 _string_compare_return:
     ret
+
+_call_entry_resolved_vtab:
+	movl 8(%esp), %ebx	        # load object handle
+	movl 4(%ebx), %eax          # get object
+	movl 0(%eax), %eax          # get class-desc
+	addl 8(%ebx), %eax          # get vtab
+	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
+	movl 4(%ebx), %ebx	        # get object
+	addl 4(%eax), %ebx          # compute method-@this
+	movl %ebx, 8(%esp)          # store method-@this
+	jmp (%eax)                  # goto method
+
+_print: # %eax:column, %ebx:row, %cl:character
+    pushl %ebx
+    pushl %ecx
+	.byte 0x69; .byte 0xdb; .long print_line_offset #// imull print_line_offset, %ebx
+	movb print_cga_color, %ch
+	movw %cx, print_cga_buffer(%ebx,%eax,2)
+	popl %ecx
+	popl %ebx
+	ret
 	
 print_cga_buffer  := 0xB8000
 print_line_offset := 160
