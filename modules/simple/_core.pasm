@@ -166,7 +166,7 @@
     
 // Class Object
 class_Object_desc:
-    .long 0                             # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long 0
     .long class_Object_string_classname # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
@@ -176,7 +176,6 @@ class_Object_vtabs:
 class_Object_vtabs_entry_Object:
     .long class_Object_desc   # (class_Class_string_classname - class_Object_desc)  // filled/adjusted on class loading
     .long (class_Object_vtab_Object - class_Object_desc)
-class_Object_handle_Object:
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtab_end_entry:
     .long 0
@@ -300,7 +299,7 @@ class_instance_class_handle_offset := (class_Class_instance_class_handle_offset 
 
 // CLASS Class extends Object
 class_Class_desc:
-    .long 0 # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long 0
 class_Class_name:
     .long class_Class_string_classname # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
 class_Class_instance_size:
@@ -320,7 +319,6 @@ class_Class_handle_Class:
 class_Class_vtabs_entry_Object:
     .long class_Object_desc  # (class_Class_string_super1 - class_Class_desc)    // filled/adjusted on class loading
     .long (class_Class_vtab_Object - class_Class_desc)
-class_Class_handle_Object:
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_vtab_end_entry:
     .long 0

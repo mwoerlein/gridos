@@ -1,6 +1,6 @@
 // CLASS A extends Object
 class_A_desc:
-    .long 0                         # (class_A_string_classname - class_A_desc) // filled/adjusted on class loading
+    .long 0
     .long class_A_string_classname  # (class_A_string_classname - class_A_desc) // filled/adjusted on class loading
     .long (class_A_inst_tpl_end - class_A_inst_tpl) // instance size
     .long (class_A_inst_tpl - class_A_desc)         // instance template offset

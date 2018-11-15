@@ -1,7 +1,7 @@
 // TODO: #9 improve/separate runtime injection
 // CLASS Runtime extends Object
 class_Runtime_desc:
-    .long 0                                 # (class_Runtime_string_classname - class_Runtime_desc) // filled/adjusted on class loading
+    .long 0
     .long class_Runtime_string_classname    # (class_Runtime_string_classname - class_Runtime_desc) // filled/adjusted on class loading
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl) // instance size
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
@@ -11,12 +11,10 @@ class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
     .long class_Runtime_desc   # (class_Class_string_classname - class_Runtime_desc)    // filled/adjusted on class loading
     .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
-class_Runtime_handle_Runtime:
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs_entry_Object:
     .long class_Object_desc  # (class_Runtime_string_super1 - class_Runtime_desc)       // filled/adjusted on class loading
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
-class_Runtime_handle_Object:
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
 class_Runtime_vtab_end_entry:
     .long 0

@@ -1,6 +1,6 @@
 // CLASS B extends A
 class_B_desc:
-    .long 0                         # (class_B_string_classname - class_B_desc) // filled/adjusted on class loading
+    .long 0
     .long class_B_string_classname  # (class_B_string_classname - class_B_desc) // filled/adjusted on class loading
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
@@ -10,17 +10,14 @@ class_B_vtabs:
 class_B_vtabs_entry_B:
     .long class_B_desc   # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading
     .long (class_B_vtab_B - class_B_desc)
-class_B_handle_B:
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_A:
     .long class_A_desc  # (class_B_string_super1 - class_B_desc) // filled/adjusted on class loading
     .long (class_B_vtab_A - class_B_desc)
-class_B_handle_A:
     .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_Object:
     .long class_Object_desc  # (class_B_string_super2 - class_B_desc) // filled/adjusted on class loading
     .long (class_B_vtab_Object - class_B_desc)
-class_B_handle_Object:
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
 class_B_vtab_end_entry:
     .long 0
