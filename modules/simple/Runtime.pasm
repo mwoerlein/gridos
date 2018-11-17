@@ -22,39 +22,39 @@ class_Runtime_vtab_end_entry:
     .long 0
 class_Runtime_vtab_Runtime:
 class_Runtime_vtab_Runtime_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_getClass; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_hash; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_equals; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_rt; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_setRt; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_getClassDesc:
-    .long (class_Runtime_method_getClassDesc - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_getClassDesc; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_createInstance:
-    .long (class_Runtime_method_createInstance - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_createInstance; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_destroyInstance:
-    .long (class_Runtime_method_destroyInstance - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_destroyInstance; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_allocate:
-    .long (class_Runtime_method_allocate - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_allocate; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_free:
-    .long (class_Runtime_method_free - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_free; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printChar:
-    .long (class_Runtime_method_printChar - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_printChar; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printString:
-    .long (class_Runtime_method_printString - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_printString; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printInt:
-    .long (class_Runtime_method_printInt - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_printInt; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printHex:
-    .long (class_Runtime_method_printHex - class_Runtime_desc); .long _cRuntimeVERuntime
+    .long class_Runtime_mo_printHex; .long _cRuntimeVERuntime
 class_Runtime_vtab_Object:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cRuntimeVEObject
-    .long (class_Object_method_hash - class_Object_desc); .long _cRuntimeVEObject
-    .long (class_Object_method_equals - class_Object_desc); .long _cRuntimeVEObject
-    .long (class_Object_method_rt - class_Object_desc); .long _cRuntimeVEObject
-    .long (class_Object_method_setRt - class_Object_desc); .long _cRuntimeVEObject
+    .long class_Object_mo_getClass; .long _cRuntimeVEObject
+    .long class_Object_mo_hash; .long _cRuntimeVEObject
+    .long class_Object_mo_equals; .long _cRuntimeVEObject
+    .long class_Object_mo_rt; .long _cRuntimeVEObject
+    .long class_Object_mo_setRt; .long _cRuntimeVEObject
 
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
