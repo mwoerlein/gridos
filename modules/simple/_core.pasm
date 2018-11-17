@@ -183,17 +183,23 @@ class_Object_vtab_end_entry:
     .long 0
 class_Object_vtab_Object:
 class_Object_vtab_Object_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cObjectVEObject
+    .long class_Object_mo_getClass; .long _cObjectVEObject
 class_Object_vtab_Object_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long _cObjectVEObject
+    .long class_Object_mo_hash;     .long _cObjectVEObject
 class_Object_vtab_Object_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long _cObjectVEObject
+    .long class_Object_mo_equals;   .long _cObjectVEObject
 class_Object_vtab_Object_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long _cObjectVEObject
+    .long class_Object_mo_rt;       .long _cObjectVEObject
 class_Object_vtab_Object_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long _cObjectVEObject
+    .long class_Object_mo_setRt;    .long _cObjectVEObject
 
 _cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
+
+class_Object_mo_getClass := (class_Object_method_getClass - class_Object_desc)
+class_Object_mo_hash     := (class_Object_method_hash - class_Object_desc)
+class_Object_mo_equals   := (class_Object_method_equals - class_Object_desc)
+class_Object_mo_rt       := (class_Object_method_rt - class_Object_desc)
+class_Object_mo_setRt    := (class_Object_method_setRt - class_Object_desc)
 
 class_Object_inst_tpl:
     .long 0  // @class-desc
@@ -326,32 +332,37 @@ class_Class_vtab_end_entry:
     .long 0
 class_Class_vtab_Class:
 class_Class_vtab_Class_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_getClass; .long _cClassVEObject
 class_Class_vtab_Class_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_hash;     .long _cClassVEObject
 class_Class_vtab_Class_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_equals;   .long _cClassVEObject
 class_Class_vtab_Class_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_rt;       .long _cClassVEObject
 class_Class_vtab_Class_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_setRt;    .long _cClassVEObject
 class_Class_vtab_Class_method_getDesc:
-    .long (class_Class_method_getDesc - class_Class_desc); .long _cClassVEClass
+    .long class_Class_mo_getDesc;   .long _cClassVEClass
 class_Class_vtab_Class_method_setDesc:
-    .long (class_Class_method_setDesc - class_Class_desc); .long _cClassVEClass
+    .long class_Class_mo_setDesc;   .long _cClassVEClass
 class_Class_vtab_Class_method_getName:
-    .long (class_Class_method_getName - class_Class_desc); .long _cClassVEClass
+    .long class_Class_mo_getName;   .long _cClassVEClass
 class_Class_vtab_Class_method_cast:
-    .long (class_Class_method_cast - class_Class_desc); .long _cClassVEClass
+    .long class_Class_mo_cast;      .long _cClassVEClass
 class_Class_vtab_Object:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cClassVEObject
-    .long (class_Object_method_hash - class_Object_desc); .long _cClassVEObject
-    .long (class_Object_method_equals - class_Object_desc); .long _cClassVEObject
-    .long (class_Object_method_rt - class_Object_desc); .long _cClassVEObject
-    .long (class_Object_method_setRt - class_Object_desc); .long _cClassVEObject
+    .long class_Object_mo_getClass; .long _cClassVEObject
+    .long class_Object_mo_hash;     .long _cClassVEObject
+    .long class_Object_mo_equals;   .long _cClassVEObject
+    .long class_Object_mo_rt;       .long _cClassVEObject
+    .long class_Object_mo_setRt;    .long _cClassVEObject
 
 _cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
 _cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
+
+class_Class_mo_getDesc := (class_Class_method_getDesc - class_Class_desc)
+class_Class_mo_setDesc := (class_Class_method_setDesc - class_Class_desc)
+class_Class_mo_getName := (class_Class_method_getName - class_Class_desc)
+class_Class_mo_cast    := (class_Class_method_cast - class_Class_desc)
 
 class_Class_inst_tpl:
     .long 0  // @class-desc
@@ -506,16 +517,6 @@ _call_entry_resolved_vtab:
 	addl 4(%eax), %ebx          # compute method-@this
 	movl %ebx, 8(%esp)          # store method-@this
 	jmp (%eax)                  # goto method
-
-_print: # %eax:column, %ebx:row, %cl:character
-    pushl %ebx
-    pushl %ecx
-	.byte 0x69; .byte 0xdb; .long print_line_offset #// imull print_line_offset, %ebx
-	movb print_cga_color, %ch
-	movw %cx, print_cga_buffer(%ebx,%eax,2)
-	popl %ecx
-	popl %ebx
-	ret
 	
 print_cga_buffer  := 0xB8000
 print_line_offset := 160

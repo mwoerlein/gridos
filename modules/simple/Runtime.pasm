@@ -49,14 +49,6 @@ class_Runtime_vtab_Runtime_method_printInt:
     .long (class_Runtime_method_printInt - class_Runtime_desc); .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printHex:
     .long (class_Runtime_method_printHex - class_Runtime_desc); .long _cRuntimeVERuntime
-class_Runtime_vtab_Runtime_method_errChar:
-    .long (class_Runtime_method_errChar - class_Runtime_desc); .long _cRuntimeVERuntime
-class_Runtime_vtab_Runtime_method_errString:
-    .long (class_Runtime_method_errString - class_Runtime_desc); .long _cRuntimeVERuntime
-class_Runtime_vtab_Runtime_method_errInt:
-    .long (class_Runtime_method_errInt - class_Runtime_desc); .long _cRuntimeVERuntime
-class_Runtime_vtab_Runtime_method_errHex:
-    .long (class_Runtime_method_errHex - class_Runtime_desc); .long _cRuntimeVERuntime
 class_Runtime_vtab_Object:
     .long (class_Object_method_getClass - class_Object_desc); .long _cRuntimeVEObject
     .long (class_Object_method_hash - class_Object_desc); .long _cRuntimeVEObject
@@ -66,6 +58,16 @@ class_Runtime_vtab_Object:
 
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
+
+class_Runtime_mo_getClassDesc    := (class_Runtime_method_getClassDesc - class_Runtime_desc)
+class_Runtime_mo_createInstance  := (class_Runtime_method_createInstance - class_Runtime_desc)
+class_Runtime_mo_destroyInstance := (class_Runtime_method_destroyInstance - class_Runtime_desc)
+class_Runtime_mo_allocate        := (class_Runtime_method_allocate - class_Runtime_desc)
+class_Runtime_mo_free            := (class_Runtime_method_free - class_Runtime_desc)
+class_Runtime_mo_printChar       := (class_Runtime_method_printChar - class_Runtime_desc)
+class_Runtime_mo_printString     := (class_Runtime_method_printString - class_Runtime_desc)
+class_Runtime_mo_printInt        := (class_Runtime_method_printInt - class_Runtime_desc)
+class_Runtime_mo_printHex        := (class_Runtime_method_printHex - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
     .long 0  // @class-desc
@@ -111,10 +113,6 @@ Runtime_m_printChar       := (class_Runtime_vtab_Runtime_method_printChar - clas
 Runtime_m_printString     := (class_Runtime_vtab_Runtime_method_printString - class_Runtime_vtab_Runtime)
 Runtime_m_printInt        := (class_Runtime_vtab_Runtime_method_printInt - class_Runtime_vtab_Runtime)
 Runtime_m_printHex        := (class_Runtime_vtab_Runtime_method_printHex - class_Runtime_vtab_Runtime)
-Runtime_m_errChar         := (class_Runtime_vtab_Runtime_method_errChar - class_Runtime_vtab_Runtime)
-Runtime_m_errString       := (class_Runtime_vtab_Runtime_method_errString - class_Runtime_vtab_Runtime)
-Runtime_m_errInt          := (class_Runtime_vtab_Runtime_method_errInt - class_Runtime_vtab_Runtime)
-Runtime_m_errHex          := (class_Runtime_vtab_Runtime_method_errHex - class_Runtime_vtab_Runtime)
 // Vars Offsets
 // Super Vars Offsets
 handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runtime - class_Runtime_inst_tpl_handle_Runtime)
@@ -267,9 +265,14 @@ class_Runtime_method_free:
 
 class_Runtime_method_printChar:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param c
-    pushl _env_out; call _ostream_print_char
+    
+    movl _env_out, %eax
+    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    je _crmpc_1
+    movl _env_err, %eax
+_crmpc_1:
+    pushl 20(%ebp)       // param c
+    pushl %eax; call _ostream_print_char
     addl 8, %esp
     
     popad; leave
@@ -277,9 +280,14 @@ class_Runtime_method_printChar:
 
 class_Runtime_method_printString:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param s
-    pushl _env_out; call _ostream_print_string
+    
+    movl _env_out, %eax
+    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    je _crmps_1
+    movl _env_err, %eax
+_crmps_1:
+    pushl 20(%ebp)       // param s
+    pushl %eax; call _ostream_print_string
     addl 8, %esp
     
     popad; leave
@@ -287,9 +295,14 @@ class_Runtime_method_printString:
 
 class_Runtime_method_printInt:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param i
-    pushl _env_out; call _ostream_print_int
+    
+    movl _env_out, %eax
+    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    je _crmpi_1
+    movl _env_err, %eax
+_crmpi_1:
+    pushl 20(%ebp)       // param i
+    pushl %eax; call _ostream_print_int
     addl 8, %esp
     
     popad; leave
@@ -297,49 +310,14 @@ class_Runtime_method_printInt:
 
 class_Runtime_method_printHex:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param i
-    pushl _env_out; call _ostream_print_hex
-    addl 8, %esp
     
-    popad; leave
-    ret
-
-class_Runtime_method_errChar:
-    pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param c
-    pushl _env_err; call _ostream_print_char
-    addl 8, %esp
-    
-    popad; leave
-    ret
-
-class_Runtime_method_errString:
-    pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param s
-    pushl _env_err; call _ostream_print_string
-    addl 8, %esp
-    
-    popad; leave
-    ret
-
-class_Runtime_method_errInt:
-    pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param i
-    pushl _env_err; call _ostream_print_int
-    addl 8, %esp
-    
-    popad; leave
-    ret
-
-class_Runtime_method_errHex:
-    pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param i
-    pushl _env_err; call _ostream_print_hex
+    movl _env_out, %eax
+    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    je _crmph_1
+    movl _env_err, %eax
+_crmph_1:
+    pushl 20(%ebp)       // param i
+    pushl %eax; call _ostream_print_hex
     addl 8, %esp
     
     popad; leave

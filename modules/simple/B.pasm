@@ -25,42 +25,48 @@ class_B_vtab_end_entry:
     .long 0
 class_B_vtab_B:
 class_B_vtab_B_method_getClass:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_getClass; .long _cBVEObject
 class_B_vtab_B_method_hash:
-    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_hash;     .long _cBVEObject
 class_B_vtab_B_method_equals:
-    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_equals;   .long _cBVEObject
 class_B_vtab_B_method_rt:
-    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_rt;       .long _cBVEObject
 class_B_vtab_B_method_setRt:
-    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_setRt;    .long _cBVEObject
 class_B_vtab_B_method_init:
-    .long (class_A_method_init - class_A_desc); .long _cBVEA
-class_B_vtab_B_method_test:
-    .long (class_A_method_test - class_A_desc); .long _cBVEA
+    .long class_A_mo_init;          .long _cBVEA
 class_B_vtab_B_method_getRow:
-    .long (class_B_method_getRow - class_B_desc); .long _cBVEB
+    .long class_B_mo_getRow;        .long _cBVEB
+class_B_vtab_B_method_test:
+    .long class_A_mo_test;          .long _cBVEA
 class_B_vtab_B_method_run:
-    .long (class_B_method_run - class_B_desc); .long _cBVEB
+    .long class_B_mo_run;           .long _cBVEB
+class_B_vtab_B_method_doIt:
+    .long class_B_mo_doIt;          .long _cBVEB
 class_B_vtab_A:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
-    .long (class_A_method_init - class_A_desc); .long _cBVEA
-    .long (class_A_method_test - class_A_desc); .long _cBVEA
-    .long (class_B_method_getRow - class_B_desc); .long _cBVEB
+    .long class_Object_mo_getClass; .long _cBVEObject
+    .long class_Object_mo_hash;     .long _cBVEObject
+    .long class_Object_mo_equals;   .long _cBVEObject
+    .long class_Object_mo_rt;       .long _cBVEObject
+    .long class_Object_mo_setRt;    .long _cBVEObject
+    .long class_A_mo_init;          .long _cBVEA
+    .long class_B_mo_getRow;        .long _cBVEB
+    .long class_A_mo_test;          .long _cBVEA
 class_B_vtab_Object:
-    .long (class_Object_method_getClass - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_hash - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_equals - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_rt - class_Object_desc); .long _cBVEObject
-    .long (class_Object_method_setRt - class_Object_desc); .long _cBVEObject
+    .long class_Object_mo_getClass; .long _cBVEObject
+    .long class_Object_mo_hash;     .long _cBVEObject
+    .long class_Object_mo_equals;   .long _cBVEObject
+    .long class_Object_mo_rt;       .long _cBVEObject
+    .long class_Object_mo_setRt;    .long _cBVEObject
 
 _cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
 _cBVEA := (class_B_vtabs_entry_A - class_B_desc)
 _cBVEB := (class_B_vtabs_entry_B - class_B_desc)
+
+class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
+class_B_mo_run    := (class_B_method_run - class_B_desc)
+class_B_mo_doIt   := (class_B_method_doIt - class_B_desc)
 
 class_B_inst_tpl:
     .long 0  // @class-desc
@@ -114,14 +120,60 @@ B_m_init     := (class_B_vtab_B_method_init - class_B_vtab_B)
 B_m_test     := (class_B_vtab_B_method_test - class_B_vtab_B)
 B_m_getRow   := (class_B_vtab_B_method_getRow - class_B_vtab_B)
 B_m_run      := (class_B_vtab_B_method_run - class_B_vtab_B)
+B_m_doIt     := (class_B_vtab_B_method_doIt - class_B_vtab_B)
 // Vars Offsets
 // Super Vars Offsets
 handle_B_vars_B      := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_handle_B)
 handle_B_vars_A      := (class_B_inst_tpl_handle_B_vars_A - class_B_inst_tpl_handle_B)
 handle_B_vars_Object := (class_B_inst_tpl_handle_B_vars_Object - class_B_inst_tpl_handle_B)
 
-_text_run: .asciz " Run\n"
+_text_classname_A:
+    .asciz "/my/A"
 class_B_method_run:
+    pushl %ebp; movl %esp, %ebp
+    pushl %ecx
+    pushl %edx
+    pushl %edi
+
+    movl 12(%ebp), %ecx # @this (Type B)
+    
+    addl -4, %esp  # return value of rt
+    pushl %ecx; pushl B_m_rt; call (%ecx)
+	addl 8, %esp
+    popl %edi   # Runtime(Type Runtime)
+
+    pushl 20
+    pushl 2
+    pushl %ecx; pushl B_m_init; call (%ecx)
+	addl 16, %esp
+	
+    addl -4, %esp  # return value of createInstance
+    pushl _text_classname_A
+    pushl %edi; pushl Runtime_m_createInstance; call (%edi)
+	addl 12, %esp
+    popl %edx; // inst_A (type A)
+    
+    pushl 5
+    pushl 2
+    pushl %edx; pushl A_m_init; call (%edx)
+	addl 16, %esp
+    
+    pushl %edx    
+    pushl %ecx; pushl B_m_doIt; call (%ecx)
+	addl 12, %esp
+    
+    pushl %edx
+    pushl %edi; pushl Runtime_m_destroyInstance; call (%edi)
+	addl 12, %esp
+
+    popl %edi
+    popl %edx
+    popl %ecx
+    leave
+    ret
+
+_text_run: .asciz "DoIt "
+class_B_method_doIt:
     pushl %ebp; movl %esp, %ebp
     pushl %ecx
     pushl %edx
@@ -133,35 +185,13 @@ class_B_method_run:
 	addl 8, %esp
     popl %edx   # Runtime(Type Runtime)
     
-    pushl 0x40 // '@'
+    pushl 0x40; pushl 1 // '@'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    movl 16(%ebp), %eax # param @a (Type A)
-    addl -4, %esp  # return value of getClass
-    pushl %ecx; pushl B_m_getClass; call (%ecx)
-    //pushl %eax; pushl A_m_getClass; call (%eax)
-    //pushl %edx; pushl Runtime_m_getClass; call (%edx)
-	addl 8, %esp
-    popl %eax // handle_Class_(A|B|Runtime) (Type Class)
-/*
-    addl -4, %esp  # return value of getClass
-    pushl %eax; pushl Class_m_getClass; call (%eax)
-	addl 8, %esp
-    popl %eax // handle_Class_Class (Type Class)
-*/
-    addl -4, %esp  # return value of getName
-    pushl %eax; pushl Class_m_getName; call (%eax)
-	addl 8, %esp
-    popl %eax // name cstring ref
-    
-    pushl %eax
+    pushl _text_run; pushl 0
     pushl %edx; pushl Runtime_m_printString; call (%edx)
-    addl 12, %esp
-    
-    pushl _text_run
-    pushl %edx; pushl Runtime_m_printString; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
     addl -4, %esp  # return value of equals
     pushl 16(%ebp) # param @a (Type A)
@@ -170,9 +200,9 @@ class_B_method_run:
     addl 12, %esp
     popl %eax
     
-    pushl %eax
+    pushl %eax; pushl 0
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
     addl -4, %esp  # return value of allocate
     pushl 0x124
@@ -180,33 +210,33 @@ class_B_method_run:
 	addl 12, %esp
     popl %esi
 
-    pushl 0x20 // ' '
+    pushl 0x20; pushl 0 // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl %esi 
+    pushl %esi; pushl 0
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl 0x20 // ' '
+    pushl 0x20; pushl 0 // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl (%esi) 
+    pushl (%esi); pushl 0
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl 0x20 // ' '
+    pushl 0x20; pushl 0 // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl 4(%esi) 
+    pushl 4(%esi); pushl 0 
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
-    pushl 0xa // '/n'
+    pushl 0xa; pushl 0 // '/n'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
-    addl 12, %esp
+    addl 16, %esp
     
     pushl %esi 
     pushl %edx; pushl Runtime_m_free; call (%edx)
