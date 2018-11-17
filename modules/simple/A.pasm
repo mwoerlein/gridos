@@ -1,6 +1,6 @@
 // CLASS A extends Object
 class_A_desc:
-    .long 0
+    .long 0 // @class (Type Class) filled by class instantiation
     .long class_A_so_classname
     .long (class_A_inst_tpl_end - class_A_inst_tpl) // instance size
     .long (class_A_inst_tpl - class_A_desc)         // instance template offset
@@ -8,14 +8,17 @@ class_A_desc:
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)        // handle offset in instance 
 class_A_vtabs:
 class_A_vtabs_entry_A:
-    .long class_A_desc # class_A_so_classname   // filled/adjusted on class loading
+    .long class_A_desc // @class-desc filled on class loading
+    .long class_A_so_classname
     .long (class_A_vtab_A - class_A_desc)
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)                 // handle offset in instance 
 class_A_vtabs_entry_Object:
-    .long class_Object_desc # class_A_so_super1 // filled/adjusted on class loading
+    .long class_Object_desc // @class-desc filled on class loading
+    .long class_A_so_super1
     .long (class_A_vtab_Object - class_A_desc)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)            // handle offset in instance 
 class_A_vtab_end_entry:
+    .long 0
     .long 0
     .long 0
     .long 0

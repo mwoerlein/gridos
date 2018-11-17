@@ -1,7 +1,7 @@
 // TODO: #9 improve/separate runtime injection
 // CLASS Runtime extends Object
 class_Runtime_desc:
-    .long 0
+    .long 0 // @class (Type Class) filled by class instantiation
     .long class_Runtime_so_classname
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl) // instance size
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
@@ -9,14 +9,17 @@ class_Runtime_desc:
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
-    .long class_Runtime_desc # class_Runtime_so_classname // filled/adjusted on class loading
+    .long class_Runtime_desc // @class-desc filled on class loading
+    .long class_Runtime_so_classname
     .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs_entry_Object:
-    .long class_Object_desc # class_Runtime_so_super1     // filled/adjusted on class loading
+    .long class_Object_desc // @class-desc filled on class loading
+    .long class_Runtime_so_super1
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
 class_Runtime_vtab_end_entry:
+    .long 0
     .long 0
     .long 0
     .long 0
@@ -219,14 +222,14 @@ _crh_instantiate: // %eax: @object-meminfo %edx: @Class-desc, return %edi: @obje
     movl %eax, 4(%edi)  // store @meminfo in instance
     
     movl %edx, %eax                 // @obj-class desc
-    addl class_vtabs_offset, %eax   // @obj-class vtabs
+    addl class_vtabs_offset, %eax   // @obj-class vtabs entry
 _crhi_loop:
-    movl class_vtab_handle_offset(%eax), %ebx
-    movl 4(%eax), %ecx
+    movl _cvte_ho(%eax), %ebx
+    movl _cvte_vto(%eax), %ecx
     movl _call_entry, (%edi, %ebx)  // store @call-entry in handle
     movl %edi, 4(%edi, %ebx)        // store @object in handle
     movl %ecx, 8(%edi, %ebx)        // store vtab-offset in handle
-    addl class_vtab_size, %eax
+    addl _cvte_size, %eax
     .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
     jne _crhi_loop
     

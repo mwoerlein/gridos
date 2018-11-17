@@ -1,6 +1,6 @@
 // CLASS B extends A
 class_B_desc:
-    .long 0
+    .long 0 // @class (Type Class) filled by class instantiation
     .long class_B_so_classname
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
@@ -8,18 +8,22 @@ class_B_desc:
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs:
 class_B_vtabs_entry_B:
-    .long class_B_desc # class_B_so_classname   // filled/adjusted on class loading
+    .long class_B_desc // @class-desc filled on class loading
+    .long class_B_so_classname
     .long (class_B_vtab_B - class_B_desc)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_A:
-    .long class_A_desc # class_B_so_super1      // filled/adjusted on class loading
+    .long class_A_desc // @class-desc filled on class loading
+    .long class_B_so_super1
     .long (class_B_vtab_A - class_B_desc)
     .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_Object:
-    .long class_Object_desc # class_B_so_super2 // filled/adjusted on class loading
+    .long class_Object_desc // @class-desc filled on class loading
+    .long class_B_so_super2
     .long (class_B_vtab_Object - class_B_desc)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
 class_B_vtab_end_entry:
+    .long 0
     .long 0
     .long 0
     .long 0
@@ -202,8 +206,8 @@ class_B_method_doIt:
     addl 16, %esp
     
     addl -4, %esp  # return value of equals
-    pushl 16(%ebp) # param @a (Type A)
-    //pushl 12(%ebp) # @this (Type B)
+    //pushl 16(%ebp) # param @a (Type A)
+    pushl 12(%ebp) # @this (Type B)
     pushl %ecx; pushl B_m_equals; call (%ecx)
     addl 12, %esp
     popl %eax

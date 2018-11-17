@@ -6,10 +6,10 @@
  * |Ret N|...|Ret 2|Ret 1|Param N|...|Param 2|Param 1|@Obj-Handle|Method Offset/@class-desc|@caller return|caller %ebp|Local 1|Local 2|...|saved regs|tmp-data/further frames
  *                                                                                                                    ^callee %ebp                   ^callee %esp
  */
-/* *** Class-Desc unres. **
+/* ****** Class-Desc ******
  * 31                     0
  * +----------------------+
- * | 0
+ * | 0 / @Class-Ref
  * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
@@ -21,11 +21,15 @@
  * +----------------------+
  * | Class-Handle-Offset
  * +======================+
+ * | 0 / @Class-Desc
+ * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
  * | Class-VTab-Offset
  * +----------------------+
  * | Class-Handle-Offset
+ * +----------------------+
+ * | 0 / @Super1-Desc
  * +----------------------+
  * | Super1-classname-Offset
  * +----------------------+
@@ -35,6 +39,8 @@
  * +----------------------+
  * | ...
  * +----------------------+
+ * | 0 / @SuperN-Desc
+ * +----------------------+
  * | SuperN-classname-Offset
  * +----------------------+
  * | SuperN-VTab-Offset
@@ -42,7 +48,7 @@
  * | SuperN-Handle-Offset
  * +----------------------+
  */
-/* **** VTab unresolved ***
+/* ********* VTab *********
  * 31                     0
  * +----------------------+
  * | Meth 0 - Method Offset
@@ -52,54 +58,6 @@
  * | Meth 1 - Method Offset
  * +----------------------+
  * | Meth 0 - Class-Desc-Offset
- * +----------------------+
- * | ...
- * +----------------------+
- */
-/* ** Class-Desc resolved *
- * 31                     0
- * +----------------------+
- * | @Class-Handle
- * +----------------------+
- * | @Class-classname
- * +----------------------+
- * | instance size
- * +----------------------+
- * | instance-template-Offset
- * +----------------------+
- * | Object-Handle-Offset
- * +======================+
- * | @Class-Desc
- * +----------------------+
- * | Class-VTab-Offset
- * +----------------------+
- * | Class-Handle-Offset
- * +----------------------+
- * | @Super1-Desc
- * +----------------------+
- * | Super1-VTab-Offset
- * +----------------------+
- * | Super1-Handle-Offset
- * +----------------------+
- * | ...
- * +----------------------+
- * | @SuperN-Desc
- * +----------------------+
- * | SuperN-VTab-Offset
- * +----------------------+
- * | SuperN-Handle-Offset
- * +----------------------+
- */
-/* ***** VTab resolved ****
- * 31                     0
- * +----------------------+
- * | Meth 0 - @Method
- * +----------------------+
- * | Meth 0 - Class-Handle-Offset
- * +----------------------+
- * | Meth 1 - @Method
- * +----------------------+
- * | Meth 1 - Class-Handle-Offset
  * +----------------------+
  * | ...
  * +----------------------+
@@ -166,7 +124,7 @@
     
 // Class Object
 class_Object_desc:
-    .long 0
+    .long 0 // @class (Type Class) filled by class instantiation
     .long class_Object_so_classname
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
@@ -174,10 +132,12 @@ class_Object_desc:
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtabs:
 class_Object_vtabs_entry_Object:
-    .long class_Object_desc   # class_Object_so_classname  // filled/adjusted on class loading
+    .long class_Object_desc // @class-desc filled on class loading
+    .long class_Object_so_classname
     .long (class_Object_vtab_Object - class_Object_desc)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtab_end_entry:
+    .long 0
     .long 0
     .long 0
     .long 0
@@ -297,8 +257,11 @@ class_Object_method_setRt:
     ret
 
 class_vtabs_offset := (class_Class_vtabs - class_Class_desc)
-class_vtab_size := (class_Class_vtabs_entry_Object - class_Class_vtabs_entry_Class)
-class_vtab_handle_offset := (class_Class_handle_Class - class_Class_vtabs_entry_Class)
+_cvte_size := (class_Class_vtabs_entry_Object - class_Class_vtabs_entry_Class)
+_cvte_cno  := (class_Class_vtabs_entry_class_name - class_Class_vtabs_entry_Class)
+_cvte_cdo  := (class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
+_cvte_vto  := (class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
+_cvte_ho   := (class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)
 class_name_offset := (class_Class_name - class_Class_desc)
 class_instance_size_offset := (class_Class_instance_size - class_Class_desc)
 class_instance_tpl_offset_offset := (class_Class_instance_tpl_offset - class_Class_desc)
@@ -307,7 +270,7 @@ class_instance_class_handle_offset := (class_Class_instance_class_handle_offset 
 
 // CLASS Class extends Object
 class_Class_desc:
-    .long 0
+    .long 0 // @class (Type Class) filled by class instantiation
 class_Class_name:
     .long class_Class_so_classname
 class_Class_instance_size:
@@ -320,15 +283,21 @@ class_Class_instance_class_handle_offset:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs:
 class_Class_vtabs_entry_Class:
-    .long class_Class_desc   # class_Class_so_classname // filled/adjusted on class loading
+class_Class_vtabs_entry_class_desc:
+    .long class_Class_desc // @class-desc filled on class loading
+class_Class_vtabs_entry_class_name:
+    .long class_Class_so_classname 
+class_Class_vtabs_entry_vtab_offset:
     .long (class_Class_vtab_Class - class_Class_desc)
-class_Class_handle_Class:
+class_Class_vtabs_entry_handle:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs_entry_Object:
-    .long class_Object_desc  # class_Class_so_super1    // filled/adjusted on class loading
+    .long class_Object_desc // @class-desc filled on class loading
+    .long class_Class_so_super1
     .long (class_Class_vtab_Object - class_Class_desc)
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_vtab_end_entry:
+    .long 0
     .long 0
     .long 0
     .long 0
@@ -470,12 +439,12 @@ _ccmc_start:
 _ccmc_loop:
     .byte 0x39; .byte 0x08 #// cmpl (%eax), %ecx
     je _ccmc_found
-    addl class_vtab_size, %eax
+    addl _cvte_size, %eax
     .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
     je _ccmc_return
     jmp _ccmc_loop
 _ccmc_found:
-    addl class_vtab_handle_offset(%eax), %ebx
+    addl _cvte_ho(%eax), %ebx
     movl %ebx, 20(%ebp)     // return correct handle
 _ccmc_return:
     popl %ecx
@@ -492,10 +461,10 @@ _call_entry:
 	addl 8(%ebx), %eax          # get vtab
 	addl 8(%esp), %eax	        # get vtab-entry by adding method-offset number
 	movl 0(%ecx), %ebx	        # get class-desc
-	addl 4(%eax), %ebx          # get method-class-context
-	addl 8(%ebx), %ecx          # compute method-@this
+	addl 4(%eax), %ebx          # get method-vtabs-entry
+	addl _cvte_ho(%ebx), %ecx   # compute method-@this
 	movl %ecx, 12(%esp)         # store method-@this
-	movl 0(%ebx), %ebx          # get method-class-desc
+	movl _cvte_cdo(%ebx), %ebx  # get method-class-desc
 	movl %ebx, 8(%esp)          # store method-class-desc
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
@@ -512,17 +481,6 @@ _string_compare_loop:
     jnz _string_compare_loop  // not end of string
 _string_compare_return:
     ret
-
-_call_entry_resolved_vtab:
-	movl 8(%esp), %ebx	        # load object handle
-	movl 4(%ebx), %eax          # get object
-	movl 0(%eax), %eax          # get class-desc
-	addl 8(%ebx), %eax          # get vtab
-	addl 4(%esp), %eax	        # get vtab-entry by adding method-offset number
-	movl 4(%ebx), %ebx	        # get object
-	addl 4(%eax), %ebx          # compute method-@this
-	movl %ebx, 8(%esp)          # store method-@this
-	jmp (%eax)                  # goto method
 	
 print_cga_buffer  := 0xB8000
 print_line_offset := 160
