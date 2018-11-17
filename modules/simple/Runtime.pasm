@@ -7,14 +7,15 @@ class_Runtime_desc:
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
+    .long 0x15AC1A55
 class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
-    .long class_Runtime_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_Runtime_so_classname
     .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs_entry_Object:
-    .long class_Object_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_Runtime_so_super1
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
@@ -125,40 +126,17 @@ Runtime_m_printHex        := (class_Runtime_vtab_Runtime_method_printHex - class
 handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runtime - class_Runtime_inst_tpl_handle_Runtime)
 handle_Runtime_vars_Object  := (class_Runtime_inst_tpl_handle_Runtime_vars_Object - class_Runtime_inst_tpl_handle_Runtime)
 
-_crmgcd_descs:
-    .long 0
-    .long class_B_desc
-    .long class_A_desc
-    .long class_Class_desc
-    .long class_Object_desc
-    .long class_Runtime_desc
-    .long 0
-// TODO: use loaded-class-registry
 class_Runtime_method_getClassDesc:
     pushl %ebp; movl %esp, %ebp; pushad
-_crmgcd_start:
-    movl 0, 20(%ebp)  // default: return NULL
-    movl _crmgcd_descs, %edx // @@class-desc
     
-_crmgcd_loop:
-    addl 4, %edx
-    .byte 0x83; .byte 0x3a; .byte 0x00 #// cmpl 0, (%edx)
-    jz _crmgcd_return
-
-    movl 16(%ebp), %esi // param @classname
-    movl (%edx), %ecx   // @class-desc
-    movl %ecx, %edi
-    addl class_name_offset(%ecx), %edi
-    call _string_compare
-    addb 0, %al
-    jnz _crmgcd_loop
+    pushl 16(%ebp)       // @classname
+    pushl _env_runtime; call _runtime_findClass
+    addl 8, %esp
+    movl %eax, 20(%ebp)  // return @class desc
     
-    movl %ecx, 20(%ebp)  // return @class desc
-    
-_crmgcd_return:
     popad; leave
     ret
-    
+
 class_Runtime_method_createInstance:
     pushl %ebp; movl %esp, %ebp; pushad
 _crmci_start:

@@ -2,35 +2,13 @@
 
 #include "KernelJIT/HaltKernel.hpp"
 #include "KernelJIT/OStreamKernel.hpp"
+#include "KernelJIT/KernelRuntime.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386OStreamKernel.hpp"
 
 #include "I386ASM/Parser.hpp"
 #include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
-#include "I386ASM/Operand/Number.hpp"
-
-// TODO: #9 improve/separate runtime injection
-extern "C" {
-    MemoryInfo * _allocator_allocate(MemoryAllocator *allocator, size_t size) {
-        return &allocator->allocate(size);
-    }
-    void _allocator_free(MemoryAllocator *allocator, MemoryInfo *info) {
-        allocator->free(*info);
-    }
-    void _ostream_print_char(OStream *stream, int c) {
-        *stream << (char) c;
-    }
-    void _ostream_print_string(OStream *stream, char * c) {
-        *stream << c;
-    }
-    void _ostream_print_int(OStream *stream, int i) {
-        *stream << i;
-    }
-    void _ostream_print_hex(OStream *stream, int i) {
-        stream->printhex(i);
-    }
-}
 
 Kernel &KernelJIT::kernel_compile(Module & module) {
     // TODO: improve debug handling 
@@ -56,46 +34,9 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         ASMInstructionList &list = parser.parse(in, env().err());
         in.destroy();
         parser.destroy();
-        
-        {
-            // TODO: #9 improve/separate runtime injection
-            list.addDefinition(
-                env().create<String, const char *>("_env_allocator"),
-                env().create<Number, int>((int) &env().getAllocator())
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_env_out"),
-                env().create<Number, int>((int) &env().out())
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_env_err"),
-                env().create<Number, int>((int) &env().err())
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_allocator_allocate"),
-                env().create<Number, int>((int) _allocator_allocate)
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_allocator_free"),
-                env().create<Number, int>((int) _allocator_free)
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_ostream_print_char"),
-                env().create<Number, int>((int) _ostream_print_char)
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_ostream_print_string"),
-                env().create<Number, int>((int) _ostream_print_string)
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_ostream_print_int"),
-                env().create<Number, int>((int) _ostream_print_int)
-            );
-            list.addDefinition(
-                env().create<String, const char *>("_ostream_print_hex"),
-                env().create<Number, int>((int) _ostream_print_hex)
-            );
-        }
+
+        KernelRuntime &kr = env().create<KernelRuntime>();
+        kr.injectDefinitions(list);
         
         if (list.hasErrors()) {
             if (debugLevel >= 2) { env().err()<<"parsing error\n"; }
@@ -121,6 +62,17 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         
         if (debugLevel >= 2) { list.logToStream(env().out(), debugLevel >= 3); }
         list.writeToStream(osk);
+        {
+            String &s = env().create<String>();
+            
+            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Object_desc"));
+            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Class_desc"));
+            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Runtime_desc"));
+            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_A_desc"));
+            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_B_desc"));
+            
+            s.destroy();
+        }
         list.destroy();
         return osk;
     }

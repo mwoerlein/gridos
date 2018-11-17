@@ -6,14 +6,15 @@ class_A_desc:
     .long (class_A_inst_tpl - class_A_desc)         // instance template offset
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)   // handle offset in instance 
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)        // handle offset in instance 
+    .long 0x15AC1A55
 class_A_vtabs:
 class_A_vtabs_entry_A:
-    .long class_A_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_A_so_classname
     .long (class_A_vtab_A - class_A_desc)
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)                 // handle offset in instance 
 class_A_vtabs_entry_Object:
-    .long class_Object_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_A_so_super1
     .long (class_A_vtab_Object - class_A_desc)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)            // handle offset in instance 

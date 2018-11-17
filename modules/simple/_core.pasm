@@ -20,6 +20,8 @@
  * | Object-Handle-Offset
  * +----------------------+
  * | Class-Handle-Offset
+ * +----------------------+
+ * | 0x15AC1A55
  * +======================+
  * | 0 / @Class-Desc
  * +----------------------+
@@ -130,9 +132,10 @@ class_Object_desc:
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
+    .long 0x15AC1A55
 class_Object_vtabs:
 class_Object_vtabs_entry_Object:
-    .long class_Object_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_Object_so_classname
     .long (class_Object_vtab_Object - class_Object_desc)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
@@ -281,10 +284,11 @@ class_Class_instance_Object_handle_offset:
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_instance_class_handle_offset:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
+    .long 0x15AC1A55
 class_Class_vtabs:
 class_Class_vtabs_entry_Class:
 class_Class_vtabs_entry_class_desc:
-    .long class_Class_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
 class_Class_vtabs_entry_class_name:
     .long class_Class_so_classname 
 class_Class_vtabs_entry_vtab_offset:
@@ -292,7 +296,7 @@ class_Class_vtabs_entry_vtab_offset:
 class_Class_vtabs_entry_handle:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs_entry_Object:
-    .long class_Object_desc // @class-desc filled on class loading
+    .long 0 // @class-desc filled on class loading
     .long class_Class_so_super1
     .long (class_Class_vtab_Object - class_Class_desc)
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
