@@ -2,18 +2,18 @@
 // CLASS Runtime extends Object
 class_Runtime_desc:
     .long 0
-    .long class_Runtime_string_classname    # (class_Runtime_string_classname - class_Runtime_desc) // filled/adjusted on class loading
+    .long class_Runtime_so_classname
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl) // instance size
     .long (class_Runtime_inst_tpl - class_Runtime_desc)         // instance template offset
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs:
 class_Runtime_vtabs_entry_Runtime:
-    .long class_Runtime_desc   # (class_Class_string_classname - class_Runtime_desc)    // filled/adjusted on class loading
+    .long class_Runtime_desc # class_Runtime_so_classname // filled/adjusted on class loading
     .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs_entry_Object:
-    .long class_Object_desc  # (class_Runtime_string_super1 - class_Runtime_desc)       // filled/adjusted on class loading
+    .long class_Object_desc # class_Runtime_so_super1     // filled/adjusted on class loading
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
 class_Runtime_vtab_end_entry:
@@ -68,6 +68,10 @@ class_Runtime_mo_printChar       := (class_Runtime_method_printChar - class_Runt
 class_Runtime_mo_printString     := (class_Runtime_method_printString - class_Runtime_desc)
 class_Runtime_mo_printInt        := (class_Runtime_method_printInt - class_Runtime_desc)
 class_Runtime_mo_printHex        := (class_Runtime_method_printHex - class_Runtime_desc)
+
+class_Runtime_so_classname := (class_Runtime_string_classname - class_Runtime_desc)
+class_Runtime_so_super1 := (class_Runtime_string_super1 - class_Runtime_desc)
+class_Runtime_so_class := (class_Runtime_string_class - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
     .long 0  // @class-desc
@@ -140,7 +144,8 @@ _crmgcd_loop:
 
     movl 16(%ebp), %esi // param @classname
     movl (%edx), %ecx   // @class-desc
-    movl class_name_offset(%ecx), %edi
+    movl %ecx, %edi
+    addl class_name_offset(%ecx), %edi
     call _string_compare
     addb 0, %al
     jnz _crmgcd_loop
@@ -167,8 +172,10 @@ _crmci_start:
     .byte 0x83; .byte 0x3a; .byte 0x00 #// cmpl 0, (%edx)
     jnz _crmci_instantiate // class already initialized
     
-    addl -4, %esp  # return value of getClassDesc
-    pushl class_Runtime_string_class // @classname
+    movl 8(%ebp), %eax      // @class-desc "Runtime"
+    addl class_Runtime_so_class, %eax
+    addl -4, %esp  # return value of createInstance
+    pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
 	addl 12, %esp
     popl %eax   // @class (Type Class)
@@ -359,8 +366,10 @@ _init_Runtime:
     pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
     
+    movl class_Runtime_desc, %eax
+    addl class_Runtime_so_class, %eax
     addl -4, %esp  # return value of createInstance
-    pushl class_Runtime_string_class // @classname
+    pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
 	addl 12, %esp
     popl %eax   // @class (Type Class)

@@ -2,9 +2,9 @@
  * caller-saved: %eax, %ebx
  * callee-saved: others
  * Stack-Frame:
- * | caller prepared                                                           | call         | callee prepared                          :
- * |Ret N|...|Ret 2|Ret 1|Param N|...|Param 2|Param 1|@Obj-Handle|Method Offset|@caller return|caller %ebp|Local 1|Local 2|...|saved regs|tmp-data/further frames
- *                                                                                                        ^callee %ebp                   ^callee %esp
+ * | caller prepared                                                                       | call         | callee prepared                          :
+ * |Ret N|...|Ret 2|Ret 1|Param N|...|Param 2|Param 1|@Obj-Handle|Method Offset/@class-desc|@caller return|caller %ebp|Local 1|Local 2|...|saved regs|tmp-data/further frames
+ *                                                                                                                    ^callee %ebp                   ^callee %esp
  */
 /* *** Class-Desc unres. **
  * 31                     0
@@ -167,14 +167,14 @@
 // Class Object
 class_Object_desc:
     .long 0
-    .long class_Object_string_classname # (class_Object_string_classname - class_Object_desc) // filled/adjusted on class loading
+    .long class_Object_so_classname
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl) // instance size
     .long (class_Object_inst_tpl - class_Object_desc)         // instance template offset
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtabs:
 class_Object_vtabs_entry_Object:
-    .long class_Object_desc   # (class_Class_string_classname - class_Object_desc)  // filled/adjusted on class loading
+    .long class_Object_desc   # class_Object_so_classname  // filled/adjusted on class loading
     .long (class_Object_vtab_Object - class_Object_desc)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)             // handle offset in instance 
 class_Object_vtab_end_entry:
@@ -200,6 +200,8 @@ class_Object_mo_hash     := (class_Object_method_hash - class_Object_desc)
 class_Object_mo_equals   := (class_Object_method_equals - class_Object_desc)
 class_Object_mo_rt       := (class_Object_method_rt - class_Object_desc)
 class_Object_mo_setRt    := (class_Object_method_setRt - class_Object_desc)
+
+class_Object_so_classname := (class_Object_string_classname - class_Object_desc)
 
 class_Object_inst_tpl:
     .long 0  // @class-desc
@@ -307,7 +309,7 @@ class_instance_class_handle_offset := (class_Class_instance_class_handle_offset 
 class_Class_desc:
     .long 0
 class_Class_name:
-    .long class_Class_string_classname # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long class_Class_so_classname
 class_Class_instance_size:
     .long (class_Class_inst_tpl_end - class_Class_inst_tpl) // instance size
 class_Class_instance_tpl_offset:
@@ -318,12 +320,12 @@ class_Class_instance_class_handle_offset:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs:
 class_Class_vtabs_entry_Class:
-    .long class_Class_desc   # (class_Class_string_classname - class_Class_desc) // filled/adjusted on class loading
+    .long class_Class_desc   # class_Class_so_classname // filled/adjusted on class loading
     .long (class_Class_vtab_Class - class_Class_desc)
 class_Class_handle_Class:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
 class_Class_vtabs_entry_Object:
-    .long class_Object_desc  # (class_Class_string_super1 - class_Class_desc)    // filled/adjusted on class loading
+    .long class_Object_desc  # class_Class_so_super1    // filled/adjusted on class loading
     .long (class_Class_vtab_Object - class_Class_desc)
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_vtab_end_entry:
@@ -363,6 +365,9 @@ class_Class_mo_getDesc := (class_Class_method_getDesc - class_Class_desc)
 class_Class_mo_setDesc := (class_Class_method_setDesc - class_Class_desc)
 class_Class_mo_getName := (class_Class_method_getName - class_Class_desc)
 class_Class_mo_cast    := (class_Class_method_cast - class_Class_desc)
+
+class_Class_so_classname := (class_Class_string_classname - class_Class_desc)
+class_Class_so_super1 := (class_Class_string_super1 - class_Class_desc)
 
 class_Class_inst_tpl:
     .long 0  // @class-desc
@@ -443,7 +448,7 @@ class_Class_method_getName:
     movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
     addl 4(%eax), %ebx                        // @this.vars(Class)
     movl Class_i_desc(%ebx), %eax             // @class desc
-    movl class_name_offset(%eax), %eax        // load reference to cstring
+    addl class_name_offset(%eax), %eax        // load reference to cstring
     movl %eax, 16(%ebp)                       // return cstring-ref
     
     leave
@@ -491,6 +496,7 @@ _call_entry:
 	addl 8(%ebx), %ecx          # compute method-@this
 	movl %ecx, 12(%esp)         # store method-@this
 	movl 0(%ebx), %ebx          # get method-class-desc
+	movl %ebx, 8(%esp)          # store method-class-desc
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method

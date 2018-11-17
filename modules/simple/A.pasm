@@ -1,18 +1,18 @@
 // CLASS A extends Object
 class_A_desc:
     .long 0
-    .long class_A_string_classname  # (class_A_string_classname - class_A_desc) // filled/adjusted on class loading
+    .long class_A_so_classname
     .long (class_A_inst_tpl_end - class_A_inst_tpl) // instance size
     .long (class_A_inst_tpl - class_A_desc)         // instance template offset
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)   // handle offset in instance 
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)        // handle offset in instance 
 class_A_vtabs:
 class_A_vtabs_entry_A:
-    .long class_A_desc   # (class_Class_string_classname - class_A_desc) // filled/adjusted on class loading
+    .long class_A_desc # class_A_so_classname   // filled/adjusted on class loading
     .long (class_A_vtab_A - class_A_desc)
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)                 // handle offset in instance 
 class_A_vtabs_entry_Object:
-    .long class_Object_desc  # (class_A_string_super1 - class_A_desc)    // filled/adjusted on class loading
+    .long class_Object_desc # class_A_so_super1 // filled/adjusted on class loading
     .long (class_A_vtab_Object - class_A_desc)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)            // handle offset in instance 
 class_A_vtab_end_entry:
@@ -50,6 +50,10 @@ class_A_mo_init   := (class_A_method_init - class_A_desc)
 class_A_mo_getRow := (class_A_method_getRow - class_A_desc)
 class_A_mo_test   := (class_A_method_test - class_A_desc)
 
+class_A_so_classname := (class_A_string_classname - class_A_desc)
+class_A_so_super1 := (class_A_string_super1 - class_A_desc)
+class_A_so_test := (class_A_string_test - class_A_desc)
+
 class_A_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
@@ -80,6 +84,8 @@ class_A_string_classname:
     .asciz "/my/A"
 class_A_string_super1:
     .asciz "/my/Object"
+class_A_string_test:
+    .asciz " Test\n"
 
 // Method Offsets
 A_m_getClass := (class_A_vtab_A_method_getClass - class_A_vtab_A)
@@ -125,7 +131,6 @@ class_A_method_getRow:
     leave
     ret
 
-_text_test: .asciz " Test\n"
 class_A_method_test:
     pushl %ebp; movl %esp, %ebp
     pushl %ecx
@@ -175,7 +180,9 @@ class_A_method_test:
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl _text_test; pushl 0
+    movl 8(%ebp), %eax      // @class-desc "A"
+    addl class_A_so_test, %eax
+    pushl %eax; pushl 0
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     

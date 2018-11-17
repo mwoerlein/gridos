@@ -1,22 +1,22 @@
 // CLASS B extends A
 class_B_desc:
     .long 0
-    .long class_B_string_classname  # (class_B_string_classname - class_B_desc) // filled/adjusted on class loading
+    .long class_B_so_classname
     .long (class_B_inst_tpl_end - class_B_inst_tpl) // instance size
     .long (class_B_inst_tpl - class_B_desc)         // instance template offset
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs:
 class_B_vtabs_entry_B:
-    .long class_B_desc   # (class_Class_string_classname - class_B_desc) // filled/adjusted on class loading
+    .long class_B_desc # class_B_so_classname   // filled/adjusted on class loading
     .long (class_B_vtab_B - class_B_desc)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_A:
-    .long class_A_desc  # (class_B_string_super1 - class_B_desc) // filled/adjusted on class loading
+    .long class_A_desc # class_B_so_super1      // filled/adjusted on class loading
     .long (class_B_vtab_A - class_B_desc)
     .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtabs_entry_Object:
-    .long class_Object_desc  # (class_B_string_super2 - class_B_desc) // filled/adjusted on class loading
+    .long class_Object_desc # class_B_so_super2 // filled/adjusted on class loading
     .long (class_B_vtab_Object - class_B_desc)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
 class_B_vtab_end_entry:
@@ -68,6 +68,11 @@ class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
 class_B_mo_run    := (class_B_method_run - class_B_desc)
 class_B_mo_doIt   := (class_B_method_doIt - class_B_desc)
 
+class_B_so_classname := (class_B_string_classname - class_B_desc)
+class_B_so_super1 := (class_B_string_super1 - class_B_desc)
+class_B_so_super2 := (class_B_string_super2 - class_B_desc)
+class_B_so_doit := (class_B_string_doit - class_B_desc)
+
 class_B_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
@@ -109,6 +114,8 @@ class_B_string_super1:
     .asciz "/my/A"
 class_B_string_super2:
     .asciz "/my/Object"
+class_B_string_doit:
+    .asciz "DoIt "
 
 // Method Offsets
 B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
@@ -127,8 +134,6 @@ handle_B_vars_B      := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_han
 handle_B_vars_A      := (class_B_inst_tpl_handle_B_vars_A - class_B_inst_tpl_handle_B)
 handle_B_vars_Object := (class_B_inst_tpl_handle_B_vars_Object - class_B_inst_tpl_handle_B)
 
-_text_classname_A:
-    .asciz "/my/A"
 class_B_method_run:
     pushl %ebp; movl %esp, %ebp
     pushl %ecx
@@ -147,8 +152,10 @@ class_B_method_run:
     pushl %ecx; pushl B_m_init; call (%ecx)
 	addl 16, %esp
 	
+    movl 8(%ebp), %eax           // @class-desc "B"
+    addl class_B_so_super1, %eax // "/my/A"
     addl -4, %esp  # return value of createInstance
-    pushl _text_classname_A
+    pushl %eax
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
     popl %edx; // inst_A (type A)
@@ -172,7 +179,6 @@ class_B_method_run:
     leave
     ret
 
-_text_run: .asciz "DoIt "
 class_B_method_doIt:
     pushl %ebp; movl %esp, %ebp
     pushl %ecx
@@ -189,7 +195,9 @@ class_B_method_doIt:
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl _text_run; pushl 0
+    movl 8(%ebp), %eax         // @class-desc "B"
+    addl class_B_so_doit, %eax // "DoIt "
+    pushl %eax; pushl 0
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
