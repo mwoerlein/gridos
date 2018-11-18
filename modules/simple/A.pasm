@@ -149,22 +149,22 @@ class_A_method_test:
 
     movl 12(%ebp), %ecx               // @this (Type A)
 
-    addl -4, %esp  # return value of rt
+    subl 4, %esp  # return value of rt
     pushl %ecx; pushl A_m_rt; call (%ecx)
 	addl 8, %esp
     popl %edx   # Runtime (Type Runtime)
 
-    addl -4, %esp  # return value of getClass
+    subl 4, %esp  # return value of getClass
     pushl %ecx; pushl A_m_getClass; call (%ecx)
 	addl 8, %esp
     popl %eax // handle_Class_(A|B) (Type Class)
 /*
-    addl -4, %esp  # return value of getClass
+    subl 4, %esp  # return value of getClass
     pushl %eax; pushl Class_m_getClass; call (%eax)
 	addl 8, %esp
     popl %eax // handle_Class_Class (Type Class)
 */
-    addl -4, %esp  # return value of getName
+    subl 4, %esp  # return value of getName
     pushl %eax; pushl Class_m_getName; call (%eax)
 	addl 8, %esp
     popl %eax // name cstring ref

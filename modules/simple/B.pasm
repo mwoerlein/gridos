@@ -154,7 +154,7 @@ class_B_method_run:
 
     movl 12(%ebp), %ecx # @this (Type B)
     
-    addl -4, %esp  # return value of rt
+    subl 4, %esp  # return value of rt
     pushl %ecx; pushl B_m_rt; call (%ecx)
 	addl 8, %esp
     popl %edi   # Runtime(Type Runtime)
@@ -166,7 +166,7 @@ class_B_method_run:
 	
     movl 8(%ebp), %eax           // @class-desc "B"
     addl class_B_so_super1, %eax // "/my/A"
-    addl -4, %esp  # return value of createInstance
+    subl 4, %esp  # return value of createInstance
     pushl %eax
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
@@ -198,7 +198,7 @@ class_B_method_doIt:
     
     movl 12(%ebp), %ecx # @this (Type B)
 
-    addl -4, %esp  # return value of rt
+    subl 4, %esp  # return value of rt
     pushl %ecx; pushl B_m_rt; call (%ecx)
 	addl 8, %esp
     popl %edx   # Runtime(Type Runtime)
@@ -213,7 +213,7 @@ class_B_method_doIt:
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
-    addl -4, %esp  # return value of equals
+    subl 4, %esp  # return value of equals
     //pushl 16(%ebp) # param @a (Type A)
     pushl 12(%ebp) # @this (Type B)
     pushl %ecx; pushl B_m_equals; call (%ecx)
@@ -224,7 +224,7 @@ class_B_method_doIt:
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    addl -4, %esp  # return value of allocate
+    subl 4, %esp  # return value of allocate
     pushl 0x124
     pushl %edx; pushl Runtime_m_allocate; call (%edx)
 	addl 12, %esp
@@ -262,7 +262,7 @@ class_B_method_doIt:
     pushl %edx; pushl Runtime_m_free; call (%edx)
     addl 12, %esp
     
-    addl -4, %esp  # return value of getRow
+    subl 4, %esp  # return value of getRow
     pushl %ecx; pushl B_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax
@@ -273,7 +273,7 @@ class_B_method_doIt:
 
     movl 16(%ebp), %ecx # param @a (Type A)
 	
-    addl -4, %esp  # return value of getRow
+    subl 4, %esp  # return value of getRow
     pushl %ecx; pushl A_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax

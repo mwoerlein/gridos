@@ -474,7 +474,7 @@ _call_entry:
 	jmp %ebx                    # goto method
 
 _string_compare: # %esi:string 1, %edi:string 2, return %al:<0, =0, >0
-    addl -1, %edi
+    subl 1, %edi
 _string_compare_loop:   	
     addl 1, %edi
     lodsb

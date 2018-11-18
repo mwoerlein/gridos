@@ -143,7 +143,7 @@ _crmci_start:
     movl 0, 20(%ebp)          // default handle: NULL
     movl 12(%ebp), %esi       // @this (Type Runtime)
     
-    addl -4, %esp  # return value of getClassDesc
+    subl 4, %esp  # return value of getClassDesc
     pushl 16(%ebp)  // param @classname
     pushl %esi; pushl Runtime_m_getClassDesc; call (%esi)
 	addl 12, %esp
@@ -155,7 +155,7 @@ _crmci_start:
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
     addl class_Runtime_so_class, %eax
-    addl -4, %esp  # return value of createInstance
+    subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
 	addl 12, %esp
@@ -169,7 +169,7 @@ _crmci_start:
 _crmci_instantiate:
     movl class_instance_size_offset(%edx), %eax // instance size
     
-    addl -4, %esp  # return value of allocate
+    subl 4, %esp  # return value of allocate
     pushl %eax
     pushl %esi; pushl Runtime_m_allocate; call (%esi)
 	addl 12, %esp
@@ -312,7 +312,7 @@ _crmph_1:
     ret
 
 _init_Runtime:
-    pushl %ebp; movl %esp, %ebp; addl -8, %esp; pushad
+    pushl %ebp; movl %esp, %ebp; subl 8, %esp; pushad
     movl 0, -4(%ebp) // default result: NULL
     
     movl class_Class_desc, %edx
@@ -349,7 +349,7 @@ _init_Runtime:
     
     movl class_Runtime_desc, %eax
     addl class_Runtime_so_class, %eax
-    addl -4, %esp  # return value of createInstance
+    subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
 	addl 12, %esp

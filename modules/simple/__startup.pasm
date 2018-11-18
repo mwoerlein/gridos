@@ -14,7 +14,7 @@ entry:
     
     movl %eax, %edi
     
-    addl -4, %esp  # return value of createInstance
+    subl 4, %esp  # return value of createInstance
     pushl %ebx
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
