@@ -60,9 +60,9 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
-            if (module.testStringProperty("meta.mimetype", "application/pool-class-x86")) {
-                jit.kernel_compile(module, kr);
-            }
+            if (module.getId() == "startup") continue;
+            if (module.getId() == "kernel") continue;
+            jit.kernel_compile(module, kr);
         }
         modules.destroy();
     }

@@ -19,11 +19,12 @@ entry:
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
     popl %ecx; // inst_B (type B)
+    addl 0, %ecx; jz halt // break if not instantiated
     
     // TODO: cast to thread
     
     pushl %ecx; pushl B_m_run; call (%ecx)
-	addl 12, %esp
+	addl 8, %esp
     
     pushl %ecx
     pushl %edi; pushl Runtime_m_destroyInstance; call (%edi)

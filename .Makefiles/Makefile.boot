@@ -10,8 +10,8 @@ LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS
 #MODSIMPLE_PARTS = __startup _core Runtime A B
 MODSIMPLE_PARTS = __startup _core Runtime A_globals B_globals
 MODSIMPLE_CORE_PARTS = __fake_statics _core Runtime
-MODSIMPLE_A_PARTS = core_globals A
-MODSIMPLE_B_PARTS = core_globals A_globals B
+MODSIMPLE_A_PARTS = A core_globals
+MODSIMPLE_B_PARTS = B core_globals A_globals
 MODSIMPLE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_PARTS))
 MODSIMPLE_CORE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_CORE_PARTS))
 MODSIMPLE_A_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_A_PARTS))
@@ -24,10 +24,12 @@ $(MODDIR)/simple/core_globals.pasm: $(MODSIMPLE_CORE_PASMS)
 $(MODDIR)/simple/A_globals.pasm $(BOOTDIR)/mod_A.pbc: $(MODSIMPLE_A_PASMS)
 	echo "creating $@"
 	cat $(MODSIMPLE_A_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/mod_A.pbc -
+#	cat $(MODSIMPLE_A_PASMS) > $(BOOTDIR)/mod_A.pbc
 
 $(MODDIR)/simple/B_globals.pasm $(BOOTDIR)/mod_B.pbc: $(MODSIMPLE_B_PASMS)
 	echo "creating $@"
 	cat $(MODSIMPLE_B_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/mod_B.pbc -
+#	cat $(MODSIMPLE_B_PASMS) > $(BOOTDIR)/mod_B.pbc
 
 $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_A.block $(BOOTDIR)/mod_B.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@

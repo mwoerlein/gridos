@@ -22,6 +22,8 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         debugLevel = 3;
     }
     
+    if (debugLevel >= 2) { env().out()<<"compile module "<<module.getId()<<"\n"; }
+    
     if (!module.hasStringProperty("meta.mimetype")) {
         env().err()<<"Missing mimetype\n";
         return *(Kernel *) 0;

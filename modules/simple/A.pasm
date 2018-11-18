@@ -1,3 +1,10 @@
+/*[meta]
+mimetype = text/x-pasm
+description = Test Klasse A
+author = Marc Woerlein<marc.woerlein@gmx.de>
+[pool]
+version = 0.2.0+20181102070000
+*/
 // CLASS A extends Object
 class_A_desc:
     .long 0 // @class (Type Class) filled by class instantiation
