@@ -61,11 +61,14 @@ size_t Jump::compileOperands() {
     if (num1) {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = num1->isConstant(*list) ? bit_32 : approximateOffsetWidth(num1); 
-        if (requiresAddressSizeOverride(offsetWidth)) {
-            pre3 = 0x66; size++;
+        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1); 
+        if (offsetWidth == bit_8) {
+            op1 = 0xEB;
+        } else {
+            // relative offsets must result in correct addr width, otherwise the upper two bytes of the EIP register are cleared
+            offsetWidth = ctx->addr;
+            op1 = 0xE9;
         }
-        op1 = (offsetWidth == bit_8) ? 0xEB : 0xE9;
         immSize = (int) offsetWidth;
         return size + immSize;
     }

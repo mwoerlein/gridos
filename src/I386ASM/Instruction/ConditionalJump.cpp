@@ -52,10 +52,7 @@ size_t ConditionalJump::compileOperands() {
     if (num1) {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = num1->isConstant(*list) ? bit_32 : approximateOffsetWidth(num1); 
-        if (requiresAddressSizeOverride(offsetWidth)) {
-            pre3 = 0x66; size++;
-        }
+        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1);
         if (offsetWidth == bit_8) {
             if (condition == cond_reg_cx || condition == cond_reg_ecx) {
                 if (requiresAddressSizeOverride((condition == cond_reg_cx) ? bit_16 : bit_32)) {
@@ -66,6 +63,8 @@ size_t ConditionalJump::compileOperands() {
                 op1 = 0x70 + getConditionEncoding(condition);
             } 
         } else {
+            // relative offsets must result in correct addr width, otherwise the upper two bytes of the EIP register are cleared
+            offsetWidth = ctx->addr;
             op1 = 0x0F; size++;
             op2 = 0x80 + getConditionEncoding(condition);
         }

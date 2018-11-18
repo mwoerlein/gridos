@@ -47,11 +47,11 @@ bool JumpTest::testRelative() {
         << "jmp 0x0\n" // offset < -32768
     ;
     (bin = "")
-        << (char) 0xEB << (char) 0x23
-        << (char) 0x66 << (char) 0xE9 << (char) 0x8F << (char) 0x00
-        << (char) 0xE9 << (char) 0x1A << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0xE9 << (char) 0x85 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0xE9 << (char) 0xEA << (char) 0xFF << (char) 0x00 << (char) 0x00
+        << (char) 0xEB << (char) 0x24
+        << (char) 0xE9 << (char) 0x8F << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE9 << (char) 0x19 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE9 << (char) 0x84 << (char) 0x00 << (char) 0x00 << (char) 0x00
+        << (char) 0xE9 << (char) 0xE9 << (char) 0xFF << (char) 0x00 << (char) 0x00
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
@@ -61,10 +61,10 @@ bool JumpTest::testRelative() {
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0xEB << (char) 0xEE
-        << (char) 0x66 << (char) 0xE9 << (char) 0x65 << (char) 0xFF
-        << (char) 0xE9 << (char) 0xDE << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0xE9 << (char) 0x5B << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0xE9 << (char) 0x56 << (char) 0xFF << (char) 0xFE << (char) 0xFF
+        << (char) 0xE9 << (char) 0x63 << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE9 << (char) 0xDC << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE9 << (char) 0x59 << (char) 0xFF << (char) 0xFF << (char) 0xFF
+        << (char) 0xE9 << (char) 0x54 << (char) 0xFF << (char) 0xFE << (char) 0xFF
     ;
     (pretty = "")
         << ".code32\n"
@@ -96,13 +96,13 @@ bool JumpTest::testRelative() {
     
     (in = "")
         << ".code16\n"
-        << "startDef:=0x10000\n"
+        << "startDef:=0x1000\n"
         << "start:\n"
         << "jmp (near_start+16)\n" // 0 <= offset <= 127
         << "jmp ((end<<16)>>16)\n" // 127 < offset <= 32767
         << "jmp (startDef + 0x25)\n" // 0 <= offset <= 127
-        << "jmp 0x10095\n" // 127 < offset <= 32767
-        << "jmp 0x1ffff\n" // 32767 < offset
+        << "jmp 0x1095\n" // 127 < offset <= 32767
+        << "jmp 0x1fff\n" // 32767 < offset
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
         << "near_start:\n"
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
@@ -116,16 +116,16 @@ bool JumpTest::testRelative() {
         << "end:\n"
         << "jmp near_end\n" // -128 <= offset <= 0
         << "jmp start\n" // -32768 <= offset < -128
-        << "jmp 0x1007e\n" // -128 <= offset <= 0
+        << "jmp 0x107e\n" // -128 <= offset <= 0
         << "jmp startDef\n" // -32768 <= offset < -128
         << "jmp 0x0\n" // offset < -32768
     ;
     (bin = "")
-        << (char) 0xEB << (char) 0x35
-        << (char) 0xE9 << (char) 0x92 << (char) 0x00
-        << (char) 0x66 << (char) 0xE9 << (char) 0x1A << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0x66 << (char) 0xE9 << (char) 0x84 << (char) 0x00 << (char) 0x00 << (char) 0x00
-        << (char) 0x66 << (char) 0xE9 << (char) 0xE8 << (char) 0xFF << (char) 0x00 << (char) 0x00
+        << (char) 0xEB << (char) 0x2c
+        << (char) 0xE9 << (char) 0x89 << (char) 0x00
+        << (char) 0xE9 << (char) 0x1D << (char) 0x00
+        << (char) 0xE9 << (char) 0x8A << (char) 0x00
+        << (char) 0xE9 << (char) 0xF1 << (char) 0x0F
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
@@ -135,19 +135,19 @@ bool JumpTest::testRelative() {
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90 << (char) 0x90
         << (char) 0xEB << (char) 0xEE
-        << (char) 0xE9 << (char) 0x64 << (char) 0xFF
-        << (char) 0x66 << (char) 0xE9 << (char) 0xDC << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0x66 << (char) 0xE9 << (char) 0x58 << (char) 0xFF << (char) 0xFF << (char) 0xFF
-        << (char) 0x66 << (char) 0xE9 << (char) 0x52 << (char) 0xFF << (char) 0xFE << (char) 0xFF
+        << (char) 0xE9 << (char) 0x6D << (char) 0xFF
+        << (char) 0xE9 << (char) 0xE8 << (char) 0xFF
+        << (char) 0xE9 << (char) 0x67 << (char) 0xFF
+        << (char) 0xE9 << (char) 0x64 << (char) 0xEF
     ;
     (pretty = "")
         << ".code16\n"
         << "start:\n"
         << "jmp (near_start+0x10)\n" // 0 <= offset <= 127
         << "jmp ((end<<0x10)>>0x10)\n" // 127 < offset <= 32767
-        << "jmp 0x10025\n" // 0 <= offset <= 127
-        << "jmp 0x10095\n" // 127 < offset <= 32767
-        << "jmp 0x1ffff\n" // 32767 < offset
+        << "jmp 0x1025\n" // 0 <= offset <= 127
+        << "jmp 0x1095\n" // 127 < offset <= 32767
+        << "jmp 0x1fff\n" // 32767 < offset
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
         << "near_start:\n"
         << "nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n"
@@ -161,12 +161,12 @@ bool JumpTest::testRelative() {
         << "end:\n"
         << "jmp near_end\n" // -128 <= offset <= 0
         << "jmp start\n" // -32768 <= offset < -128
-        << "jmp 0x1007e\n" // -128 <= offset <= 0
-        << "jmp 0x10000\n" // -32768 <= offset < -128
+        << "jmp 0x107e\n" // -128 <= offset <= 0
+        << "jmp 0x1000\n" // -32768 <= offset < -128
         << "jmp 0x0\n" // offset < -32768
     ;
     
-    success &= test(in, bin, pretty, message = "test \"jmp relative (16bit)\"", 0x10000);
+    success &= test(in, bin, pretty, message = "test \"jmp relative (16bit)\"", 0x1000);
     
     return success;
 }
