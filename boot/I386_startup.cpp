@@ -7,6 +7,7 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #include "I386/I386Bootstrap.hpp"
 #include "KernelJIT/KernelJIT.hpp"
 #include "KernelJIT/HaltKernel.hpp"
+#include "KernelJIT/KernelRuntime.hpp"
 //#include "test/TestSuite.hpp"
 
 #define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
@@ -48,15 +49,28 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         modules.destroy();
     }
     
+    KernelRuntime &kr = env.create<KernelRuntime>();
+    
     // compile kernel from modules
     assertHALT(env.hasModule("kernel"), "No kernel loaded!");
     KernelJIT &jit = env.create<KernelJIT>();
     if (debugLevel >= 1) { env.out()<<"Compiling ... with "<<&jit<<'\n'; }
-    Kernel &k = jit.kernel_compile(env.getModule("kernel"));
-    
+    Kernel &k = jit.kernel_compile(env.getModule("kernel"), kr);
+    {
+        Iterator<Module> &modules = env.modules();
+        while (modules.hasNext()) {
+            Module &module = modules.next();
+            if (module.testStringProperty("meta.mimetype", "application/pool-class-x86")) {
+                jit.kernel_compile(module, kr);
+            }
+        }
+        modules.destroy();
+    }
     jit.destroy();
     // do not destroy modules, yet! I386OStreamKernel still requires startup/jit code and interrupt handler 
     //env.destroyModules();
+    
+    assertHALT(kr.resolveClasses(), "Class resolving failed!");
     
     if (debugLevel >= 2) {
         env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();

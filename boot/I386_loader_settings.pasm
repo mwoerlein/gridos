@@ -57,6 +57,22 @@ MOD_KERNEL_OFFSET   := 0x0000
 MOD_KERNEL_ADDR     := ((MOD_KERNEL_SEGMENT << 4) + MOD_KERNEL_OFFSET)
 //MOD_KERNEL_CMD    := "kernel --debug=1"
 
+//MOD_A_SECTORS  := 0 // dynamically added
+MOD_A_LBA      := (STARTUP_LBA + STARTUP_SECTORS)
+MOD_A_SIZE     := (MOD_A_SECTORS << 9)
+MOD_A_SEGMENT  := (MOD_KERNEL_SEGMENT + (MOD_KERNEL_SECTORS << 5))
+MOD_A_OFFSET   := 0x0000
+MOD_A_ADDR     := ((MOD_A_SEGMENT << 4) + MOD_A_OFFSET)
+//MOD_A_CMD    := "class_A --debug=1"
+
+//MOD_B_SECTORS  := 0 // dynamically added
+MOD_B_LBA      := (MOD_A_LBA + MOD_A_SECTORS)
+MOD_B_SIZE     := (MOD_B_SECTORS << 9)
+MOD_B_SEGMENT  := (MOD_A_SEGMENT + (MOD_A_SECTORS << 5))
+MOD_B_OFFSET   := 0x0000
+MOD_B_ADDR     := ((MOD_B_SEGMENT << 4) + MOD_B_OFFSET)
+//MOD_B_CMD    := "class_B --debug=1"
+
 //STARTUP_SECTORS     := 0 // dynamically added 
 STARTUP_LBA         := (MOD_KERNEL_LBA + MOD_KERNEL_SECTORS)
 STARTUP_SIZE        := (STARTUP_SECTORS << 9)

@@ -1,0 +1,11 @@
+_env_allocator        := 0
+_env_out              := 0
+_env_err              := 0
+_env_runtime          := 0
+_allocator_allocate   := 0
+_allocator_free       := 0
+_ostream_print_char   := 0
+_ostream_print_string := 0
+_ostream_print_int    := 0
+_ostream_print_hex    := 0
+_runtime_findClass    := 0

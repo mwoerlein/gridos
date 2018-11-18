@@ -2,7 +2,6 @@
 
 #include "KernelJIT/HaltKernel.hpp"
 #include "KernelJIT/OStreamKernel.hpp"
-#include "KernelJIT/KernelRuntime.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386OStreamKernel.hpp"
 
@@ -10,7 +9,7 @@
 #include "I386ASM/ParseErrorStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
-Kernel &KernelJIT::kernel_compile(Module & module) {
+Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
     // TODO: improve debug handling 
     int debugLevel = 0;
     if (module.testStringProperty("meta.debug", "1")) {
@@ -35,7 +34,6 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         in.destroy();
         parser.destroy();
 
-        KernelRuntime &kr = env().create<KernelRuntime>();
         kr.injectDefinitions(list);
         
         if (list.hasErrors()) {
@@ -65,11 +63,11 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         {
             String &s = env().create<String>();
             
-            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Object_desc"));
-            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Class_desc"));
-            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_Runtime_desc"));
-            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_A_desc"));
-            kr.registerClass((pool_class_descriptor*) list.getLabel(s="class_B_desc"));
+            if (list.hasLabel(s="class_Object_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
+            if (list.hasLabel(s="class_Class_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
+            if (list.hasLabel(s="class_Runtime_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
+            if (list.hasLabel(s="class_A_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
+            if (list.hasLabel(s="class_B_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
             
             s.destroy();
         }
@@ -85,6 +83,18 @@ Kernel &KernelJIT::kernel_compile(Module & module) {
         osk<<in;
         if (debugLevel >= 2) { env().out()<<" done\n"; }
         in.destroy();
+        return osk;
+    }
+    
+    if (module.testStringProperty("meta.mimetype", "application/pool-class-x86")) {
+        size_t size = module.getContentSize();
+        OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
+        IStream &in = module.getContentIStream();
+        if (debugLevel >= 2) { env().out()<<"copying "<<size<< " bytes ..."; }
+        osk<<in;
+        if (debugLevel >= 2) { env().out()<<" done\n"; }
+        in.destroy();
+        kr.registerClass((pool_class_descriptor*) osk.getStartAddress());
         return osk;
     }
     

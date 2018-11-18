@@ -39,16 +39,24 @@ bool KernelRuntime::registerClass(pool_class_descriptor *desc) {
         return false;
     }
     set(cd.name, cd);
-    
-    // resolve vtabs
-    for (int i = 0; desc->vtabs[i].classname_offset; i++) {
-        const char * name = (const char *) ((size_t) desc + desc->vtabs[i].classname_offset);
-        desc->vtabs[i].class_desc = findClass(name);
-        if (!desc->vtabs[i].class_desc) {
-            env().err() << "unknown class " << name << "\n";
-            return false;
+    return true;
+}
+
+bool KernelRuntime::resolveClasses() {
+    Iterator<ClassDescriptor> &cds = values();
+    while (cds.hasNext()) {
+        pool_class_descriptor *desc = cds.next().desc;
+        // resolve vtabs
+        for (int i = 0; desc->vtabs[i].classname_offset; i++) {
+            const char * name = (const char *) ((size_t) desc + desc->vtabs[i].classname_offset);
+            desc->vtabs[i].class_desc = findClass(name);
+            if (!desc->vtabs[i].class_desc) {
+                env().err() << "unknown class " << name << "\n";
+                return false;
+            }
         }
     }
+    cds.destroy();
     return true;
 }
 

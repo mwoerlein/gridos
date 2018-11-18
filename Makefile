@@ -1,6 +1,6 @@
 include ./.Makefiles/Makefile.inc
 
-BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.bin $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
+BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.bin $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block $(BOOTDIR)/mod_A.block $(BOOTDIR)/mod_B.block
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
