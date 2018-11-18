@@ -74,9 +74,9 @@ load_sectors:
     movb (boot_device), %dl
     int 0x13
     jc ls_chs_load // no LBA => use CHS
-    .byte 0x81; .byte 0xfb; .word 0xaa55 #// cmpw 0xaa55, %bx
+    cmpw 0xaa55, %bx
 	jne ls_chs_load // no LBA => use CHS
-    .byte 0x83; .byte 0xe1; .byte 0x01 #// andw 1, %cx
+    andw 1, %cx
 	jz ls_chs_load // no LBA => use CHS
 
 ls_lba_load:
@@ -114,7 +114,7 @@ ls_chs_load:
     /* determine allowed segments to read */
 ls_chs_check_max:
     // maximal 127 segments
-    .byte 0x81; .byte 0xff; .word 0x7f #// cmpw 127, %di
+    cmpw 127, %di
     jl ls_chs_check_offset
     movw 127, %di 
 ls_chs_check_offset:
@@ -124,7 +124,7 @@ ls_chs_check_offset:
     addw 4(%si), %ax              # dest offset
     jnc ls_chs_convert
     .byte 0xc1; .byte 0xe8; .byte 0x09 #// shrw 9, %ax
-    .byte 0x29; .byte 0xc7  #// subw %ax, %di
+    subw %ax, %di
 
 ls_chs_convert:
     /*
@@ -173,7 +173,7 @@ ls_chs_convert:
     movb 0x2e, %al; call write_char
     
     /* step count/segment/lba in dap */
-    .byte 0x29; .byte 0x7c; .byte 0x02 #// subw %di, 2(%si) // count
+    subw %di, 2(%si) // count
     addl %edi, 8(%si) // lba
     .byte 0xc1; .byte 0xe7; .byte 0x09 #// shlw 9, %di
     addw %di, 4(%si) // offset

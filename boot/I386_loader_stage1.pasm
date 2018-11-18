@@ -29,7 +29,7 @@ loader_stage1:
     
 /* activate A20 gate */
     inb 0x92, %al
-    .byte 0x0c; .byte 0x02   #// orb 2, %al
+    orb 2, %al
     outb %al, 0x92
     
 /* disable interrupts */
@@ -91,8 +91,8 @@ mb2mmap_e820_read:
     int 0x15
     jc memory_error
     movl BIOS_INT15_E820_SIGNATURE, %edx
-    addl -0x534d4150, %eax #// cmpl %edx, %eax
-    jnz memory_error
+    cmpl %edx, %eax
+    jne memory_error
     
     addl -20, %ecx
     jbe mb2mmap_e820_valid
@@ -101,7 +101,7 @@ mb2mmap_e820_read:
     
 mb2mmap_e820_valid:
     movl 12(%di), %eax
-    .byte 0x66; .byte 0x0b; .byte 0x45; .byte 0x08 #// orl  8(%di), %eax
+    orl 8(%di), %eax
     addl 0, %eax
     jz  mb2mmap_e820_ignore
 /* keep valid, non-empty entry */   
@@ -113,7 +113,7 @@ mb2mmap_e820_ignore:
     
 /* adjust mbi_tag_mmap_size */
     movw %di, %ax
-    .byte 0x66; .byte 0x29; .byte 0xf7 #// subl %esi, %edi
+    subl %esi, %edi
     movl %edi, 4(%si)
     popa
     ret
@@ -131,7 +131,7 @@ mb2_finalize_mbi:
     addw 8, %si
     
 /* adjust mbi_size */
-    .byte 0x29; .byte 0xde #// subw %bx, %si
+    subw %bx, %si
     movl %esi, (%bx)
     popa
     ret

@@ -4,12 +4,12 @@
 #include "sys/Digit.hpp"
 #include "memory/MemoryInfoHelper.hpp"
 
-#include "I386ASM/Instruction/Add.hpp"
 #include "I386ASM/Instruction/Align.hpp"
 #include "I386ASM/Instruction/Ascii.hpp"
 #include "I386ASM/Instruction/Call.hpp"
 #include "I386ASM/Instruction/ConditionalJump.hpp"
 #include "I386ASM/Instruction/Div.hpp"
+#include "I386ASM/Instruction/GroupOneInstruction.hpp"
 #include "I386ASM/Instruction/In.hpp"
 #include "I386ASM/Instruction/Inline.hpp"
 #include "I386ASM/Instruction/Int.hpp"
@@ -477,12 +477,43 @@ ASMInstruction * Parser::parseInstruction(char * start, char * end, char * opera
         }
         [aA][dD][dD] @o1 bitwidth? @o2 {
             if (!op1 || !op2 || op3) return 0;
-            return &env().create<Add, ASMOperand*, ASMOperand*, BitWidth> (op1, op2, parseOperandSize(o1, o2));
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("add", 0, op1, op2, parseOperandSize(o1, o2));
+        }
+        [oO][rR] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("or", 1, op1, op2, parseOperandSize(o1, o2));
+        }
+        [aA][dD][cC] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("adc", 2, op1, op2, parseOperandSize(o1, o2));
+        }
+        [sS][bB][bB] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("sbb", 3, op1, op2, parseOperandSize(o1, o2));
+        }
+        [aA][nN][dD] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("and", 4, op1, op2, parseOperandSize(o1, o2));
         }
         [sS][uU][bB] @o1 bitwidth? @o2 {
-            String s(env(), *notAnInfo, start, operandsEnd);
-            list->err << "not yet supported instruction '" << s << "' at line: " << linesBuffer[start-buffer] << " column: "  << columnsBuffer[start-buffer]<< '\n';
-            return 0;
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("sub", 5, op1, op2, parseOperandSize(o1, o2));
+        }
+        [xX][oO][rR] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("xor", 6, op1, op2, parseOperandSize(o1, o2));
+        }
+        [cC][mM][pP] @o1 bitwidth? @o2 {
+            if (!op1 || !op2 || op3) return 0;
+            return &env().create<GroupOneInstruction, const char *, int, ASMOperand*, ASMOperand*, BitWidth> 
+                ("cmp", 7, op1, op2, parseOperandSize(o1, o2));
         }
         [dD][iI][vV] @o1 bitwidth? @o2 {
             if (!op1 || op2 || op3) return 0;

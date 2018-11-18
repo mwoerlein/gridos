@@ -1,7 +1,7 @@
-#include "I386ASM/Instruction/Add.hpp"
+#include "I386ASM/Instruction/GroupOneInstruction.hpp"
 
 // protected
-size_t Add::approximateSizeInBytes() {
+size_t GroupOneInstruction::approximateSizeInBytes() {
     Numeric *num1 = o1->asNumeric();
     Indirect *i1 = o1->as<Indirect>(indirect);
     Indirect *i2 = o2->as<Indirect>(indirect);
@@ -25,7 +25,7 @@ size_t Add::approximateSizeInBytes() {
     return size;
 }
 
-void Add::checkOperands() {
+void GroupOneInstruction::checkOperands() {
     if (!o1) {
         list->err<<"Missing source!\n";
     }
@@ -57,7 +57,7 @@ void Add::checkOperands() {
     }
 }
 
-void Add::validateOperands() {
+void GroupOneInstruction::validateOperands() {
     Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
@@ -87,7 +87,7 @@ void Add::validateOperands() {
     list->err<<"unsupported operands in \""<<*this<<"\"\n";
 }
 
-size_t Add::compileOperands() {
+size_t GroupOneInstruction::compileOperands() {
     size_t size = 0;
     Numeric *num1 = o1->asNumeric();
     Register *r1 = o1->as<Register>(reg);
@@ -102,7 +102,7 @@ size_t Add::compileOperands() {
     if (num1 && (r2 || i2)) {
         immSize = (int) operandSize;
         if (r2 && (r2->getOpCodeRegister() == 0 /*al, ax, eax*/)) {
-            op1 = (operandSize == bit_8) ? 0x04 : 0x05;
+            op1 = (regO << 3) + ((operandSize == bit_8) ? 0x04 : 0x05);
             return size + 1 + immSize;
         }
         if (operandSize == bit_8) {
@@ -124,7 +124,7 @@ size_t Add::compileOperands() {
         return size + 1 + modrmSize + sibSize + dispSize + immSize;
     }
     if (r1 && (r2 || i2)) {
-        op1 = (operandSize == bit_8) ? 0x00 : 0x01;
+        op1 = (regO << 3) + ((operandSize == bit_8) ? 0x00 : 0x01);
         modrmSize = 1;
         if (i2) {
             if (requiresAddressSizeOverride(i2)) {
@@ -135,7 +135,7 @@ size_t Add::compileOperands() {
         return size + 1 + modrmSize + sibSize + dispSize;
     }
     if (i1 && r2) {
-        op1 = (operandSize == bit_8) ? 0x02 : 0x03;
+        op1 = (regO << 3) + ((operandSize == bit_8) ? 0x02 : 0x03);
         if (requiresAddressSizeOverride(i1)) {
             pre4 = 0x67; size++;
         }    
@@ -145,7 +145,7 @@ size_t Add::compileOperands() {
     return -1;
 }
 
-void Add::writeOperandsToStream(OStream & stream) {
+void GroupOneInstruction::writeOperandsToStream(OStream & stream) {
     Register *r1 = o1->as<Register>(reg);
     Register *r2 = o2->as<Register>(reg);
     Indirect *i1 = o1->as<Indirect>(indirect);
@@ -153,10 +153,10 @@ void Add::writeOperandsToStream(OStream & stream) {
     
     if (immSize) {
         if (r2) {
-            writeModRMToStream(stream, 0, r2);
+            writeModRMToStream(stream, regO, r2);
         }
         if (i2) {
-            writeIndirectToStream(stream, i2, 0);
+            writeIndirectToStream(stream, i2, regO);
         }
         writeImmediateToStream(stream, o1);
     }

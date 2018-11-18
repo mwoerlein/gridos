@@ -226,7 +226,7 @@ class_Object_method_equals:
     movl 16(%ebp), %ebx    // @obj (Type ANY)
     movl 4(%ebx), %ebx     // @obj
     
-    .byte 0x29; .byte 0xc3 #// subl %eax, %ebx
+    subl %eax, %ebx
     
     jnz class_Object_method_equals_ret
     movl 1, 20(%ebp)       // return true
@@ -440,10 +440,10 @@ _ccmc_start:
     movl (%ebx), %eax               // @obj-class desc
     addl class_vtabs_offset, %eax   // @obj-class vtabs
 _ccmc_loop:
-    .byte 0x39; .byte 0x08 #// cmpl (%eax), %ecx
+    cmpl (%eax), %ecx
     je _ccmc_found
     addl _cvte_size, %eax
-    .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
+    cmpl 0, (%eax)
     je _ccmc_return
     jmp _ccmc_loop
 _ccmc_found:
@@ -478,7 +478,7 @@ _string_compare: # %esi:string 1, %edi:string 2, return %al:<0, =0, >0
 _string_compare_loop:   	
     addl 1, %edi
     lodsb
-    .byte 0x2a; .byte 0x07 #// subb (%edi), %al
+    subb (%edi), %al
     jnz _string_compare_return // differrent chars
     addb (%edi), %al
     jnz _string_compare_loop  // not end of string

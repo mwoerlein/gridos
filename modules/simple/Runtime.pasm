@@ -150,7 +150,7 @@ _crmci_start:
     popl %edx       // @class-desc
     addl 0, %edx; jz _crmci_return  // return NULL if class not exists
     
-    .byte 0x83; .byte 0x3a; .byte 0x00 #// cmpl 0, (%edx)
+    cmpl 0, (%edx)
     jnz _crmci_instantiate // class already initialized
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
@@ -208,7 +208,7 @@ _crhi_loop:
     movl %edi, 4(%edi, %ebx)        // store @object in handle
     movl %ecx, 8(%edi, %ebx)        // store vtab-offset in handle
     addl _cvte_size, %eax
-    .byte 0x83; .byte 0x38; .byte 0x00 #// cmpl 0, (%eax)
+    cmpl 0, (%eax)
     jne _crhi_loop
     
     movl %edi, %esi
@@ -255,7 +255,7 @@ class_Runtime_method_printChar:
     pushl %ebp; movl %esp, %ebp; pushad
     
     movl _env_out, %eax
-    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    cmpl 0, 16(%ebp)
     je _crmpc_1
     movl _env_err, %eax
 _crmpc_1:
@@ -270,7 +270,7 @@ class_Runtime_method_printString:
     pushl %ebp; movl %esp, %ebp; pushad
     
     movl _env_out, %eax
-    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    cmpl 0, 16(%ebp)
     je _crmps_1
     movl _env_err, %eax
 _crmps_1:
@@ -285,7 +285,7 @@ class_Runtime_method_printInt:
     pushl %ebp; movl %esp, %ebp; pushad
     
     movl _env_out, %eax
-    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    cmpl 0, 16(%ebp)
     je _crmpi_1
     movl _env_err, %eax
 _crmpi_1:
@@ -300,7 +300,7 @@ class_Runtime_method_printHex:
     pushl %ebp; movl %esp, %ebp; pushad
     
     movl _env_out, %eax
-    .byte 0x83; .byte 0x7d; .byte 0x10; .byte 0x00 #// cmpl 0, 16(%ebp)
+    cmpl 0, 16(%ebp)
     je _crmph_1
     movl _env_err, %eax
 _crmph_1:

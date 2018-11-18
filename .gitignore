@@ -1,6 +1,7 @@
 .idea
 
 *.[oas]
+*.pbc
 *.bin
 *.block
 
@@ -12,3 +13,4 @@
 /src/I386ASM/Parser.cpp
 /src/KernelJIT/Module.cpp
 /boot/I386_loader_dynamic_settings.pasm
+/modules/simple/*_globals.pasm
