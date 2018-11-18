@@ -672,6 +672,7 @@ ASMInstructionList & Parser::parse(IStream & input, OStream & error, int line, i
     char *o1, *o2, *o3, *o4, *o5, *o6, *o7, *o8;
     for (;;) {
         BitWidth data = bit_auto, addr = bit_auto;
+        bool global = false;
 detect_instruction:
         token = current;
 /*!re2c
@@ -703,6 +704,7 @@ detect_instruction:
         "."[dD][aA][tT][aA]"32" wsp { data = bit_32; goto detect_instruction; }
         "."[aA][dD][dD][rR]"16" wsp { addr = bit_16; goto detect_instruction; }
         "."[aA][dD][dD][rR]"32" wsp { addr = bit_32; goto detect_instruction; }
+        "."[gG][lL][oO][bB][aA][lL] wsp { global = true; goto detect_instruction; }
         
         "."[aA][sS][cC][iI] @o1 [iIzZ] wsp @o2 ['"] {
                     String *s = parseString(input, *o2);
@@ -716,7 +718,7 @@ detect_instruction:
                     continue;
                   }
         @o1 id @o2 wsp assign wsp @o3 numeric @o4 wsp / eoinst {
-                    list->addDefinition(parseStringValue(o1, o2), *parseNumericOperand(o3, o4));
+                    list->addDefinition(parseStringValue(o1, o2), *parseNumericOperand(o3, o4), global);
                     continue;
                   }
         @o1 inst @o2 wsp / eoinst {

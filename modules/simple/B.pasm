@@ -69,9 +69,9 @@ _cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
 _cBVEA := (class_B_vtabs_entry_A - class_B_desc)
 _cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 
-class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
-class_B_mo_run    := (class_B_method_run - class_B_desc)
-class_B_mo_doIt   := (class_B_method_doIt - class_B_desc)
+.global class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
+.global class_B_mo_run    := (class_B_method_run - class_B_desc)
+.global class_B_mo_doIt   := (class_B_method_doIt - class_B_desc)
 
 class_B_so_classname := (class_B_string_classname - class_B_desc)
 class_B_so_super1 := (class_B_string_super1 - class_B_desc)
@@ -123,16 +123,16 @@ class_B_string_doit:
     .asciz "DoIt "
 
 // Method Offsets
-B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
-B_m_hash     := (class_B_vtab_B_method_hash - class_B_vtab_B)
-B_m_equals   := (class_B_vtab_B_method_equals - class_B_vtab_B)
-B_m_rt       := (class_B_vtab_B_method_rt - class_B_vtab_B)
-B_m_setRt    := (class_B_vtab_B_method_setRt - class_B_vtab_B)
-B_m_init     := (class_B_vtab_B_method_init - class_B_vtab_B)
-B_m_test     := (class_B_vtab_B_method_test - class_B_vtab_B)
-B_m_getRow   := (class_B_vtab_B_method_getRow - class_B_vtab_B)
-B_m_run      := (class_B_vtab_B_method_run - class_B_vtab_B)
-B_m_doIt     := (class_B_vtab_B_method_doIt - class_B_vtab_B)
+.global B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
+.global B_m_hash     := (class_B_vtab_B_method_hash - class_B_vtab_B)
+.global B_m_equals   := (class_B_vtab_B_method_equals - class_B_vtab_B)
+.global B_m_rt       := (class_B_vtab_B_method_rt - class_B_vtab_B)
+.global B_m_setRt    := (class_B_vtab_B_method_setRt - class_B_vtab_B)
+.global B_m_init     := (class_B_vtab_B_method_init - class_B_vtab_B)
+.global B_m_test     := (class_B_vtab_B_method_test - class_B_vtab_B)
+.global B_m_getRow   := (class_B_vtab_B_method_getRow - class_B_vtab_B)
+.global B_m_run      := (class_B_vtab_B_method_run - class_B_vtab_B)
+.global B_m_doIt     := (class_B_vtab_B_method_doIt - class_B_vtab_B)
 // Vars Offsets
 // Super Vars Offsets
 handle_B_vars_B      := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_handle_B)

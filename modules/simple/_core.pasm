@@ -158,11 +158,11 @@ class_Object_vtab_Object_method_setRt:
 
 _cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
 
-class_Object_mo_getClass := (class_Object_method_getClass - class_Object_desc)
-class_Object_mo_hash     := (class_Object_method_hash - class_Object_desc)
-class_Object_mo_equals   := (class_Object_method_equals - class_Object_desc)
-class_Object_mo_rt       := (class_Object_method_rt - class_Object_desc)
-class_Object_mo_setRt    := (class_Object_method_setRt - class_Object_desc)
+.global class_Object_mo_getClass := (class_Object_method_getClass - class_Object_desc)
+.global class_Object_mo_hash     := (class_Object_method_hash - class_Object_desc)
+.global class_Object_mo_equals   := (class_Object_method_equals - class_Object_desc)
+.global class_Object_mo_rt       := (class_Object_method_rt - class_Object_desc)
+.global class_Object_mo_setRt    := (class_Object_method_setRt - class_Object_desc)
 
 class_Object_so_classname := (class_Object_string_classname - class_Object_desc)
 
@@ -183,13 +183,13 @@ class_Object_inst_tpl_end:
 class_Object_string_classname:
     .asciz "/my/Object"
 // Method Offsets
-Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vtab_Object)
-Object_m_hash     := (class_Object_vtab_Object_method_hash - class_Object_vtab_Object)
-Object_m_equals   := (class_Object_vtab_Object_method_equals - class_Object_vtab_Object)
-Object_m_rt       := (class_Object_vtab_Object_method_rt - class_Object_vtab_Object)
-Object_m_setRt    := (class_Object_vtab_Object_method_setRt - class_Object_vtab_Object)
+.global Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vtab_Object)
+.global Object_m_hash     := (class_Object_vtab_Object_method_hash - class_Object_vtab_Object)
+.global Object_m_equals   := (class_Object_vtab_Object_method_equals - class_Object_vtab_Object)
+.global Object_m_rt       := (class_Object_vtab_Object_method_rt - class_Object_vtab_Object)
+.global Object_m_setRt    := (class_Object_vtab_Object_method_setRt - class_Object_vtab_Object)
 // Vars Offsets
-Object_i_runtime  := (class_Object_inst_tpl_vars_Object_runtime - class_Object_inst_tpl_vars_Object)
+.global Object_i_runtime  := (class_Object_inst_tpl_vars_Object_runtime - class_Object_inst_tpl_vars_Object)
 // Super Vars Offsets
 handle_Object_vars_Object := (class_Object_inst_tpl_handle_Object_vars_Object - class_Object_inst_tpl_handle_Object)
 
@@ -334,10 +334,10 @@ class_Class_vtab_Object:
 _cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
 _cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
 
-class_Class_mo_getDesc := (class_Class_method_getDesc - class_Class_desc)
-class_Class_mo_setDesc := (class_Class_method_setDesc - class_Class_desc)
-class_Class_mo_getName := (class_Class_method_getName - class_Class_desc)
-class_Class_mo_cast    := (class_Class_method_cast - class_Class_desc)
+.global class_Class_mo_getDesc := (class_Class_method_getDesc - class_Class_desc)
+.global class_Class_mo_setDesc := (class_Class_method_setDesc - class_Class_desc)
+.global class_Class_mo_getName := (class_Class_method_getName - class_Class_desc)
+.global class_Class_mo_cast    := (class_Class_method_cast - class_Class_desc)
 
 class_Class_so_classname := (class_Class_string_classname - class_Class_desc)
 class_Class_so_super1 := (class_Class_string_super1 - class_Class_desc)
@@ -372,18 +372,17 @@ class_Class_string_super1:
     .asciz "/my/Object"
     
 // Method Offsets
-Class_m_getClass    := (class_Class_vtab_Class_method_getClass - class_Class_vtab_Class)
-Class_m_hash        := (class_Class_vtab_Class_method_hash - class_Class_vtab_Class)
-Class_m_equals      := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
-Class_m_rt          := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
-Class_m_setRt       := (class_Class_vtab_Class_method_setRt - class_Class_vtab_Class)
-Class_m_getDesc     := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
-Class_m_setDesc     := (class_Class_vtab_Class_method_setDesc - class_Class_vtab_Class)
-Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
-Class_m_cast        := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
+.global Class_m_getClass    := (class_Class_vtab_Class_method_getClass - class_Class_vtab_Class)
+.global Class_m_hash        := (class_Class_vtab_Class_method_hash - class_Class_vtab_Class)
+.global Class_m_equals      := (class_Class_vtab_Class_method_equals - class_Class_vtab_Class)
+.global Class_m_rt          := (class_Class_vtab_Class_method_rt - class_Class_vtab_Class)
+.global Class_m_setRt       := (class_Class_vtab_Class_method_setRt - class_Class_vtab_Class)
+.global Class_m_getDesc     := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
+.global Class_m_setDesc     := (class_Class_vtab_Class_method_setDesc - class_Class_vtab_Class)
+.global Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
+.global Class_m_cast        := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
 // Vars Offsets
-Class_i_name := (class_Class_inst_tpl_vars_Class_name - class_Class_inst_tpl_vars_Class)
-Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
+.global Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
 // Super Vars Offsets
 handle_Class_vars_Class  := (class_Class_inst_tpl_handle_Class_vars_Class - class_Class_inst_tpl_handle_Class)
 handle_Class_vars_Object := (class_Class_inst_tpl_handle_Class_vars_Object - class_Class_inst_tpl_handle_Class)

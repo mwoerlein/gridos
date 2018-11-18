@@ -50,9 +50,9 @@ class_A_vtab_Object:
 _cAVEA := (class_A_vtabs_entry_A - class_A_desc)
 _cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
 
-class_A_mo_init   := (class_A_method_init - class_A_desc)
-class_A_mo_getRow := (class_A_method_getRow - class_A_desc)
-class_A_mo_test   := (class_A_method_test - class_A_desc)
+.global class_A_mo_init   := (class_A_method_init - class_A_desc)
+.global class_A_mo_getRow := (class_A_method_getRow - class_A_desc)
+.global class_A_mo_test   := (class_A_method_test - class_A_desc)
 
 class_A_so_classname := (class_A_string_classname - class_A_desc)
 class_A_so_super1 := (class_A_string_super1 - class_A_desc)
@@ -92,17 +92,17 @@ class_A_string_test:
     .asciz " Test\n"
 
 // Method Offsets
-A_m_getClass := (class_A_vtab_A_method_getClass - class_A_vtab_A)
-A_m_hash     := (class_A_vtab_A_method_hash - class_A_vtab_A)
-A_m_equals   := (class_A_vtab_A_method_equals - class_A_vtab_A)
-A_m_rt       := (class_A_vtab_A_method_rt - class_A_vtab_A)
-A_m_setRt    := (class_A_vtab_A_method_setRt - class_A_vtab_A)
-A_m_init     := (class_A_vtab_A_method_init - class_A_vtab_A)
-A_m_getRow   := (class_A_vtab_A_method_getRow - class_A_vtab_A)
-A_m_test     := (class_A_vtab_A_method_test - class_A_vtab_A)
+.global A_m_getClass := (class_A_vtab_A_method_getClass - class_A_vtab_A)
+.global A_m_hash     := (class_A_vtab_A_method_hash - class_A_vtab_A)
+.global A_m_equals   := (class_A_vtab_A_method_equals - class_A_vtab_A)
+.global A_m_rt       := (class_A_vtab_A_method_rt - class_A_vtab_A)
+.global A_m_setRt    := (class_A_vtab_A_method_setRt - class_A_vtab_A)
+.global A_m_init     := (class_A_vtab_A_method_init - class_A_vtab_A)
+.global A_m_getRow   := (class_A_vtab_A_method_getRow - class_A_vtab_A)
+.global A_m_test     := (class_A_vtab_A_method_test - class_A_vtab_A)
 // Vars Offsets
-A_i_column := (class_A_inst_tpl_vars_A_column - class_A_inst_tpl_vars_A)
-A_i_row    := (class_A_inst_tpl_vars_A_row - class_A_inst_tpl_vars_A)
+.global A_i_column := (class_A_inst_tpl_vars_A_column - class_A_inst_tpl_vars_A)
+.global A_i_row    := (class_A_inst_tpl_vars_A_row - class_A_inst_tpl_vars_A)
 // Super Vars Offsets
 handle_A_vars_A      := (class_A_inst_tpl_handle_A_vars_A - class_A_inst_tpl_handle_A)
 handle_A_vars_Object := (class_A_inst_tpl_handle_A_vars_Object - class_A_inst_tpl_handle_A)

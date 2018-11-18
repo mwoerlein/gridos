@@ -14,7 +14,9 @@ R"(Pool Assembler.
       -h --help    Show this screen.
       --version    Show version.
       -o <file>    Place the output into <file>.
+      -g <file>    Place the global definitions into <file>.
       -b --binary  Generate plain binary without module informations.
+      -c --class   Generate class module informations.
       -t <org>     Locates code in the output file at the absolute address given by org.
 )";
 
@@ -65,16 +67,25 @@ class PasmCommand: public CommandLine {
         
         list.finalize(startAddress);
         if (list.hasErrors()) { return 1; }
+        
+        if (hasProperty("g")) {
+            OStream &globalsfile = env().streamFactory().buildOStream(getStringProperty("g"));
+            list.logGlobalsToStream(globalsfile);
+            globalsfile.destroy();
+        }
 
         // generate module infos
         if (!hasProperty("b") && !hasProperty("binary")) {
-            outfile
-                <<"/*[meta]\n"
-                <<"mimetype = application/x-bin-x86\n"
+            outfile<<"/*[meta]\n";
+            if (hasProperty("c") || hasProperty("class")) {
+                outfile<<"mimetype = application/pool-class-x86\n";
+            } else {
+                outfile<<"mimetype = application/x-bin-x86\n";
+            }
                 //<<"description = Dies ist das GridOS-Kernel-Modul \"Blinking\"\n"
                 //<<"[pool]\n"
                 //<<"version = 0.1.0\n"
-                <<"*/\n";
+            outfile<<"*/\n";
         }
         list.writeToStream(outfile);
         

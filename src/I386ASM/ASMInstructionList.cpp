@@ -9,13 +9,14 @@ class ASMInstructionList::_Elem: public ASMContext {
     ASMInstruction *inst;
     String *identifier;
     Numeric *value;
+    bool global;
     
     _Elem(Environment &env, MemoryInfo &mi, BitWidth mode)
-        :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(0), value(0), next(0) {}
+        :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(0), value(0), next(0), global(false) {}
     _Elem(Environment &env, MemoryInfo &mi, String *identifier, Numeric *value, BitWidth mode)
-        :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(identifier), value(value), next(0) {}
+        :ASMContext(env, mi, mode, mode, mode), Object(env, mi), inst(0), identifier(identifier), value(value), next(0), global(false) {}
     _Elem(Environment &env, MemoryInfo &mi, ASMInstruction *inst, BitWidth mode, BitWidth data, BitWidth addr)
-        :ASMContext(env, mi, mode, data, addr), Object(env, mi), inst(inst), identifier(0), value(0), next(0) {}
+        :ASMContext(env, mi, mode, data, addr), Object(env, mi), inst(inst), identifier(0), value(0), next(0), global(false) {}
     virtual ~_Elem() {
         if (inst) {
             inst->destroy();
@@ -87,12 +88,13 @@ void ASMInstructionList::addLabel(String &label) {
     ids.set(label, *e);
 }
 
-void ASMInstructionList::addDefinition(String &definition, Numeric &value) {
+void ASMInstructionList::addDefinition(String &definition, Numeric &value, bool global) {
     if (ids.has(definition)) {
         err << "Duplicate definition of id '" << definition << "'\n";
         return;
     }
     _Elem * e = &env().create<_Elem, String*, Numeric*, BitWidth>(&definition, &value, last->mode);
+    e->global = global;
     last = last->next = e;
     ids.set(definition, *e);
 }
@@ -223,5 +225,17 @@ void ASMInstructionList::logToStream(OStream &stream, bool debug) {
             }
         }
         stream << '\n';
+    }
+}
+
+void ASMInstructionList::logGlobalsToStream(OStream &stream) {
+    if (pos == -1) {
+        err << "List is not compiled!\n";
+        return;
+    }
+    for (_Elem * cur = first; cur ; cur = cur->next) {
+        if (cur->global && cur->identifier && cur->value) {
+            (stream << *cur->identifier << " := ").printuhex(cur->value->getValue(*this)) << '\n';
+        }
     }
 }

@@ -27,7 +27,7 @@ class ASMInstructionList: virtual public Object {
     
     virtual void setMode(BitWidth mode);
     virtual void addLabel(String &label);
-    virtual void addDefinition(String &definition, Numeric &value);
+    virtual void addDefinition(String &definition, Numeric &value, bool global = false);
     virtual void addInstruction(ASMInstruction &inst, BitWidth data = bit_auto, BitWidth addr = bit_auto);
     
     virtual bool hasLabel(String &label);
@@ -43,6 +43,7 @@ class ASMInstructionList: virtual public Object {
     
     virtual void writeToStream(OStream &stream);
     virtual void logToStream(OStream &stream, bool debug = false);
+    virtual void logGlobalsToStream(OStream &stream);
 };
 
 #include "I386ASM/ASMOperand.hpp"
