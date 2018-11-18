@@ -6,9 +6,6 @@
 
 class LinuxBootstrap {
     public:
-    LinuxBootstrap() {};
-    virtual ~LinuxBootstrap() {};
-    
     static Environment & buildEnvironment();
 };
 
