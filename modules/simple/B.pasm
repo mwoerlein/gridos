@@ -197,7 +197,7 @@ class_B_method_doIt:
     pushl %edx
     
     movl 12(%ebp), %ecx # @this (Type B)
-
+    
     subl 4, %esp  # return value of rt
     pushl %ecx; pushl B_m_rt; call (%ecx)
 	addl 8, %esp
@@ -214,8 +214,21 @@ class_B_method_doIt:
     addl 16, %esp
     
     subl 4, %esp  # return value of equals
-    //pushl 16(%ebp) # param @a (Type A)
     pushl 12(%ebp) # @this (Type B)
+    pushl %ecx; pushl B_m_equals; call (%ecx)
+    addl 12, %esp
+    popl %eax
+    
+    pushl %eax; pushl 0
+    pushl %edx; pushl Runtime_m_printInt; call (%edx)
+    addl 16, %esp
+    
+    pushl 0x20; pushl 0 // ' '
+    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    addl 16, %esp
+    
+    subl 4, %esp  # return value of equals
+    pushl 16(%ebp) # param @a (Type A)
     pushl %ecx; pushl B_m_equals; call (%ecx)
     addl 12, %esp
     popl %eax
@@ -229,7 +242,7 @@ class_B_method_doIt:
     pushl %edx; pushl Runtime_m_allocate; call (%edx)
 	addl 12, %esp
     popl %esi
-
+    
     pushl 0x20; pushl 0 // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
@@ -270,7 +283,7 @@ class_B_method_doIt:
     pushl %eax     # row
     pushl %ecx; pushl B_m_test; call (%ecx)
 	addl 12, %esp
-
+    
     movl 16(%ebp), %ecx # param @a (Type A)
 	
     subl 4, %esp  # return value of getRow
@@ -286,7 +299,7 @@ class_B_method_doIt:
     popl %ecx
     leave
     ret
-    
+
 class_B_method_getRow:
     pushl %ebp; movl %esp, %ebp
 

@@ -210,7 +210,7 @@ class_Object_method_hash:
 
     movl 12(%ebp), %eax    // @this (Type Object)
     movl 4(%eax), %eax     // @this
-    movl %eax, 16(%ebp)    // return obj vars as hash
+    movl %eax, 16(%ebp)    // return @this as hash
     
     leave
     ret
@@ -226,9 +226,8 @@ class_Object_method_equals:
     movl 16(%ebp), %ebx    // @obj (Type ANY)
     movl 4(%ebx), %ebx     // @obj
     
-    subl %eax, %ebx
-    
-    jnz class_Object_method_equals_ret
+    cmpl %eax, %ebx
+    jne class_Object_method_equals_ret
     movl 1, 20(%ebp)       // return true
         
 class_Object_method_equals_ret:    
@@ -408,7 +407,7 @@ class_Class_method_setDesc:
     movl 16(%ebp), %eax           // param @class desc
     movl %eax, Class_i_desc(%ebx) // store @class desc
     movl 12(%ebp), %ebx           // @this (Type Class)
-    movl %ebx, (%eax)             // store @instace in class desc
+    movl %ebx, (%eax)             // store @this (Type Class) in class desc
     
     leave
     ret
@@ -473,18 +472,6 @@ _call_entry:
 	popl %ecx
 	jmp %ebx                    # goto method
 
-_string_compare: # %esi:string 1, %edi:string 2, return %al:<0, =0, >0
-    subl 1, %edi
-_string_compare_loop:   	
-    addl 1, %edi
-    lodsb
-    subb (%edi), %al
-    jnz _string_compare_return // differrent chars
-    addb (%edi), %al
-    jnz _string_compare_loop  // not end of string
-_string_compare_return:
-    ret
-	
 print_cga_buffer  := 0xB8000
 print_line_offset := 160
 print_cga_color   := 15
