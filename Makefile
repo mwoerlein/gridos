@@ -1,11 +1,12 @@
 include ./.Makefiles/Makefile.inc
 
-BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.bin $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block $(BOOTDIR)/mod_A.block $(BOOTDIR)/mod_B.block
+BOOTBLOCKS=$(BOOTDIR)/$(MASCHINE)_loader.bin $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block $(BOOTDIR)/mod_store.block
 THIS=$(firstword $(RLIBS))
 REST=$(filter-out $(THIS), $(RLIBS))
 
 TESTSUITELIBS = test.a KernelJIT.a $(MASCHINE)ASM.a linux.a memory.a sys.a
 PASMLIBS = $(MASCHINE)ASM.a linux.a memory.a sys.a
+STORELIBS = linux.a memory.a sys.a
 
 .PHONY: all clean libs rlibs tests
 
@@ -41,3 +42,7 @@ $(BINDIR)/testsuite: $(SRCDIR)/commands/testsuite.cpp $(TESTSUITELIBS:%=$(LIBDIR
 $(BINDIR)/pasm: $(SRCDIR)/commands/pasm.cpp $(PASMLIBS:%=$(LIBDIR)/%) $(BINDIR)
 	@echo "build pasm"
 	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(PASMLIBS:%=$(LIBDIR)/%)
+
+$(BINDIR)/store: $(SRCDIR)/commands/store.cpp $(STORELIBS:%=$(LIBDIR)/%) $(BINDIR)
+	@echo "build store"
+	@$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< $(STORELIBS:%=$(LIBDIR)/%)

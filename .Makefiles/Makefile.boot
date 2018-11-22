@@ -31,10 +31,13 @@ $(MODDIR)/simple/B_globals.pasm $(BOOTDIR)/mod_B.pbc: $(MODSIMPLE_B_PASMS)
 	cat $(MODSIMPLE_B_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/mod_B.pbc -
 #	cat $(MODSIMPLE_B_PASMS) > $(BOOTDIR)/mod_B.pbc
 
-$(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_A.block $(BOOTDIR)/mod_B.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
+$(BOOTDIR)/mod_store.block: $(BOOTDIR)/mod_A.pbc $(BOOTDIR)/mod_B.pbc
+	echo "creating $@"
+	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/mod_A.pbc $(BOOTDIR)/mod_B.pbc 
+
+$(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@
-	echo "MOD_A_SECTORS       := `wc -c $(BOOTDIR)/mod_A.block | awk '{print int(($$1+511)/512);}'`" >> $@
-	echo "MOD_B_SECTORS       := `wc -c $(BOOTDIR)/mod_B.block | awk '{print int(($$1+511)/512);}'`" >> $@
+	echo "MOD_STORE_SECTORS   := `wc -c $(BOOTDIR)/mod_store.block | awk '{print int(($$1+511)/512);}'`" >> $@
 	echo "STARTUP_SECTORS     := `wc -c $(BOOTDIR)/$(MASCHINE)_startup.block | awk '{print int(($$1+511)/512);}'`" >> $@
 
 $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
@@ -63,10 +66,6 @@ $(BOOTDIR)/$(MASCHINE)_startup_entry.s: $(BOOTDIR)/$(MASCHINE)_startup_entry.S
 	$(CC) -E -traditional -S -o $@ $<
 
 %.block: %.bin
-	echo "creating $@"
-	dd if=$< of=$@ bs=512 conv=sync 2>/dev/null
-
-%.block: %.pbc
 	echo "creating $@"
 	dd if=$< of=$@ bs=512 conv=sync 2>/dev/null
 

@@ -8,12 +8,9 @@ loader_stage1:
     movw mod_kernel_disk_address_packet, %ax
     call load_sectors
     
-    movw mod_A_disk_address_packet, %ax
+    movw mod_store_disk_address_packet, %ax
     call load_sectors
     
-    movw mod_B_disk_address_packet, %ax
-    call load_sectors
-
     /* draw newline */
     movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
     
@@ -215,22 +212,13 @@ mod_kernel_disk_address_packet:
     .long MOD_KERNEL_LBA     # lba block
     .long 0                  # lba block
 .align 4
-mod_A_disk_address_packet:
+mod_store_disk_address_packet:
     .byte 0x10
     .byte 0x0
-    .word MOD_A_SECTORS # count
-    .word MOD_A_OFFSET  # destination offset
-    .word MOD_A_SEGMENT # destination segment
-    .long MOD_A_LBA     # lba block
-    .long 0             # lba block
-.align 4
-mod_B_disk_address_packet:
-    .byte 0x10
-    .byte 0x0
-    .word MOD_B_SECTORS # count
-    .word MOD_B_OFFSET  # destination offset
-    .word MOD_B_SEGMENT # destination segment
-    .long MOD_B_LBA     # lba block
+    .word MOD_STORE_SECTORS # count
+    .word MOD_STORE_OFFSET  # destination offset
+    .word MOD_STORE_SEGMENT # destination segment
+    .long MOD_STORE_LBA     # lba block
     .long 0             # lba block
 
 /* mbi-structures */
@@ -259,22 +247,14 @@ mbi_tag_mod_kernel:
     .asciz  "kernel --debug=1" // MOD_KERNEL_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_mod_kernel_end:
-mbi_tag_mod_A:
+mbi_tag_mod_store:
     .long   MULTIBOOT_TAG_TYPE_MODULE
-    .long   (mbi_tag_mod_A_end - mbi_tag_mod_A)
-    .long   MOD_A_ADDR
-    .long   (MOD_A_ADDR + MOD_A_SIZE)
-    .asciz  "class_A --debug=1" // MOD_A_CMD
+    .long   (mbi_tag_mod_store_end - mbi_tag_mod_store)
+    .long   MOD_STORE_ADDR
+    .long   (MOD_STORE_ADDR + MOD_STORE_SIZE)
+    .asciz  "store --debug=1" // MOD_STORE_CMD
 .align MULTIBOOT_TAG_ALIGN
-mbi_tag_mod_A_end:
-mbi_tag_mod_B:
-    .long   MULTIBOOT_TAG_TYPE_MODULE
-    .long   (mbi_tag_mod_B_end - mbi_tag_mod_B)
-    .long   MOD_B_ADDR
-    .long   (MOD_B_ADDR + MOD_B_SIZE)
-    .asciz  "class_B --debug=1" // MOD_B_CMD
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_mod_B_end:
+mbi_tag_mod_store_end:
 mbi_static_end:
 /* further mb2 tags will be generated here */
 

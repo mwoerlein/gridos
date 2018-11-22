@@ -9,11 +9,13 @@
 class Module: public PropertyContainer {
     private:
     size_t contentOffset;
+    MemoryInfo * ownedInfo;
     
     public:
-    MemoryInfo & memoryInfo;
+    MemoryInfo memoryInfo;
     
     Module(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo);
+    Module(Environment & env, MemoryInfo & mi, void* buf, size_t len);
     virtual ~Module();
     
     virtual bool parseHeader();
@@ -25,6 +27,9 @@ class Module: public PropertyContainer {
     
     virtual IStream & getContentIStream();
     virtual size_t getContentSize();
+    
+    // debug
+    virtual void dump(OStream &log, bool properties = false);
 };
 
 #endif //KERNELJIT_MODULE_HPP_LOCK

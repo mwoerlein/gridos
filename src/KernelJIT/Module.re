@@ -4,10 +4,17 @@
 #include "memory/MemoryIStream.hpp"
 
 Module::Module(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo)
-        :PropertyContainer(env, mi), Object(env, mi), memoryInfo(memoryInfo), contentOffset(0) {}
+        :PropertyContainer(env, mi), Object(env, mi), memoryInfo(memoryInfo), ownedInfo(&memoryInfo), contentOffset(0) {}
+Module::Module(Environment & env, MemoryInfo & mi, void* buf, size_t len)
+        :PropertyContainer(env, mi), Object(env, mi), ownedInfo(notAnInfo), contentOffset(0) {
+    memoryInfo.buf = buf;
+    memoryInfo.len = len;
+}
 
 Module::~Module() {
-    env().getAllocator().free(memoryInfo);
+    if (ownedInfo != notAnInfo) {
+        env().getAllocator().free(*ownedInfo);
+    }
 }
 
 IStream & Module::getContentIStream() {
@@ -142,4 +149,9 @@ bool Module::parseCommandline(const char * commandline) {
 */    
     }
     return true;
+}
+
+void Module::dump(OStream &log, bool properties) {
+    log << '[' << getId() << "] (at "<<memoryInfo.buf<<")\n"; 
+    if (properties) { dumpProperties(log); }
 }
