@@ -46,13 +46,18 @@ class StdIStream: public IStream {
     virtual bool isEmpty() { return in.eof(); }
 };
 
-class StdFileOStream: public OStream {
+class StdFileOStream: public SeekableOStream {
     private:
     std::FILE *file;
+    size_t _length;
     
     public:
     StdFileOStream(Environment &env, MemoryInfo &mi, const char *name)
-        : Object(env, mi), file(std::fopen(name, "w")) {}
+        : Object(env, mi), file(std::fopen(name, "w")) {
+        std::fseek(file, 0, SEEK_END); // seek to end of file
+        _length = std::ftell(file); // get current file pointer
+        std::fseek(file, 0, SEEK_SET); // seek back to beginning of file
+    }
     virtual ~StdFileOStream() { std::fclose(file); }
     
     using OStream::operator <<;
@@ -60,28 +65,39 @@ class StdFileOStream: public OStream {
         std::fputc(c, file);
         return *this;
     }
+    virtual size_t length() override { return _length; }
+    virtual size_t pos() override { return std::ftell(file); }
+    virtual void seek(size_t pos) override { std::fseek(file, 0, SEEK_SET); }
 };
 
-class StdFileIStream: public IStream {
+class StdFileIStream: public SeekableIStream {
     private:
     std::FILE *file;
+    size_t _length;
     
     public:
     StdFileIStream(Environment &env, MemoryInfo &mi, const char *name)
-        : Object(env, mi), file(std::fopen(name, "r")) {}
+        : Object(env, mi), file(std::fopen(name, "r")) {
+        std::fseek(file, 0, SEEK_END); // seek to end of file
+        _length = std::ftell(file); // get current file pointer
+        std::fseek(file, 0, SEEK_SET); // seek back to beginning of file
+    }
     virtual ~StdFileIStream() { std::fclose(file); }
     
     using IStream::operator >>;
-    virtual IStream & operator >>(char &c) {
+    virtual IStream & operator >>(char &c) override {
         c = std::fgetc(file);
         return *this;
     }
-    virtual bool isEmpty() {
+    virtual bool isEmpty() override {
         int last = std::fgetc(file);
         bool ret = last == EOF;
         std::ungetc(last, file);
         return ret;
     }
+    virtual size_t length() override { return _length; }
+    virtual size_t pos() override { return std::ftell(file); }
+    virtual void seek(size_t pos) override { std::fseek(file, 0, SEEK_SET); }
 };
 
 class StdFileStreamFactory: public StreamFactory {
@@ -89,21 +105,21 @@ class StdFileStreamFactory: public StreamFactory {
     StdFileStreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): StreamFactory(env, mi), Object(env, mi) {}
     virtual ~StdFileStreamFactory() {}
     
-    virtual OStream & buildOStream(const char * name) override {
+    virtual SeekableOStream & buildOStream(const char * name) override {
         return env().create<StdFileOStream, const char *>(name);
     }
-    virtual OStream & buildOStream(String & name) override {
+    virtual SeekableOStream & buildOStream(String & name) override {
         char buffer[FILENAME_MAX];
         name >> buffer;
         return env().create<StdFileOStream, const char *>(buffer);
     }
-    virtual IStream & buildIStream(const char * name) override {
+    virtual IStream & buildStdIStream() {
+        return env().create<StdIStream>();
+    }
+    virtual SeekableIStream & buildIStream(const char * name) override {
         return env().create<StdFileIStream, const char *>(name);
     }
-    virtual IStream & buildIStream(String & name) override {
-        if (name == "-") {
-            return env().create<StdIStream>();
-        }
+    virtual SeekableIStream & buildIStream(String & name) override {
         char buffer[FILENAME_MAX];
         name >> buffer;
         return env().create<StdFileIStream, const char *>(buffer);

@@ -3,8 +3,8 @@
 
 #include "sys/Object.hpp"
 #include "sys/String.hpp"
-#include "sys/stream/OStream.hpp"
-#include "sys/stream/IStream.hpp"
+#include "sys/stream/SeekableOStream.hpp"
+#include "sys/stream/SeekableIStream.hpp"
 #include "sys/stream/IgnoreOStream.hpp"
 #include "sys/stream/EmptyIStream.hpp"
 
@@ -17,10 +17,11 @@ class StreamFactory: virtual public Object {
     StreamFactory(Environment &env, MemoryInfo &mi = *notAnInfo): Object(env, mi) {}
     virtual ~StreamFactory() {}
     
-    virtual OStream & buildOStream(const char * name) { return env().create<IgnoreOStream>(); }
-    virtual OStream & buildOStream(String &name) { return env().create<IgnoreOStream>(); }
-    virtual IStream & buildIStream(const char * name) { return env().create<EmptyIStream>(); }
-    virtual IStream & buildIStream(String &name) { return env().create<EmptyIStream>(); }
+    virtual SeekableOStream & buildOStream(const char * name) { return env().create<IgnoreOStream>(); }
+    virtual SeekableOStream & buildOStream(String &name) { return env().create<IgnoreOStream>(); }
+    virtual IStream & buildStdIStream() { return env().create<EmptyIStream>(); }
+    virtual SeekableIStream & buildIStream(const char * name) { return env().create<EmptyIStream>(); }
+    virtual SeekableIStream & buildIStream(String &name) { return env().create<EmptyIStream>(); }
 };
 
 #endif //SYS_STREAM_STREAMFACTORY_HPP_LOCK

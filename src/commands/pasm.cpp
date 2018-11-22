@@ -56,7 +56,8 @@ class PasmCommand: public CommandLine {
         
         OStream &outfile = env().streamFactory().buildOStream(getStringProperty("o"));
         Iterator<String> & argIt = arguments();
-        IStream &infile = env().streamFactory().buildIStream(argIt.next());
+        String &name = argIt.next();
+        IStream &infile = (name == "-") ? env().streamFactory().buildStdIStream() : env().streamFactory().buildIStream(name);
         argIt.destroy();
         
         ASMInstructionList &list = parser.parse(infile, env().err());
