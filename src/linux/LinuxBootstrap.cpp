@@ -67,7 +67,7 @@ class StdFileOStream: public SeekableOStream {
     }
     virtual size_t length() override { return _length; }
     virtual size_t pos() override { return std::ftell(file); }
-    virtual void seek(size_t pos) override { std::fseek(file, 0, SEEK_SET); }
+    virtual void seek(size_t pos) override { std::fseek(file, pos, SEEK_SET); }
 };
 
 class StdFileIStream: public SeekableIStream {
@@ -97,7 +97,7 @@ class StdFileIStream: public SeekableIStream {
     }
     virtual size_t length() override { return _length; }
     virtual size_t pos() override { return std::ftell(file); }
-    virtual void seek(size_t pos) override { std::fseek(file, 0, SEEK_SET); }
+    virtual void seek(size_t pos) override { std::fseek(file, pos, SEEK_SET); }
 };
 
 class StdFileStreamFactory: public StreamFactory {
