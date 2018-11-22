@@ -59,7 +59,7 @@ class StoreCommand: public CommandLine {
             SeekableIStream &infile = env().streamFactory().buildIStream(name);
             size_t start = outfile.pos();
             size_t size = infile.length();
-//            env().out()<<"store "<<name<<" at "<<mark<<":"<<size<<" "<<indexEnd<<'\n';
+//            env().out()<<"store "<<name<<" at "<<start<<":"<<size<<" "<<index<<'\n';
             outfile.seek(index);
             outfile.rawInt(start).rawInt(size);
             index = outfile.pos();

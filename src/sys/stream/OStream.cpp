@@ -74,10 +74,10 @@ OStream & OStream::printuhex(unsigned int d, int pad) {
     return printuint(d, 16, pad);
 }
 
-OStream & OStream::rawChar(char c) {
-    return *this << c;
+OStream & OStream::rawChar(unsigned char c) {
+    return *this << (char) c;
 }
 
-OStream & OStream::rawInt(int i) {
+OStream & OStream::rawInt(unsigned int i) {
     return *this << (char)i << (char)(i>>8) << (char)(i>>16) << (char)(i>>24);
 }
