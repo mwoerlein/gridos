@@ -17,13 +17,13 @@ OStream & OStream::operator <<(void * ptr) {
 
 OStream & OStream::operator <<(char * c) {
     while (*c) {
-        *this<<*c++;
+        *this << *c++;
     }
     return *this;
 }
 
 OStream & OStream::operator <<(const char * c) {
-    return *this<<(char *) c;
+    return *this << (char *) c;
 }
 
 OStream & OStream::operator <<(Object &o) {
@@ -70,6 +70,14 @@ OStream & OStream::printhex(int d, int pad) {
 }
 
 OStream & OStream::printuhex(unsigned int d, int pad) {
-    *this<<'0'<<'x';
+    *this << '0' << 'x';
     return printuint(d, 16, pad);
+}
+
+OStream & OStream::rawChar(char c) {
+    return *this << c;
+}
+
+OStream & OStream::rawInt(int i) {
+    return *this << (char)i << (char)(i>>8) << (char)(i>>16) << (char)(i>>24);
 }

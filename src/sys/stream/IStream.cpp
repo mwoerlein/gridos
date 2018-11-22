@@ -18,3 +18,13 @@ OStream & IStream::operator >>(OStream & stream) {
     }
     return stream;
 }
+
+char IStream::rawChar() {
+    char tmp;
+    *this >> tmp;
+    return tmp;
+}
+
+int IStream::rawInt() {
+    return (rawChar()) + (rawChar()<<8) + (rawChar()<<16) + (rawChar()<<24);
+}

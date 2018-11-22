@@ -14,6 +14,9 @@ class IStream: virtual public Object {
     virtual IStream & operator >>(char &c) = 0;
     virtual IStream & operator >>(Char &c);
     virtual OStream & operator >>(OStream & stream) override;
+    
+    virtual char rawChar();
+    virtual int rawInt();
 };
 
 #endif //SYS_STREAM_ISTREAM_HPP_LOCK

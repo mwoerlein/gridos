@@ -20,6 +20,9 @@ class OStream: virtual public Object {
     OStream &printuint(unsigned int d, int base = 10, int pad = 0);
     OStream &printhex(int d, int pad = 0);
     OStream &printuhex(unsigned int d, int pad = 0);
+    
+    OStream &rawChar(char c);
+    OStream &rawInt(int d);
 };
 
 #endif //SYS_STREAM_OSTREAM_HPP_LOCK
