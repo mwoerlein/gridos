@@ -4,6 +4,7 @@ description = Dies ist ein erster Test mit Klassen
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181102070000
+entry = true
 */
 /* STARTUP */
 entry:
@@ -37,3 +38,8 @@ halt:
 
 classname_B:
     .asciz "/my/B"
+
+print_cga_buffer  := 0xB8000
+print_line_offset := 160
+test_row := 10
+cga_testline  := (print_cga_buffer + (test_row * print_line_offset))

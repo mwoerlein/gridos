@@ -8,32 +8,50 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
 #MODSIMPLE_PARTS = __startup _core Runtime A B
-MODSIMPLE_PARTS = __startup _core Runtime A_globals B_globals
-MODSIMPLE_CORE_PARTS = __fake_statics _core Runtime
-MODSIMPLE_A_PARTS = A core_globals
-MODSIMPLE_B_PARTS = B core_globals A_globals
+MODSIMPLE_PARTS = __startup Runtime Object_globals Class_globals A_globals B_globals
+MODSIMPLE_OBJECT_PARTS = Object
+MODSIMPLE_CLASS_PARTS = Class Object_globals
+MODSIMPLE_RUNTIME_PARTS = __fake_statics Runtime Object_globals Class_globals
+MODSIMPLE_A_PARTS = A Object_globals Class_globals Runtime_globals
+MODSIMPLE_B_PARTS = B Object_globals Class_globals Runtime_globals A_globals
 MODSIMPLE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_PARTS))
-MODSIMPLE_CORE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_CORE_PARTS))
+MODSIMPLE_OBJECT_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_OBJECT_PARTS))
+MODSIMPLE_CLASS_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_CLASS_PARTS))
+MODSIMPLE_RUNTIME_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_RUNTIME_PARTS))
 MODSIMPLE_A_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_A_PARTS))
 MODSIMPLE_B_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_B_PARTS))
 
-$(MODDIR)/simple/core_globals.pasm: $(MODSIMPLE_CORE_PASMS)
+$(MODDIR)/simple/Runtime_globals.pasm: $(MODSIMPLE_RUNTIME_PASMS)
 	echo "creating $@"
-	cat $(MODSIMPLE_CORE_PASMS) | $(BINDIR)/pasm -g $@ -o /dev/null -
+	cat $(MODSIMPLE_RUNTIME_PASMS) | $(BINDIR)/pasm -g $@ -o /dev/null -
 
-$(MODDIR)/simple/A_globals.pasm $(BOOTDIR)/mod_A.pbc: $(MODSIMPLE_A_PASMS)
+$(MODDIR)/simple/Object_globals.pasm $(BOOTDIR)/Object.pbc: $(MODSIMPLE_OBJECT_PASMS)
 	echo "creating $@"
-	cat $(MODSIMPLE_A_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/mod_A.pbc -
-#	cat $(MODSIMPLE_A_PASMS) > $(BOOTDIR)/mod_A.pbc
+	cat $(MODSIMPLE_OBJECT_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Object.pbc -
+#	cat $(MODSIMPLE_OBJECT_PASMS) > $(BOOTDIR)/Object.pbc
 
-$(MODDIR)/simple/B_globals.pasm $(BOOTDIR)/mod_B.pbc: $(MODSIMPLE_B_PASMS)
+$(MODDIR)/simple/Class_globals.pasm $(BOOTDIR)/Class.pbc: $(MODSIMPLE_CLASS_PASMS)
 	echo "creating $@"
-	cat $(MODSIMPLE_B_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/mod_B.pbc -
-#	cat $(MODSIMPLE_B_PASMS) > $(BOOTDIR)/mod_B.pbc
+	cat $(MODSIMPLE_CLASS_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Class.pbc -
+#	cat $(MODSIMPLE_CLASS_PASMS) > $(BOOTDIR)/Class.pbc
 
-$(BOOTDIR)/mod_store.block: $(BOOTDIR)/mod_A.pbc $(BOOTDIR)/mod_B.pbc
+$(MODDIR)/simple/A_globals.pasm $(BOOTDIR)/A.pbc: $(MODSIMPLE_A_PASMS)
 	echo "creating $@"
-	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/mod_A.pbc $(BOOTDIR)/mod_B.pbc 
+	cat $(MODSIMPLE_A_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/A.pbc -
+#	cat $(MODSIMPLE_A_PASMS) > $(BOOTDIR)/A.pbc
+
+$(MODDIR)/simple/B_globals.pasm $(BOOTDIR)/B.pbc: $(MODSIMPLE_B_PASMS)
+	echo "creating $@"
+	cat $(MODSIMPLE_B_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/B.pbc -
+#	cat $(MODSIMPLE_B_PASMS) > $(BOOTDIR)/B.pbc
+
+$(BOOTDIR)/mod_store.block: $(BOOTDIR)/A.pbc $(BOOTDIR)/B.pbc
+	echo "creating $@"
+	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/A.pbc $(BOOTDIR)/B.pbc 
+
+$(BOOTDIR)/mod_kernel.block: $(BOOTDIR)/Object.pbc $(BOOTDIR)/Class.pbc $(BOOTDIR)/mod_kernel.bin
+	echo "creating $@"
+	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/Object.pbc $(BOOTDIR)/Class.pbc $(BOOTDIR)/mod_kernel.bin 
 
 $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@
@@ -48,9 +66,9 @@ $(BOOTDIR)/mod_kernel.bin: $(MODSIMPLE_PASMS)
 	echo "creating $@"
 	cat $(MODSIMPLE_PASMS) > $@
 #	cp $(MODDIR)/blinking.pasm $@
-#	$(BINDIR)/pasm -o $@ $(MODDIR)/blinking.pasm
+#	$(BINDIR)/pasm -eo $@ $(MODDIR)/blinking.pasm
 #	cp $(MODDIR)/at_relocateable.pasm $@
-#	$(BINDIR)/pasm -o $@ $(MODDIR)/at_relocateable.pasm
+#	$(BINDIR)/pasm -eo $@ $(MODDIR)/at_relocateable.pasm
 
 $(BOOTDIR)/$(MASCHINE)_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $(BOOTDIR)/$(MASCHINE)_startup.o $(STARTUP_LIBS:%=$(LIBDIR)/%) 
 	echo "creating $@"

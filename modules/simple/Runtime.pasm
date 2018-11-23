@@ -311,21 +311,43 @@ _crhi_loop:
     addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
     ret
 
+_call_entry:
+	pushl %ecx
+	movl 12(%esp), %ebx	        # load object handle
+	movl 4(%ebx), %ecx	        # get object
+	movl 0(%ecx), %eax          # get class-desc
+	addl 8(%ebx), %eax          # get vtab
+	addl 8(%esp), %eax	        # get vtab-entry by adding method-offset number
+	movl 0(%ecx), %ebx	        # get class-desc
+	addl 4(%eax), %ebx          # get method-vtabs-entry
+	addl _cvte_ho(%ebx), %ecx   # compute method-@this
+	movl %ecx, 12(%esp)         # store method-@this
+	movl _cvte_cdo(%ebx), %ebx  # get method-class-desc
+	movl %ebx, 8(%esp)          # store method-class-desc
+	addl 0(%eax), %ebx          # compute method-addr
+	popl %ecx
+	jmp %ebx                    # goto method
+	
 _init_Runtime:
-    pushl %ebp; movl %esp, %ebp; subl 8, %esp; pushad
+    pushl %ebp; movl %esp, %ebp; subl 12, %esp; pushad
     movl 0, -4(%ebp) // default result: NULL
+
+    pushl class_Runtime_string_class       // @classname
+    pushl _env_runtime; call _runtime_findClass
+    addl 8, %esp
+    movl %eax, -12(%ebp)  // store @class desc
     
-    movl class_Class_desc, %edx
+    movl -12(%ebp), %edx
     pushl class_instance_size_offset(%edx) // instance size
     pushl _env_allocator; call _allocator_allocate
     addl 8, %esp
     addl 0, %eax; jz _iR_return  // return NULL on allocate error
     
-    movl class_Class_desc, %edx
+    movl -12(%ebp), %edx
     call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
 	movl %edi, -8(%ebp) // store @Class (Type Object)
 	
-    pushl class_Class_desc
+    pushl -12(%ebp)
     pushl %esi; pushl Class_m_setDesc; call (%esi)
 	addl 12, %esp
 	

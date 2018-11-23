@@ -53,24 +53,29 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     assertHALT(env.hasModule("kernel"), "No kernel loaded!");
     KernelJIT &jit = env.create<KernelJIT>();
     if (debugLevel >= 1) { env.out()<<"Compiling ... with "<<&jit<<'\n'; }
-    Kernel &k = jit.kernel_compile(env.getModule("kernel"), kr);
+    Kernel *k = 0;
     {
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
             if (module.getId() == "startup") continue;
-            if (module.getId() == "kernel") continue;
             if (module.testStringProperty("meta.mimetype", "application/grid-store")) {
                 IStream &in = module.getContentIStream();
                 for (int pos = in.rawInt(), size = in.rawInt(); pos > 0; pos = in.rawInt(), size = in.rawInt()) {
 //                    env.out()<<"-- element at "<<pos<<":"<<size<<"\n";
                     Module & inner = env.create<Module, void*, size_t>((void*) (pos + (size_t)module.memoryInfo.buf), size);
                     inner.parseHeader();
-                    jit.kernel_compile(inner, kr);
+                    Kernel &k2 = jit.kernel_compile(inner, kr);
+                    if (inner.testStringProperty("pool.entry", "true")) {
+                        k = &k2;
+                    }
                 }
                 in.destroy();
             } else {
-                jit.kernel_compile(module, kr);
+                Kernel &k2 = jit.kernel_compile(module, kr);
+                if (module.testStringProperty("pool.entry", "true")) {
+                    k = &k2;
+                }
             }
         }
         modules.destroy();
@@ -83,18 +88,18 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     
     if (debugLevel >= 2) {
         env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();
-        if (&k) { env.out()<<' '<<k; }
+        if (k) { env.out()<<' '<<*k; }
         env.out()<<'\n';
         env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     
-    assertHALT(&k, "Compiling kernel failed!");
+    assertHALT(k, "Compiling kernel failed!");
     
     // run compiled kernel    
     if (debugLevel >= 1) {
-        env.out()<<"Starting kernel ... "<<(void*) k.getStartAddress()<<'\n';
+        env.out()<<"Starting kernel ... "<<(void*) k->getStartAddress()<<'\n';
     }
-    k.run();
+    k->run();
 }
 
 }

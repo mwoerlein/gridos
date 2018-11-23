@@ -4,6 +4,7 @@ description = Dies ist das GridOS-Kernel-Modul "Blinking"
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181005022610
+entry = true
 */
 cga_lastline := 0xb8f00
 _start:
