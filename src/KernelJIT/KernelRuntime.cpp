@@ -2,28 +2,92 @@
 
 #include "I386ASM/Operand/Number.hpp"
 
+enum SysCall {
+    allocate = 1,
+    free = 2,
+    find_class = 3,
+    print = 4,
+};
+enum SysPrintKind {
+    spk_char = 0,
+    spk_int = 1,
+    spk_hex = 2,
+    spk_string = 3,
+};
+enum SysPrintStream {
+    out = 0,
+    err = 1,
+};
+
+typedef struct {
+    SysCall call;
+} syscall_args;
+
+typedef struct {
+    SysCall call;
+    size_t size;
+    MemoryInfo *info;
+} syscall_args_allocator;
+
+typedef struct {
+    SysCall call;
+    const char * classname;
+    pool_class_descriptor * desc;
+} syscall_args_find_class;
+
+typedef struct {
+    SysCall call;
+    SysPrintStream stream;
+    SysPrintKind kind;
+    union {
+        int i;
+        char * str;
+    } arg;
+} syscall_args_print;
+
 // TODO: #12 improve/separate runtime injection
 extern "C" {
-    MemoryInfo * _allocator_allocate(MemoryAllocator *allocator, size_t size) {
-        return &allocator->allocate(size);
-    }
-    void _allocator_free(MemoryAllocator *allocator, MemoryInfo *info) {
-        allocator->free(*info);
-    }
-    void _ostream_print_char(OStream *stream, int c) {
-        *stream << (char) c;
-    }
-    void _ostream_print_string(OStream *stream, char * c) {
-        *stream << c;
-    }
-    void _ostream_print_int(OStream *stream, int i) {
-        *stream << i;
-    }
-    void _ostream_print_hex(OStream *stream, int i) {
-        stream->printhex(i);
-    }
-    pool_class_descriptor * _runtime_findClass(KernelRuntime *kr, const char * c) {
-        return kr->findClass(c);
+    int _syscall_entry(KernelRuntime *runtime, syscall_args * args) {
+        Environment &env = runtime->env();
+        MemoryAllocator &ma = env.getAllocator(); 
+        switch (args->call) {
+            case allocate: {
+                syscall_args_allocator * cargs = (syscall_args_allocator*) args;
+                cargs->info = &ma.allocate(cargs->size);
+                return 0;
+            }
+            case free: {
+                ma.free(*((syscall_args_allocator*) args)->info);
+                return 0;
+            }
+            case find_class: {
+                syscall_args_find_class * cargs = (syscall_args_find_class*) args;
+                cargs->desc = runtime->findClass(cargs->classname);
+                return 0;
+            }
+            case print: {
+                syscall_args_print * cargs = (syscall_args_print*) args;
+                OStream &stream = (cargs->stream == out) ? env.out() : env.err(); 
+                switch (cargs->kind) {
+                    case spk_char:
+                        stream << (char) cargs->arg.i;
+                        return 0;
+                    case spk_int:
+                        stream << cargs->arg.i;
+                        return 0;
+                    case spk_hex:
+                        stream.printhex(cargs->arg.i);
+                        return 0;
+                    case spk_string:
+                        stream << cargs->arg.str;
+                        return 0;
+                }
+                env.err() << "invalid print kind " << cargs->kind << '\n';
+                return -1;
+            }
+        }
+        env.err() << "invalid syscall " << args->call << '\n';
+        return -1;
     }
 }
 
@@ -70,47 +134,11 @@ pool_class_descriptor * KernelRuntime::findClass(const char *name) {
 void KernelRuntime::injectDefinitions(ASMInstructionList &list) {
     // TODO: #12 improve/separate runtime injection
     list.addDefinition(
-        env().create<String, const char *>("_env_allocator"),
-        env().create<Number, int>((int) &env().getAllocator())
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_env_out"),
-        env().create<Number, int>((int) &env().out())
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_env_err"),
-        env().create<Number, int>((int) &env().err())
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_env_runtime"),
+        env().create<String, const char *>("_syscall_runtime"),
         env().create<Number, int>((int) this)
     );
     list.addDefinition(
-        env().create<String, const char *>("_allocator_allocate"),
-        env().create<Number, int>((int) _allocator_allocate)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_allocator_free"),
-        env().create<Number, int>((int) _allocator_free)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_ostream_print_char"),
-        env().create<Number, int>((int) _ostream_print_char)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_ostream_print_string"),
-        env().create<Number, int>((int) _ostream_print_string)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_ostream_print_int"),
-        env().create<Number, int>((int) _ostream_print_int)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_ostream_print_hex"),
-        env().create<Number, int>((int) _ostream_print_hex)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_runtime_findClass"),
-        env().create<Number, int>((int) _runtime_findClass)
+        env().create<String, const char *>("_syscall_entry"),
+        env().create<Number, int>((int) _syscall_entry)
     );
 }

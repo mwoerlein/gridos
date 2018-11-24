@@ -203,13 +203,13 @@ class_B_method_doIt:
 	addl 8, %esp
     popl %edx   # Runtime(Type Runtime)
     
-    pushl 0x40; pushl 1 // '@'
+    pushl 0x40; pushl _err // '@'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     movl 8(%ebp), %eax         // @class-desc "B"
     addl class_B_so_doit, %eax // "DoIt "
-    pushl %eax; pushl 0
+    pushl %eax; pushl _out
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
@@ -219,11 +219,11 @@ class_B_method_doIt:
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl 0
+    pushl %eax; pushl _out
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
@@ -233,7 +233,7 @@ class_B_method_doIt:
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl 0
+    pushl %eax; pushl _out
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
@@ -243,31 +243,31 @@ class_B_method_doIt:
 	addl 12, %esp
     popl %esi
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl %esi; pushl 0
+    pushl %esi; pushl _out
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl (%esi); pushl 0
+    pushl (%esi); pushl _out
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl 4(%esi); pushl 0 
+    pushl 4(%esi); pushl _out 
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0xa; pushl 0 // '/n'
+    pushl 0xa; pushl _out // '/n'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     

@@ -169,31 +169,31 @@ class_A_method_test:
 	addl 8, %esp
     popl %eax // name cstring ref
 
-    pushl %eax; pushl 0
+    pushl %eax; pushl _out
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     movl handle_A_vars_A(%ecx), %ebx  // inst vars offset (A)
     addl 4(%ecx), %ebx                // @this.vars(A)
-    push A_i_column(%ebx); pushl 0 // column
+    push A_i_column(%ebx); pushl _out // column
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl 0 // ' '
+    pushl 0x20; pushl _out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl 16(%ebp); pushl 0 // row
+    pushl 16(%ebp); pushl _out // row
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
     movl 8(%ebp), %eax      // @class-desc "A"
     addl class_A_so_test, %eax
-    pushl %eax; pushl 0
+    pushl %eax; pushl _err
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     

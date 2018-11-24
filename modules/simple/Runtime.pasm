@@ -35,6 +35,8 @@ class_Runtime_vtab_Runtime_method_rt:
     .long class_Object_mo_rt; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_setRt:
     .long class_Object_mo_setRt; .long _cRuntimeVEObject
+class_Runtime_vtab_Runtime_method_initSysCall:
+    .long class_Runtime_mo_initSysCall; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_getClassDesc:
     .long class_Runtime_mo_getClassDesc; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_createInstance:
@@ -63,6 +65,7 @@ class_Runtime_vtab_Object:
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 
+.global class_Runtime_mo_initSysCall     := (class_Runtime_method_initSysCall - class_Runtime_desc)
 .global class_Runtime_mo_getClassDesc    := (class_Runtime_method_getClassDesc - class_Runtime_desc)
 .global class_Runtime_mo_createInstance  := (class_Runtime_method_createInstance - class_Runtime_desc)
 .global class_Runtime_mo_destroyInstance := (class_Runtime_method_destroyInstance - class_Runtime_desc)
@@ -97,6 +100,10 @@ class_Runtime_inst_tpl_handle_Object_vars_Object:
 class_Runtime_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_Runtime_inst_tpl_vars_Runtime:
+class_Runtime_inst_tpl_vars_Runtime_syscall_entry:
+    .long 0  // @syscall-entry
+class_Runtime_inst_tpl_vars_Runtime_syscall_runtime:
+    .long 0  // @syscall-runtime
 class_Runtime_inst_tpl_end:
 
 class_Runtime_string_classname:
@@ -112,6 +119,7 @@ class_Runtime_string_class:
 .global Runtime_m_equals          := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
 .global Runtime_m_rt              := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
 .global Runtime_m_setRt           := (class_Runtime_vtab_Runtime_method_setRt - class_Runtime_vtab_Runtime)
+.global Runtime_m_initSysCall     := (class_Runtime_vtab_Runtime_method_initSysCall - class_Runtime_vtab_Runtime)
 .global Runtime_m_getClassDesc    := (class_Runtime_vtab_Runtime_method_getClassDesc - class_Runtime_vtab_Runtime)
 .global Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
 .global Runtime_m_destroyInstance := (class_Runtime_vtab_Runtime_method_destroyInstance - class_Runtime_vtab_Runtime)
@@ -122,38 +130,76 @@ class_Runtime_string_class:
 .global Runtime_m_printInt        := (class_Runtime_vtab_Runtime_method_printInt - class_Runtime_vtab_Runtime)
 .global Runtime_m_printHex        := (class_Runtime_vtab_Runtime_method_printHex - class_Runtime_vtab_Runtime)
 // Vars Offsets
+.global Runtime_i_syscall_entry   := (class_Runtime_inst_tpl_vars_Runtime_syscall_entry - class_Runtime_inst_tpl_vars_Runtime)
+.global Runtime_i_syscall_runtime := (class_Runtime_inst_tpl_vars_Runtime_syscall_runtime - class_Runtime_inst_tpl_vars_Runtime)
 // Super Vars Offsets
 handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runtime - class_Runtime_inst_tpl_handle_Runtime)
 handle_Runtime_vars_Object  := (class_Runtime_inst_tpl_handle_Runtime_vars_Object - class_Runtime_inst_tpl_handle_Runtime)
+// print* constants
+.global _out := _sps_out
+.global _err := _sps_err
+
+class_Runtime_method_initSysCall:
+    pushl %ebp; movl %esp, %ebp;
+    
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    movl 16(%ebp), %eax                           // arg @syscall-runtime
+    movl %eax, Runtime_i_syscall_runtime(%ebx)    // store @syscall-runtime
+    movl 20(%ebp), %eax                           // arg @syscall-entry
+    movl %eax, Runtime_i_syscall_entry(%ebx)      // store @syscall-entry
+    
+    leave
+    ret
+
 
 class_Runtime_method_getClassDesc:
     pushl %ebp; movl %esp, %ebp; pushad
     
-    pushl 16(%ebp)       // @classname
-    pushl _env_runtime; call _runtime_findClass
-    addl 8, %esp
-    movl %eax, 20(%ebp)  // return @class desc
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 0         // desc
+    pushl 16(%ebp)  // @classname
+    pushl SysCall_find_class;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 16, %esp
+    popl 20(%ebp)   // return @class desc
     
     popad; leave
     ret
     
 class_Runtime_method_allocate:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param size
-    pushl _env_allocator; call _allocator_allocate
-    addl 8, %esp
-    movl %eax, 20(%ebp)  // return info
+    
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 0         // info
+    pushl 16(%ebp)  // param size
+    pushl SysCall_allocate;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 16, %esp
+    popl 20(%ebp)   // return info
     
     popad; leave
     ret
 
 class_Runtime_method_free:
     pushl %ebp; movl %esp, %ebp; pushad
-
-    pushl 16(%ebp)       // param info
-    pushl _env_allocator; call _allocator_free
-    addl 8, %esp
+    
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 16(%ebp)  // param info
+    pushl 0         // size
+    pushl SysCall_free;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 20, %esp
     
     popad; leave
     ret
@@ -161,14 +207,16 @@ class_Runtime_method_free:
 class_Runtime_method_printChar:
     pushl %ebp; movl %esp, %ebp; pushad
     
-    movl _env_out, %eax
-    cmpl 0, 16(%ebp)
-    je _crmpc_1
-    movl _env_err, %eax
-_crmpc_1:
-    pushl 20(%ebp)       // param c
-    pushl %eax; call _ostream_print_char
-    addl 8, %esp
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 20(%ebp)  // param c
+    pushl _spk_char // kind
+    pushl 16(%ebp)  // param stream
+    pushl SysCall_print;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 24, %esp
     
     popad; leave
     ret
@@ -176,14 +224,16 @@ _crmpc_1:
 class_Runtime_method_printString:
     pushl %ebp; movl %esp, %ebp; pushad
     
-    movl _env_out, %eax
-    cmpl 0, 16(%ebp)
-    je _crmps_1
-    movl _env_err, %eax
-_crmps_1:
-    pushl 20(%ebp)       // param s
-    pushl %eax; call _ostream_print_string
-    addl 8, %esp
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 20(%ebp)    // param s
+    pushl _spk_string // kind
+    pushl 16(%ebp)    // param stream
+    pushl SysCall_print;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 24, %esp
     
     popad; leave
     ret
@@ -191,14 +241,16 @@ _crmps_1:
 class_Runtime_method_printInt:
     pushl %ebp; movl %esp, %ebp; pushad
     
-    movl _env_out, %eax
-    cmpl 0, 16(%ebp)
-    je _crmpi_1
-    movl _env_err, %eax
-_crmpi_1:
-    pushl 20(%ebp)       // param i
-    pushl %eax; call _ostream_print_int
-    addl 8, %esp
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 20(%ebp)  // param i
+    pushl _spk_int  // kind
+    pushl 16(%ebp)  // param stream
+    pushl SysCall_print;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 24, %esp
     
     popad; leave
     ret
@@ -206,14 +258,16 @@ _crmpi_1:
 class_Runtime_method_printHex:
     pushl %ebp; movl %esp, %ebp; pushad
     
-    movl _env_out, %eax
-    cmpl 0, 16(%ebp)
-    je _crmph_1
-    movl _env_err, %eax
-_crmph_1:
-    pushl 20(%ebp)       // param i
-    pushl %eax; call _ostream_print_hex
-    addl 8, %esp
+    movl 12(%ebp), %eax                           // @this (Type Runtime)
+    movl handle_Runtime_vars_Runtime(%eax), %ebx  // inst vars offset (Runtime)
+    addl 4(%eax), %ebx                            // @this.vars(Runtime)
+    
+    pushl 20(%ebp)  // param i
+    pushl _spk_hex  // kind
+    pushl 16(%ebp)  // param stream
+    pushl SysCall_print;
+    pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
+    addl 24, %esp
     
     popad; leave
     ret
@@ -329,19 +383,27 @@ _call_entry:
 	jmp %ebx                    # goto method
 	
 _init_Runtime:
-    pushl %ebp; movl %esp, %ebp; subl 12, %esp; pushad
+    pushl %ebp; movl %esp, %ebp; subl 20, %esp; pushad
     movl 0, -4(%ebp) // default result: NULL
+    movl _syscall_runtime, -16(%ebp)
+    movl _syscall_entry, -20(%ebp)
 
+    pushl 0 // desc
     pushl class_Runtime_string_class       // @classname
-    pushl _env_runtime; call _runtime_findClass
-    addl 8, %esp
-    movl %eax, -12(%ebp)  // store @class desc
+    pushl SysCall_find_class
+    pushl %esp; pushl -16(%ebp); call -20(%ebp)
+    addl 16, %esp
+    popl -12(%ebp)  // store @class desc
     
     movl -12(%ebp), %edx
+    pushl 0     // info
     pushl class_instance_size_offset(%edx) // instance size
-    pushl _env_allocator; call _allocator_allocate
-    addl 8, %esp
+    pushl SysCall_allocate;
+    pushl %esp; pushl -16(%ebp); call -20(%ebp)
+    addl 16, %esp
+    popl %eax   // return info
     addl 0, %eax; jz _iR_return  // return NULL on allocate error
+
     
     movl -12(%ebp), %edx
     call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
@@ -352,9 +414,12 @@ _init_Runtime:
 	addl 12, %esp
 	
     movl class_Runtime_desc, %edx
+    pushl 0     // info
     pushl class_instance_size_offset(%edx) // instance size
-    pushl _env_allocator; call _allocator_allocate
-    addl 8, %esp
+    pushl SysCall_allocate;
+    pushl %esp; pushl -16(%ebp); call -20(%ebp)
+    addl 16, %esp
+    popl %eax   // return info
     addl 0, %eax; jz _iR_return  // return NULL on allocate error
     
     movl class_Runtime_desc, %edx
@@ -363,6 +428,11 @@ _init_Runtime:
     pushl %esi
     pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
+    
+    pushl -20(%ebp) // @syscall-entry
+    pushl -16(%ebp) // @syscall-runtime
+    pushl %esi; pushl Runtime_m_initSysCall; call (%esi)
+	addl 16, %esp
 	
 	movl -8(%ebp), %edi // load @Class (Type Object)
     pushl %esi
@@ -388,3 +458,16 @@ _iR_return:
     movl -4(%ebp), %eax // return @runtime (Type Runtime)
     leave
     ret
+
+SysCall_allocate   := 1
+SysCall_free       := 2
+SysCall_find_class := 3
+SysCall_print      := 4
+
+_spk_char   := 0
+_spk_int    := 1
+_spk_hex    := 2
+_spk_string := 3
+
+_sps_out := 0
+_sps_err := 1
