@@ -13,7 +13,6 @@ class KernelRuntime: protected HashMap<String, ClassDescriptor>, virtual public 
     virtual bool registerClass(pool_class_descriptor *desc);
     virtual ClassDescriptor & findDescriptor(String &name);
     virtual pool_class_descriptor * findClass(const char *name);
-    virtual void injectDefinitions(ASMInstructionList &list);
     virtual bool resolveClasses();
 };
 

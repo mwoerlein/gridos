@@ -3,6 +3,7 @@
 
 #include "KernelJIT/OStreamKernel.hpp"
 
+// TODO: #12 refactor to I386RuntimeKernel 
 class I386OStreamKernel: public OStreamKernel {
     public:
     I386OStreamKernel(Environment &env, MemoryInfo &mi, size_t size);

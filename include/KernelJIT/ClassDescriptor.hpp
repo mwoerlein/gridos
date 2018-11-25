@@ -22,6 +22,7 @@ typedef struct pool_class_descriptor {
     pool_vtabs_entry vtabs[];
 } pool_class_descriptor;
 
+// TODO: #12 Improve memory handling (avoid lost memoryinfos/MemoryOStreams/Modules/..., free descriptor memory on destruction, ...)
 class ClassDescriptor: virtual public Object {
     public:
     pool_class_descriptor *desc;

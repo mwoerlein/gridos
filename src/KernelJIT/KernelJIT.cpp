@@ -29,6 +29,7 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         return *(Kernel *) 0;
     }
     
+    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
     if (module.testStringProperty("meta.mimetype", "text/x-pasm")) {
         Parser &parser = env().create<Parser>();
         IStream &in = module.getContentIStream();
@@ -36,8 +37,6 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         in.destroy();
         parser.destroy();
 
-        kr.injectDefinitions(list);
-        
         if (list.hasErrors()) {
             if (debugLevel >= 2) { env().err()<<"parsing error\n"; }
             list.destroy();
@@ -64,7 +63,7 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         list.writeToStream(osk);
         {
             String &s = env().create<String>();
-            
+            // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
             if (list.hasLabel(s="class_Object_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
             if (list.hasLabel(s="class_Class_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
             if (list.hasLabel(s="class_Runtime_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
@@ -77,6 +76,7 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         return osk;
     }
     
+    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
     if (module.testStringProperty("meta.mimetype", "application/x-bin-x86")) {
         size_t size = module.getContentSize();
         OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
@@ -88,6 +88,7 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         return osk;
     }
     
+    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
     if (module.testStringProperty("meta.mimetype", "application/pool-class-x86")) {
         size_t size = module.getContentSize();
         OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);

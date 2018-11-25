@@ -47,6 +47,7 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         modules.destroy();
     }
     
+    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
     KernelRuntime &kr = env.create<KernelRuntime>();
     
     // compile kernel from modules

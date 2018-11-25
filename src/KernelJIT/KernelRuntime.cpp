@@ -2,6 +2,7 @@
 
 #include "I386ASM/Operand/Number.hpp"
 
+// TODO: #12 separate class registry and runtime/syscall
 enum SysCall {
     allocate = 1,
     free = 2,
@@ -45,7 +46,6 @@ typedef struct {
     } arg;
 } syscall_args_print;
 
-// TODO: #12 improve/separate runtime injection
 extern "C" {
     int _syscall_entry(KernelRuntime *runtime, syscall_args * args) {
         Environment &env = runtime->env();
@@ -133,16 +133,4 @@ pool_class_descriptor * KernelRuntime::findClass(const char *name) {
     pool_class_descriptor * ret = has(s) ? get(s).desc : 0;
     s.destroy();
     return ret;
-}
-
-void KernelRuntime::injectDefinitions(ASMInstructionList &list) {
-    // TODO: #12 improve/separate runtime injection
-    list.addDefinition(
-        env().create<String, const char *>("_syscall_runtime"),
-        env().create<Number, int>((int) this)
-    );
-    list.addDefinition(
-        env().create<String, const char *>("_syscall_entry"),
-        env().create<Number, int>((int) _syscall_entry)
-    );
 }
