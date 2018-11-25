@@ -1,6 +1,6 @@
 /*[meta]
 mimetype = text/x-pasm
-description = Test Klasse A
+description = core class "Class"
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181102070000

@@ -99,7 +99,7 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     if (debugLevel >= 1) {
         env.out()<<"Starting kernel ... "<<(void*) k->getStartAddress()<<'\n';
     }
-    k->run();
+    k->run(kr);
 }
 
 }

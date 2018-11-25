@@ -1,4 +1,10 @@
-// TODO: #9 improve/separate runtime injection
+/*[meta]
+mimetype = text/x-pasm
+description = core class "Runtime"
+author = Marc Woerlein<marc.woerlein@gmx.de>
+[pool]
+version = 0.2.0+20181102070000
+*/
 // CLASS Runtime extends Object
 class_Runtime_desc:
     .long 0 // @class (Type Class) filled by class instantiation
@@ -35,6 +41,8 @@ class_Runtime_vtab_Runtime_method_rt:
     .long class_Object_mo_rt; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime_method_setRt:
     .long class_Object_mo_setRt; .long _cRuntimeVEObject
+class_Runtime_vtab_Runtime_method_bootstrap:
+    .long class_Runtime_mo_bootstrap; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_initSysCall:
     .long class_Runtime_mo_initSysCall; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_getClassDesc:
@@ -65,6 +73,7 @@ class_Runtime_vtab_Object:
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 
+.global class_Runtime_mo_bootstrap       := (class_Runtime_method_bootstrap - class_Runtime_desc)
 .global class_Runtime_mo_initSysCall     := (class_Runtime_method_initSysCall - class_Runtime_desc)
 .global class_Runtime_mo_getClassDesc    := (class_Runtime_method_getClassDesc - class_Runtime_desc)
 .global class_Runtime_mo_createInstance  := (class_Runtime_method_createInstance - class_Runtime_desc)
@@ -119,6 +128,7 @@ class_Runtime_string_class:
 .global Runtime_m_equals          := (class_Runtime_vtab_Runtime_method_equals - class_Runtime_vtab_Runtime)
 .global Runtime_m_rt              := (class_Runtime_vtab_Runtime_method_rt - class_Runtime_vtab_Runtime)
 .global Runtime_m_setRt           := (class_Runtime_vtab_Runtime_method_setRt - class_Runtime_vtab_Runtime)
+.global Runtime_m_bootstrap       := (class_Runtime_vtab_Runtime_method_bootstrap - class_Runtime_vtab_Runtime)
 .global Runtime_m_initSysCall     := (class_Runtime_vtab_Runtime_method_initSysCall - class_Runtime_vtab_Runtime)
 .global Runtime_m_getClassDesc    := (class_Runtime_vtab_Runtime_method_getClassDesc - class_Runtime_vtab_Runtime)
 .global Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
@@ -139,6 +149,85 @@ handle_Runtime_vars_Object  := (class_Runtime_inst_tpl_handle_Runtime_vars_Objec
 .global _out := _sps_out
 .global _err := _sps_err
 
+class_Runtime_method_bootstrap:
+    pushl %ebp; movl %esp, %ebp; subl 12, %esp; pushad
+    movl 0x0, 24(%ebp) // default result: NULL
+    
+    movl 8(%ebp), %eax      // @class-desc "Runtime"
+    addl class_Runtime_so_class, %eax
+    
+    pushl 0 // desc
+    pushl %eax        // "Class"
+    pushl SysCall_find_class
+    pushl %esp; pushl 16(%ebp); call 20(%ebp)
+    addl 16, %esp
+    popl -12(%ebp)  // store @class desc
+    
+    movl -12(%ebp), %edx
+    pushl 0     // info
+    pushl class_instance_size_offset(%edx) // instance size
+    pushl SysCall_allocate;
+    pushl %esp; pushl 16(%ebp); call 20(%ebp)
+    addl 16, %esp
+    popl %eax   // return info
+    addl 0, %eax; jz _bs_return  // return NULL on allocate error
+    
+    movl -12(%ebp), %edx
+    movl 8(%ebp), %ebx      // @class-desc "Runtime"
+    addl _cr_mo_call_entry, %ebx
+    call _crh_instantiate // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+	movl %edi, -8(%ebp) // store @Class (Type Object)
+	
+    pushl -12(%ebp)
+    pushl %esi; pushl Class_m_setDesc; call (%esi)
+	addl 12, %esp
+	
+    movl 8(%ebp), %edx      // @class-desc "Runtime"
+    pushl 0     // info
+    pushl class_instance_size_offset(%edx) // instance size
+    pushl SysCall_allocate;
+    pushl %esp; pushl 16(%ebp); call 20(%ebp)
+    addl 16, %esp
+    popl %eax   // return info
+    addl 0, %eax; jz _bs_return  // return NULL on allocate error
+    
+    movl 8(%ebp), %edx      // @class-desc "Runtime"
+    movl 8(%ebp), %ebx      // @class-desc "Runtime"
+    addl _cr_mo_call_entry, %ebx
+    call _crh_instantiate // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+    
+    pushl %esi
+    pushl %edi; pushl Object_m_setRt; call (%edi)
+	addl 12, %esp
+    
+    pushl 20(%ebp) // @syscall-entry
+    pushl 16(%ebp) // @syscall-runtime
+    pushl %esi; pushl Runtime_m_initSysCall; call (%esi)
+	addl 16, %esp
+	
+	movl -8(%ebp), %edi // load @Class (Type Object)
+    pushl %esi
+    pushl %edi; pushl Object_m_setRt; call (%edi)
+	addl 12, %esp
+    
+    movl 8(%ebp), %eax      // @class-desc "Runtime"
+    addl class_Runtime_so_class, %eax
+    subl 4, %esp  # return value of createInstance
+    pushl %eax // @classname
+    pushl %esi; pushl Runtime_m_createInstance; call (%esi)
+	addl 12, %esp
+    popl %eax   // @class (Type Class)
+    addl 0, %eax; jz _crmci_return  // return NULL if class could not be initialized
+    
+    pushl 8(%ebp)      // @class-desc "Runtime"
+    pushl %eax; pushl Class_m_setDesc; call (%eax)
+	addl 12, %esp
+	
+    movl %esi, 24(%ebp) // store @runtime (Type Runtime) as result
+_bs_return:
+    popad; leave
+    ret
+
 class_Runtime_method_initSysCall:
     pushl %ebp; movl %esp, %ebp;
     
@@ -152,7 +241,6 @@ class_Runtime_method_initSysCall:
     
     leave
     ret
-
 
 class_Runtime_method_getClassDesc:
     pushl %ebp; movl %esp, %ebp; pushad
@@ -326,7 +414,9 @@ _crmci_instantiate:
     addl 0, %eax; jz _crmci_return
     
     pushl %esi // @Runtime for later setRt
-    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+    movl 8(%ebp), %ebx      // @class-desc "Runtime"
+    addl _cr_mo_call_entry, %ebx
+    call _crh_instantiate // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
     pushl %edi; pushl Object_m_setRt; call (%edi)
 	addl 12, %esp
     
@@ -337,7 +427,7 @@ _crmci_return:
     popad; leave
     ret
 
-_crh_instantiate: // %eax: @object-meminfo %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
+_crh_instantiate: // %eax: @object-meminfo %ebx: @_call_entry %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
     movl (%eax), %edi   // @object
     movl %edx, %esi
     addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
@@ -351,11 +441,11 @@ _crh_instantiate: // %eax: @object-meminfo %edx: @Class-desc, return %edi: @obje
     movl %edx, %eax                 // @obj-class desc
     addl class_vtabs_offset, %eax   // @obj-class vtabs entry
 _crhi_loop:
-    movl _cvte_ho(%eax), %ebx
+    movl _cvte_ho(%eax), %esi
     movl _cvte_vto(%eax), %ecx
-    movl _call_entry, (%edi, %ebx)  // store @call-entry in handle
-    movl %edi, 4(%edi, %ebx)        // store @object in handle
-    movl %ecx, 8(%edi, %ebx)        // store vtab-offset in handle
+    movl %ebx, (%edi, %esi)         // store @call-entry in handle
+    movl %edi, 4(%edi, %esi)        // store @object in handle
+    movl %ecx, 8(%edi, %esi)        // store vtab-offset in handle
     addl _cvte_size, %eax
     cmpl 0, (%eax)
     jne _crhi_loop
@@ -365,6 +455,7 @@ _crhi_loop:
     addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
     ret
 
+_cr_mo_call_entry := (_call_entry - class_Runtime_desc)
 _call_entry:
 	pushl %ecx
 	movl 12(%esp), %ebx	        # load object handle
@@ -381,83 +472,6 @@ _call_entry:
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method
-	
-_init_Runtime:
-    pushl %ebp; movl %esp, %ebp; subl 20, %esp; pushad
-    movl 0, -4(%ebp) // default result: NULL
-    movl _syscall_runtime, -16(%ebp)
-    movl _syscall_entry, -20(%ebp)
-
-    pushl 0 // desc
-    pushl class_Runtime_string_class       // @classname
-    pushl SysCall_find_class
-    pushl %esp; pushl -16(%ebp); call -20(%ebp)
-    addl 16, %esp
-    popl -12(%ebp)  // store @class desc
-    
-    movl -12(%ebp), %edx
-    pushl 0     // info
-    pushl class_instance_size_offset(%edx) // instance size
-    pushl SysCall_allocate;
-    pushl %esp; pushl -16(%ebp); call -20(%ebp)
-    addl 16, %esp
-    popl %eax   // return info
-    addl 0, %eax; jz _iR_return  // return NULL on allocate error
-
-    
-    movl -12(%ebp), %edx
-    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-	movl %edi, -8(%ebp) // store @Class (Type Object)
-	
-    pushl -12(%ebp)
-    pushl %esi; pushl Class_m_setDesc; call (%esi)
-	addl 12, %esp
-	
-    movl class_Runtime_desc, %edx
-    pushl 0     // info
-    pushl class_instance_size_offset(%edx) // instance size
-    pushl SysCall_allocate;
-    pushl %esp; pushl -16(%ebp); call -20(%ebp)
-    addl 16, %esp
-    popl %eax   // return info
-    addl 0, %eax; jz _iR_return  // return NULL on allocate error
-    
-    movl class_Runtime_desc, %edx
-    call _crh_instantiate // %eax: @object-meminfo %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-    
-    pushl %esi
-    pushl %edi; pushl Object_m_setRt; call (%edi)
-	addl 12, %esp
-    
-    pushl -20(%ebp) // @syscall-entry
-    pushl -16(%ebp) // @syscall-runtime
-    pushl %esi; pushl Runtime_m_initSysCall; call (%esi)
-	addl 16, %esp
-	
-	movl -8(%ebp), %edi // load @Class (Type Object)
-    pushl %esi
-    pushl %edi; pushl Object_m_setRt; call (%edi)
-	addl 12, %esp
-    
-    movl class_Runtime_desc, %eax
-    addl class_Runtime_so_class, %eax
-    subl 4, %esp  # return value of createInstance
-    pushl %eax // @classname
-    pushl %esi; pushl Runtime_m_createInstance; call (%esi)
-	addl 12, %esp
-    popl %eax   // @class (Type Class)
-    addl 0, %eax; jz _crmci_return  // return NULL if class could not be initialized
-    
-    pushl class_Runtime_desc
-    pushl %eax; pushl Class_m_setDesc; call (%eax)
-	addl 12, %esp
-	
-    movl %esi, -4(%ebp) // store @runtime (Type Runtime) as result
-_iR_return:
-    popad
-    movl -4(%ebp), %eax // return @runtime (Type Runtime)
-    leave
-    ret
 
 SysCall_allocate   := 1
 SysCall_free       := 2

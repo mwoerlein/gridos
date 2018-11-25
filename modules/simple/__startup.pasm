@@ -10,9 +10,6 @@ entry = true
 entry:
     movw 0xc40, (cga_testline)
     
-    call _init_Runtime
-    movl classname_B, %ebx
-    
     movl %eax, %edi
     
     subl 4, %esp  # return value of createInstance
@@ -35,9 +32,6 @@ entry:
 halt:
 	hlt
 	jmp halt
-
-classname_B:
-    .asciz "/my/B"
 
 print_cga_buffer  := 0xB8000
 print_line_offset := 160

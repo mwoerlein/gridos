@@ -124,6 +124,10 @@ bool KernelRuntime::resolveClasses() {
     return true;
 }
 
+ClassDescriptor &KernelRuntime::findDescriptor(String &name) {
+    return get(name);
+}
+
 pool_class_descriptor * KernelRuntime::findClass(const char *name) {
     String &s = env().create<String, const char*>(name);
     pool_class_descriptor * ret = has(s) ? get(s).desc : 0;

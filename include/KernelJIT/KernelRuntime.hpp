@@ -11,6 +11,7 @@ class KernelRuntime: protected HashMap<String, ClassDescriptor>, virtual public 
     KernelRuntime(Environment &env, MemoryInfo &mi):HashMap(env, mi), Object(env, mi) {}
     virtual ~KernelRuntime() {}
     virtual bool registerClass(pool_class_descriptor *desc);
+    virtual ClassDescriptor & findDescriptor(String &name);
     virtual pool_class_descriptor * findClass(const char *name);
     virtual void injectDefinitions(ASMInstructionList &list);
     virtual bool resolveClasses();

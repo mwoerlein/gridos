@@ -28,11 +28,12 @@ class ClassDescriptor: virtual public Object {
     String &name;
     
     ClassDescriptor(Environment &env, MemoryInfo &mi, pool_class_descriptor *desc)
-            :Object(env, mi), desc(desc), name(env.create<String>()) {
-        name = (char *) ((size_t) desc + desc->classname_offset);
-    }
+            :Object(env, mi), desc(desc), name(env.create<String, const char *>(getCName())) {}
     virtual ~ClassDescriptor() {
         name.destroy();
+    }
+    const char * getCName() {
+        return (char *) ((size_t) desc + desc->classname_offset);
     }
 };
 

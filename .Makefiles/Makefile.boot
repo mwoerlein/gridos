@@ -7,23 +7,41 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
-#MODSIMPLE_PARTS = __startup _core Runtime A B
-MODSIMPLE_PARTS = __startup Runtime Object_globals Class_globals A_globals B_globals
+
+// TODO: #12 read dependencies from meta data 
+MODSIMPLE_STARTUP_PARTS = __startup Runtime_globals Object_globals Class_globals A_globals B_globals
 MODSIMPLE_OBJECT_PARTS = Object
 MODSIMPLE_CLASS_PARTS = Class Object_globals
-MODSIMPLE_RUNTIME_PARTS = __fake_statics Runtime Object_globals Class_globals
+MODSIMPLE_RUNTIME_PARTS = Runtime Object_globals Class_globals
 MODSIMPLE_A_PARTS = A Object_globals Class_globals Runtime_globals
 MODSIMPLE_B_PARTS = B Object_globals Class_globals Runtime_globals A_globals
-MODSIMPLE_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_PARTS))
-MODSIMPLE_OBJECT_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_OBJECT_PARTS))
-MODSIMPLE_CLASS_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_CLASS_PARTS))
-MODSIMPLE_RUNTIME_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_RUNTIME_PARTS))
-MODSIMPLE_A_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_A_PARTS))
-MODSIMPLE_B_PASMS = $(patsubst %,$(MODDIR)/simple/%.pasm, $(MODSIMPLE_B_PARTS))
+MODSIMPLE_STARTUP_PASMS = $(MODSIMPLE_STARTUP_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_OBJECT_PASMS = $(MODSIMPLE_OBJECT_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_CLASS_PASMS = $(MODSIMPLE_CLASS_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_RUNTIME_PASMS = $(MODSIMPLE_RUNTIME_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_A_PASMS = $(MODSIMPLE_A_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_B_PASMS = $(MODSIMPLE_B_PARTS:%=$(MODDIR)/simple/%.pasm) 
 
-$(MODDIR)/simple/Runtime_globals.pasm: $(MODSIMPLE_RUNTIME_PASMS)
+MOD_SIMPLE_CLASSES = A B
+MOD_SIMPLE_FILES = $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_SIMPLE_CLASSES))
+
+MOD_KERNEL_CLASSES = Object Class Runtime
+MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
+#MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
+#MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
+#MOD_KERNEL_FILES = $(BOOTDIR)/at_relocateable.bin $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
+#MOD_KERNEL_FILES = $(MODDIR)/at_relocateable.pasm $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
+
+
+$(BOOTDIR)/__startup.bin: $(MODSIMPLE_STARTUP_PASMS)
 	echo "creating $@"
-	cat $(MODSIMPLE_RUNTIME_PASMS) | $(BINDIR)/pasm -g $@ -o /dev/null -
+	cat $(MODSIMPLE_STARTUP_PASMS) | $(BINDIR)/pasm -eo $(BOOTDIR)/__startup.bin -
+#	cat $(MODSIMPLE_STARTUP_PASMS) > $(BOOTDIR)/__startup.bin
+
+$(MODDIR)/simple/Runtime_globals.pasm $(BOOTDIR)/Runtime.pbc: $(MODSIMPLE_RUNTIME_PASMS)
+	echo "creating $@"
+	cat $(MODSIMPLE_RUNTIME_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Runtime.pbc -
+#	cat $(MODSIMPLE_RUNTIME_PASMS) > $(BOOTDIR)/Runtime.pbc
 
 $(MODDIR)/simple/Object_globals.pasm $(BOOTDIR)/Object.pbc: $(MODSIMPLE_OBJECT_PASMS)
 	echo "creating $@"
@@ -45,13 +63,17 @@ $(MODDIR)/simple/B_globals.pasm $(BOOTDIR)/B.pbc: $(MODSIMPLE_B_PASMS)
 	cat $(MODSIMPLE_B_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/B.pbc -
 #	cat $(MODSIMPLE_B_PASMS) > $(BOOTDIR)/B.pbc
 
-$(BOOTDIR)/mod_store.block: $(BOOTDIR)/A.pbc $(BOOTDIR)/B.pbc
+$(BOOTDIR)/%.bin: $(MODDIR)/%.pasm
 	echo "creating $@"
-	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/A.pbc $(BOOTDIR)/B.pbc 
+	$(BINDIR)/pasm -eo $@ $<
 
-$(BOOTDIR)/mod_kernel.block: $(BOOTDIR)/Object.pbc $(BOOTDIR)/Class.pbc $(BOOTDIR)/mod_kernel.bin
+$(BOOTDIR)/mod_store.block: $(MOD_SIMPLE_FILES)
 	echo "creating $@"
-	$(BINDIR)/store -o $@ -a 512 $(BOOTDIR)/Object.pbc $(BOOTDIR)/Class.pbc $(BOOTDIR)/mod_kernel.bin 
+	$(BINDIR)/store -o $@ -a 512 $(MOD_SIMPLE_FILES) 
+
+$(BOOTDIR)/mod_kernel.block: $(MOD_KERNEL_FILES)
+	echo "creating $@"
+	$(BINDIR)/store -o $@ -a 512 $(MOD_KERNEL_FILES) 
 
 $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@
@@ -61,14 +83,6 @@ $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block 
 $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
 	echo "creating $@"
 	cat $(LOADER_PASMS) | $(BINDIR)/pasm -bo $@ -
-
-$(BOOTDIR)/mod_kernel.bin: $(MODSIMPLE_PASMS) 
-	echo "creating $@"
-	cat $(MODSIMPLE_PASMS) > $@
-#	cp $(MODDIR)/blinking.pasm $@
-#	$(BINDIR)/pasm -eo $@ $(MODDIR)/blinking.pasm
-#	cp $(MODDIR)/at_relocateable.pasm $@
-#	$(BINDIR)/pasm -eo $@ $(MODDIR)/at_relocateable.pasm
 
 $(BOOTDIR)/$(MASCHINE)_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $(BOOTDIR)/$(MASCHINE)_startup.o $(STARTUP_LIBS:%=$(LIBDIR)/%) 
 	echo "creating $@"
