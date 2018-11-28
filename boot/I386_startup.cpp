@@ -96,6 +96,15 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     
     assertHALT(k, "Compiling kernel failed!");
     
+    {
+        Module & m = env.getModule("startup");
+        if (m.hasStringProperty("meta.mainThread")) {
+            ClassDescriptor &cd = kr.findDescriptor(m.getStringProperty("meta.mainThread"));
+            assertHALT(&cd, "Missing main thread class!");
+            kr.setMainThread(cd);
+        }
+    }
+    
     // run compiled kernel    
     if (debugLevel >= 1) {
         env.out()<<"Starting kernel ... "<<(void*) k->getStartAddress()<<'\n';

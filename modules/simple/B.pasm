@@ -4,6 +4,7 @@ description = Test Klasse B
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181102070000
+class = true
 */
 // CLASS B extends A
 class_B_desc:

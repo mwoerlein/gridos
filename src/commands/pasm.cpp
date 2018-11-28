@@ -3,7 +3,8 @@
 
 #include "I386ASM/Parser.hpp"
 
-static const char VERSION[] = "pasm 0.1.0";
+static const char PROGRAM[] = "pasm";
+static const char VERSION[] = "0.1.0";
 static const char USAGE[] =
 R"(Pool Assembler.
 
@@ -11,14 +12,15 @@ R"(Pool Assembler.
       pasm [options] -o <file> <file>
 
     Options:
-      -h --help    Show this screen.
-      --version    Show version.
-      -o <file>    Place the output into <file>.
-      -g <file>    Place the global definitions into <file>.
-      -b --binary  Generate plain binary without module informations.
-      -c --class   Generate class module informations.
-      -e --entry   Generate entry module informations.
-      -t <org>     Locates code in the output file at the absolute address given by org.
+      -h --help             Show this screen.
+      --version             Show version.
+      -o <file>             Place the output into <file>.
+      -g <file>             Place the global definitions into <file>.
+      -b --binary           Generate plain binary without module informations.
+      -c --class            Generate class module informations.
+      -e --entry            Generate entry module informations.
+      --bootstrap <label>   Generate bootstrap informations. 
+      -t <org>              Locates code in the output file at the absolute address given by org.
 )";
 
 class PasmCommand: public CommandLine {
@@ -41,7 +43,7 @@ class PasmCommand: public CommandLine {
             return 0;
         }
         if (hasProperty("version")) {
-            env().out()<<VERSION<<"\n";
+            env().out()<<PROGRAM<<" "<<VERSION<<"\n";
             return 0;
         }
         if (!hasStringProperty("o") || _arguments.size() != 1) {
@@ -79,17 +81,20 @@ class PasmCommand: public CommandLine {
         // generate module infos
         if (!hasProperty("b") && !hasProperty("binary")) {
             outfile<<"/*[meta]\n";
-            if (hasProperty("c") || hasProperty("class")) {
-                outfile<<"mimetype = application/pool-class-x86\n";
-            } else {
-                outfile<<"mimetype = application/x-bin-x86\n";
-            }
-            //outfile<<"description = Dies ist das GridOS-Kernel-Modul \"Blinking\"\n";
+            outfile<<"mimetype = application/x-bin-x86\n";
+            
             outfile<<"[pool]\n";
-            //outfile<<"version = 0.1.0\n";
+            outfile<<"version = "<<VERSION<<'\n';
+            if (hasProperty("c") || hasProperty("class")) {
+                outfile<<"class = true\n";
+            }
             if (hasProperty("e") || hasProperty("entry")) {
                 outfile<<"entry = true\n";
             }
+            if (hasProperty("bootstrap") && list.hasDefinition(getStringProperty("bootstrap"))) {
+                outfile<<"bootstrapOffset = "<<list.getValue(getStringProperty("bootstrap"))<<'\n';
+            }
+            
             outfile<<"*/\n";
         }
         list.writeToStream(outfile);

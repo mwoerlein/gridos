@@ -4,6 +4,8 @@ description = core class "Runtime"
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181102070000
+class = true
+bootstrapOffset = class_Runtime_mo_bootstrap
 */
 // CLASS Runtime extends Object
 class_Runtime_desc:

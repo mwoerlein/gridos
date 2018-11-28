@@ -4,6 +4,7 @@ description = core class "Object"
 author = Marc Woerlein<marc.woerlein@gmx.de>
 [pool]
 version = 0.2.0+20181102070000
+class = true
 */
 // Class Object
 class_Object_desc:

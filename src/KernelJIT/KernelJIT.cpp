@@ -61,16 +61,11 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         
         if (debugLevel >= 2) { list.logToStream(env().out(), debugLevel >= 3); }
         list.writeToStream(osk);
-        {
-            String &s = env().create<String>();
-            // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
-            if (list.hasLabel(s="class_Object_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
-            if (list.hasLabel(s="class_Class_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
-            if (list.hasLabel(s="class_Runtime_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
-            if (list.hasLabel(s="class_A_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
-            if (list.hasLabel(s="class_B_desc")) kr.registerClass((pool_class_descriptor*) list.getLabel(s));
-            
-            s.destroy();
+        if (module.testStringProperty("pool.class", "true")) {
+            ClassDescriptor *cd = kr.registerClass((pool_class_descriptor*) osk.getStartAddress());
+            if (cd && module.hasStringProperty("pool.bootstrapOffset") && list.hasDefinition(module.getStringProperty("pool.bootstrapOffset"))) {
+                kr.setBootstrap(*cd, list.getValue(module.getStringProperty("pool.bootstrapOffset")));
+            }
         }
         list.destroy();
         return osk;
@@ -85,19 +80,14 @@ Kernel &KernelJIT::kernel_compile(Module & module, KernelRuntime &kr) {
         osk<<in;
         if (debugLevel >= 2) { env().out()<<" done\n"; }
         in.destroy();
-        return osk;
-    }
-    
-    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
-    if (module.testStringProperty("meta.mimetype", "application/pool-class-x86")) {
-        size_t size = module.getContentSize();
-        OStreamKernel &osk = env().create<I386OStreamKernel, size_t>(size);
-        IStream &in = module.getContentIStream();
-        if (debugLevel >= 2) { env().out()<<"copying "<<size<< " bytes ..."; }
-        osk<<in;
-        if (debugLevel >= 2) { env().out()<<" done\n"; }
-        in.destroy();
-        kr.registerClass((pool_class_descriptor*) osk.getStartAddress());
+        if (module.testStringProperty("pool.class", "true")) {
+            ClassDescriptor *cd = kr.registerClass((pool_class_descriptor*) osk.getStartAddress());
+            if (cd && module.hasStringProperty("pool.bootstrapOffset")) {
+                int bs = 0;
+                module.getStringProperty("pool.bootstrapOffset") >> bs;
+                kr.setBootstrap(*cd, bs);
+            }
+        }
         return osk;
     }
     

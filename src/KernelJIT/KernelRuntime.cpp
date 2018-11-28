@@ -47,6 +47,7 @@ typedef struct {
 } syscall_args_print;
 
 extern "C" {
+    typedef void (*bootstrapFunc)(void*, void*, KernelRuntime *, int(*)(KernelRuntime *runtime, syscall_args *), void*);
     int _syscall_entry(KernelRuntime *runtime, syscall_args * args) {
         Environment &env = runtime->env();
         MemoryAllocator &ma = env.getAllocator(); 
@@ -91,19 +92,19 @@ extern "C" {
     }
 }
 
-bool KernelRuntime::registerClass(pool_class_descriptor *desc) {
+ClassDescriptor *KernelRuntime::registerClass(pool_class_descriptor *desc) {
     if (desc->magic != 0x15AC1A55) {
         env().err() << "try to register invalid class at " << desc << '\n';
-        return false;
+        return 0;
     }
     
     ClassDescriptor &cd = env().create<ClassDescriptor, pool_class_descriptor*>(desc);
     if (has(cd.name)) {
         env().err() << "class " << cd.name << " already registered\n";
-        return false;
+        return 0;
     }
     set(cd.name, cd);
-    return true;
+    return &cd;
 }
 
 bool KernelRuntime::resolveClasses() {
@@ -133,4 +134,37 @@ pool_class_descriptor * KernelRuntime::findClass(const char *name) {
     pool_class_descriptor * ret = has(s) ? get(s).desc : 0;
     s.destroy();
     return ret;
+}
+
+bool KernelRuntime::setBootstrap(ClassDescriptor & desc, size_t offset) {
+    // TODO: #12 if (!offset part of class) { return false; }
+    if (bsClass) {
+        return false;
+    }
+    bsClass = &desc;
+    bsOffset = offset;
+    return true;
+}
+
+bool KernelRuntime::setMainThread(ClassDescriptor & desc) {
+    if (mainThread) {
+        return false;
+    }
+    mainThread = &desc;
+    return true;
+}
+
+void KernelRuntime::run(void* entry) {
+    void *bootstrap = 0;
+    const char *main = 0;
+    if (bsClass) {
+        bootstrapFunc bs = (bootstrapFunc)(((size_t)bsClass->desc)+bsOffset);
+        (*bs)(bsClass->desc, 0, this, _syscall_entry, 0);
+        __asm__ __volatile__ ("movl -16(%%esp), %0" : "=r"(bootstrap) : ); // why -16?
+    }
+    if (mainThread) {
+        main = mainThread->getCName();
+    }
+    
+    __asm__ __volatile__ ("jmp *%0" : : "r"(entry), "a"(bootstrap), "b"(main));
 }
