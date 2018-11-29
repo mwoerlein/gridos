@@ -1,7 +1,7 @@
 #include "KernelJIT/Module.hpp"
 
 #include "sys/String.hpp"
-#include "memory/MemoryIStream.hpp"
+#include "memory/MemoryIOStream.hpp"
 
 Module::Module(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo)
         :PropertyContainer(env, mi), Object(env, mi), memoryInfo(memoryInfo), ownedInfo(&memoryInfo), contentOffset(0) {}
@@ -18,7 +18,7 @@ Module::~Module() {
 }
 
 IStream & Module::getContentIStream() {
-    MemoryIStream & content = env().create<MemoryIStream, MemoryInfo&>(memoryInfo);
+    MemoryIOStream & content = env().create<MemoryIOStream, MemoryInfo&>(memoryInfo);
     content.seek(contentOffset);
     return content;
 }

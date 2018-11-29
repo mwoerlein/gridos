@@ -43,25 +43,25 @@ class StoreCommand: public CommandLine {
             return -1;
         }
         
-        SeekableOStream &outfile = env().streamFactory().buildOStream(getStringProperty("o"));
+        SeekableIOStream &outfile = env().streamFactory().buildOStream(getStringProperty("o"));
         outfile<<"/*[meta]\n";
         outfile<<"mimetype = application/grid-store\n";
         outfile<<"*/\n";
 
         size_t index = outfile.pos();
         for (int i = _arguments.size(); i >= 0; i--) {
-            outfile.rawInt(0).rawInt(0);
+            outfile.printRawInt(0).printRawInt(0);
         }
         
         Iterator<String> & argIt = arguments();
         while (argIt.hasNext()) {
             String &name = argIt.next();
-            SeekableIStream &infile = env().streamFactory().buildIStream(name);
+            SeekableIOStream &infile = env().streamFactory().buildIStream(name);
             size_t start = outfile.pos();
             size_t size = infile.length();
 //            env().out()<<"store "<<name<<" at "<<start<<":"<<size<<" "<<index<<'\n';
             outfile.seek(index);
-            outfile.rawInt(start).rawInt(size);
+            outfile.printRawInt(start).printRawInt(size);
             index = outfile.pos();
             outfile.seek(start);
             outfile << infile;
@@ -73,7 +73,7 @@ class StoreCommand: public CommandLine {
             int align;
             getStringProperty("a") >> align;
             while (outfile.pos() % align) {
-                outfile.rawChar(0);
+                outfile.printRawChar(0);
             }
         }
 

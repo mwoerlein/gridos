@@ -1,9 +1,9 @@
-#ifndef MEMORYISTREAM_HPP_LOCK
-#define MEMORYISTREAM_HPP_LOCK
+#ifndef MEMORY_MEMORYIOSTREAM_HPP_LOCK
+#define MEMORY_MEMORYIOSTREAM_HPP_LOCK
 
-#include "sys/stream/SeekableIStream.hpp"
+#include "sys/stream/SeekableIOStream.hpp"
 
-class MemoryIStream: public SeekableIStream {
+class MemoryIOStream: public SeekableIOStream {
     private:
     size_t _pos;
     
@@ -11,12 +11,21 @@ class MemoryIStream: public SeekableIStream {
     MemoryInfo &mem;
     
     public:
-    MemoryIStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),_pos(0) {}
-    virtual ~MemoryIStream() {}
+    MemoryIOStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),_pos(0) {}
+    virtual ~MemoryIOStream() {}
+    
+    using OStream::operator <<;
+    virtual OStream &operator <<(char c) override {
+        if (_pos < mem.len) {
+            ((char*) mem.buf)[_pos++] = c;
+        }
+        return *this;
+    }
     
     using IStream::operator >>;
     virtual IStream &operator >>(char &c) override {
         c = (_pos < mem.len) ? ((char*)mem.buf)[_pos++] : 0;
+        return *this;
     }
     
     virtual bool isEmpty() override {
@@ -42,5 +51,5 @@ class MemoryIStream: public SeekableIStream {
     }
 };
 
-#endif //MEMORYISTREAM_HPP_LOCK
+#endif //MEMORY_MEMORYIOSTREAM_HPP_LOCK
 

@@ -1,7 +1,7 @@
 #include "test/I386ASM/ParserBasedTestCase.hpp"
 
 #include "sys/stream/StreamFactory.hpp"
-#include "sys/stream/IgnoreOStream.hpp"
+#include "sys/stream/NullIOStream.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
 // public
@@ -12,7 +12,7 @@ ParserBasedTestCase::~ParserBasedTestCase() {
 
 // protected
 ASMInstructionList & ParserBasedTestCase::parseSilent(IStream & input, String & errorBuffer) {
-    IgnoreOStream ignore(env());
+    NullIOStream ignore(env());
     OStream &outOrig = env().setOut(ignore); 
     OStream &errOrig = env().setErr(ignore);
     

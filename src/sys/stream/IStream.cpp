@@ -19,12 +19,12 @@ OStream & IStream::operator >>(OStream & stream) {
     return stream;
 }
 
-unsigned char IStream::rawChar() {
+unsigned char IStream::readRawChar() {
     char tmp;
     *this >> tmp;
     return tmp;
 }
 
-unsigned int IStream::rawInt() {
-    return (rawChar()) + (rawChar()<<8) + (rawChar()<<16) + (rawChar()<<24);
+unsigned int IStream::readRawInt() {
+    return (readRawChar()) + (readRawChar()<<8) + (readRawChar()<<16) + (readRawChar()<<24);
 }

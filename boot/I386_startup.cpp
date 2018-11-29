@@ -62,7 +62,7 @@ void startup(unsigned long magic, void *mbi, void *mbh){
             if (module.getId() == "startup") continue;
             if (module.testStringProperty("meta.mimetype", "application/grid-store")) {
                 IStream &in = module.getContentIStream();
-                for (int pos = in.rawInt(), size = in.rawInt(); pos > 0; pos = in.rawInt(), size = in.rawInt()) {
+                for (int pos = in.readRawInt(), size = in.readRawInt(); pos > 0; pos = in.readRawInt(), size = in.readRawInt()) {
 //                    env.out()<<"-- element at "<<pos<<":"<<size<<"\n";
                     Module & inner = env.create<Module, void*, size_t>((void*) (pos + (size_t)module.memoryInfo.buf), size);
                     inner.parseHeader();

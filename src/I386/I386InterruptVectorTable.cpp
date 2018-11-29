@@ -1,7 +1,7 @@
 #include "I386/I386InterruptVectorTable.hpp"
 
 #include "sys/String.hpp"
-#include "memory/MemoryOStream.hpp"
+#include "memory/MemoryIOStream.hpp"
 #include "I386ASM/Parser.hpp"
 #include "I386ASM/ASMInstructionList.hpp"
 
@@ -196,7 +196,7 @@ isr_common:
         return notAnInfo;
     }
     
-    MemoryOStream &idtOStream = env().create<MemoryOStream, MemoryInfo&>(*idtInfo);
+    MemoryIOStream &idtOStream = env().create<MemoryIOStream, MemoryInfo&>(*idtInfo);
     list.writeToStream(idtOStream);
     idtOStream.destroy();
     list.destroy();
