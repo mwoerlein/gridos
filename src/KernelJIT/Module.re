@@ -2,6 +2,7 @@
 
 #include "sys/String.hpp"
 #include "memory/MemoryIOStream.hpp"
+#include "memory/MemoryInfoHelper.hpp"
 
 Module::Module(Environment & env, MemoryInfo & mi, MemoryInfo & memoryInfo)
         :PropertyContainer(env, mi), Object(env, mi), memoryInfo(memoryInfo), ownedInfo(&memoryInfo), contentOffset(0) {}
@@ -152,6 +153,6 @@ bool Module::parseCommandline(const char * commandline) {
 }
 
 void Module::dump(OStream &log, bool properties) {
-    log << '[' << getId() << "] (at "<<memoryInfo.buf<<")\n"; 
+    log << '[' << getId() << "] ("<<memoryInfo.buf<<":"<<memoryInfoEnd(&memoryInfo)<<")\n"; 
     if (properties) { dumpProperties(log); }
 }
