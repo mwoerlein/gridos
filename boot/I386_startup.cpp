@@ -59,7 +59,7 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
-            if (m.testStringProperty("meta.static", "true")) continue;
+            if (module.testStringProperty("meta.static", "true")) continue;
             if (module.testStringProperty("meta.mimetype", "application/grid-store")) {
                 IStream &in = module.getContentIStream();
                 for (int pos = in.readRawInt(), size = in.readRawInt(); pos > 0; pos = in.readRawInt(), size = in.readRawInt()) {
