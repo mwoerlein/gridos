@@ -1,9 +1,7 @@
 #include "I386/I386InterruptVectorTable.hpp"
 
 #include "sys/String.hpp"
-#include "memory/MemoryIOStream.hpp"
-#include "I386ASM/Parser.hpp"
-#include "I386ASM/ASMInstructionList.hpp"
+#include "I386ASM/Compiler.hpp"
 
 // https://www.lowlevel.eu/wiki/Interrupt_Service_Routine
 struct interrupt_stack_frame {
@@ -167,39 +165,11 @@ isr_common:
     input << "idt_end:\n";
     
     IStream &in = input.toIStream();
-    Parser &parser = env().create<Parser>();
-    ASMInstructionList &list = parser.parse(in, env().err(), 1, 1, true); // silent
-    parser.destroy();
+    Compiler &compiler = env().create<Compiler>();
+    MemoryInfo *idtInfo = compiler.compileRaw(in);
+    compiler.destroy();
     in.destroy();
     input.destroy();
-    
-    if (list.hasErrors()) {
-        env().err()<<"parsing error\n";
-        list.destroy();
-        return notAnInfo;
-    }
-    
-    size_t size = list.compile();
-    if (list.hasErrors()) {
-        env().err()<<"compile error\n";
-        list.destroy();
-        return notAnInfo;
-    }
-    
-    MemoryInfo *idtInfo = &env().getAllocator().allocate(size);
-    
-    list.finalize((size_t) idtInfo->buf);
-    if (list.hasErrors()) {
-        env().err()<<"finalize error\n";
-        env().getAllocator().free(*idtInfo);
-        list.destroy();
-        return notAnInfo;
-    }
-    
-    MemoryIOStream &idtOStream = env().create<MemoryIOStream, MemoryInfo&>(*idtInfo);
-    list.writeToStream(idtOStream);
-    idtOStream.destroy();
-    list.destroy();
     
     return idtInfo;
 }    
