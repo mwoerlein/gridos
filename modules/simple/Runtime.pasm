@@ -174,7 +174,7 @@ class_Runtime_method_bootstrap:
     popl %eax   // return info
     addl 0, %eax; jz _bs_return  // return NULL on allocate error
     
-    movl -12(%ebp), %edx
+    movl -12(%ebp), %edx    // @class-desc "Class"
     movl 8(%ebp), %ebx      // @class-desc "Runtime"
     addl _cr_mo_call_entry, %ebx
     call _crh_instantiate // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
@@ -406,10 +406,9 @@ _crmci_start:
 	addl 12, %esp
     
 _crmci_instantiate:
-    movl class_instance_size_offset(%edx), %eax // instance size
     
     subl 4, %esp  # return value of allocate
-    pushl %eax
+    pushl class_instance_size_offset(%edx) // instance size
     pushl %esi; pushl Runtime_m_allocate; call (%esi)
 	addl 12, %esp
     popl %eax                       // @object-meminfo
@@ -419,11 +418,10 @@ _crmci_instantiate:
     movl 8(%ebp), %ebx      // @class-desc "Runtime"
     addl _cr_mo_call_entry, %ebx
     call _crh_instantiate // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-    pushl %edi; pushl Object_m_setRt; call (%edi)
-	addl 12, %esp
-    
     addl 0, %esi; jz _crmci_return  // return NULL if instance could not be generated
     movl %esi, 20(%ebp)             // return correct handle
+    pushl %edi; pushl Object_m_setRt; call (%edi)
+	addl 12, %esp
     
 _crmci_return:
     popad; leave

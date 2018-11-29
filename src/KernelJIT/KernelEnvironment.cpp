@@ -14,6 +14,7 @@ void KernelEnvironment::addModule(const char* commandline, MemoryInfo &moduleInf
     Module & module = create<Module, MemoryInfo &>(moduleInfo);
     if (id) {
         module.setId(module.createOwn<String, const char*>(id));
+        module.setStringProperty("meta.static", "true");
     }
     if (!module.parseHeader()) {
         env().err() << "ignore module at " << moduleInfo.buf << " because of invalid header\n";
@@ -50,7 +51,10 @@ Module &KernelEnvironment::getModule(const char* moduleId) {
 void KernelEnvironment::destroyModules() {
     Iterator<Module> &modules = values();
     while (modules.hasNext()) {
-        modules.next().destroy();
+        Module & m = modules.next();
+        if (!m.testStringProperty("meta.static", "true")) {
+            m.destroy();
+        }
     }
     modules.destroy();
     clear();

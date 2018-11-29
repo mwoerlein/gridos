@@ -59,7 +59,7 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
-            if (module.getId() == "startup") continue;
+            if (m.testStringProperty("meta.static", "true")) continue;
             if (module.testStringProperty("meta.mimetype", "application/grid-store")) {
                 IStream &in = module.getContentIStream();
                 for (int pos = in.readRawInt(), size = in.readRawInt(); pos > 0; pos = in.readRawInt(), size = in.readRawInt()) {
@@ -82,17 +82,8 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         modules.destroy();
     }
     jit.destroy();
-    // do not destroy modules, yet! I386OStreamKernel still requires startup/jit code and interrupt handler 
-    //env.destroyModules();
     
     assertHALT(kr.resolveClasses(), "Class resolving failed!");
-    
-    if (debugLevel >= 2) {
-        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();
-        if (k) { env.out()<<' '<<*k; }
-        env.out()<<'\n';
-        env.getAllocator().dump(env.err(), debugLevel >= 3);
-    }
     
     assertHALT(k, "Compiling kernel failed!");
     
@@ -103,6 +94,15 @@ void startup(unsigned long magic, void *mbi, void *mbh){
             assertHALT(&cd, "Missing main thread class!");
             kr.setMainThread(cd);
         }
+    }
+    
+    env.destroyModules();
+    
+    if (debugLevel >= 2) {
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();
+        if (k) { env.out()<<' '<<*k; }
+        env.out()<<'\n';
+        env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     
     // run compiled kernel    
