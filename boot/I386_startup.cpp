@@ -71,12 +71,11 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     assertHALT(runtime.isValid(), "Preparing kernel failed!");
     
     if (debugLevel >= 2) {
-        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<runtime;
-        env.out()<<'\n';
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<runtime<<'\n';
         env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     
-    // run compiled kernel    
+    // run compiled kernel
     if (debugLevel >= 1) {
         env.out()<<"Starting ... "<<(void*) runtime.getStartAddress()<<'\n';
     }

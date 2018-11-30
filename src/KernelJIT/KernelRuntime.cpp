@@ -199,7 +199,8 @@ bool KernelRuntime::setEntry(MemoryIOStream & info) {
 }
 
 bool KernelRuntime::isValid() {
-    return entry && ((bool) mainThread ^ ((bool) bsClass ^ (bool) bsOffset));
+    int classBased = (bool) mainThread + (bool) bsClass + (bool) bsOffset;
+    return entry && ((classBased == 0) || (classBased == 3));
 }
 
 void KernelRuntime::start() {
