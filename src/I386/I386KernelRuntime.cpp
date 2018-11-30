@@ -1,4 +1,4 @@
-#include "I386/I386OStreamKernel.hpp"
+#include "I386/I386KernelRuntime.hpp"
 
 #include "I386/I386IO_Port.hpp"
 #include "I386/I386InterruptVectorTable.hpp"
@@ -8,14 +8,14 @@
 void delay() {}
 
 //public
-I386OStreamKernel::I386OStreamKernel(Environment &env, MemoryInfo &mi, size_t size):OStreamKernel(env, mi, size), Object(env, mi) {}
-I386OStreamKernel::~I386OStreamKernel() {}
+I386KernelRuntime::I386KernelRuntime(Environment &env, MemoryInfo &mi):KernelRuntime(env, mi), Object(env, mi) {}
+I386KernelRuntime::~I386KernelRuntime() {}
 
-size_t I386OStreamKernel::getStartAddress() {
-    return (size_t) mem.buf;
+size_t I386KernelRuntime::getStartAddress() {
+    return entry ? (size_t) entry->getStartAddress() : -1;
 }
 
-void I386OStreamKernel::run(KernelRuntime &kr) {
+void I386KernelRuntime::run() {
     I386InterruptVectorTable &vt = env().create<I386InterruptVectorTable>();
     I386PIC &pic = env().create<I386PIC>();
     I386Keyboard &kbd = env().create<I386Keyboard, I386PIC&>(pic);
@@ -31,5 +31,5 @@ void I386OStreamKernel::run(KernelRuntime &kr) {
     vt.activate();
     
 /* run kernel */
-    kr.run(mem.buf);
+    start();
 }

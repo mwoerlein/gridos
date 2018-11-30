@@ -92,6 +92,10 @@ extern "C" {
     }
 }
 
+KernelRuntime::KernelRuntime(Environment &env, MemoryInfo &mi)
+        :HashMap(env, mi), Object(env, mi), mainThread(0), bsClass(0), bsOffset(0), entry(0) {}
+KernelRuntime::~KernelRuntime() {}
+
 ClassDescriptor *KernelRuntime::registerClass(pool_class_descriptor *desc) {
     if (desc->magic != 0x15AC1A55) {
         env().err() << "try to register invalid class at " << desc << '\n';
@@ -154,17 +158,29 @@ bool KernelRuntime::setMainThread(ClassDescriptor & desc) {
     return true;
 }
 
-void KernelRuntime::run(void* entry) {
-    void *bootstrap = 0;
+bool KernelRuntime::setEntry(MemoryIOStream & info) {
+    if (entry) {
+        return false;
+    }
+    entry = &info;
+    return true;
+}
+
+bool KernelRuntime::isValid() {
+    return entry && ((bool) mainThread ^ ((bool) bsClass ^ (bool) bsOffset));
+}
+
+void KernelRuntime::start() {
+    void *runtime = 0;
     const char *main = 0;
     if (bsClass) {
         bootstrapFunc bs = (bootstrapFunc)(((size_t)bsClass->desc)+bsOffset);
         (*bs)(bsClass->desc, 0, this, _syscall_entry, 0);
-        __asm__ __volatile__ ("movl -16(%%esp), %0" : "=r"(bootstrap) : ); // why -16?
+        __asm__ __volatile__ ("movl -16(%%esp), %0" : "=r"(runtime) : ); // why -16?
     }
     if (mainThread) {
         main = mainThread->getCName();
     }
     
-    __asm__ __volatile__ ("jmp *%0" : : "r"(entry), "a"(bootstrap), "b"(main));
+    __asm__ __volatile__ ("jmp *%0" : : "r"(entry->getStartAddress()), "a"(runtime), "b"(main));
 }

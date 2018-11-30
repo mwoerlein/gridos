@@ -5,9 +5,8 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 #endif
 
 #include "I386/I386Bootstrap.hpp"
+#include "I386/I386KernelRuntime.hpp"
 #include "KernelJIT/KernelJIT.hpp"
-#include "KernelJIT/HaltKernel.hpp"
-#include "KernelJIT/KernelRuntime.hpp"
 //#include "test/TestSuite.hpp"
 
 #define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
@@ -48,13 +47,12 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     }
     
     // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
-    KernelRuntime &kr = env.create<KernelRuntime>();
+    I386KernelRuntime &kr = env.create<I386KernelRuntime>();
     
     // compile kernel from modules
     assertHALT(env.hasModule("kernel"), "No kernel loaded!");
     KernelJIT &jit = env.create<KernelJIT>();
     if (debugLevel >= 1) { env.out()<<"Compiling ... with "<<&jit<<'\n'; }
-    Kernel *k = 0;
     {
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
@@ -66,17 +64,11 @@ void startup(unsigned long magic, void *mbi, void *mbh){
 //                    env.out()<<"-- element at "<<pos<<":"<<size<<"\n";
                     Module & inner = env.create<Module, void*, size_t>((void*) (pos + (size_t)module.memoryInfo.buf), size);
                     inner.parseHeader();
-                    Kernel &k2 = jit.kernel_compile(inner, kr);
-                    if (inner.testStringProperty("pool.entry", "true")) {
-                        k = &k2;
-                    }
+                    jit.kernel_compile(inner, kr);
                 }
                 in.destroy();
             } else {
-                Kernel &k2 = jit.kernel_compile(module, kr);
-                if (module.testStringProperty("pool.entry", "true")) {
-                    k = &k2;
-                }
+                jit.kernel_compile(module, kr);
             }
         }
         modules.destroy();
@@ -84,8 +76,6 @@ void startup(unsigned long magic, void *mbi, void *mbh){
     jit.destroy();
     
     assertHALT(kr.resolveClasses(), "Class resolving failed!");
-    
-    assertHALT(k, "Compiling kernel failed!");
     
     {
         Module & m = env.getModule("startup");
@@ -96,20 +86,20 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         }
     }
     
+    assertHALT(kr.isValid(), "Compiling kernel failed!");
     env.destroyModules();
     
     if (debugLevel >= 2) {
-        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err();
-        if (k) { env.out()<<' '<<*k; }
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<kr;
         env.out()<<'\n';
         env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     
     // run compiled kernel    
     if (debugLevel >= 1) {
-        env.out()<<"Starting kernel ... "<<(void*) k->getStartAddress()<<'\n';
+        env.out()<<"Starting kernel ... "<<(void*) kr.getStartAddress()<<'\n';
     }
-    k->run(kr);
+    kr.run();
 }
 
 }

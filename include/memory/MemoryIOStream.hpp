@@ -6,13 +6,19 @@
 class MemoryIOStream: public SeekableIOStream {
     private:
     size_t _pos;
+    MemoryInfo *owned;
     
     protected:
     MemoryInfo &mem;
     
     public:
-    MemoryIOStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),_pos(0) {}
-    virtual ~MemoryIOStream() {}
+    MemoryIOStream(Environment &env, MemoryInfo &mi, size_t size):Object(env, mi),mem(env.getAllocator().allocate(size)),owned(&mem),_pos(0) {}
+    MemoryIOStream(Environment &env, MemoryInfo &mi, MemoryInfo &mem):Object(env, mi),mem(mem),owned(notAnInfo),_pos(0) {}
+    virtual ~MemoryIOStream() {
+        if (owned != notAnInfo) {
+            env().getAllocator().free(*owned);
+        }
+    }
     
     using OStream::operator <<;
     virtual OStream &operator <<(char c) override {
@@ -48,6 +54,10 @@ class MemoryIOStream: public SeekableIOStream {
         } else {
             _pos = p;
         }
+    }
+    
+    virtual size_t getStartAddress() {
+        return (size_t) mem.buf;
     }
 };
 

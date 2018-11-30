@@ -8,7 +8,7 @@ class Kernel: virtual public Object {
     public:
     virtual ~Kernel() {}
     virtual size_t getStartAddress() = 0;
-    virtual void run(KernelRuntime &kr) = 0;
+    virtual void run() = 0;
 };
 
 #endif //KERNEL_HPP_LOCK
