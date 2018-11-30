@@ -93,8 +93,29 @@ extern "C" {
 }
 
 KernelRuntime::KernelRuntime(Environment &env, MemoryInfo &mi)
-        :HashMap(env, mi), Object(env, mi), mainThread(0), bsClass(0), bsOffset(0), entry(0) {}
+        :PropertyContainer(env, mi), Object(env, mi),
+         handlers(env.create<LinkedList<ModuleHandler>>()),
+         classes(env.create<HashMap<String, ClassDescriptor>>()),
+         mainThread(0), bsClass(0), bsOffset(0), entry(0) {}
 KernelRuntime::~KernelRuntime() {}
+
+void KernelRuntime::addHandler(ModuleHandler &handler) {
+    handlers.add(handler);
+}
+
+bool KernelRuntime::registerModule(Module &module) {
+    bool ret = false;
+    Iterator<ModuleHandler> &it = handlers.iterator();
+    while (it.hasNext()) {
+        ModuleHandler & handler = it.next();
+        if (handler.handles(module)) {
+            ret = handler.handle(module, *this);
+            break;
+        }
+    }
+    it.destroy();
+    return ret;
+}    
 
 ClassDescriptor *KernelRuntime::registerClass(pool_class_descriptor *desc) {
     if (desc->magic != 0x15AC1A55) {
@@ -107,12 +128,12 @@ ClassDescriptor *KernelRuntime::registerClass(pool_class_descriptor *desc) {
         env().err() << "class " << cd.name << " already registered\n";
         return 0;
     }
-    set(cd.name, cd);
+    classes.set(cd.name, cd);
     return &cd;
 }
 
 bool KernelRuntime::resolveClasses() {
-    Iterator<ClassDescriptor> &cds = values();
+    Iterator<ClassDescriptor> &cds = classes.values();
     while (cds.hasNext()) {
         pool_class_descriptor *desc = cds.next().desc;
         // resolve vtabs
@@ -126,16 +147,35 @@ bool KernelRuntime::resolveClasses() {
         }
     }
     cds.destroy();
+    
+    if (hasStringProperty("meta.mainThread")) {
+        String &name = getStringProperty("meta.mainThread");
+        mainThread = findDescriptor(name);
+        if (!mainThread) {
+            env().err() << "Missing main thread class '" << name << "'!\n";
+            return false;
+        }
+    }
+    
     return true;
 }
 
-ClassDescriptor &KernelRuntime::findDescriptor(String &name) {
-    return get(name);
+ClassDescriptor * KernelRuntime::findDescriptor(String &name) {
+    if (!classes.has(name)) {
+//        env().err() << "unknown class " << name << "\n";
+        return 0;
+    }
+    return &classes.get(name);
 }
 
 pool_class_descriptor * KernelRuntime::findClass(const char *name) {
     String &s = env().create<String, const char*>(name);
-    pool_class_descriptor * ret = has(s) ? get(s).desc : 0;
+    if (!classes.has(s)) {
+//        env().err() << "unknown class " << name << "\n";
+        s.destroy();
+        return 0;
+    }
+    pool_class_descriptor * ret = classes.get(s).desc;
     s.destroy();
     return ret;
 }
@@ -147,14 +187,6 @@ bool KernelRuntime::setBootstrap(ClassDescriptor & desc, size_t offset) {
     }
     bsClass = &desc;
     bsOffset = offset;
-    return true;
-}
-
-bool KernelRuntime::setMainThread(ClassDescriptor & desc) {
-    if (mainThread) {
-        return false;
-    }
-    mainThread = &desc;
     return true;
 }
 

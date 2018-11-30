@@ -6,7 +6,10 @@ __attribute__((weak)) void operator delete[](void * ptr, unsigned int) { ::opera
 
 #include "I386/I386Bootstrap.hpp"
 #include "I386/I386KernelRuntime.hpp"
-#include "KernelJIT/KernelJIT.hpp"
+#include "I386ASM/Compiler.hpp"
+#include "KernelJIT/ModuleHandler/StartupHandler.hpp"
+#include "KernelJIT/ModuleHandler/StoreHandler.hpp"
+#include "KernelJIT/ModuleHandler/X86Handler.hpp"
 //#include "test/TestSuite.hpp"
 
 #define assertHALT(cond, message) { if (!(cond)) { env.err()<<(message)<<"\nHalting ..."; return; } }
@@ -46,60 +49,38 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         modules.destroy();
     }
     
-    // TODO: #12 separate mimetype interpretation, load, compile and register into overall module loading workflow
-    I386KernelRuntime &kr = env.create<I386KernelRuntime>();
+    I386KernelRuntime &runtime = env.create<I386KernelRuntime>();
+    runtime.addHandler(env.create<StartupHandler>());
+    runtime.addHandler(env.create<StoreHandler>());
+    runtime.addHandler(env.create<X86Handler>());
+    runtime.addHandler(env.create<Compiler>());
     
     // compile kernel from modules
-    assertHALT(env.hasModule("kernel"), "No kernel loaded!");
-    KernelJIT &jit = env.create<KernelJIT>();
-    if (debugLevel >= 1) { env.out()<<"Compiling ... with "<<&jit<<'\n'; }
     {
         Iterator<Module> &modules = env.modules();
         while (modules.hasNext()) {
             Module &module = modules.next();
-            if (module.testStringProperty("meta.static", "true")) continue;
-            if (module.testStringProperty("meta.mimetype", "application/grid-store")) {
-                IStream &in = module.getContentIStream();
-                for (int pos = in.readRawInt(), size = in.readRawInt(); pos > 0; pos = in.readRawInt(), size = in.readRawInt()) {
-//                    env.out()<<"-- element at "<<pos<<":"<<size<<"\n";
-                    Module & inner = env.create<Module, void*, size_t>((void*) (pos + (size_t)module.memoryInfo.buf), size);
-                    inner.parseHeader();
-                    jit.kernel_compile(inner, kr);
-                }
-                in.destroy();
-            } else {
-                jit.kernel_compile(module, kr);
-            }
+            if (debugLevel >= 2) { module.dump(env.out(), debugLevel >= 3); }
+            runtime.registerModule(module);
         }
         modules.destroy();
-    }
-    jit.destroy();
-    
-    assertHALT(kr.resolveClasses(), "Class resolving failed!");
-    
-    {
-        Module & m = env.getModule("startup");
-        if (m.hasStringProperty("meta.mainThread")) {
-            ClassDescriptor &cd = kr.findDescriptor(m.getStringProperty("meta.mainThread"));
-            assertHALT(&cd, "Missing main thread class!");
-            kr.setMainThread(cd);
-        }
+        env.destroyModules();
     }
     
-    assertHALT(kr.isValid(), "Compiling kernel failed!");
-    env.destroyModules();
+    assertHALT(runtime.resolveClasses(), "Class resolving failed!");
+    assertHALT(runtime.isValid(), "Preparing kernel failed!");
     
     if (debugLevel >= 2) {
-        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<kr;
+        env.out()<<env<<' '<<env.getAllocator()<<' '<<env.out()<<' '<<env.err()<<' '<<runtime;
         env.out()<<'\n';
         env.getAllocator().dump(env.err(), debugLevel >= 3);
     }
     
     // run compiled kernel    
     if (debugLevel >= 1) {
-        env.out()<<"Starting kernel ... "<<(void*) kr.getStartAddress()<<'\n';
+        env.out()<<"Starting ... "<<(void*) runtime.getStartAddress()<<'\n';
     }
-    kr.run();
+    runtime.run();
 }
 
 }

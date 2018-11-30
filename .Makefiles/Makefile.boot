@@ -8,7 +8,6 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
 
-// TODO: #12 read dependencies from meta data 
 MODSIMPLE_STARTUP_PARTS = __startup Runtime_globals Object_globals Class_globals A_globals B_globals
 MODSIMPLE_OBJECT_PARTS = Object
 MODSIMPLE_CLASS_PARTS = Class Object_globals

@@ -3,12 +3,17 @@
 
 #include "sys/Object.hpp"
 #include "sys/collection/HashMap.hpp"
+#include "sys/collection/LinkedList.hpp"
+#include "sys/collection/PropertyContainer.hpp"
 #include "memory/MemoryIOStream.hpp"
 #include "KernelJIT/ClassDescriptor.hpp"
-#include "I386ASM/ASMInstructionList.hpp"
+#include "KernelJIT/ModuleHandler.hpp"
 
-class KernelRuntime: protected HashMap<String, ClassDescriptor>, virtual public Object {
+class KernelRuntime: public PropertyContainer {
     protected:
+    LinkedList<ModuleHandler> &handlers;
+    HashMap<String, ClassDescriptor> &classes;
+    
     ClassDescriptor * mainThread;
     ClassDescriptor * bsClass;
     MemoryIOStream * entry;
@@ -18,12 +23,14 @@ class KernelRuntime: protected HashMap<String, ClassDescriptor>, virtual public 
     KernelRuntime(Environment &env, MemoryInfo &mi);
     virtual ~KernelRuntime();
     
+    virtual void addHandler(ModuleHandler &handler);
+    virtual bool registerModule(Module &module);
+    
     virtual ClassDescriptor * registerClass(pool_class_descriptor *desc);
-    virtual ClassDescriptor & findDescriptor(String &name);
+    virtual ClassDescriptor * findDescriptor(String &name);
     virtual pool_class_descriptor * findClass(const char *name);
     virtual bool resolveClasses();
     virtual bool setBootstrap(ClassDescriptor & desc, size_t offset);
-    virtual bool setMainThread(ClassDescriptor & desc);
     virtual bool setEntry(MemoryIOStream & entry);
     virtual bool isValid();
     virtual void start();
