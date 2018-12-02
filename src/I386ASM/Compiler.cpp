@@ -49,10 +49,11 @@ bool Compiler::handle(Module & module, KernelRuntime & runtime) {
     if (logLevel >= 2) { list.logToStream(env().out(), logLevel >= 3); }
     list.writeToStream(mem);
     if (module.testStringProperty("pool.class", "true")) {
-        ClassDescriptor *cd = runtime.registerClass((pool_class_descriptor*) mem.getStartAddress());
-        if (cd && module.hasStringProperty("pool.bootstrapOffset") && list.hasDefinition(module.getStringProperty("pool.bootstrapOffset"))) {
-            runtime.setBootstrap(*cd, list.getValue(module.getStringProperty("pool.bootstrapOffset")));
+        int bs = 0;
+        if (module.hasStringProperty("pool.bootstrapOffset") && list.hasDefinition(module.getStringProperty("pool.bootstrapOffset"))) {
+            bs = list.getValue(module.getStringProperty("pool.bootstrapOffset"));
         }
+        runtime.registerClass(mem, bs);
     }
     if (module.testStringProperty("pool.entry", "true")) {
         runtime.setEntry(mem);

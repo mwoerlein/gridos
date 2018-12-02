@@ -4,6 +4,11 @@
 #include "I386/I386InterruptVectorTable.hpp"
 #include "I386/I386PIC.hpp"
 #include "I386/I386Keyboard.hpp"
+#include "I386/I386SysCall.hpp"
+
+extern "C" {
+    typedef void (*bootstrapFunc)(void*, void*, KernelRuntime *, syscallEntryFunc, void*);
+}
 
 void delay() {}
 
@@ -31,5 +36,16 @@ void I386KernelRuntime::run() {
     vt.activate();
     
 /* run kernel */
-    start();
+    void *runtime = 0;
+    const char *main = 0;
+    if (bsClass) {
+        bootstrapFunc bs = (bootstrapFunc) bsClass->getBootstrapAddress();
+        (*bs)((void*) bsClass->getDescriptorAddress(), 0, this, _syscall_entry, 0);
+        __asm__ __volatile__ ("movl -16(%%esp), %0" : "=r"(runtime) : ); // why -16?
+    }
+    if (mainThread) {
+        main = mainThread->getCName();
+    }
+    
+    __asm__ __volatile__ ("jmp *%0" : : "r"(entry->getStartAddress()), "a"(runtime), "b"(main));
 }

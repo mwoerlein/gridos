@@ -22,12 +22,11 @@ bool X86Handler::handle(Module & module, KernelRuntime & runtime) {
     in.destroy();
     
     if (module.testStringProperty("pool.class", "true")) {
-        ClassDescriptor *cd = runtime.registerClass((pool_class_descriptor*) mem.getStartAddress());
-        if (cd && module.hasStringProperty("pool.bootstrapOffset")) {
-            int bs = 0;
+        int bs = 0;
+        if (module.hasStringProperty("pool.bootstrapOffset")) {
             module.getStringProperty("pool.bootstrapOffset") >> bs;
-            runtime.setBootstrap(*cd, bs);
         }
+        runtime.registerClass(mem, bs);
     }
     if (module.testStringProperty("pool.entry", "true")) {
         runtime.setEntry(mem);
