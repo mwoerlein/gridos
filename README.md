@@ -13,6 +13,7 @@ GridOS brings virtualization to the next level:
 
 ## Goals
 It's a long way to its dreams. At last if you wanna build it from scratch.
+
 The Grid might be build on top of existing OSes as a distributed environment in a dedicated VPN or something like that.
 
 But I wanna go the hard way:
