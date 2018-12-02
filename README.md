@@ -45,4 +45,4 @@ further topics:
 - many many more
 
 ## License
-GridOS is distributed under [GNU General Public License v3.0](https://github.com/mwoerlein/pool/blob/master/LICENSE).
+GridOS is distributed under [GNU General Public License v3.0](https://github.com/mwoerlein/gridos/blob/master/LICENSE).
