@@ -1,5 +1,4 @@
 # GridOS - one world, one OS 
-================
 [GridOS](https://github.com/mwoerlein/gridos) |
 [Pool](https://github.com/mwoerlein/pool) 
 
