@@ -12,16 +12,14 @@ entry:
     
     movl %eax, %edi
     
-    subl 4, %esp  # return value of createInstance
+    subl 4, %esp  # return value of createThread
     pushl %ebx
-    pushl %edi; pushl Runtime_m_createInstance; call (%edi)
+    pushl %edi; pushl Runtime_m_createThread; call (%edi)
 	addl 12, %esp
-    popl %ecx; // inst_B (type B)
+    popl %ecx; // @instance (type "Thread")
     addl 0, %ecx; jz halt // break if not instantiated
     
-    // TODO: cast to thread
-    
-    pushl %ecx; pushl B_m_run; call (%ecx)
+    pushl %ecx; pushl Thread_m_run; call (%ecx)
 	addl 8, %esp
     
     pushl %ecx

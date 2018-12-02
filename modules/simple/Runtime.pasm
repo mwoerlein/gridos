@@ -53,6 +53,10 @@ class_Runtime_vtab_Runtime_method_createInstance:
     .long class_Runtime_mo_createInstance; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_destroyInstance:
     .long class_Runtime_mo_destroyInstance; .long _cRuntimeVERuntime
+class_Runtime_vtab_Runtime_method_as:
+    .long class_Runtime_mo_as; .long _cRuntimeVERuntime
+class_Runtime_vtab_Runtime_method_createThread:
+    .long class_Runtime_mo_createThread; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_allocate:
     .long class_Runtime_mo_allocate; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_free:
@@ -80,6 +84,8 @@ _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 .global class_Runtime_mo_getClassDesc    := (class_Runtime_method_getClassDesc - class_Runtime_desc)
 .global class_Runtime_mo_createInstance  := (class_Runtime_method_createInstance - class_Runtime_desc)
 .global class_Runtime_mo_destroyInstance := (class_Runtime_method_destroyInstance - class_Runtime_desc)
+.global class_Runtime_mo_as              := (class_Runtime_method_as - class_Runtime_desc)
+.global class_Runtime_mo_createThread    := (class_Runtime_method_createThread - class_Runtime_desc)
 .global class_Runtime_mo_allocate        := (class_Runtime_method_allocate - class_Runtime_desc)
 .global class_Runtime_mo_free            := (class_Runtime_method_free - class_Runtime_desc)
 .global class_Runtime_mo_printChar       := (class_Runtime_method_printChar - class_Runtime_desc)
@@ -90,6 +96,7 @@ _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 class_Runtime_so_classname := (class_Runtime_string_classname - class_Runtime_desc)
 class_Runtime_so_super1 := (class_Runtime_string_super1 - class_Runtime_desc)
 class_Runtime_so_class := (class_Runtime_string_class - class_Runtime_desc)
+class_Runtime_so_thread := (class_Runtime_string_thread - class_Runtime_desc)
 
 class_Runtime_inst_tpl:
     .long 0  // @class-desc
@@ -123,6 +130,8 @@ class_Runtime_string_super1:
     .asciz "/my/Object"
 class_Runtime_string_class:
     .asciz "/my/Class"
+class_Runtime_string_thread:
+    .asciz "/my/Thread"
 
 // Method Offsets
 .global Runtime_m_getClass        := (class_Runtime_vtab_Runtime_method_getClass - class_Runtime_vtab_Runtime)
@@ -135,6 +144,8 @@ class_Runtime_string_class:
 .global Runtime_m_getClassDesc    := (class_Runtime_vtab_Runtime_method_getClassDesc - class_Runtime_vtab_Runtime)
 .global Runtime_m_createInstance  := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
 .global Runtime_m_destroyInstance := (class_Runtime_vtab_Runtime_method_destroyInstance - class_Runtime_vtab_Runtime)
+.global Runtime_m_as              := (class_Runtime_vtab_Runtime_method_as - class_Runtime_vtab_Runtime)
+.global Runtime_m_createThread    := (class_Runtime_vtab_Runtime_method_createThread - class_Runtime_vtab_Runtime)
 .global Runtime_m_allocate        := (class_Runtime_vtab_Runtime_method_allocate - class_Runtime_vtab_Runtime)
 .global Runtime_m_free            := (class_Runtime_vtab_Runtime_method_free - class_Runtime_vtab_Runtime)
 .global Runtime_m_printChar       := (class_Runtime_vtab_Runtime_method_printChar - class_Runtime_vtab_Runtime)
@@ -375,6 +386,80 @@ class_Runtime_method_destroyInstance:
     
     leave
     ret
+    
+class_Runtime_method_as:
+    pushl %ebp; movl %esp, %ebp;
+    pushl %ecx
+    pushl %esi
+_crma_start:
+    movl 0, 24(%ebp)    // not-found default handle: NULL
+    movl 12(%ebp), %esi // @this (Type Runtime)
+    
+    subl 4, %esp  # return value of getClassDesc
+    pushl 20(%ebp)  // param @classname
+    pushl %esi; pushl Runtime_m_getClassDesc; call (%esi)
+	addl 12, %esp
+    popl %ecx       // @class-desc
+    addl 0, %ecx; jz _crma_return   // return NULL if class not exists
+   
+    movl 16(%ebp), %eax             // @obj (Type ANY)
+    movl 4(%eax), %ebx              // @obj
+    movl (%ebx), %eax               // @obj-class desc
+    addl class_vtabs_offset, %eax   // @obj-class vtabs
+_crma_loop:
+    cmpl (%eax), %ecx
+    je _crma_found
+    addl _cvte_size, %eax
+    cmpl 0, (%eax)
+    je _crma_return
+    jmp _crma_loop
+_crma_found:
+    addl _cvte_ho(%eax), %ebx
+    movl %ebx, 24(%ebp) // return correct handle
+_crma_return:
+    popl %esi
+    popl %ecx
+    leave
+    ret
+
+class_Runtime_method_createThread:
+    pushl %ebp; movl %esp, %ebp;
+    pushl %ecx
+    pushl %esi
+_crmct_start:
+    movl 0, 20(%ebp)          // default handle: NULL
+    movl 12(%ebp), %esi       // @this (Type Runtime)
+    
+    subl 4, %esp  # return value of createInstance
+    pushl 16(%ebp)  // param @classname
+    pushl %esi; pushl Runtime_m_createInstance; call (%esi)
+	addl 12, %esp
+    popl %ecx; // @instance (type <classname>)
+    addl 0, %ecx; jz _crmct_return // break if not instantiated
+    
+    movl 8(%ebp), %eax      // @class-desc "Runtime"
+    addl class_Runtime_so_thread, %eax
+    subl 4, %esp  # return value of as
+    pushl %eax
+    pushl %ecx
+    pushl %esi; pushl Runtime_m_as; call (%esi)
+	addl 16, %esp
+    popl %eax; // @instance (type "Thread")
+    addl 0, %eax; jz _crmct_cleanup // destroy instance if not a thread
+    
+    movl %eax, 20(%ebp)  // return @instance (type "Thread")
+
+_crmct_return:
+    popl %esi
+    popl %ecx
+    leave
+    ret
+    
+_crmct_cleanup:
+    pushl %ecx
+    pushl %esi; pushl Runtime_m_destroyInstance; call (%esi)
+	addl 12, %esp
+	jmp _crmct_return
 
 class_Runtime_method_createInstance:
     pushl %ebp; movl %esp, %ebp; pushad

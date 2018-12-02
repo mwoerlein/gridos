@@ -57,8 +57,6 @@ class_Class_vtab_Class_method_setDesc:
     .long class_Class_mo_setDesc;   .long _cClassVEClass
 class_Class_vtab_Class_method_getName:
     .long class_Class_mo_getName;   .long _cClassVEClass
-class_Class_vtab_Class_method_cast:
-    .long class_Class_mo_cast;      .long _cClassVEClass
 class_Class_vtab_Object:
     .long class_Object_mo_getClass; .long _cClassVEObject
     .long class_Object_mo_hash;     .long _cClassVEObject
@@ -72,7 +70,6 @@ _cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
 .global class_Class_mo_getDesc := (class_Class_method_getDesc - class_Class_desc)
 .global class_Class_mo_setDesc := (class_Class_method_setDesc - class_Class_desc)
 .global class_Class_mo_getName := (class_Class_method_getName - class_Class_desc)
-.global class_Class_mo_cast    := (class_Class_method_cast - class_Class_desc)
 
 class_Class_so_classname := (class_Class_string_classname - class_Class_desc)
 class_Class_so_super1 := (class_Class_string_super1 - class_Class_desc)
@@ -127,7 +124,6 @@ class_Class_string_super1:
 .global Class_m_getDesc     := (class_Class_vtab_Class_method_getDesc - class_Class_vtab_Class)
 .global Class_m_setDesc     := (class_Class_vtab_Class_method_setDesc - class_Class_vtab_Class)
 .global Class_m_getName     := (class_Class_vtab_Class_method_getName - class_Class_vtab_Class)
-.global Class_m_cast        := (class_Class_vtab_Class_method_cast - class_Class_vtab_Class)
 // Vars Offsets
 .global Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
 // Super Vars Offsets
@@ -170,33 +166,5 @@ class_Class_method_getName:
     addl class_name_offset(%eax), %eax        // load reference to cstring
     movl %eax, 16(%ebp)                       // return cstring-ref
     
-    leave
-    ret
-
-class_Class_method_cast:
-    pushl %ebp; movl %esp, %ebp;
-    pushl %ecx
-_ccmc_start:
-    movl 0, 20(%ebp)                // not-found default handle: NULL
-    movl 12(%ebp), %eax             // @class (Type Class)
-    movl handle_Class_vars_Class(%eax), %ebx  // inst vars offset (Class)
-    addl 4(%eax), %ebx              // @this.vars(Class)
-    movl Class_i_desc(%ebx), %ecx   // @class desc
-    movl 16(%ebp), %eax             // @obj (Type ANY)
-    movl 4(%eax), %ebx              // @obj
-    movl (%ebx), %eax               // @obj-class desc
-    addl class_vtabs_offset, %eax   // @obj-class vtabs
-_ccmc_loop:
-    cmpl (%eax), %ecx
-    je _ccmc_found
-    addl _cvte_size, %eax
-    cmpl 0, (%eax)
-    je _ccmc_return
-    jmp _ccmc_loop
-_ccmc_found:
-    addl _cvte_ho(%eax), %ebx
-    movl %ebx, 20(%ebp)     // return correct handle
-_ccmc_return:
-    popl %ecx
     leave
     ret

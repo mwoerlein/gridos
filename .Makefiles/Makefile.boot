@@ -8,14 +8,16 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
 
-MODSIMPLE_STARTUP_PARTS = __startup Runtime_globals Object_globals Class_globals A_globals B_globals
+MODSIMPLE_STARTUP_PARTS = __startup Object_globals Class_globals Runtime_globals Thread_globals
 MODSIMPLE_OBJECT_PARTS = Object
+MODSIMPLE_THREAD_PARTS = Thread Object_globals
 MODSIMPLE_CLASS_PARTS = Class Object_globals
 MODSIMPLE_RUNTIME_PARTS = Runtime Object_globals Class_globals
 MODSIMPLE_A_PARTS = A Object_globals Class_globals Runtime_globals
-MODSIMPLE_B_PARTS = B Object_globals Class_globals Runtime_globals A_globals
+MODSIMPLE_B_PARTS = B Object_globals Class_globals Runtime_globals Thread_globals A_globals
 MODSIMPLE_STARTUP_PASMS = $(MODSIMPLE_STARTUP_PARTS:%=$(MODDIR)/simple/%.pasm) 
 MODSIMPLE_OBJECT_PASMS = $(MODSIMPLE_OBJECT_PARTS:%=$(MODDIR)/simple/%.pasm) 
+MODSIMPLE_THREAD_PASMS = $(MODSIMPLE_THREAD_PARTS:%=$(MODDIR)/simple/%.pasm) 
 MODSIMPLE_CLASS_PASMS = $(MODSIMPLE_CLASS_PARTS:%=$(MODDIR)/simple/%.pasm) 
 MODSIMPLE_RUNTIME_PASMS = $(MODSIMPLE_RUNTIME_PARTS:%=$(MODDIR)/simple/%.pasm) 
 MODSIMPLE_A_PASMS = $(MODSIMPLE_A_PARTS:%=$(MODDIR)/simple/%.pasm) 
@@ -24,7 +26,7 @@ MODSIMPLE_B_PASMS = $(MODSIMPLE_B_PARTS:%=$(MODDIR)/simple/%.pasm)
 MOD_SIMPLE_CLASSES = A B
 MOD_SIMPLE_FILES = $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_SIMPLE_CLASSES))
 
-MOD_KERNEL_CLASSES = Object Class Runtime
+MOD_KERNEL_CLASSES = Object Thread Class Runtime
 MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
 #MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
 #MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst %, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_CLASSES))
@@ -46,6 +48,11 @@ $(MODDIR)/simple/Object_globals.pasm $(BOOTDIR)/Object.pbc: $(MODSIMPLE_OBJECT_P
 	echo "creating $@"
 	cat $(MODSIMPLE_OBJECT_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Object.pbc -
 #	cat $(MODSIMPLE_OBJECT_PASMS) > $(BOOTDIR)/Object.pbc
+
+$(MODDIR)/simple/Thread_globals.pasm $(BOOTDIR)/Thread.pbc: $(MODSIMPLE_THREAD_PASMS)
+	echo "creating $@"
+	cat $(MODSIMPLE_THREAD_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Thread.pbc -
+#	cat $(MODSIMPLE_THREAD_PASMS) > $(BOOTDIR)/Thread.pbc
 
 $(MODDIR)/simple/Class_globals.pasm $(BOOTDIR)/Class.pbc: $(MODSIMPLE_CLASS_PASMS)
 	echo "creating $@"

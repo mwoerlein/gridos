@@ -6,7 +6,7 @@ author = Marc Woerlein<marc.woerlein@gmx.de>
 version = 0.2.0+20181102070000
 class = true
 */
-// CLASS B extends A
+// CLASS B extends Thread, A
 class_B_desc:
     .long 0 // @class (Type Class) filled by class instantiation
     .long class_B_so_classname
@@ -21,16 +21,21 @@ class_B_vtabs_entry_B:
     .long class_B_so_classname
     .long (class_B_vtab_B - class_B_desc)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)        // handle offset in instance 
-class_B_vtabs_entry_A:
+class_B_vtabs_entry_Thread:
     .long 0 // @class-desc filled on class loading
     .long class_B_so_super1
-    .long (class_B_vtab_A - class_B_desc)
-    .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)        // handle offset in instance 
+    .long (class_B_vtab_Thread - class_B_desc)
+    .long (class_B_inst_tpl_handle_Thread - class_B_inst_tpl)   // handle offset in instance 
 class_B_vtabs_entry_Object:
     .long 0 // @class-desc filled on class loading
     .long class_B_so_super2
     .long (class_B_vtab_Object - class_B_desc)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)   // handle offset in instance 
+class_B_vtabs_entry_A:
+    .long 0 // @class-desc filled on class loading
+    .long class_B_so_super3
+    .long (class_B_vtab_A - class_B_desc)
+    .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)        // handle offset in instance 
 class_B_vtab_end_entry:
     .long 0
     .long 0
@@ -47,16 +52,29 @@ class_B_vtab_B_method_rt:
     .long class_Object_mo_rt;       .long _cBVEObject
 class_B_vtab_B_method_setRt:
     .long class_Object_mo_setRt;    .long _cBVEObject
+class_B_vtab_B_method_run:
+    .long class_B_mo_run;           .long _cBVEB
 class_B_vtab_B_method_init:
     .long class_A_mo_init;          .long _cBVEA
 class_B_vtab_B_method_getRow:
     .long class_B_mo_getRow;        .long _cBVEB
 class_B_vtab_B_method_test:
     .long class_A_mo_test;          .long _cBVEA
-class_B_vtab_B_method_run:
-    .long class_B_mo_run;           .long _cBVEB
 class_B_vtab_B_method_doIt:
     .long class_B_mo_doIt;          .long _cBVEB
+class_B_vtab_Thread:
+    .long class_Object_mo_getClass; .long _cBVEObject
+    .long class_Object_mo_hash;     .long _cBVEObject
+    .long class_Object_mo_equals;   .long _cBVEObject
+    .long class_Object_mo_rt;       .long _cBVEObject
+    .long class_Object_mo_setRt;    .long _cBVEObject
+    .long class_B_mo_run;           .long _cBVEB
+class_B_vtab_Object:
+    .long class_Object_mo_getClass; .long _cBVEObject
+    .long class_Object_mo_hash;     .long _cBVEObject
+    .long class_Object_mo_equals;   .long _cBVEObject
+    .long class_Object_mo_rt;       .long _cBVEObject
+    .long class_Object_mo_setRt;    .long _cBVEObject
 class_B_vtab_A:
     .long class_Object_mo_getClass; .long _cBVEObject
     .long class_Object_mo_hash;     .long _cBVEObject
@@ -66,14 +84,9 @@ class_B_vtab_A:
     .long class_A_mo_init;          .long _cBVEA
     .long class_B_mo_getRow;        .long _cBVEB
     .long class_A_mo_test;          .long _cBVEA
-class_B_vtab_Object:
-    .long class_Object_mo_getClass; .long _cBVEObject
-    .long class_Object_mo_hash;     .long _cBVEObject
-    .long class_Object_mo_equals;   .long _cBVEObject
-    .long class_Object_mo_rt;       .long _cBVEObject
-    .long class_Object_mo_setRt;    .long _cBVEObject
 
 _cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
+_cBVEThread := (class_B_vtabs_entry_Thread - class_B_desc)
 _cBVEA := (class_B_vtabs_entry_A - class_B_desc)
 _cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 
@@ -84,6 +97,7 @@ _cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 class_B_so_classname := (class_B_string_classname - class_B_desc)
 class_B_so_super1 := (class_B_string_super1 - class_B_desc)
 class_B_so_super2 := (class_B_string_super2 - class_B_desc)
+class_B_so_super3 := (class_B_string_super3 - class_B_desc)
 class_B_so_doit := (class_B_string_doit - class_B_desc)
 
 class_B_inst_tpl:
@@ -95,10 +109,26 @@ class_B_inst_tpl_handle_B:
     .long 0  // vtab-offset
 class_B_inst_tpl_handle_B_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Super-Obj-Vars
+class_B_inst_tpl_handle_B_vars_Thread:
+    .long (class_B_inst_tpl_vars_Thread - class_B_inst_tpl) // @Super-Obj-Vars
 class_B_inst_tpl_handle_B_vars_A:
     .long (class_B_inst_tpl_vars_A - class_B_inst_tpl)      // @Super-Obj-Vars
 class_B_inst_tpl_handle_B_vars_B:
     .long (class_B_inst_tpl_vars_B - class_B_inst_tpl)      // @B-Obj-Vars
+class_B_inst_tpl_handle_Thread:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_B_inst_tpl_handle_Thread_vars_Object:
+    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Super-Obj-Vars
+class_B_inst_tpl_handle_Thrad_vars_Thread:
+    .long (class_B_inst_tpl_vars_Thread - class_B_inst_tpl)      // @A-Obj-Vars
+class_B_inst_tpl_handle_Object:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_B_inst_tpl_handle_Object_vars_Object:
+    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Object-Obj-Vars
 class_B_inst_tpl_handle_A:
     .long 0  // _call_entry
     .long 0  // @inst
@@ -107,14 +137,9 @@ class_B_inst_tpl_handle_A_vars_Object:
     .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Super-Obj-Vars
 class_B_inst_tpl_handle_A_vars_A:
     .long (class_B_inst_tpl_vars_A - class_B_inst_tpl)      // @A-Obj-Vars
-class_B_inst_tpl_handle_Object:
-    .long 0  // _call_entry
-    .long 0  // @inst
-    .long 0  // vtab-offset
-class_B_inst_tpl_handle_Object_vars_Object:
-    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl) // @Object-Obj-Vars
 class_B_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
+class_B_inst_tpl_vars_Thread:
 class_B_inst_tpl_vars_A:
     .long 0 // column
     .long 0 // row
@@ -124,9 +149,11 @@ class_B_inst_tpl_end:
 class_B_string_classname:
     .asciz "/my/B"
 class_B_string_super1:
-    .asciz "/my/A"
+    .asciz "/my/Thread"
 class_B_string_super2:
     .asciz "/my/Object"
+class_B_string_super3:
+    .asciz "/my/A"
 class_B_string_doit:
     .asciz "DoIt "
 
@@ -145,6 +172,7 @@ class_B_string_doit:
 // Super Vars Offsets
 handle_B_vars_B      := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_handle_B)
 handle_B_vars_A      := (class_B_inst_tpl_handle_B_vars_A - class_B_inst_tpl_handle_B)
+handle_B_vars_Thread := (class_B_inst_tpl_handle_B_vars_Thread - class_B_inst_tpl_handle_B)
 handle_B_vars_Object := (class_B_inst_tpl_handle_B_vars_Object - class_B_inst_tpl_handle_B)
 
 class_B_method_run:
@@ -166,7 +194,7 @@ class_B_method_run:
 	addl 16, %esp
 	
     movl 8(%ebp), %eax           // @class-desc "B"
-    addl class_B_so_super1, %eax // "/my/A"
+    addl class_B_so_super3, %eax // "/my/A"
     subl 4, %esp  # return value of createInstance
     pushl %eax
     pushl %edi; pushl Runtime_m_createInstance; call (%edi)
