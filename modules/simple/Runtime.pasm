@@ -17,21 +17,27 @@ class_Runtime_desc:
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
     .long 0x15AC1A55
 class_Runtime_vtabs:
-class_Runtime_vtabs_entry_Runtime:
-    .long 0 // @class-desc filled on class loading
-    .long class_Runtime_so_classname
-    .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
-    .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtabs_entry_Object:
     .long 0 // @class-desc filled on class loading
     .long class_Runtime_so_super1
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)               // handle offset in instance 
+class_Runtime_vtabs_entry_Runtime:
+    .long 0 // @class-desc filled on class loading
+    .long class_Runtime_so_classname
+    .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
+    .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)              // handle offset in instance 
 class_Runtime_vtab_end_entry:
     .long 0
     .long 0
     .long 0
     .long 0
+class_Runtime_vtab_Object:
+    .long class_Object_mo_getClass; .long _cRuntimeVEObject
+    .long class_Object_mo_hash; .long _cRuntimeVEObject
+    .long class_Object_mo_equals; .long _cRuntimeVEObject
+    .long class_Object_mo_rt; .long _cRuntimeVEObject
+    .long class_Object_mo_setRt; .long _cRuntimeVEObject
 class_Runtime_vtab_Runtime:
 class_Runtime_vtab_Runtime_method_getClass:
     .long class_Object_mo_getClass; .long _cRuntimeVEObject
@@ -69,12 +75,6 @@ class_Runtime_vtab_Runtime_method_printInt:
     .long class_Runtime_mo_printInt; .long _cRuntimeVERuntime
 class_Runtime_vtab_Runtime_method_printHex:
     .long class_Runtime_mo_printHex; .long _cRuntimeVERuntime
-class_Runtime_vtab_Object:
-    .long class_Object_mo_getClass; .long _cRuntimeVEObject
-    .long class_Object_mo_hash; .long _cRuntimeVEObject
-    .long class_Object_mo_equals; .long _cRuntimeVEObject
-    .long class_Object_mo_rt; .long _cRuntimeVEObject
-    .long class_Object_mo_setRt; .long _cRuntimeVEObject
 
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 _cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
@@ -101,6 +101,12 @@ class_Runtime_so_thread := (class_Runtime_string_thread - class_Runtime_desc)
 class_Runtime_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
+class_Runtime_inst_tpl_handle_Object:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_Runtime_inst_tpl_handle_Object_vars_Object:
+    .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Object-Obj-Vars
 class_Runtime_inst_tpl_handle_Runtime:
     .long 0  // _call_entry
     .long 0  // @inst
@@ -109,12 +115,6 @@ class_Runtime_inst_tpl_handle_Runtime_vars_Object:
     .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Super-Obj-Vars
 class_Runtime_inst_tpl_handle_Runtime_vars_Runtime:
     .long (class_Runtime_inst_tpl_vars_Runtime - class_Runtime_inst_tpl) // @Runtime-Obj-Vars
-class_Runtime_inst_tpl_handle_Object:
-    .long 0  // _call_entry
-    .long 0  // @inst
-    .long 0  // vtab-offset
-class_Runtime_inst_tpl_handle_Object_vars_Object:
-    .long (class_Runtime_inst_tpl_vars_Object - class_Runtime_inst_tpl)  // @Object-Obj-Vars
 class_Runtime_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_Runtime_inst_tpl_vars_Runtime:

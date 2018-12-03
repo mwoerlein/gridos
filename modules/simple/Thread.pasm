@@ -16,21 +16,27 @@ class_Thread_desc:
     .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl) // handle offset in instance 
     .long 0x15AC1A55
 class_Thread_vtabs:
-class_Thread_vtabs_entry_Thread:
-    .long 0 // @class-desc filled on class loading
-    .long class_Thread_so_classname
-    .long (class_Thread_vtab_Thread - class_Thread_desc)
-    .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl) // handle offset in instance 
 class_Thread_vtabs_entry_Object:
     .long 0 // @class-desc filled on class loading
     .long class_Thread_so_super1
     .long (class_Thread_vtab_Object - class_Thread_desc)
     .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl) // handle offset in instance 
+class_Thread_vtabs_entry_Thread:
+    .long 0 // @class-desc filled on class loading
+    .long class_Thread_so_classname
+    .long (class_Thread_vtab_Thread - class_Thread_desc)
+    .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl) // handle offset in instance 
 class_Thread_vtab_end_entry:
     .long 0
     .long 0
     .long 0
     .long 0
+class_Thread_vtab_Object:
+    .long class_Object_mo_getClass; .long _cThreadVEObject
+    .long class_Object_mo_hash;     .long _cThreadVEObject
+    .long class_Object_mo_equals;   .long _cThreadVEObject
+    .long class_Object_mo_rt;       .long _cThreadVEObject
+    .long class_Object_mo_setRt;    .long _cThreadVEObject
 class_Thread_vtab_Thread:
 class_Thread_vtab_Thread_method_getClass:
     .long class_Object_mo_getClass; .long _cThreadVEObject
@@ -44,12 +50,6 @@ class_Thread_vtab_Thread_method_setRt:
     .long class_Object_mo_setRt;    .long _cThreadVEObject
 class_Thread_vtab_Thread_method_run:
     .long class_Thread_mo_run;      .long _cThreadVEThread
-class_Thread_vtab_Object:
-    .long class_Object_mo_getClass; .long _cThreadVEObject
-    .long class_Object_mo_hash;     .long _cThreadVEObject
-    .long class_Object_mo_equals;   .long _cThreadVEObject
-    .long class_Object_mo_rt;       .long _cThreadVEObject
-    .long class_Object_mo_setRt;    .long _cThreadVEObject
 
 _cThreadVEThread := (class_Thread_vtabs_entry_Thread - class_Thread_desc)
 _cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
@@ -62,6 +62,12 @@ class_Thread_so_super1 := (class_Thread_string_super1 - class_Thread_desc)
 class_Thread_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
+class_Thread_inst_tpl_handle_Object:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_Thread_inst_tpl_handle_Object_vars_Object:
+    .long (class_Thread_inst_tpl_vars_Object - class_Thread_inst_tpl) // @Object-Obj-Vars
 class_Thread_inst_tpl_handle_Thread:
     .long 0  // _call_entry
     .long 0  // @inst
@@ -70,12 +76,6 @@ class_Thread_inst_tpl_handle_Thread_vars_Object:
     .long (class_Thread_inst_tpl_vars_Object - class_Thread_inst_tpl) // @Super-Obj-Vars
 class_Thread_inst_tpl_handle_Thread_vars_Thread:
     .long (class_Thread_inst_tpl_vars_Thread - class_Thread_inst_tpl) // @Thread-Obj-Vars
-class_Thread_inst_tpl_handle_Object:
-    .long 0  // _call_entry
-    .long 0  // @inst
-    .long 0  // vtab-offset
-class_Thread_inst_tpl_handle_Object_vars_Object:
-    .long (class_Thread_inst_tpl_vars_Object - class_Thread_inst_tpl) // @Object-Obj-Vars
 class_Thread_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_Thread_inst_tpl_vars_Thread:

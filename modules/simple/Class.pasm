@@ -21,6 +21,11 @@ class_Class_instance_class_handle_offset:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
     .long 0x15AC1A55
 class_Class_vtabs:
+class_Class_vtabs_entry_Object:
+    .long 0 // @class-desc filled on class loading
+    .long class_Class_so_super1
+    .long (class_Class_vtab_Object - class_Class_desc)
+    .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_vtabs_entry_Class:
 class_Class_vtabs_entry_class_desc:
     .long 0 // @class-desc filled on class loading
@@ -30,16 +35,17 @@ class_Class_vtabs_entry_vtab_offset:
     .long (class_Class_vtab_Class - class_Class_desc)
 class_Class_vtabs_entry_handle:
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)             // handle offset in instance 
-class_Class_vtabs_entry_Object:
-    .long 0 // @class-desc filled on class loading
-    .long class_Class_so_super1
-    .long (class_Class_vtab_Object - class_Class_desc)
-    .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)            // handle offset in instance 
 class_Class_vtab_end_entry:
     .long 0
     .long 0
     .long 0
     .long 0
+class_Class_vtab_Object:
+    .long class_Object_mo_getClass; .long _cClassVEObject
+    .long class_Object_mo_hash;     .long _cClassVEObject
+    .long class_Object_mo_equals;   .long _cClassVEObject
+    .long class_Object_mo_rt;       .long _cClassVEObject
+    .long class_Object_mo_setRt;    .long _cClassVEObject
 class_Class_vtab_Class:
 class_Class_vtab_Class_method_getClass:
     .long class_Object_mo_getClass; .long _cClassVEObject
@@ -57,12 +63,6 @@ class_Class_vtab_Class_method_setDesc:
     .long class_Class_mo_setDesc;   .long _cClassVEClass
 class_Class_vtab_Class_method_getName:
     .long class_Class_mo_getName;   .long _cClassVEClass
-class_Class_vtab_Object:
-    .long class_Object_mo_getClass; .long _cClassVEObject
-    .long class_Object_mo_hash;     .long _cClassVEObject
-    .long class_Object_mo_equals;   .long _cClassVEObject
-    .long class_Object_mo_rt;       .long _cClassVEObject
-    .long class_Object_mo_setRt;    .long _cClassVEObject
 
 _cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
 _cClassVEClass := (class_Class_vtabs_entry_Class - class_Class_desc)
@@ -77,6 +77,12 @@ class_Class_so_super1 := (class_Class_string_super1 - class_Class_desc)
 class_Class_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
+class_Class_inst_tpl_handle_Object:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_Class_inst_tpl_handle_Object_vars_Object:
+    .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Object-Obj-Vars
 class_Class_inst_tpl_handle_Class:
     .long 0  // _call_entry
     .long 0  // @inst
@@ -85,12 +91,6 @@ class_Class_inst_tpl_handle_Class_vars_Object:
     .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Super-Obj-Vars
 class_Class_inst_tpl_handle_Class_vars_Class:
     .long (class_Class_inst_tpl_vars_Class - class_Class_inst_tpl)  // @Class-Obj-Vars
-class_Class_inst_tpl_handle_Object:
-    .long 0  // _call_entry
-    .long 0  // @inst
-    .long 0  // vtab-offset
-class_Class_inst_tpl_handle_Object_vars_Object:
-    .long (class_Class_inst_tpl_vars_Object - class_Class_inst_tpl) // @Object-Obj-Vars
 class_Class_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_Class_inst_tpl_vars_Class:
@@ -104,7 +104,7 @@ class_Class_string_super1:
     .asciz "/my/Object"
     
 .global class_vtabs_offset := (class_Class_vtabs - class_Class_desc)
-.global _cvte_size := (class_Class_vtabs_entry_Object - class_Class_vtabs_entry_Class)
+.global _cvte_size := (class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
 .global _cvte_cno  := (class_Class_vtabs_entry_class_name - class_Class_vtabs_entry_Class)
 .global _cvte_cdo  := (class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
 .global _cvte_vto  := (class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)

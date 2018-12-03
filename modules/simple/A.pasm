@@ -16,21 +16,27 @@ class_A_desc:
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)        // handle offset in instance 
     .long 0x15AC1A55
 class_A_vtabs:
-class_A_vtabs_entry_A:
-    .long 0 // @class-desc filled on class loading
-    .long class_A_so_classname
-    .long (class_A_vtab_A - class_A_desc)
-    .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)                 // handle offset in instance 
 class_A_vtabs_entry_Object:
     .long 0 // @class-desc filled on class loading
     .long class_A_so_super1
     .long (class_A_vtab_Object - class_A_desc)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)            // handle offset in instance 
+class_A_vtabs_entry_A:
+    .long 0 // @class-desc filled on class loading
+    .long class_A_so_classname
+    .long (class_A_vtab_A - class_A_desc)
+    .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)                 // handle offset in instance 
 class_A_vtab_end_entry:
     .long 0
     .long 0
     .long 0
     .long 0
+class_A_vtab_Object:
+    .long class_Object_mo_getClass; .long _cAVEObject
+    .long class_Object_mo_hash;     .long _cAVEObject
+    .long class_Object_mo_equals;   .long _cAVEObject
+    .long class_Object_mo_rt;       .long _cAVEObject
+    .long class_Object_mo_setRt;    .long _cAVEObject
 class_A_vtab_A:
 class_A_vtab_A_method_getClass:
     .long class_Object_mo_getClass; .long _cAVEObject
@@ -48,12 +54,6 @@ class_A_vtab_A_method_getRow:
     .long class_A_mo_getRow;        .long _cAVEA
 class_A_vtab_A_method_test:
     .long class_A_mo_test ;         .long _cAVEA
-class_A_vtab_Object:
-    .long class_Object_mo_getClass; .long _cAVEObject
-    .long class_Object_mo_hash;     .long _cAVEObject
-    .long class_Object_mo_equals;   .long _cAVEObject
-    .long class_Object_mo_rt;       .long _cAVEObject
-    .long class_Object_mo_setRt;    .long _cAVEObject
 
 _cAVEA := (class_A_vtabs_entry_A - class_A_desc)
 _cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
@@ -69,6 +69,12 @@ class_A_so_test := (class_A_string_test - class_A_desc)
 class_A_inst_tpl:
     .long 0  // @class-desc
     .long 0  // @meminfo
+class_A_inst_tpl_handle_Object:
+    .long 0  // _call_entry
+    .long 0  // @inst
+    .long 0  // vtab-offset
+class_A_inst_tpl_handle_Object_vars_Object:
+    .long (class_A_inst_tpl_vars_Object - class_A_inst_tpl) // @Object-Obj-Vars
 class_A_inst_tpl_handle_A:
     .long 0  // _call_entry
     .long 0  // @inst
@@ -77,12 +83,6 @@ class_A_inst_tpl_handle_A_vars_Object:
     .long (class_A_inst_tpl_vars_Object - class_A_inst_tpl) // @Super-Obj-Vars
 class_A_inst_tpl_handle_A_vars_A:
     .long (class_A_inst_tpl_vars_A - class_A_inst_tpl)      // @A-Obj-Vars
-class_A_inst_tpl_handle_Object:
-    .long 0  // _call_entry
-    .long 0  // @inst
-    .long 0  // vtab-offset
-class_A_inst_tpl_handle_Object_vars_Object:
-    .long (class_A_inst_tpl_vars_Object - class_A_inst_tpl) // @Object-Obj-Vars
 class_A_inst_tpl_vars_Object:
     .long 0  // Runtime-handle
 class_A_inst_tpl_vars_A:
