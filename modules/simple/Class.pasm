@@ -79,12 +79,12 @@ class_Class_vtab_Class_method_getName:
     .long class_Class_mo_getName
     .long _cClassVEClass
 
-class_Class_so_cn_Object := (class_Class_string_cn_Object - class_Class_desc)
-class_Class_string_cn_Object:
+class_Class_so_cn_Object := (class_Class_scn_Object - class_Class_desc)
+class_Class_scn_Object:
     .asciz "/my/Object"
 
-class_Class_so_cn_Class := (class_Class_string_cn_Class - class_Class_desc)
-class_Class_string_cn_Class:
+class_Class_so_cn_Class := (class_Class_scn_Class - class_Class_desc)
+class_Class_scn_Class:
     .asciz "/my/Class"
 
 class_Class_inst_tpl:
@@ -107,11 +107,13 @@ handle_Class_vars_Class := (class_Class_inst_tpl_handle_Class_vars_Class - class
 class_Class_inst_tpl_handle_Class_vars_Class:
     .long (class_Class_inst_tpl_vars_Class - class_Class_inst_tpl)
 class_Class_inst_tpl_vars_Object:
-    .long 0 // runtime
+// variable runtime
+    .long 0
 class_Class_inst_tpl_vars_Class:
+// variable desc
 .global Class_i_desc := (class_Class_inst_tpl_vars_Class_desc - class_Class_inst_tpl_vars_Class)
 class_Class_inst_tpl_vars_Class_desc:
-    .long 0 // desc
+    .long 0
 class_Class_inst_tpl_end:
 
 // method-def getDesc
@@ -159,15 +161,4 @@ class_name_offset := 0x4 //(class_Class_name - class_Class_desc)
     
     leave
     ret
-
-.global class_vtabs_offset := 0x1c //(class_Class_vtabs - class_Class_desc)
-.global _cvte_size := 0x10 //(class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
-.global _cvte_cno := 0x4 //(class_Class_vtabs_entry_class_name - class_Class_vtabs_entry_Class)
-.global _cvte_cdo := 0x0 //(class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
-.global _cvte_vto := 0x8 //(class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
-.global _cvte_ho := 0xc //(class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)
-.global class_instance_size_offset := 0x8 //(class_Class_instance_size - class_Class_desc)
-.global class_instance_tpl_offset_offset := 0xc //(class_Class_instance_tpl_offset - class_Class_desc)
-.global class_instance_Object_handle_offset := 0x10 //(class_Class_instance_Object_handle_offset - class_Class_desc)
-.global class_instance_class_handle_offset := 0x14 //(class_Class_instance_class_handle_offset - class_Class_desc)
 

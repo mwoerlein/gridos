@@ -79,12 +79,17 @@ class_A_vtab_A_method_test:
     .long class_A_mo_test
     .long _cAVEA
 
-class_A_so_cn_Object := (class_A_string_cn_Object - class_A_desc)
-class_A_string_cn_Object:
+// string-const test
+class_A_so_ct_test := (class_A_sct_test - class_A_desc)
+class_A_sct_test:
+    .asciz " Test\n"
+
+class_A_so_cn_Object := (class_A_scn_Object - class_A_desc)
+class_A_scn_Object:
     .asciz "/my/Object"
 
-class_A_so_cn_A := (class_A_string_cn_A - class_A_desc)
-class_A_string_cn_A:
+class_A_so_cn_A := (class_A_scn_A - class_A_desc)
+class_A_scn_A:
     .asciz "/my/A"
 
 class_A_inst_tpl:
@@ -107,14 +112,17 @@ handle_A_vars_A := (class_A_inst_tpl_handle_A_vars_A - class_A_inst_tpl_handle_A
 class_A_inst_tpl_handle_A_vars_A:
     .long (class_A_inst_tpl_vars_A - class_A_inst_tpl)
 class_A_inst_tpl_vars_Object:
-    .long 0 // runtime
+// variable runtime
+    .long 0
 class_A_inst_tpl_vars_A:
+// variable column
 .global A_i_column := (class_A_inst_tpl_vars_A_column - class_A_inst_tpl_vars_A)
 class_A_inst_tpl_vars_A_column:
-    .long 0 // column
+    .long 0
+// variable row
 .global A_i_row := (class_A_inst_tpl_vars_A_row - class_A_inst_tpl_vars_A)
 class_A_inst_tpl_vars_A_row:
-    .long 0 // row
+    .long 0
 class_A_inst_tpl_end:
 
 // method-def init
@@ -202,7 +210,7 @@ class_A_method_test:
     addl 16, %esp
     
     movl 8(%ebp), %eax      // @class-desc "A"
-    addl class_A_so_test, %eax
+    addl class_A_so_ct_test, %eax
     pushl %eax; pushl _err
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
@@ -211,8 +219,4 @@ class_A_method_test:
     
     leave
     ret
-
-class_A_so_test := (class_A_string_test - class_A_desc)
-class_A_string_test:
-    .asciz " Test\n"
 

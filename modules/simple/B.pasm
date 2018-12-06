@@ -129,20 +129,25 @@ class_B_vtab_B_method_doIt:
     .long class_B_mo_doIt
     .long _cBVEB
 
-class_B_so_cn_Object := (class_B_string_cn_Object - class_B_desc)
-class_B_string_cn_Object:
+// string-const doit
+class_B_so_ct_doit := (class_B_sct_doit - class_B_desc)
+class_B_sct_doit:
+    .asciz "OMG! It work's! "
+
+class_B_so_cn_Object := (class_B_scn_Object - class_B_desc)
+class_B_scn_Object:
     .asciz "/my/Object"
 
-class_B_so_cn_Thread := (class_B_string_cn_Thread - class_B_desc)
-class_B_string_cn_Thread:
+class_B_so_cn_Thread := (class_B_scn_Thread - class_B_desc)
+class_B_scn_Thread:
     .asciz "/my/Thread"
 
-class_B_so_cn_A := (class_B_string_cn_A - class_B_desc)
-class_B_string_cn_A:
+class_B_so_cn_A := (class_B_scn_A - class_B_desc)
+class_B_scn_A:
     .asciz "/my/A"
 
-class_B_so_cn_B := (class_B_string_cn_B - class_B_desc)
-class_B_string_cn_B:
+class_B_so_cn_B := (class_B_scn_B - class_B_desc)
+class_B_scn_B:
     .asciz "/my/B"
 
 class_B_inst_tpl:
@@ -187,11 +192,14 @@ handle_B_vars_B := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_handle_B
 class_B_inst_tpl_handle_B_vars_B:
     .long (class_B_inst_tpl_vars_B - class_B_inst_tpl)
 class_B_inst_tpl_vars_Object:
-    .long 0 // runtime
+// variable runtime
+    .long 0
 class_B_inst_tpl_vars_Thread:
 class_B_inst_tpl_vars_A:
-    .long 0 // column
-    .long 0 // row
+// variable column
+    .long 0
+// variable row
+    .long 0
 class_B_inst_tpl_vars_B:
 class_B_inst_tpl_end:
 
@@ -264,7 +272,7 @@ class_B_method_doIt:
     addl 16, %esp
     
     movl 8(%ebp), %eax         // @class-desc "B"
-    addl class_B_so_doit, %eax // "DoIt "
+    addl class_B_so_ct_doit, %eax // "DoIt "
     pushl %eax; pushl _out
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
@@ -372,8 +380,4 @@ class_B_method_getRow:
     
     leave
     ret
-
-class_B_so_doit := (class_B_string_doit - class_B_desc)
-class_B_string_doit:
-    .asciz "DoIt "
 

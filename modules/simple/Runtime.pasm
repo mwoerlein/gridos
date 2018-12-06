@@ -118,13 +118,27 @@ class_Runtime_vtab_Runtime_method_createThread:
 class_Runtime_vtab_Runtime_method_createInstance:
     .long class_Runtime_mo_createInstance
     .long _cRuntimeVERuntime
+.global Runtime_m___inline_code__ := (class_Runtime_vtab_Runtime_method___inline_code__ - class_Runtime_vtab_Runtime)
+class_Runtime_vtab_Runtime_method___inline_code__:
+    .long class_Runtime_mo___inline_code__
+    .long _cRuntimeVERuntime
 
-class_Runtime_so_cn_Object := (class_Runtime_string_cn_Object - class_Runtime_desc)
-class_Runtime_string_cn_Object:
+// string-const class
+class_Runtime_so_ct_class := (class_Runtime_sct_class - class_Runtime_desc)
+class_Runtime_sct_class:
+    .asciz "/my/Class"
+
+// string-const thread
+class_Runtime_so_ct_thread := (class_Runtime_sct_thread - class_Runtime_desc)
+class_Runtime_sct_thread:
+    .asciz "/my/Thread"
+
+class_Runtime_so_cn_Object := (class_Runtime_scn_Object - class_Runtime_desc)
+class_Runtime_scn_Object:
     .asciz "/my/Object"
 
-class_Runtime_so_cn_Runtime := (class_Runtime_string_cn_Runtime - class_Runtime_desc)
-class_Runtime_string_cn_Runtime:
+class_Runtime_so_cn_Runtime := (class_Runtime_scn_Runtime - class_Runtime_desc)
+class_Runtime_scn_Runtime:
     .asciz "/my/Runtime"
 
 class_Runtime_inst_tpl:
@@ -147,14 +161,17 @@ handle_Runtime_vars_Runtime := (class_Runtime_inst_tpl_handle_Runtime_vars_Runti
 class_Runtime_inst_tpl_handle_Runtime_vars_Runtime:
     .long (class_Runtime_inst_tpl_vars_Runtime - class_Runtime_inst_tpl)
 class_Runtime_inst_tpl_vars_Object:
-    .long 0 // runtime
+// variable runtime
+    .long 0
 class_Runtime_inst_tpl_vars_Runtime:
+// variable syscall_runtime
 .global Runtime_i_syscall_runtime := (class_Runtime_inst_tpl_vars_Runtime_syscall_runtime - class_Runtime_inst_tpl_vars_Runtime)
 class_Runtime_inst_tpl_vars_Runtime_syscall_runtime:
-    .long 0 // syscall_runtime
+    .long 0
+// variable syscall_entry
 .global Runtime_i_syscall_entry := (class_Runtime_inst_tpl_vars_Runtime_syscall_entry - class_Runtime_inst_tpl_vars_Runtime)
 class_Runtime_inst_tpl_vars_Runtime_syscall_entry:
-    .long 0 // syscall_entry
+    .long 0
 class_Runtime_inst_tpl_end:
 
 // method-def bootstrap
@@ -167,7 +184,7 @@ class_Runtime_method_bootstrap:
     
     movl 0x0, 24(%ebp) // default result: NULL
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl class_Runtime_so_class, %eax
+    addl class_Runtime_so_ct_class, %eax
     
     pushl 0 // desc
     pushl %eax        // "Class"
@@ -224,7 +241,7 @@ class_Runtime_method_bootstrap:
 	addl 12, %esp
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl class_Runtime_so_class, %eax
+    addl class_Runtime_so_ct_class, %eax
     subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
@@ -493,7 +510,7 @@ _crmct_start:
     addl 0, %ecx; jz _crmct_return // break if not instantiated
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl class_Runtime_so_thread, %eax
+    addl class_Runtime_so_ct_thread, %eax
     subl 4, %esp  # return value of as
     pushl %eax
     pushl %ecx
@@ -538,7 +555,7 @@ _crmci_start:
     jnz _crmci_instantiate // class already initialized
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl class_Runtime_so_class, %eax
+    addl class_Runtime_so_ct_class, %eax
     subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl Runtime_m_createInstance; call (%esi)
@@ -574,12 +591,11 @@ _crmci_return:
     leave
     ret
 
-class_Runtime_so_class := (class_Runtime_string_class - class_Runtime_desc)
-class_Runtime_so_thread := (class_Runtime_string_thread - class_Runtime_desc)
-class_Runtime_string_class:
-    .asciz "/my/Class"
-class_Runtime_string_thread:
-    .asciz "/my/Thread"
+// method-def __inline_code__
+.global class_Runtime_mo___inline_code__ := (class_Runtime_method___inline_code__ - class_Runtime_desc)
+class_Runtime_method___inline_code__:
+    pushl %ebp; movl %esp, %ebp
+    
 _crh_instantiate: // %eax: @object-meminfo %ebx: @_call_entry %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
     movl (%eax), %edi   // @object
     movl %edx, %esi
@@ -607,7 +623,6 @@ _crhi_loop:
     addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
     addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
     ret
-
 _cr_mo_call_entry := (_call_entry - class_Runtime_desc)
 _call_entry:
 	pushl %ecx
@@ -625,11 +640,19 @@ _call_entry:
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method
-
+class_vtabs_offset := 0x1c //(class_Class_vtabs - class_Class_desc)
+_cvte_size := 0x10 //(class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
+_cvte_cdo := 0x0 //(class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
+_cvte_vto := 0x8 //(class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
+_cvte_ho := 0xc //(class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)
+class_instance_size_offset := 0x8 //(class_Class_instance_size - class_Class_desc)
+class_instance_tpl_offset_offset := 0xc //(class_Class_instance_tpl_offset - class_Class_desc)
+class_instance_Object_handle_offset := 0x10 //(class_Class_instance_Object_handle_offset - class_Class_desc)
+class_instance_class_handle_offset := 0x14 //(class_Class_instance_class_handle_offset - class_Class_desc)
 // print* constants
 .global _out := _sps_out
 .global _err := _sps_err
-
+// SysCall constants
 SysCall_allocate   := 1
 SysCall_free       := 2
 SysCall_find_class := 3
@@ -642,4 +665,7 @@ _spk_string := 3
 
 _sps_out := 0
 _sps_err := 1
+    
+    leave
+    ret
 

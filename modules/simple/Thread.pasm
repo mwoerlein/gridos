@@ -71,12 +71,12 @@ class_Thread_vtab_Thread_method_run:
     .long class_Thread_mo_run
     .long _cThreadVEThread
 
-class_Thread_so_cn_Object := (class_Thread_string_cn_Object - class_Thread_desc)
-class_Thread_string_cn_Object:
+class_Thread_so_cn_Object := (class_Thread_scn_Object - class_Thread_desc)
+class_Thread_scn_Object:
     .asciz "/my/Object"
 
-class_Thread_so_cn_Thread := (class_Thread_string_cn_Thread - class_Thread_desc)
-class_Thread_string_cn_Thread:
+class_Thread_so_cn_Thread := (class_Thread_scn_Thread - class_Thread_desc)
+class_Thread_scn_Thread:
     .asciz "/my/Thread"
 
 class_Thread_inst_tpl:
@@ -99,11 +99,11 @@ handle_Thread_vars_Thread := (class_Thread_inst_tpl_handle_Thread_vars_Thread - 
 class_Thread_inst_tpl_handle_Thread_vars_Thread:
     .long (class_Thread_inst_tpl_vars_Thread - class_Thread_inst_tpl)
 class_Thread_inst_tpl_vars_Object:
-    .long 0 // runtime
+// variable runtime
+    .long 0
 class_Thread_inst_tpl_vars_Thread:
 class_Thread_inst_tpl_end:
 
 // method-def run
 .global class_Thread_mo_run := 0 // virtual method
-
 

@@ -50,8 +50,8 @@ class_Object_vtab_Object_method_setRt:
     .long class_Object_mo_setRt
     .long _cObjectVEObject
 
-class_Object_so_cn_Object := (class_Object_string_cn_Object - class_Object_desc)
-class_Object_string_cn_Object:
+class_Object_so_cn_Object := (class_Object_scn_Object - class_Object_desc)
+class_Object_scn_Object:
     .asciz "/my/Object"
 
 class_Object_inst_tpl:
@@ -65,9 +65,10 @@ handle_Object_vars_Object := (class_Object_inst_tpl_handle_Object_vars_Object - 
 class_Object_inst_tpl_handle_Object_vars_Object:
     .long (class_Object_inst_tpl_vars_Object - class_Object_inst_tpl)
 class_Object_inst_tpl_vars_Object:
+// variable runtime
 .global Object_i_runtime := (class_Object_inst_tpl_vars_Object_runtime - class_Object_inst_tpl_vars_Object)
 class_Object_inst_tpl_vars_Object_runtime:
-    .long 0 // runtime
+    .long 0
 class_Object_inst_tpl_end:
 
 // method-def getClass
@@ -141,5 +142,4 @@ class_Object_method_setRt:
     
     leave
     ret
-
 
