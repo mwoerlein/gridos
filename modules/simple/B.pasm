@@ -15,37 +15,38 @@ class_B_desc:
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
     .long 0x15AC1A55
 
-class_B_vtabs:
+// class tab
+_cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
 class_B_vtabs_entry_Object:
     .long 0
     .long class_B_so_cn_Object
     .long (class_B_vtab_Object - class_B_desc)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)
+_cBVEThread := (class_B_vtabs_entry_Thread - class_B_desc)
 class_B_vtabs_entry_Thread:
     .long 0
     .long class_B_so_cn_Thread
     .long (class_B_vtab_Thread - class_B_desc)
     .long (class_B_inst_tpl_handle_Thread - class_B_inst_tpl)
+_cBVEA := (class_B_vtabs_entry_A - class_B_desc)
 class_B_vtabs_entry_A:
     .long 0
     .long class_B_so_cn_A
     .long (class_B_vtab_A - class_B_desc)
     .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)
+_cBVEB := (class_B_vtabs_entry_B - class_B_desc)
 class_B_vtabs_entry_B:
     .long 0
     .long class_B_so_cn_B
     .long (class_B_vtab_B - class_B_desc)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
-class_B_vtab_end_entry:
+// class tab end
     .long 0
     .long 0
     .long 0
     .long 0
 
-_cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
-_cBVEThread := (class_B_vtabs_entry_Thread - class_B_desc)
-_cBVEA := (class_B_vtabs_entry_A - class_B_desc)
-_cBVEB := (class_B_vtabs_entry_B - class_B_desc)
+// method tabs
 class_B_vtab_Object:
     .long class_Object_mo_getClass
     .long _cBVEObject
@@ -129,27 +130,33 @@ class_B_vtab_B_method_doIt:
     .long class_B_mo_doIt
     .long _cBVEB
 
-// string-const doit
+// constants
+// string doit
 class_B_so_ct_doit := (class_B_sct_doit - class_B_desc)
 class_B_sct_doit:
     .asciz "OMG! It work's! "
 
+// class-name Object
 class_B_so_cn_Object := (class_B_scn_Object - class_B_desc)
 class_B_scn_Object:
     .asciz "/my/Object"
 
+// class-name Thread
 class_B_so_cn_Thread := (class_B_scn_Thread - class_B_desc)
 class_B_scn_Thread:
     .asciz "/my/Thread"
 
+// class-name A
 class_B_so_cn_A := (class_B_scn_A - class_B_desc)
 class_B_scn_A:
     .asciz "/my/A"
 
+// class-name B
 class_B_so_cn_B := (class_B_scn_B - class_B_desc)
 class_B_scn_B:
     .asciz "/my/B"
 
+// instance template
 class_B_inst_tpl:
     .long 0
     .long 0
@@ -203,7 +210,8 @@ class_B_inst_tpl_vars_A:
 class_B_inst_tpl_vars_B:
 class_B_inst_tpl_end:
 
-// method-def run
+// method definitions
+// method run
 .global class_B_mo_run := (class_B_method_run - class_B_desc)
 class_B_method_run:
     pushl %ebp; movl %esp, %ebp
@@ -252,7 +260,7 @@ class_B_method_run:
     leave
     ret
 
-// method-def doIt
+// method doIt
 .global class_B_mo_doIt := (class_B_method_doIt - class_B_desc)
 class_B_method_doIt:
     pushl %ebp; movl %esp, %ebp
@@ -365,7 +373,7 @@ class_B_method_doIt:
     leave
     ret
 
-// method-def getRow
+// method getRow
 .global class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
 class_B_method_getRow:
     pushl %ebp; movl %esp, %ebp
@@ -380,4 +388,3 @@ class_B_method_getRow:
     
     leave
     ret
-

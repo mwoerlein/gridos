@@ -15,25 +15,26 @@ class_Thread_desc:
     .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
     .long 0x15AC1A55
 
-class_Thread_vtabs:
+// class tab
+_cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
 class_Thread_vtabs_entry_Object:
     .long 0
     .long class_Thread_so_cn_Object
     .long (class_Thread_vtab_Object - class_Thread_desc)
     .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl)
+_cThreadVEThread := (class_Thread_vtabs_entry_Thread - class_Thread_desc)
 class_Thread_vtabs_entry_Thread:
     .long 0
     .long class_Thread_so_cn_Thread
     .long (class_Thread_vtab_Thread - class_Thread_desc)
     .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
-class_Thread_vtab_end_entry:
+// class tab end
     .long 0
     .long 0
     .long 0
     .long 0
 
-_cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
-_cThreadVEThread := (class_Thread_vtabs_entry_Thread - class_Thread_desc)
+// method tabs
 class_Thread_vtab_Object:
     .long class_Object_mo_getClass
     .long _cThreadVEObject
@@ -71,14 +72,18 @@ class_Thread_vtab_Thread_method_run:
     .long class_Thread_mo_run
     .long _cThreadVEThread
 
+// constants
+// class-name Object
 class_Thread_so_cn_Object := (class_Thread_scn_Object - class_Thread_desc)
 class_Thread_scn_Object:
     .asciz "/my/Object"
 
+// class-name Thread
 class_Thread_so_cn_Thread := (class_Thread_scn_Thread - class_Thread_desc)
 class_Thread_scn_Thread:
     .asciz "/my/Thread"
 
+// instance template
 class_Thread_inst_tpl:
     .long 0
     .long 0
@@ -104,6 +109,6 @@ class_Thread_inst_tpl_vars_Object:
 class_Thread_inst_tpl_vars_Thread:
 class_Thread_inst_tpl_end:
 
-// method-def run
-.global class_Thread_mo_run := 0 // virtual method
-
+// method definitions
+// method run
+.global class_Thread_mo_run := 0

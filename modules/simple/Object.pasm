@@ -15,19 +15,20 @@ class_Object_desc:
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
     .long 0x15AC1A55
 
-class_Object_vtabs:
+// class tab
+_cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
 class_Object_vtabs_entry_Object:
     .long 0
     .long class_Object_so_cn_Object
     .long (class_Object_vtab_Object - class_Object_desc)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
-class_Object_vtab_end_entry:
+// class tab end
     .long 0
     .long 0
     .long 0
     .long 0
 
-_cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
+// method tabs
 class_Object_vtab_Object:
 .global Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vtab_Object)
 class_Object_vtab_Object_method_getClass:
@@ -50,10 +51,13 @@ class_Object_vtab_Object_method_setRt:
     .long class_Object_mo_setRt
     .long _cObjectVEObject
 
+// constants
+// class-name Object
 class_Object_so_cn_Object := (class_Object_scn_Object - class_Object_desc)
 class_Object_scn_Object:
     .asciz "/my/Object"
 
+// instance template
 class_Object_inst_tpl:
     .long 0
     .long 0
@@ -71,7 +75,8 @@ class_Object_inst_tpl_vars_Object_runtime:
     .long 0
 class_Object_inst_tpl_end:
 
-// method-def getClass
+// method definitions
+// method getClass
 .global class_Object_mo_getClass := (class_Object_method_getClass - class_Object_desc)
 class_Object_method_getClass:
     pushl %ebp; movl %esp, %ebp
@@ -85,7 +90,7 @@ class_Object_method_getClass:
     leave
     ret
 
-// method-def hash
+// method hash
 .global class_Object_mo_hash := (class_Object_method_hash - class_Object_desc)
 class_Object_method_hash:
     pushl %ebp; movl %esp, %ebp
@@ -97,7 +102,7 @@ class_Object_method_hash:
     leave
     ret
 
-// method-def equals
+// method equals
 .global class_Object_mo_equals := (class_Object_method_equals - class_Object_desc)
 class_Object_method_equals:
     pushl %ebp; movl %esp, %ebp
@@ -115,7 +120,7 @@ _come_ret:
     leave
     ret
 
-// method-def rt
+// method rt
 .global class_Object_mo_rt := (class_Object_method_rt - class_Object_desc)
 class_Object_method_rt:
     pushl %ebp; movl %esp, %ebp
@@ -129,7 +134,7 @@ class_Object_method_rt:
     leave
     ret
 
-// method-def setRt
+// method setRt
 .global class_Object_mo_setRt := (class_Object_method_setRt - class_Object_desc)
 class_Object_method_setRt:
     pushl %ebp; movl %esp, %ebp
@@ -142,4 +147,3 @@ class_Object_method_setRt:
     
     leave
     ret
-

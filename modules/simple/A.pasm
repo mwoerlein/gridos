@@ -15,25 +15,26 @@ class_A_desc:
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)
     .long 0x15AC1A55
 
-class_A_vtabs:
+// class tab
+_cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
 class_A_vtabs_entry_Object:
     .long 0
     .long class_A_so_cn_Object
     .long (class_A_vtab_Object - class_A_desc)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)
+_cAVEA := (class_A_vtabs_entry_A - class_A_desc)
 class_A_vtabs_entry_A:
     .long 0
     .long class_A_so_cn_A
     .long (class_A_vtab_A - class_A_desc)
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)
-class_A_vtab_end_entry:
+// class tab end
     .long 0
     .long 0
     .long 0
     .long 0
 
-_cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
-_cAVEA := (class_A_vtabs_entry_A - class_A_desc)
+// method tabs
 class_A_vtab_Object:
     .long class_Object_mo_getClass
     .long _cAVEObject
@@ -79,19 +80,23 @@ class_A_vtab_A_method_test:
     .long class_A_mo_test
     .long _cAVEA
 
-// string-const test
+// constants
+// string test
 class_A_so_ct_test := (class_A_sct_test - class_A_desc)
 class_A_sct_test:
     .asciz " Test\n"
 
+// class-name Object
 class_A_so_cn_Object := (class_A_scn_Object - class_A_desc)
 class_A_scn_Object:
     .asciz "/my/Object"
 
+// class-name A
 class_A_so_cn_A := (class_A_scn_A - class_A_desc)
 class_A_scn_A:
     .asciz "/my/A"
 
+// instance template
 class_A_inst_tpl:
     .long 0
     .long 0
@@ -125,7 +130,8 @@ class_A_inst_tpl_vars_A_row:
     .long 0
 class_A_inst_tpl_end:
 
-// method-def init
+// method definitions
+// method init
 .global class_A_mo_init := (class_A_method_init - class_A_desc)
 class_A_method_init:
     pushl %ebp; movl %esp, %ebp
@@ -142,7 +148,7 @@ class_A_method_init:
     leave
     ret
 
-// method-def getRow
+// method getRow
 .global class_A_mo_getRow := (class_A_method_getRow - class_A_desc)
 class_A_method_getRow:
     pushl %ebp; movl %esp, %ebp
@@ -157,7 +163,7 @@ class_A_method_getRow:
     leave
     ret
 
-// method-def test
+// method test
 .global class_A_mo_test := (class_A_method_test - class_A_desc)
 class_A_method_test:
     pushl %ebp; movl %esp, %ebp
@@ -219,4 +225,3 @@ class_A_method_test:
     
     leave
     ret
-

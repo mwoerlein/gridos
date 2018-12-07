@@ -15,25 +15,26 @@ class_Runtime_desc:
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)
     .long 0x15AC1A55
 
-class_Runtime_vtabs:
+// class tab
+_cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 class_Runtime_vtabs_entry_Object:
     .long 0
     .long class_Runtime_so_cn_Object
     .long (class_Runtime_vtab_Object - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)
+_cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
 class_Runtime_vtabs_entry_Runtime:
     .long 0
     .long class_Runtime_so_cn_Runtime
     .long (class_Runtime_vtab_Runtime - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)
-class_Runtime_vtab_end_entry:
+// class tab end
     .long 0
     .long 0
     .long 0
     .long 0
 
-_cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
-_cRuntimeVERuntime := (class_Runtime_vtabs_entry_Runtime - class_Runtime_desc)
+// method tabs
 class_Runtime_vtab_Object:
     .long class_Object_mo_getClass
     .long _cRuntimeVEObject
@@ -123,24 +124,28 @@ class_Runtime_vtab_Runtime_method___inline_code__:
     .long class_Runtime_mo___inline_code__
     .long _cRuntimeVERuntime
 
-// string-const class
+// constants
+// string class
 class_Runtime_so_ct_class := (class_Runtime_sct_class - class_Runtime_desc)
 class_Runtime_sct_class:
     .asciz "/my/Class"
 
-// string-const thread
+// string thread
 class_Runtime_so_ct_thread := (class_Runtime_sct_thread - class_Runtime_desc)
 class_Runtime_sct_thread:
     .asciz "/my/Thread"
 
+// class-name Object
 class_Runtime_so_cn_Object := (class_Runtime_scn_Object - class_Runtime_desc)
 class_Runtime_scn_Object:
     .asciz "/my/Object"
 
+// class-name Runtime
 class_Runtime_so_cn_Runtime := (class_Runtime_scn_Runtime - class_Runtime_desc)
 class_Runtime_scn_Runtime:
     .asciz "/my/Runtime"
 
+// instance template
 class_Runtime_inst_tpl:
     .long 0
     .long 0
@@ -174,7 +179,8 @@ class_Runtime_inst_tpl_vars_Runtime_syscall_entry:
     .long 0
 class_Runtime_inst_tpl_end:
 
-// method-def bootstrap
+// method definitions
+// method bootstrap
 .global class_Runtime_mo_bootstrap := (class_Runtime_method_bootstrap - class_Runtime_desc)
 class_Runtime_method_bootstrap:
     pushl %ebp; movl %esp, %ebp
@@ -260,7 +266,7 @@ _bs_return:
     leave
     ret
 
-// method-def initSysCall
+// method initSysCall
 .global class_Runtime_mo_initSysCall := (class_Runtime_method_initSysCall - class_Runtime_desc)
 class_Runtime_method_initSysCall:
     pushl %ebp; movl %esp, %ebp
@@ -276,7 +282,7 @@ class_Runtime_method_initSysCall:
     leave
     ret
 
-// method-def getClassDesc
+// method getClassDesc
 .global class_Runtime_mo_getClassDesc := (class_Runtime_method_getClassDesc - class_Runtime_desc)
 class_Runtime_method_getClassDesc:
     pushl %ebp; movl %esp, %ebp
@@ -299,7 +305,7 @@ class_Runtime_method_getClassDesc:
     leave
     ret
 
-// method-def allocate
+// method allocate
 .global class_Runtime_mo_allocate := (class_Runtime_method_allocate - class_Runtime_desc)
 class_Runtime_method_allocate:
     pushl %ebp; movl %esp, %ebp
@@ -322,7 +328,7 @@ class_Runtime_method_allocate:
     leave
     ret
 
-// method-def free
+// method free
 .global class_Runtime_mo_free := (class_Runtime_method_free - class_Runtime_desc)
 class_Runtime_method_free:
     pushl %ebp; movl %esp, %ebp
@@ -344,7 +350,7 @@ class_Runtime_method_free:
     leave
     ret
 
-// method-def printChar
+// method printChar
 .global class_Runtime_mo_printChar := (class_Runtime_method_printChar - class_Runtime_desc)
 class_Runtime_method_printChar:
     pushl %ebp; movl %esp, %ebp
@@ -367,7 +373,7 @@ class_Runtime_method_printChar:
     leave
     ret
 
-// method-def printString
+// method printString
 .global class_Runtime_mo_printString := (class_Runtime_method_printString - class_Runtime_desc)
 class_Runtime_method_printString:
     pushl %ebp; movl %esp, %ebp
@@ -390,7 +396,7 @@ class_Runtime_method_printString:
     leave
     ret
 
-// method-def printInt
+// method printInt
 .global class_Runtime_mo_printInt := (class_Runtime_method_printInt - class_Runtime_desc)
 class_Runtime_method_printInt:
     pushl %ebp; movl %esp, %ebp
@@ -413,7 +419,7 @@ class_Runtime_method_printInt:
     leave
     ret
 
-// method-def printHex
+// method printHex
 .global class_Runtime_mo_printHex := (class_Runtime_method_printHex - class_Runtime_desc)
 class_Runtime_method_printHex:
     pushl %ebp; movl %esp, %ebp
@@ -436,7 +442,7 @@ class_Runtime_method_printHex:
     leave
     ret
 
-// method-def destroyInstance
+// method destroyInstance
 .global class_Runtime_mo_destroyInstance := (class_Runtime_method_destroyInstance - class_Runtime_desc)
 class_Runtime_method_destroyInstance:
     pushl %ebp; movl %esp, %ebp
@@ -452,7 +458,7 @@ class_Runtime_method_destroyInstance:
     leave
     ret
 
-// method-def as
+// method as
 .global class_Runtime_mo_as := (class_Runtime_method_as - class_Runtime_desc)
 class_Runtime_method_as:
     pushl %ebp; movl %esp, %ebp
@@ -491,7 +497,7 @@ _crma_return:
     leave
     ret
 
-// method-def createThread
+// method createThread
 .global class_Runtime_mo_createThread := (class_Runtime_method_createThread - class_Runtime_desc)
 class_Runtime_method_createThread:
     pushl %ebp; movl %esp, %ebp
@@ -533,7 +539,7 @@ _crmct_return:
     leave
     ret
 
-// method-def createInstance
+// method createInstance
 .global class_Runtime_mo_createInstance := (class_Runtime_method_createInstance - class_Runtime_desc)
 class_Runtime_method_createInstance:
     pushl %ebp; movl %esp, %ebp
@@ -591,7 +597,7 @@ _crmci_return:
     leave
     ret
 
-// method-def __inline_code__
+// method __inline_code__
 .global class_Runtime_mo___inline_code__ := (class_Runtime_method___inline_code__ - class_Runtime_desc)
 class_Runtime_method___inline_code__:
     pushl %ebp; movl %esp, %ebp
@@ -668,4 +674,3 @@ _sps_err := 1
     
     leave
     ret
-
