@@ -6,22 +6,23 @@
  * |Ret N|...|Ret 2|Ret 1|Param N|...|Param 2|Param 1|@Obj-Handle|Method Offset/@class-desc|@caller return|caller %ebp|Local 1|Local 2|...|saved regs|tmp-data/further frames
  *                                                                                                                    ^callee %ebp                   ^callee %esp
  */
+
 /* ****** Class-Desc ******
  * 31                     0
+ * +----------------------+
+ * | 0x15AC1A55
  * +----------------------+
  * | 0 / @Class-Ref
  * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
- * | instance size
- * +----------------------+
  * | instance-template-Offset
+ * +----------------------+
+ * | instance size
  * +----------------------+
  * | Object-Handle-Offset
  * +----------------------+
  * | Class-Handle-Offset
- * +----------------------+
- * | 0x15AC1A55
  * +======================+
  * | 0 / @Class-Desc
  * +----------------------+

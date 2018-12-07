@@ -7,13 +7,13 @@ class = true
 */
 // class Object
 class_Object_desc:
+    .long 0x15AC1A55
     .long 0
     .long class_Object_so_cn_Object
-    .long (class_Object_inst_tpl_end - class_Object_inst_tpl)
     .long (class_Object_inst_tpl - class_Object_desc)
+    .long (class_Object_inst_tpl_end - class_Object_inst_tpl)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
-    .long 0x15AC1A55
 
 // class tab
 _cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
@@ -81,10 +81,11 @@ class_Object_inst_tpl_end:
 class_Object_method_getClass:
     pushl %ebp; movl %esp, %ebp
     
+class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
     movl 12(%ebp), %eax    // @this (Type Object)
     movl 4(%eax), %eax     // @this
     movl (%eax), %eax      // @class desc
-    movl (%eax), %eax      // @class handle
+    movl class_handle_offset(%eax), %eax // @class handle
     movl %eax, 16(%ebp)    // return @class handle
     
     leave

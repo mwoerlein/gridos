@@ -7,13 +7,13 @@ class = true
 */
 // class B
 class_B_desc:
+    .long 0x15AC1A55
     .long 0
     .long class_B_so_cn_B
-    .long (class_B_inst_tpl_end - class_B_inst_tpl)
     .long (class_B_inst_tpl - class_B_desc)
+    .long (class_B_inst_tpl_end - class_B_inst_tpl)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
-    .long 0x15AC1A55
 
 // class tab
 _cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)

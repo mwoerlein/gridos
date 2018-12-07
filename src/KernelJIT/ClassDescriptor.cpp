@@ -8,13 +8,13 @@ typedef struct {
 } pool_vtabs_entry;
 
 typedef struct pool_class_descriptor {
+    size_t magic;
     void * class_instance;
     size_t classname_offset;
-    size_t inst_tpl_size;
     size_t inst_tpl_offset;
+    size_t inst_tpl_size;
     size_t obj_handle_offset;
     size_t class_handle_offset;
-    size_t magic;
     pool_vtabs_entry vtabs[];
 } pool_class_descriptor;
 

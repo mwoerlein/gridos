@@ -4,16 +4,17 @@ description = class "/my/Runtime"
 [pool]
 version = 0.1.0
 class = true
+bootstrapOffset = class_Runtime_mo_bootstrap
 */
 // class Runtime
 class_Runtime_desc:
+    .long 0x15AC1A55
     .long 0
     .long class_Runtime_so_cn_Runtime
-    .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl)
     .long (class_Runtime_inst_tpl - class_Runtime_desc)
+    .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)
-    .long 0x15AC1A55
 
 // class tab
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
@@ -118,10 +119,6 @@ class_Runtime_vtab_Runtime_method_createThread:
 .global Runtime_m_createInstance := (class_Runtime_vtab_Runtime_method_createInstance - class_Runtime_vtab_Runtime)
 class_Runtime_vtab_Runtime_method_createInstance:
     .long class_Runtime_mo_createInstance
-    .long _cRuntimeVERuntime
-.global Runtime_m___inline_code__ := (class_Runtime_vtab_Runtime_method___inline_code__ - class_Runtime_vtab_Runtime)
-class_Runtime_vtab_Runtime_method___inline_code__:
-    .long class_Runtime_mo___inline_code__
     .long _cRuntimeVERuntime
 
 // constants
@@ -557,7 +554,7 @@ _crmci_start:
     popl %edx       // @class-desc
     addl 0, %edx; jz _crmci_return  // return NULL if class not exists
     
-    cmpl 0, (%edx)
+    cmpl 0, class_handle_offset(%edx)
     jnz _crmci_instantiate // class already initialized
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
@@ -597,11 +594,7 @@ _crmci_return:
     leave
     ret
 
-// method __inline_code__
-.global class_Runtime_mo___inline_code__ := (class_Runtime_method___inline_code__ - class_Runtime_desc)
-class_Runtime_method___inline_code__:
-    pushl %ebp; movl %esp, %ebp
-    
+// method _crh_instantiate
 _crh_instantiate: // %eax: @object-meminfo %ebx: @_call_entry %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
     movl (%eax), %edi   // @object
     movl %edx, %esi
@@ -629,6 +622,8 @@ _crhi_loop:
     addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
     addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
     ret
+
+// method _call_entry
 _cr_mo_call_entry := (_call_entry - class_Runtime_desc)
 _call_entry:
 	pushl %ecx
@@ -646,15 +641,8 @@ _call_entry:
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method
-class_vtabs_offset := 0x1c //(class_Class_vtabs - class_Class_desc)
-_cvte_size := 0x10 //(class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
-_cvte_cdo := 0x0 //(class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
-_cvte_vto := 0x8 //(class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
-_cvte_ho := 0xc //(class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)
-class_instance_size_offset := 0x8 //(class_Class_instance_size - class_Class_desc)
-class_instance_tpl_offset_offset := 0xc //(class_Class_instance_tpl_offset - class_Class_desc)
-class_instance_Object_handle_offset := 0x10 //(class_Class_instance_Object_handle_offset - class_Class_desc)
-class_instance_class_handle_offset := 0x14 //(class_Class_instance_class_handle_offset - class_Class_desc)
+
+// method __constants__
 // print* constants
 .global _out := _sps_out
 .global _err := _sps_err
@@ -671,6 +659,14 @@ _spk_string := 3
 
 _sps_out := 0
 _sps_err := 1
-    
-    leave
-    ret
+// instantiate constants
+class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
+class_instance_tpl_offset_offset := 0xc //(class_Class_instance_tpl_offset - class_Class_desc)
+class_instance_size_offset := 0x10 //(class_Class_instance_size - class_Class_desc)
+class_instance_Object_handle_offset := 0x14 //(class_Class_instance_Object_handle_offset - class_Class_desc)
+class_instance_class_handle_offset := 0x18 //(class_Class_instance_class_handle_offset - class_Class_desc)
+class_vtabs_offset := 0x1c //(class_Class_vtabs - class_Class_desc)
+_cvte_size := 0x10 //(class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
+_cvte_cdo := 0x0 //(class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
+_cvte_vto := 0x8 //(class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
+_cvte_ho := 0xc //(class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)

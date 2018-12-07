@@ -7,13 +7,13 @@ class = true
 */
 // class Thread
 class_Thread_desc:
+    .long 0x15AC1A55
     .long 0
     .long class_Thread_so_cn_Thread
-    .long (class_Thread_inst_tpl_end - class_Thread_inst_tpl)
     .long (class_Thread_inst_tpl - class_Thread_desc)
+    .long (class_Thread_inst_tpl_end - class_Thread_inst_tpl)
     .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl)
     .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
-    .long 0x15AC1A55
 
 // class tab
 _cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
