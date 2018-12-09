@@ -6,43 +6,43 @@ version = 0.1.0
 class = true
 */
 // class B
-class_B_desc:
+_my_B:
     .long 0x15AC1A55
     .long 0
-    .long class_B_so_cn_B
-    .long (class_B_cts - class_B_desc)
-    .long (class_B_mts - class_B_desc)
-    .long (class_B_inst_tpl - class_B_desc)
-    .long (class_B_inst_tpl_end - class_B_inst_tpl)
-    .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)
-    .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
+    .long _my_B_cno_my_B
+    .long (_03904e06_cts - _my_B)
+    .long (_03904e06_mts - _my_B)
+    .long (_03904e06_tpl - _my_B)
+    .long (_03904e06_tpl_end - _03904e06_tpl)
+    .long (_03904e06_tpl_h_e36c4e5b - _03904e06_tpl)
+    .long (_03904e06_tpl_h_03904e06 - _03904e06_tpl)
 
 // class tab
-class_B_cts:
-_cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
-class_B_vtabs_entry_Object:
+_03904e06_cts:
+_03904e06_cto_e36c4e5b := (_03904e06_ct_e36c4e5b - _my_B)
+_03904e06_ct_e36c4e5b:
     .long 0
-    .long class_B_so_cn_Object
-    .long (class_B_vtab_Object - class_B_desc)
-    .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)
-_cBVEThread := (class_B_vtabs_entry_Thread - class_B_desc)
-class_B_vtabs_entry_Thread:
+    .long _my_B_cno_my_Object
+    .long (_03904e06_mt_e36c4e5b - _my_B)
+    .long (_03904e06_tpl_h_e36c4e5b - _03904e06_tpl)
+_03904e06_cto_ef870f3c := (_03904e06_ct_ef870f3c - _my_B)
+_03904e06_ct_ef870f3c:
     .long 0
-    .long class_B_so_cn_Thread
-    .long (class_B_vtab_Thread - class_B_desc)
-    .long (class_B_inst_tpl_handle_Thread - class_B_inst_tpl)
-_cBVEA := (class_B_vtabs_entry_A - class_B_desc)
-class_B_vtabs_entry_A:
+    .long _my_B_cno_my_Thread
+    .long (_03904e06_mt_ef870f3c - _my_B)
+    .long (_03904e06_tpl_h_ef870f3c - _03904e06_tpl)
+_03904e06_cto_03904e05 := (_03904e06_ct_03904e05 - _my_B)
+_03904e06_ct_03904e05:
     .long 0
-    .long class_B_so_cn_A
-    .long (class_B_vtab_A - class_B_desc)
-    .long (class_B_inst_tpl_handle_A - class_B_inst_tpl)
-_cBVEB := (class_B_vtabs_entry_B - class_B_desc)
-class_B_vtabs_entry_B:
+    .long _my_B_cno_my_A
+    .long (_03904e06_mt_03904e05 - _my_B)
+    .long (_03904e06_tpl_h_03904e05 - _03904e06_tpl)
+_03904e06_cto_03904e06 := (_03904e06_ct_03904e06 - _my_B)
+_03904e06_ct_03904e06:
     .long 0
-    .long class_B_so_cn_B
-    .long (class_B_vtab_B - class_B_desc)
-    .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
+    .long _my_B_cno_my_B
+    .long (_03904e06_mt_03904e06 - _my_B)
+    .long (_03904e06_tpl_h_03904e06 - _03904e06_tpl)
 // class tab end
     .long 0
     .long 0
@@ -50,174 +50,169 @@ class_B_vtabs_entry_B:
     .long 0
 
 // method tabs
-class_B_mts:
-class_B_vtab_Object:
-    .long class_Object_mo_getClass
-    .long _cBVEObject
-    .long class_Object_mo_hash
-    .long _cBVEObject
-    .long class_Object_mo_equals
-    .long _cBVEObject
-    .long class_Object_mo_rt
-    .long _cBVEObject
-    .long class_Object_mo_setRt
-    .long _cBVEObject
-class_B_vtab_Thread:
-    .long class_Object_mo_getClass
-    .long _cBVEObject
-    .long class_Object_mo_hash
-    .long _cBVEObject
-    .long class_Object_mo_equals
-    .long _cBVEObject
-    .long class_Object_mo_rt
-    .long _cBVEObject
-    .long class_Object_mo_setRt
-    .long _cBVEObject
-    .long class_B_mo_run
-    .long _cBVEB
-class_B_vtab_A:
-    .long class_Object_mo_getClass
-    .long _cBVEObject
-    .long class_Object_mo_hash
-    .long _cBVEObject
-    .long class_Object_mo_equals
-    .long _cBVEObject
-    .long class_Object_mo_rt
-    .long _cBVEObject
-    .long class_Object_mo_setRt
-    .long _cBVEObject
-    .long class_A_mo_init
-    .long _cBVEA
-    .long class_B_mo_getRow
-    .long _cBVEB
-    .long class_A_mo_test
-    .long _cBVEA
-class_B_vtab_B:
-.global B_m_getClass := (class_B_vtab_B_method_getClass - class_B_vtab_B)
-class_B_vtab_B_method_getClass:
-    .long class_Object_mo_getClass
-    .long _cBVEObject
-.global B_m_hash := (class_B_vtab_B_method_hash - class_B_vtab_B)
-class_B_vtab_B_method_hash:
-    .long class_Object_mo_hash
-    .long _cBVEObject
-.global B_m_equals := (class_B_vtab_B_method_equals - class_B_vtab_B)
-class_B_vtab_B_method_equals:
-    .long class_Object_mo_equals
-    .long _cBVEObject
-.global B_m_rt := (class_B_vtab_B_method_rt - class_B_vtab_B)
-class_B_vtab_B_method_rt:
-    .long class_Object_mo_rt
-    .long _cBVEObject
-.global B_m_setRt := (class_B_vtab_B_method_setRt - class_B_vtab_B)
-class_B_vtab_B_method_setRt:
-    .long class_Object_mo_setRt
-    .long _cBVEObject
-.global B_m_run := (class_B_vtab_B_method_run - class_B_vtab_B)
-class_B_vtab_B_method_run:
-    .long class_B_mo_run
-    .long _cBVEB
-.global B_m_init := (class_B_vtab_B_method_init - class_B_vtab_B)
-class_B_vtab_B_method_init:
-    .long class_A_mo_init
-    .long _cBVEA
-.global B_m_getRow := (class_B_vtab_B_method_getRow - class_B_vtab_B)
-class_B_vtab_B_method_getRow:
-    .long class_B_mo_getRow
-    .long _cBVEB
-.global B_m_test := (class_B_vtab_B_method_test - class_B_vtab_B)
-class_B_vtab_B_method_test:
-    .long class_A_mo_test
-    .long _cBVEA
-.global B_m_doIt := (class_B_vtab_B_method_doIt - class_B_vtab_B)
-class_B_vtab_B_method_doIt:
-    .long class_B_mo_doIt
-    .long _cBVEB
+_03904e06_mts:
+_03904e06_mt_e36c4e5b:
+    .long _my_Object_mdo_getClass
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_hash
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_equals
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_rt
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_setRt
+    .long _03904e06_cto_e36c4e5b
+_03904e06_mt_ef870f3c:
+    .long _my_Object_mdo_getClass
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_hash
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_equals
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_rt
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_setRt
+    .long _03904e06_cto_e36c4e5b
+    .long _my_B_mdo_run
+    .long _03904e06_cto_03904e06
+_03904e06_mt_03904e05:
+    .long _my_Object_mdo_getClass
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_hash
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_equals
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_rt
+    .long _03904e06_cto_e36c4e5b
+    .long _my_Object_mdo_setRt
+    .long _03904e06_cto_e36c4e5b
+    .long _my_A_mdo_init
+    .long _03904e06_cto_03904e05
+    .long _my_B_mdo_getRow
+    .long _03904e06_cto_03904e06
+    .long _my_A_mdo_test
+    .long _03904e06_cto_03904e05
+_03904e06_mt_03904e06:
+.global _my_B_m_getClass := (_03904e06_mtm_03904e06_getClass - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_getClass:
+    .long _my_Object_mdo_getClass
+    .long _03904e06_cto_e36c4e5b
+.global _my_B_m_hash := (_03904e06_mtm_03904e06_hash - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_hash:
+    .long _my_Object_mdo_hash
+    .long _03904e06_cto_e36c4e5b
+.global _my_B_m_equals := (_03904e06_mtm_03904e06_equals - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_equals:
+    .long _my_Object_mdo_equals
+    .long _03904e06_cto_e36c4e5b
+.global _my_B_m_rt := (_03904e06_mtm_03904e06_rt - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_rt:
+    .long _my_Object_mdo_rt
+    .long _03904e06_cto_e36c4e5b
+.global _my_B_m_setRt := (_03904e06_mtm_03904e06_setRt - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_setRt:
+    .long _my_Object_mdo_setRt
+    .long _03904e06_cto_e36c4e5b
+.global _my_B_m_run := (_03904e06_mtm_03904e06_run - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_run:
+    .long _my_B_mdo_run
+    .long _03904e06_cto_03904e06
+.global _my_B_m_init := (_03904e06_mtm_03904e06_init - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_init:
+    .long _my_A_mdo_init
+    .long _03904e06_cto_03904e05
+.global _my_B_m_getRow := (_03904e06_mtm_03904e06_getRow - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_getRow:
+    .long _my_B_mdo_getRow
+    .long _03904e06_cto_03904e06
+.global _my_B_m_test := (_03904e06_mtm_03904e06_test - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_test:
+    .long _my_A_mdo_test
+    .long _03904e06_cto_03904e05
+.global _my_B_m_doIt := (_03904e06_mtm_03904e06_doIt - _03904e06_mt_03904e06)
+_03904e06_mtm_03904e06_doIt:
+    .long _my_B_mdo_doIt
+    .long _03904e06_cto_03904e06
 
 // constants
 // string doit
-class_B_so_ct_doit := (class_B_sct_doit - class_B_desc)
-class_B_sct_doit:
+_my_B_coso_doit := (_03904e06_cos_doit - _my_B)
+_03904e06_cos_doit:
     .asciz "OMG! It work's! "
 
 // class-name Object
-class_B_so_cn_Object := (class_B_scn_Object - class_B_desc)
-class_B_scn_Object:
+_my_B_cno_my_Object := (_03904e06_cn_e36c4e5b - _my_B)
+_03904e06_cn_e36c4e5b:
     .asciz "/my/Object"
 
 // class-name Thread
-class_B_so_cn_Thread := (class_B_scn_Thread - class_B_desc)
-class_B_scn_Thread:
+_my_B_cno_my_Thread := (_03904e06_cn_ef870f3c - _my_B)
+_03904e06_cn_ef870f3c:
     .asciz "/my/Thread"
 
 // class-name A
-class_B_so_cn_A := (class_B_scn_A - class_B_desc)
-class_B_scn_A:
+_my_B_cno_my_A := (_03904e06_cn_03904e05 - _my_B)
+_03904e06_cn_03904e05:
     .asciz "/my/A"
 
 // class-name B
-class_B_so_cn_B := (class_B_scn_B - class_B_desc)
-class_B_scn_B:
+_my_B_cno_my_B := (_03904e06_cn_03904e06 - _my_B)
+_03904e06_cn_03904e06:
     .asciz "/my/B"
 
 // instance template
-class_B_inst_tpl:
+_03904e06_tpl:
     .long 0
     .long 0
-class_B_inst_tpl_handle_Object:
-    .long 0
-    .long 0
-    .long 0
-class_B_inst_tpl_handle_Object_vars_Object:
-    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl)
-class_B_inst_tpl_handle_Thread:
+_03904e06_tpl_h_e36c4e5b:
     .long 0
     .long 0
     .long 0
-class_B_inst_tpl_handle_Thread_vars_Object:
-    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl)
-class_B_inst_tpl_handle_Thread_vars_Thread:
-    .long (class_B_inst_tpl_vars_Thread - class_B_inst_tpl)
-class_B_inst_tpl_handle_A:
+    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
+_03904e06_tpl_h_ef870f3c:
     .long 0
     .long 0
     .long 0
-class_B_inst_tpl_handle_A_vars_Object:
-    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl)
-class_B_inst_tpl_handle_A_vars_A:
-    .long (class_B_inst_tpl_vars_A - class_B_inst_tpl)
-class_B_inst_tpl_handle_B:
+    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
+    .long (_03904e06_tpl_vs_ef870f3c - _03904e06_tpl)
+_03904e06_tpl_h_03904e05:
     .long 0
     .long 0
     .long 0
-handle_B_vars_Object := (class_B_inst_tpl_handle_B_vars_Object - class_B_inst_tpl_handle_B)
-class_B_inst_tpl_handle_B_vars_Object:
-    .long (class_B_inst_tpl_vars_Object - class_B_inst_tpl)
-handle_B_vars_Thread := (class_B_inst_tpl_handle_B_vars_Thread - class_B_inst_tpl_handle_B)
-class_B_inst_tpl_handle_B_vars_Thread:
-    .long (class_B_inst_tpl_vars_Thread - class_B_inst_tpl)
-handle_B_vars_A := (class_B_inst_tpl_handle_B_vars_A - class_B_inst_tpl_handle_B)
-class_B_inst_tpl_handle_B_vars_A:
-    .long (class_B_inst_tpl_vars_A - class_B_inst_tpl)
-handle_B_vars_B := (class_B_inst_tpl_handle_B_vars_B - class_B_inst_tpl_handle_B)
-class_B_inst_tpl_handle_B_vars_B:
-    .long (class_B_inst_tpl_vars_B - class_B_inst_tpl)
-class_B_inst_tpl_vars_Object:
+    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
+    .long (_03904e06_tpl_vs_03904e05 - _03904e06_tpl)
+_03904e06_tpl_h_03904e06:
+    .long 0
+    .long 0
+    .long 0
+_my_B_hvo_my_Object := (_03904e06_tpl_hv_e36c4e5b - _03904e06_tpl_h_03904e06)
+_03904e06_tpl_hv_e36c4e5b:
+    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
+_my_B_hvo_my_Thread := (_03904e06_tpl_hv_ef870f3c - _03904e06_tpl_h_03904e06)
+_03904e06_tpl_hv_ef870f3c:
+    .long (_03904e06_tpl_vs_ef870f3c - _03904e06_tpl)
+_my_B_hvo_my_A := (_03904e06_tpl_hv_03904e05 - _03904e06_tpl_h_03904e06)
+_03904e06_tpl_hv_03904e05:
+    .long (_03904e06_tpl_vs_03904e05 - _03904e06_tpl)
+_my_B_hvo_my_B := (_03904e06_tpl_hv_03904e06 - _03904e06_tpl_h_03904e06)
+_03904e06_tpl_hv_03904e06:
+    .long (_03904e06_tpl_vs_03904e06 - _03904e06_tpl)
+_03904e06_tpl_vs_e36c4e5b:
 // variable runtime
     .long 0
-class_B_inst_tpl_vars_Thread:
-class_B_inst_tpl_vars_A:
+_03904e06_tpl_vs_ef870f3c:
+_03904e06_tpl_vs_03904e05:
 // variable column
     .long 0
 // variable row
     .long 0
-class_B_inst_tpl_vars_B:
-class_B_inst_tpl_end:
+_03904e06_tpl_vs_03904e06:
+_03904e06_tpl_end:
 
 // method definitions
 // method run
-.global class_B_mo_run := (class_B_method_run - class_B_desc)
-class_B_method_run:
+.global _my_B_mdo_run := (_03904e06_md_run - _my_B)
+_03904e06_md_run:
     pushl %ebp; movl %esp, %ebp
     
     pushl %ecx
@@ -227,34 +222,34 @@ class_B_method_run:
     movl 12(%ebp), %ecx # @this (Type B)
     
     subl 4, %esp  # return value of rt
-    pushl %ecx; pushl B_m_rt; call (%ecx)
+    pushl %ecx; pushl _my_B_m_rt; call (%ecx)
 	addl 8, %esp
     popl %edi   # Runtime(Type Runtime)
     
     pushl 20
     pushl 2
-    pushl %ecx; pushl B_m_init; call (%ecx)
+    pushl %ecx; pushl _my_B_m_init; call (%ecx)
 	addl 16, %esp
 	
     movl 8(%ebp), %eax          // @class-desc "B"
-    addl class_B_so_cn_A, %eax  // "/my/A"
+    addl _my_B_cno_my_A, %eax  // "/my/A"
     subl 4, %esp  # return value of createInstance
     pushl %eax
-    pushl %edi; pushl Runtime_m_createInstance; call (%edi)
+    pushl %edi; pushl _my_Runtime_m_createInstance; call (%edi)
 	addl 12, %esp
     popl %edx; // inst_A (type A)
     
     pushl 5
     pushl 2
-    pushl %edx; pushl A_m_init; call (%edx)
+    pushl %edx; pushl _my_A_m_init; call (%edx)
 	addl 16, %esp
     
     pushl %edx
-    pushl %ecx; pushl B_m_doIt; call (%ecx)
+    pushl %ecx; pushl _my_B_m_doIt; call (%ecx)
 	addl 12, %esp
     
     pushl %edx
-    pushl %edi; pushl Runtime_m_destroyInstance; call (%edi)
+    pushl %edi; pushl _my_Runtime_m_destroyInstance; call (%edi)
 	addl 12, %esp
     
     popl %edi
@@ -265,8 +260,8 @@ class_B_method_run:
     ret
 
 // method doIt
-.global class_B_mo_doIt := (class_B_method_doIt - class_B_desc)
-class_B_method_doIt:
+.global _my_B_mdo_doIt := (_03904e06_md_doIt - _my_B)
+_03904e06_md_doIt:
     pushl %ebp; movl %esp, %ebp
     
     pushl %ecx
@@ -275,100 +270,100 @@ class_B_method_doIt:
     movl 12(%ebp), %ecx # @this (Type B)
     
     subl 4, %esp  # return value of rt
-    pushl %ecx; pushl B_m_rt; call (%ecx)
+    pushl %ecx; pushl _my_B_m_rt; call (%ecx)
 	addl 8, %esp
     popl %edx   # Runtime(Type Runtime)
     
-    pushl 0x40; pushl Runtime_c_err // '@'
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0x40; pushl _my_Runtime_c_err // '@'
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     movl 8(%ebp), %eax         // @class-desc "B"
-    addl class_B_so_ct_doit, %eax // "DoIt "
-    pushl %eax; pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printString; call (%edx)
+    addl _my_B_coso_doit, %eax // "DoIt "
+    pushl %eax; pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
     addl 16, %esp
     
     subl 4, %esp  # return value of equals
     pushl 12(%ebp) # @this (Type B)
-    pushl %ecx; pushl B_m_equals; call (%ecx)
+    pushl %ecx; pushl _my_B_m_equals; call (%ecx)
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printInt; call (%edx)
+    pushl %eax; pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl Runtime_c_out // ' '
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0x20; pushl _my_Runtime_c_out // ' '
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     subl 4, %esp  # return value of equals
     pushl 16(%ebp) # param @a (Type A)
-    pushl %ecx; pushl B_m_equals; call (%ecx)
+    pushl %ecx; pushl _my_B_m_equals; call (%ecx)
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printInt; call (%edx)
+    pushl %eax; pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
     subl 4, %esp  # return value of allocate
     pushl 0x124
-    pushl %edx; pushl Runtime_m_allocate; call (%edx)
+    pushl %edx; pushl _my_Runtime_m_allocate; call (%edx)
 	addl 12, %esp
     popl %esi
     
-    pushl 0x20; pushl Runtime_c_out // ' '
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0x20; pushl _my_Runtime_c_out // ' '
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl %esi; pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printHex; call (%edx)
+    pushl %esi; pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl Runtime_c_out // ' '
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0x20; pushl _my_Runtime_c_out // ' '
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl (%esi); pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printHex; call (%edx)
+    pushl (%esi); pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl Runtime_c_out // ' '
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0x20; pushl _my_Runtime_c_out // ' '
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl 4(%esi); pushl Runtime_c_out
-    pushl %edx; pushl Runtime_m_printHex; call (%edx)
+    pushl 4(%esi); pushl _my_Runtime_c_out
+    pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0xa; pushl Runtime_c_out // '/n'
-    pushl %edx; pushl Runtime_m_printChar; call (%edx)
+    pushl 0xa; pushl _my_Runtime_c_out // '/n'
+    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     pushl %esi
-    pushl %edx; pushl Runtime_m_free; call (%edx)
+    pushl %edx; pushl _my_Runtime_m_free; call (%edx)
     addl 12, %esp
     
     subl 4, %esp  # return value of getRow
-    pushl %ecx; pushl B_m_getRow; call (%ecx)
+    pushl %ecx; pushl _my_B_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax
     
     pushl %eax     # row
-    pushl %ecx; pushl B_m_test; call (%ecx)
+    pushl %ecx; pushl _my_B_m_test; call (%ecx)
 	addl 12, %esp
     
     movl 16(%ebp), %ecx # param @a (Type A)
 	
     subl 4, %esp  # return value of getRow
-    pushl %ecx; pushl A_m_getRow; call (%ecx)
+    pushl %ecx; pushl _my_A_m_getRow; call (%ecx)
 	addl 8, %esp
     popl %eax
     
     pushl %eax     # row
-    pushl %ecx; pushl A_m_test; call (%ecx)
+    pushl %ecx; pushl _my_A_m_test; call (%ecx)
 	addl 12, %esp
 	
     popl %edx
@@ -378,15 +373,15 @@ class_B_method_doIt:
     ret
 
 // method getRow
-.global class_B_mo_getRow := (class_B_method_getRow - class_B_desc)
-class_B_method_getRow:
+.global _my_B_mdo_getRow := (_03904e06_md_getRow - _my_B)
+_03904e06_md_getRow:
     pushl %ebp; movl %esp, %ebp
     
     movl 12(%ebp), %eax               // @this (Type B)
-    movl handle_B_vars_A(%eax), %ebx  // inst vars offset (A)
+    movl _my_B_hvo_my_A(%eax), %ebx  // inst vars offset (A)
     addl 4(%eax), %ebx                // @this.vars(A)
     
-    movl A_i_row(%ebx), %eax     // row
+    movl _my_A_i_row(%ebx), %eax     // row
     addl %eax, %eax              // *2
     movl %eax, 16(%ebp)          // return row*2
     

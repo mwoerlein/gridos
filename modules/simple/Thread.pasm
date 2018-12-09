@@ -6,31 +6,31 @@ version = 0.1.0
 class = true
 */
 // class Thread
-class_Thread_desc:
+_my_Thread:
     .long 0x15AC1A55
     .long 0
-    .long class_Thread_so_cn_Thread
-    .long (class_Thread_cts - class_Thread_desc)
-    .long (class_Thread_mts - class_Thread_desc)
-    .long (class_Thread_inst_tpl - class_Thread_desc)
-    .long (class_Thread_inst_tpl_end - class_Thread_inst_tpl)
-    .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl)
-    .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
+    .long _my_Thread_cno_my_Thread
+    .long (_ef870f3c_cts - _my_Thread)
+    .long (_ef870f3c_mts - _my_Thread)
+    .long (_ef870f3c_tpl - _my_Thread)
+    .long (_ef870f3c_tpl_end - _ef870f3c_tpl)
+    .long (_ef870f3c_tpl_h_e36c4e5b - _ef870f3c_tpl)
+    .long (_ef870f3c_tpl_h_ef870f3c - _ef870f3c_tpl)
 
 // class tab
-class_Thread_cts:
-_cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
-class_Thread_vtabs_entry_Object:
+_ef870f3c_cts:
+_ef870f3c_cto_e36c4e5b := (_ef870f3c_ct_e36c4e5b - _my_Thread)
+_ef870f3c_ct_e36c4e5b:
     .long 0
-    .long class_Thread_so_cn_Object
-    .long (class_Thread_vtab_Object - class_Thread_desc)
-    .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl)
-_cThreadVEThread := (class_Thread_vtabs_entry_Thread - class_Thread_desc)
-class_Thread_vtabs_entry_Thread:
+    .long _my_Thread_cno_my_Object
+    .long (_ef870f3c_mt_e36c4e5b - _my_Thread)
+    .long (_ef870f3c_tpl_h_e36c4e5b - _ef870f3c_tpl)
+_ef870f3c_cto_ef870f3c := (_ef870f3c_ct_ef870f3c - _my_Thread)
+_ef870f3c_ct_ef870f3c:
     .long 0
-    .long class_Thread_so_cn_Thread
-    .long (class_Thread_vtab_Thread - class_Thread_desc)
-    .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
+    .long _my_Thread_cno_my_Thread
+    .long (_ef870f3c_mt_ef870f3c - _my_Thread)
+    .long (_ef870f3c_tpl_h_ef870f3c - _ef870f3c_tpl)
 // class tab end
     .long 0
     .long 0
@@ -38,81 +38,80 @@ class_Thread_vtabs_entry_Thread:
     .long 0
 
 // method tabs
-class_Thread_mts:
-class_Thread_vtab_Object:
-    .long class_Object_mo_getClass
-    .long _cThreadVEObject
-    .long class_Object_mo_hash
-    .long _cThreadVEObject
-    .long class_Object_mo_equals
-    .long _cThreadVEObject
-    .long class_Object_mo_rt
-    .long _cThreadVEObject
-    .long class_Object_mo_setRt
-    .long _cThreadVEObject
-class_Thread_vtab_Thread:
-.global Thread_m_getClass := (class_Thread_vtab_Thread_method_getClass - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_getClass:
-    .long class_Object_mo_getClass
-    .long _cThreadVEObject
-.global Thread_m_hash := (class_Thread_vtab_Thread_method_hash - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_hash:
-    .long class_Object_mo_hash
-    .long _cThreadVEObject
-.global Thread_m_equals := (class_Thread_vtab_Thread_method_equals - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_equals:
-    .long class_Object_mo_equals
-    .long _cThreadVEObject
-.global Thread_m_rt := (class_Thread_vtab_Thread_method_rt - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_rt:
-    .long class_Object_mo_rt
-    .long _cThreadVEObject
-.global Thread_m_setRt := (class_Thread_vtab_Thread_method_setRt - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_setRt:
-    .long class_Object_mo_setRt
-    .long _cThreadVEObject
-.global Thread_m_run := (class_Thread_vtab_Thread_method_run - class_Thread_vtab_Thread)
-class_Thread_vtab_Thread_method_run:
-    .long class_Thread_mo_run
-    .long _cThreadVEThread
+_ef870f3c_mts:
+_ef870f3c_mt_e36c4e5b:
+    .long _my_Object_mdo_getClass
+    .long _ef870f3c_cto_e36c4e5b
+    .long _my_Object_mdo_hash
+    .long _ef870f3c_cto_e36c4e5b
+    .long _my_Object_mdo_equals
+    .long _ef870f3c_cto_e36c4e5b
+    .long _my_Object_mdo_rt
+    .long _ef870f3c_cto_e36c4e5b
+    .long _my_Object_mdo_setRt
+    .long _ef870f3c_cto_e36c4e5b
+_ef870f3c_mt_ef870f3c:
+.global _my_Thread_m_getClass := (_ef870f3c_mtm_ef870f3c_getClass - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_getClass:
+    .long _my_Object_mdo_getClass
+    .long _ef870f3c_cto_e36c4e5b
+.global _my_Thread_m_hash := (_ef870f3c_mtm_ef870f3c_hash - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_hash:
+    .long _my_Object_mdo_hash
+    .long _ef870f3c_cto_e36c4e5b
+.global _my_Thread_m_equals := (_ef870f3c_mtm_ef870f3c_equals - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_equals:
+    .long _my_Object_mdo_equals
+    .long _ef870f3c_cto_e36c4e5b
+.global _my_Thread_m_rt := (_ef870f3c_mtm_ef870f3c_rt - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_rt:
+    .long _my_Object_mdo_rt
+    .long _ef870f3c_cto_e36c4e5b
+.global _my_Thread_m_setRt := (_ef870f3c_mtm_ef870f3c_setRt - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_setRt:
+    .long _my_Object_mdo_setRt
+    .long _ef870f3c_cto_e36c4e5b
+.global _my_Thread_m_run := (_ef870f3c_mtm_ef870f3c_run - _ef870f3c_mt_ef870f3c)
+_ef870f3c_mtm_ef870f3c_run:
+    .long _my_Thread_mdo_run
+    .long _ef870f3c_cto_ef870f3c
 
 // constants
 // class-name Object
-class_Thread_so_cn_Object := (class_Thread_scn_Object - class_Thread_desc)
-class_Thread_scn_Object:
+_my_Thread_cno_my_Object := (_ef870f3c_cn_e36c4e5b - _my_Thread)
+_ef870f3c_cn_e36c4e5b:
     .asciz "/my/Object"
 
 // class-name Thread
-class_Thread_so_cn_Thread := (class_Thread_scn_Thread - class_Thread_desc)
-class_Thread_scn_Thread:
+_my_Thread_cno_my_Thread := (_ef870f3c_cn_ef870f3c - _my_Thread)
+_ef870f3c_cn_ef870f3c:
     .asciz "/my/Thread"
 
 // instance template
-class_Thread_inst_tpl:
+_ef870f3c_tpl:
     .long 0
     .long 0
-class_Thread_inst_tpl_handle_Object:
-    .long 0
-    .long 0
-    .long 0
-class_Thread_inst_tpl_handle_Object_vars_Object:
-    .long (class_Thread_inst_tpl_vars_Object - class_Thread_inst_tpl)
-class_Thread_inst_tpl_handle_Thread:
+_ef870f3c_tpl_h_e36c4e5b:
     .long 0
     .long 0
     .long 0
-handle_Thread_vars_Object := (class_Thread_inst_tpl_handle_Thread_vars_Object - class_Thread_inst_tpl_handle_Thread)
-class_Thread_inst_tpl_handle_Thread_vars_Object:
-    .long (class_Thread_inst_tpl_vars_Object - class_Thread_inst_tpl)
-handle_Thread_vars_Thread := (class_Thread_inst_tpl_handle_Thread_vars_Thread - class_Thread_inst_tpl_handle_Thread)
-class_Thread_inst_tpl_handle_Thread_vars_Thread:
-    .long (class_Thread_inst_tpl_vars_Thread - class_Thread_inst_tpl)
-class_Thread_inst_tpl_vars_Object:
+    .long (_ef870f3c_tpl_vs_e36c4e5b - _ef870f3c_tpl)
+_ef870f3c_tpl_h_ef870f3c:
+    .long 0
+    .long 0
+    .long 0
+_my_Thread_hvo_my_Object := (_ef870f3c_tpl_hv_e36c4e5b - _ef870f3c_tpl_h_ef870f3c)
+_ef870f3c_tpl_hv_e36c4e5b:
+    .long (_ef870f3c_tpl_vs_e36c4e5b - _ef870f3c_tpl)
+_my_Thread_hvo_my_Thread := (_ef870f3c_tpl_hv_ef870f3c - _ef870f3c_tpl_h_ef870f3c)
+_ef870f3c_tpl_hv_ef870f3c:
+    .long (_ef870f3c_tpl_vs_ef870f3c - _ef870f3c_tpl)
+_ef870f3c_tpl_vs_e36c4e5b:
 // variable runtime
     .long 0
-class_Thread_inst_tpl_vars_Thread:
-class_Thread_inst_tpl_end:
+_ef870f3c_tpl_vs_ef870f3c:
+_ef870f3c_tpl_end:
 
 // method definitions
 // method run
-.global class_Thread_mo_run := 0
+.global _my_Thread_mdo_run := 0
