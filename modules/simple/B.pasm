@@ -10,12 +10,15 @@ class_B_desc:
     .long 0x15AC1A55
     .long 0
     .long class_B_so_cn_B
+    .long (class_B_cts - class_B_desc)
+    .long (class_B_mts - class_B_desc)
     .long (class_B_inst_tpl - class_B_desc)
     .long (class_B_inst_tpl_end - class_B_inst_tpl)
     .long (class_B_inst_tpl_handle_Object - class_B_inst_tpl)
     .long (class_B_inst_tpl_handle_B - class_B_inst_tpl)
 
 // class tab
+class_B_cts:
 _cBVEObject := (class_B_vtabs_entry_Object - class_B_desc)
 class_B_vtabs_entry_Object:
     .long 0
@@ -47,6 +50,7 @@ class_B_vtabs_entry_B:
     .long 0
 
 // method tabs
+class_B_mts:
 class_B_vtab_Object:
     .long class_Object_mo_getClass
     .long _cBVEObject
@@ -275,13 +279,13 @@ class_B_method_doIt:
 	addl 8, %esp
     popl %edx   # Runtime(Type Runtime)
     
-    pushl 0x40; pushl _err // '@'
+    pushl 0x40; pushl Runtime_c_err // '@'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     movl 8(%ebp), %eax         // @class-desc "B"
     addl class_B_so_ct_doit, %eax // "DoIt "
-    pushl %eax; pushl _out
+    pushl %eax; pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
@@ -291,11 +295,11 @@ class_B_method_doIt:
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl _out
+    pushl %eax; pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
@@ -305,7 +309,7 @@ class_B_method_doIt:
     addl 12, %esp
     popl %eax
     
-    pushl %eax; pushl _out
+    pushl %eax; pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
@@ -315,31 +319,31 @@ class_B_method_doIt:
 	addl 12, %esp
     popl %esi
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl %esi; pushl _out
+    pushl %esi; pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl (%esi); pushl _out
+    pushl (%esi); pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl 4(%esi); pushl _out
+    pushl 4(%esi); pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printHex; call (%edx)
     addl 16, %esp
     
-    pushl 0xa; pushl _out // '/n'
+    pushl 0xa; pushl Runtime_c_out // '/n'
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     

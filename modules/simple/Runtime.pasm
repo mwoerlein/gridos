@@ -11,12 +11,15 @@ class_Runtime_desc:
     .long 0x15AC1A55
     .long 0
     .long class_Runtime_so_cn_Runtime
+    .long (class_Runtime_cts - class_Runtime_desc)
+    .long (class_Runtime_mts - class_Runtime_desc)
     .long (class_Runtime_inst_tpl - class_Runtime_desc)
     .long (class_Runtime_inst_tpl_end - class_Runtime_inst_tpl)
     .long (class_Runtime_inst_tpl_handle_Object - class_Runtime_inst_tpl)
     .long (class_Runtime_inst_tpl_handle_Runtime - class_Runtime_inst_tpl)
 
 // class tab
+class_Runtime_cts:
 _cRuntimeVEObject := (class_Runtime_vtabs_entry_Object - class_Runtime_desc)
 class_Runtime_vtabs_entry_Object:
     .long 0
@@ -36,6 +39,7 @@ class_Runtime_vtabs_entry_Runtime:
     .long 0
 
 // method tabs
+class_Runtime_mts:
 class_Runtime_vtab_Object:
     .long class_Object_mo_getClass
     .long _cRuntimeVEObject
@@ -132,6 +136,72 @@ class_Runtime_so_ct_thread := (class_Runtime_sct_thread - class_Runtime_desc)
 class_Runtime_sct_thread:
     .asciz "/my/Thread"
 
+// int out
+.global Runtime_c_out := 0
+
+// int err
+.global Runtime_c_err := 1
+
+// int SysCall_allocate
+class_Runtime_ict_SysCall_allocate := 1
+
+// int SysCall_free
+class_Runtime_ict_SysCall_free := 2
+
+// int SysCall_find_class
+class_Runtime_ict_SysCall_find_class := 3
+
+// int SysCall_print
+class_Runtime_ict_SysCall_print := 4
+
+// int spk_char
+class_Runtime_ict_spk_char := 0
+
+// int spk_int
+class_Runtime_ict_spk_int := 1
+
+// int spk_hex
+class_Runtime_ict_spk_hex := 2
+
+// int spk_string
+class_Runtime_ict_spk_string := 3
+
+// int sps_out
+class_Runtime_ict_sps_out := 0
+
+// int sps_err
+class_Runtime_ict_sps_err := 1
+
+// int ch_inst_handle
+class_Runtime_ict_ch_inst_handle := 4
+
+// int ch_cts
+class_Runtime_ict_ch_cts := 12
+
+// int ch_tpl
+class_Runtime_ict_ch_tpl := 20
+
+// int ch_tpl_size
+class_Runtime_ict_ch_tpl_size := 24
+
+// int ch_tpl_obj_handle
+class_Runtime_ict_ch_tpl_obj_handle := 28
+
+// int ch_tpl_cls_handle
+class_Runtime_ict_ch_tpl_cls_handle := 32
+
+// int cts_cdo
+class_Runtime_ict_cts_cdo := 0
+
+// int cts_vto
+class_Runtime_ict_cts_vto := 8
+
+// int cts_ho
+class_Runtime_ict_cts_ho := 12
+
+// int cts_size
+class_Runtime_ict_cts_size := 16
+
 // class-name Object
 class_Runtime_so_cn_Object := (class_Runtime_scn_Object - class_Runtime_desc)
 class_Runtime_scn_Object:
@@ -191,15 +261,15 @@ class_Runtime_method_bootstrap:
     
     pushl 0 // desc
     pushl %eax        // "Class"
-    pushl SysCall_find_class
+    pushl class_Runtime_ict_SysCall_find_class
     pushl %esp; pushl 16(%ebp); call 20(%ebp)
     addl 16, %esp
     popl -12(%ebp)  // store @class desc
     
     movl -12(%ebp), %edx
     pushl 0     // info
-    pushl class_instance_size_offset(%edx) // instance size
-    pushl SysCall_allocate;
+    pushl class_Runtime_ict_ch_tpl_size(%edx) // instance size
+    pushl class_Runtime_ict_SysCall_allocate;
     pushl %esp; pushl 16(%ebp); call 20(%ebp)
     addl 16, %esp
     popl %eax   // return info
@@ -217,8 +287,8 @@ class_Runtime_method_bootstrap:
 	
     movl 8(%ebp), %edx      // @class-desc "Runtime"
     pushl 0     // info
-    pushl class_instance_size_offset(%edx) // instance size
-    pushl SysCall_allocate;
+    pushl class_Runtime_ict_ch_tpl_size(%edx) // instance size
+    pushl class_Runtime_ict_SysCall_allocate;
     pushl %esp; pushl 16(%ebp); call 20(%ebp)
     addl 16, %esp
     popl %eax   // return info
@@ -292,7 +362,7 @@ class_Runtime_method_getClassDesc:
     
     pushl 0         // desc
     pushl 16(%ebp)  // @classname
-    pushl SysCall_find_class;
+    pushl class_Runtime_ict_SysCall_find_class;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 16, %esp
     popl 20(%ebp)   // return @class desc
@@ -315,7 +385,7 @@ class_Runtime_method_allocate:
     
     pushl 0         // info
     pushl 16(%ebp)  // param size
-    pushl SysCall_allocate;
+    pushl class_Runtime_ict_SysCall_allocate;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 16, %esp
     popl 20(%ebp)   // return info
@@ -338,7 +408,7 @@ class_Runtime_method_free:
     
     pushl 16(%ebp)  // param info
     pushl 0         // size
-    pushl SysCall_free;
+    pushl class_Runtime_ict_SysCall_free;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 20, %esp
     
@@ -359,9 +429,9 @@ class_Runtime_method_printChar:
     addl 4(%eax), %ebx                            // @this.vars(Runtime)
     
     pushl 20(%ebp)  // param c
-    pushl _spk_char // kind
+    pushl class_Runtime_ict_spk_char // kind
     pushl 16(%ebp)  // param stream
-    pushl SysCall_print;
+    pushl class_Runtime_ict_SysCall_print;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 24, %esp
     
@@ -382,9 +452,9 @@ class_Runtime_method_printString:
     addl 4(%eax), %ebx                            // @this.vars(Runtime)
     
     pushl 20(%ebp)    // param s
-    pushl _spk_string // kind
+    pushl class_Runtime_ict_spk_string // kind
     pushl 16(%ebp)    // param stream
-    pushl SysCall_print;
+    pushl class_Runtime_ict_SysCall_print;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 24, %esp
     
@@ -405,9 +475,9 @@ class_Runtime_method_printInt:
     addl 4(%eax), %ebx                            // @this.vars(Runtime)
     
     pushl 20(%ebp)  // param i
-    pushl _spk_int  // kind
+    pushl class_Runtime_ict_spk_int  // kind
     pushl 16(%ebp)  // param stream
-    pushl SysCall_print;
+    pushl class_Runtime_ict_SysCall_print;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 24, %esp
     
@@ -428,9 +498,9 @@ class_Runtime_method_printHex:
     addl 4(%eax), %ebx                            // @this.vars(Runtime)
     
     pushl 20(%ebp)  // param i
-    pushl _spk_hex  // kind
+    pushl class_Runtime_ict_spk_hex  // kind
     pushl 16(%ebp)  // param stream
-    pushl SysCall_print;
+    pushl class_Runtime_ict_SysCall_print;
     pushl %esp; pushl Runtime_i_syscall_runtime(%ebx); call Runtime_i_syscall_entry(%ebx)
     addl 24, %esp
     
@@ -476,16 +546,16 @@ _crma_start:
     movl 16(%ebp), %eax             // @obj (Type ANY)
     movl 4(%eax), %ebx              // @obj
     movl (%ebx), %eax               // @obj-class desc
-    addl class_vtabs_offset, %eax   // @obj-class vtabs
+    addl class_Runtime_ict_ch_cts(%eax), %eax // @obj-class vtabs entry
 _crma_loop:
     cmpl (%eax), %ecx
     je _crma_found
-    addl _cvte_size, %eax
+    addl class_Runtime_ict_cts_size, %eax
     cmpl 0, (%eax)
     je _crma_return
     jmp _crma_loop
 _crma_found:
-    addl _cvte_ho(%eax), %ebx
+    addl class_Runtime_ict_cts_ho(%eax), %ebx
     movl %ebx, 24(%ebp) // return correct handle
 _crma_return:
     popl %esi
@@ -554,7 +624,7 @@ _crmci_start:
     popl %edx       // @class-desc
     addl 0, %edx; jz _crmci_return  // return NULL if class not exists
     
-    cmpl 0, class_handle_offset(%edx)
+    cmpl 0, class_Runtime_ict_ch_inst_handle(%edx)
     jnz _crmci_instantiate // class already initialized
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
@@ -573,7 +643,7 @@ _crmci_start:
 _crmci_instantiate:
     
     subl 4, %esp  # return value of allocate
-    pushl class_instance_size_offset(%edx) // instance size
+    pushl class_Runtime_ict_ch_tpl_size(%edx) // instance size
     pushl %esi; pushl Runtime_m_allocate; call (%esi)
 	addl 12, %esp
     popl %eax                       // @object-meminfo
@@ -598,29 +668,29 @@ _crmci_return:
 _crh_instantiate: // %eax: @object-meminfo %ebx: @_call_entry %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
     movl (%eax), %edi   // @object
     movl %edx, %esi
-    addl class_instance_tpl_offset_offset(%edx), %esi // @instance tpl
-    movl class_instance_size_offset(%edx), %ecx // instance size
+    addl class_Runtime_ict_ch_tpl(%edx), %esi // @instance tpl
+    movl class_Runtime_ict_ch_tpl_size(%edx), %ecx // instance size
     .byte 0xf3; .byte 0xa4 #// rep movsb // copy template to object
     
     movl (%eax), %edi   // @object
     movl %edx, (%edi)   // store @class desc in instance
     movl %eax, 4(%edi)  // store @meminfo in instance
     
-    movl %edx, %eax                 // @obj-class desc
-    addl class_vtabs_offset, %eax   // @obj-class vtabs entry
+    movl %edx, %eax                     // @obj-class desc
+    addl class_Runtime_ict_ch_cts(%eax), %eax // @obj-class vtabs entry
 _crhi_loop:
-    movl _cvte_ho(%eax), %esi
-    movl _cvte_vto(%eax), %ecx
+    movl class_Runtime_ict_cts_ho(%eax), %esi
+    movl class_Runtime_ict_cts_vto(%eax), %ecx
     movl %ebx, (%edi, %esi)         // store @call-entry in handle
     movl %edi, 4(%edi, %esi)        // store @object in handle
     movl %ecx, 8(%edi, %esi)        // store vtab-offset in handle
-    addl _cvte_size, %eax
+    addl class_Runtime_ict_cts_size, %eax
     cmpl 0, (%eax)
     jne _crhi_loop
     
     movl %edi, %esi
-    addl class_instance_Object_handle_offset(%edx), %edi // @object (Type Object)
-    addl class_instance_class_handle_offset(%edx), %esi // @object (Type <class>)
+    addl class_Runtime_ict_ch_tpl_obj_handle(%edx), %edi // @object (Type Object)
+    addl class_Runtime_ict_ch_tpl_cls_handle(%edx), %esi // @object (Type <class>)
     ret
 
 // method _call_entry
@@ -634,39 +704,10 @@ _call_entry:
 	addl 8(%esp), %eax	        # get vtab-entry by adding method-offset number
 	movl 0(%ecx), %ebx	        # get class-desc
 	addl 4(%eax), %ebx          # get method-vtabs-entry
-	addl _cvte_ho(%ebx), %ecx   # compute method-@this
+	addl class_Runtime_ict_cts_ho(%ebx), %ecx   # compute method-@this
 	movl %ecx, 12(%esp)         # store method-@this
-	movl _cvte_cdo(%ebx), %ebx  # get method-class-desc
+	movl class_Runtime_ict_cts_cdo(%ebx), %ebx  # get method-class-desc
 	movl %ebx, 8(%esp)          # store method-class-desc
 	addl 0(%eax), %ebx          # compute method-addr
 	popl %ecx
 	jmp %ebx                    # goto method
-
-// method __constants__
-// print* constants
-.global _out := _sps_out
-.global _err := _sps_err
-// SysCall constants
-SysCall_allocate   := 1
-SysCall_free       := 2
-SysCall_find_class := 3
-SysCall_print      := 4
-
-_spk_char   := 0
-_spk_int    := 1
-_spk_hex    := 2
-_spk_string := 3
-
-_sps_out := 0
-_sps_err := 1
-// instantiate constants
-class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
-class_instance_tpl_offset_offset := 0xc //(class_Class_instance_tpl_offset - class_Class_desc)
-class_instance_size_offset := 0x10 //(class_Class_instance_size - class_Class_desc)
-class_instance_Object_handle_offset := 0x14 //(class_Class_instance_Object_handle_offset - class_Class_desc)
-class_instance_class_handle_offset := 0x18 //(class_Class_instance_class_handle_offset - class_Class_desc)
-class_vtabs_offset := 0x1c //(class_Class_vtabs - class_Class_desc)
-_cvte_size := 0x10 //(class_Class_vtabs_entry_Class - class_Class_vtabs_entry_Object)
-_cvte_cdo := 0x0 //(class_Class_vtabs_entry_class_desc - class_Class_vtabs_entry_Class)
-_cvte_vto := 0x8 //(class_Class_vtabs_entry_vtab_offset - class_Class_vtabs_entry_Class)
-_cvte_ho := 0xc //(class_Class_vtabs_entry_handle - class_Class_vtabs_entry_Class)

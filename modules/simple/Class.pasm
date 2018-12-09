@@ -10,12 +10,15 @@ class_Class_desc:
     .long 0x15AC1A55
     .long 0
     .long class_Class_so_cn_Class
+    .long (class_Class_cts - class_Class_desc)
+    .long (class_Class_mts - class_Class_desc)
     .long (class_Class_inst_tpl - class_Class_desc)
     .long (class_Class_inst_tpl_end - class_Class_inst_tpl)
     .long (class_Class_inst_tpl_handle_Object - class_Class_inst_tpl)
     .long (class_Class_inst_tpl_handle_Class - class_Class_inst_tpl)
 
 // class tab
+class_Class_cts:
 _cClassVEObject := (class_Class_vtabs_entry_Object - class_Class_desc)
 class_Class_vtabs_entry_Object:
     .long 0
@@ -35,6 +38,7 @@ class_Class_vtabs_entry_Class:
     .long 0
 
 // method tabs
+class_Class_mts:
 class_Class_vtab_Object:
     .long class_Object_mo_getClass
     .long _cClassVEObject
@@ -81,6 +85,12 @@ class_Class_vtab_Class_method_getName:
     .long _cClassVEClass
 
 // constants
+// int ch_inst_handle
+class_Class_ict_ch_inst_handle := 4
+
+// int ch_name
+class_Class_ict_ch_name := 8
+
 // class-name Object
 class_Class_so_cn_Object := (class_Class_scn_Object - class_Class_desc)
 class_Class_scn_Object:
@@ -141,14 +151,13 @@ class_Class_method_getDesc:
 class_Class_method_setDesc:
     pushl %ebp; movl %esp, %ebp
     
-class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
     movl 12(%ebp), %eax                      // @this (Type Class)
     movl handle_Class_vars_Class(%eax), %ebx // inst vars offset (Class)
     addl 4(%eax), %ebx                       // @this.vars(Class)
     movl 16(%ebp), %eax                      // param @class desc
     movl %eax, Class_i_desc(%ebx)            // store @class desc
     movl 12(%ebp), %ebx                      // @this (Type Class)
-    movl %ebx, class_handle_offset(%eax)     // store @this (Type Class) in class desc
+    movl %ebx, class_Class_ict_ch_inst_handle(%eax)     // store @this (Type Class) in class desc
     
     leave
     ret
@@ -158,12 +167,11 @@ class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
 class_Class_method_getName:
     pushl %ebp; movl %esp, %ebp
     
-class_name_offset := 0x8 //(class_Class_name - class_Class_desc)
     movl 12(%ebp), %eax                      // @this (Type Class)
     movl handle_Class_vars_Class(%eax), %ebx // inst vars offset (Class)
     addl 4(%eax), %ebx                       // @this.vars(Class)
     movl Class_i_desc(%ebx), %eax            // @class desc
-    addl class_name_offset(%eax), %eax       // load reference to cstring
+    addl class_Class_ict_ch_name(%eax), %eax       // load reference to cstring
     movl %eax, 16(%ebp)                      // return cstring-ref
     
     leave

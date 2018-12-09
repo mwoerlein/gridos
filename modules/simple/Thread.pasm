@@ -10,12 +10,15 @@ class_Thread_desc:
     .long 0x15AC1A55
     .long 0
     .long class_Thread_so_cn_Thread
+    .long (class_Thread_cts - class_Thread_desc)
+    .long (class_Thread_mts - class_Thread_desc)
     .long (class_Thread_inst_tpl - class_Thread_desc)
     .long (class_Thread_inst_tpl_end - class_Thread_inst_tpl)
     .long (class_Thread_inst_tpl_handle_Object - class_Thread_inst_tpl)
     .long (class_Thread_inst_tpl_handle_Thread - class_Thread_inst_tpl)
 
 // class tab
+class_Thread_cts:
 _cThreadVEObject := (class_Thread_vtabs_entry_Object - class_Thread_desc)
 class_Thread_vtabs_entry_Object:
     .long 0
@@ -35,6 +38,7 @@ class_Thread_vtabs_entry_Thread:
     .long 0
 
 // method tabs
+class_Thread_mts:
 class_Thread_vtab_Object:
     .long class_Object_mo_getClass
     .long _cThreadVEObject

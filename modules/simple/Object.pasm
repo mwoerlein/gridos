@@ -10,12 +10,15 @@ class_Object_desc:
     .long 0x15AC1A55
     .long 0
     .long class_Object_so_cn_Object
+    .long (class_Object_cts - class_Object_desc)
+    .long (class_Object_mts - class_Object_desc)
     .long (class_Object_inst_tpl - class_Object_desc)
     .long (class_Object_inst_tpl_end - class_Object_inst_tpl)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
     .long (class_Object_inst_tpl_handle_Object - class_Object_inst_tpl)
 
 // class tab
+class_Object_cts:
 _cObjectVEObject := (class_Object_vtabs_entry_Object - class_Object_desc)
 class_Object_vtabs_entry_Object:
     .long 0
@@ -29,6 +32,7 @@ class_Object_vtabs_entry_Object:
     .long 0
 
 // method tabs
+class_Object_mts:
 class_Object_vtab_Object:
 .global Object_m_getClass := (class_Object_vtab_Object_method_getClass - class_Object_vtab_Object)
 class_Object_vtab_Object_method_getClass:
@@ -52,6 +56,9 @@ class_Object_vtab_Object_method_setRt:
     .long _cObjectVEObject
 
 // constants
+// int ch_inst_handle
+class_Object_ict_ch_inst_handle := 4
+
 // class-name Object
 class_Object_so_cn_Object := (class_Object_scn_Object - class_Object_desc)
 class_Object_scn_Object:
@@ -81,11 +88,10 @@ class_Object_inst_tpl_end:
 class_Object_method_getClass:
     pushl %ebp; movl %esp, %ebp
     
-class_handle_offset := 0x4 //(class_Class_handle - class_Class_desc)
     movl 12(%ebp), %eax    // @this (Type Object)
     movl 4(%eax), %eax     // @this
     movl (%eax), %eax      // @class desc
-    movl class_handle_offset(%eax), %eax // @class handle
+    movl class_Object_ict_ch_inst_handle(%eax), %eax // @class handle
     movl %eax, 16(%ebp)    // return @class handle
     
     leave

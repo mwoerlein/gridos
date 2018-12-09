@@ -10,12 +10,15 @@ class_A_desc:
     .long 0x15AC1A55
     .long 0
     .long class_A_so_cn_A
+    .long (class_A_cts - class_A_desc)
+    .long (class_A_mts - class_A_desc)
     .long (class_A_inst_tpl - class_A_desc)
     .long (class_A_inst_tpl_end - class_A_inst_tpl)
     .long (class_A_inst_tpl_handle_Object - class_A_inst_tpl)
     .long (class_A_inst_tpl_handle_A - class_A_inst_tpl)
 
 // class tab
+class_A_cts:
 _cAVEObject := (class_A_vtabs_entry_Object - class_A_desc)
 class_A_vtabs_entry_Object:
     .long 0
@@ -35,6 +38,7 @@ class_A_vtabs_entry_A:
     .long 0
 
 // method tabs
+class_A_mts:
 class_A_vtab_Object:
     .long class_Object_mo_getClass
     .long _cAVEObject
@@ -193,31 +197,31 @@ class_A_method_test:
 	addl 8, %esp
     popl %eax // name cstring ref
     
-    pushl %eax; pushl _out
+    pushl %eax; pushl Runtime_c_out
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
     movl handle_A_vars_A(%ecx), %ebx  // inst vars offset (A)
     addl 4(%ecx), %ebx                // @this.vars(A)
-    push A_i_column(%ebx); pushl _out // column
+    push A_i_column(%ebx); pushl Runtime_c_out // column
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
-    pushl 0x20; pushl _out // ' '
+    pushl 0x20; pushl Runtime_c_out // ' '
     pushl %edx; pushl Runtime_m_printChar; call (%edx)
     addl 16, %esp
     
-    pushl 16(%ebp); pushl _out // row
+    pushl 16(%ebp); pushl Runtime_c_out // row
     pushl %edx; pushl Runtime_m_printInt; call (%edx)
     addl 16, %esp
     
     movl 8(%ebp), %eax      // @class-desc "A"
     addl class_A_so_ct_test, %eax
-    pushl %eax; pushl _err
+    pushl %eax; pushl Runtime_c_err
     pushl %edx; pushl Runtime_m_printString; call (%edx)
     addl 16, %esp
     

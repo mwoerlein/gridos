@@ -16,6 +16,10 @@
  * +----------------------+
  * | Class-classname-Offset
  * +----------------------+
+ * | Class-Tabs-Offset
+ * +----------------------+
+ * | Method-Tabs-Offset
+ * +----------------------+
  * | instance-template-Offset
  * +----------------------+
  * | instance size
@@ -23,7 +27,12 @@
  * | Object-Handle-Offset
  * +----------------------+
  * | Class-Handle-Offset
- * +======================+
+ * +----------------------+
+ */
+
+/* ****** Class Tabs ******
+ * 31                     0
+ * +----------------------+
  * | 0 / @Class-Desc
  * +----------------------+
  * | Class-classname-Offset
@@ -51,7 +60,7 @@
  * | SuperN-Handle-Offset
  * +----------------------+
  */
-/* ********* VTab *********
+/* ****** Method Tabs *****
  * 31                     0
  * +----------------------+
  * | Meth 0 - Method Offset
