@@ -126,14 +126,14 @@ _648788a8_mtm_648788a8_createInstance:
     .long _648788a8_cto_648788a8
 
 // constants
-// string class
-_my_Runtime_coso_class := (_648788a8_cos_class - _my_Runtime)
-_648788a8_cos_class:
+// string mClass
+_my_Runtime_coso_mClass := (_648788a8_cos_mClass - _my_Runtime)
+_648788a8_cos_mClass:
     .asciz "/my/Class"
 
-// string thread
-_my_Runtime_coso_thread := (_648788a8_cos_thread - _my_Runtime)
-_648788a8_cos_thread:
+// string mThread
+_my_Runtime_coso_mThread := (_648788a8_cos_mThread - _my_Runtime)
+_648788a8_cos_mThread:
     .asciz "/my/Thread"
 
 // int out
@@ -256,7 +256,7 @@ _648788a8_md_bootstrap:
     
     movl 0x0, 24(%ebp) // default result: NULL
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl _my_Runtime_coso_class, %eax
+    addl _my_Runtime_coso_mClass, %eax
     
     pushl 0 // desc
     pushl %eax        // "Class"
@@ -313,7 +313,7 @@ _648788a8_md_bootstrap:
 	addl 12, %esp
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl _my_Runtime_coso_class, %eax
+    addl _my_Runtime_coso_mClass, %eax
     subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl _my_Runtime_m_createInstance; call (%esi)
@@ -582,7 +582,7 @@ _crmct_start:
     addl 0, %ecx; jz _crmct_return // break if not instantiated
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl _my_Runtime_coso_thread, %eax
+    addl _my_Runtime_coso_mThread, %eax
     subl 4, %esp  # return value of as
     pushl %eax
     pushl %ecx
@@ -627,7 +627,7 @@ _crmci_start:
     jnz _crmci_instantiate // class already initialized
     
     movl 8(%ebp), %eax      // @class-desc "Runtime"
-    addl _my_Runtime_coso_class, %eax
+    addl _my_Runtime_coso_mClass, %eax
     subl 4, %esp  # return value of createInstance
     pushl %eax // @classname
     pushl %esi; pushl _my_Runtime_m_createInstance; call (%esi)
