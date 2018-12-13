@@ -136,11 +136,11 @@ _cfc2de5a_tpl_end:
 _cfc2de5a_md_getDesc:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax                      // @this (Type Class)
-    movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
-    addl 4(%eax), %ebx                       // @this.vars(Class)
-    movl _my_Class_i_desc(%ebx), %eax            // @class desc
-    movl %eax, 16(%ebp)                      // return @class desc
+            movl 12(%ebp), %eax                     // @this (Type Class)
+            movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
+            addl 4(%eax), %ebx                      // @this.vars(Class)
+            movl _my_Class_i_desc(%ebx), %eax       // @class desc
+            movl %eax, 16(%ebp)                     // return @class desc
     
     leave
     ret
@@ -150,13 +150,13 @@ _cfc2de5a_md_getDesc:
 _cfc2de5a_md_setDesc:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax                      // @this (Type Class)
-    movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
-    addl 4(%eax), %ebx                       // @this.vars(Class)
-    movl 16(%ebp), %eax                      // param @class desc
-    movl %eax, _my_Class_i_desc(%ebx)            // store @class desc
-    movl 12(%ebp), %ebx                      // @this (Type Class)
-    movl %ebx, _my_Class_coi_ch_inst_handle(%eax)     // store @this (Type Class) in class desc
+            movl 12(%ebp), %eax                     // @this (Type Class)
+            movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
+            addl 4(%eax), %ebx                      // @this.vars(Class)
+            movl 16(%ebp), %eax                     // param @class desc
+            movl %eax, _my_Class_i_desc(%ebx)       // store @class desc
+            movl 12(%ebp), %ebx                     // @this (Type Class)
+            movl %ebx, _my_Class_coi_ch_inst_handle(%eax)   // store @this (Type Class) in class desc
     
     leave
     ret
@@ -166,12 +166,12 @@ _cfc2de5a_md_setDesc:
 _cfc2de5a_md_getName:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax                      // @this (Type Class)
-    movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
-    addl 4(%eax), %ebx                       // @this.vars(Class)
-    movl _my_Class_i_desc(%ebx), %eax            // @class desc
-    addl _my_Class_coi_ch_name(%eax), %eax       // load reference to cstring
-    movl %eax, 16(%ebp)                      // return cstring-ref
+            movl 12(%ebp), %eax                     // @this (Type Class)
+            movl _my_Class_hvo_my_Class(%eax), %ebx // inst vars offset (Class)
+            addl 4(%eax), %ebx                      // @this.vars(Class)
+            movl _my_Class_i_desc(%ebx), %eax       // @class desc
+            addl _my_Class_coi_ch_name(%eax), %eax  // load reference to cstring
+            movl %eax, 16(%ebp)                     // return cstring-ref
     
     leave
     ret

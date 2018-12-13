@@ -88,11 +88,11 @@ _e36c4e5b_tpl_end:
 _e36c4e5b_md_getClass:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax    // @this (Type Object)
-    movl 4(%eax), %eax     // @this
-    movl (%eax), %eax      // @class desc
-    movl _my_Object_coi_ch_inst_handle(%eax), %eax // @class handle
-    movl %eax, 16(%ebp)    // return @class handle
+            movl 12(%ebp), %eax    // @this (Type Object)
+            movl 4(%eax), %eax     // @this
+            movl (%eax), %eax      // @class desc
+            movl _my_Object_coi_ch_inst_handle(%eax), %eax // @class handle
+            movl %eax, 16(%ebp)    // return @class handle
     
     leave
     ret
@@ -102,9 +102,9 @@ _e36c4e5b_md_getClass:
 _e36c4e5b_md_hash:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax    // @this (Type Object)
-    movl 4(%eax), %eax     // @this
-    movl %eax, 16(%ebp)    // return @this as hash
+            movl 12(%ebp), %eax    // @this (Type Object)
+            movl 4(%eax), %eax     // @this
+            movl %eax, 16(%ebp)    // return @this as hash
     
     leave
     ret
@@ -114,15 +114,15 @@ _e36c4e5b_md_hash:
 _e36c4e5b_md_equals:
     pushl %ebp; movl %esp, %ebp
     
-    movl 0, 20(%ebp)       // default return: false
-    movl 12(%ebp), %eax    // @this (Type Object)
-    movl 4(%eax), %eax     // @this
-    movl 16(%ebp), %ebx    // @obj (Type ANY)
-    movl 4(%ebx), %ebx     // @obj
-    cmpl %eax, %ebx
-    jne _come_ret
-    movl 1, 20(%ebp)       // return true
-_come_ret:
+            movl 0, 20(%ebp)       // default return: false
+            movl 12(%ebp), %eax    // @this (Type Object)
+            movl 4(%eax), %eax     // @this
+            movl 16(%ebp), %ebx    // @obj (Type ANY)
+            movl 4(%ebx), %ebx     // @obj
+            cmpl %eax, %ebx
+            jne _come_ret
+            movl 1, 20(%ebp)       // return true
+            _come_ret:
     
     leave
     ret
@@ -132,11 +132,11 @@ _come_ret:
 _e36c4e5b_md_rt:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax                         // @this (Type Object)
-    movl _my_Object_hvo_my_Object(%eax), %ebx  // inst vars offset (Object)
-    addl 4(%eax), %ebx                          // @this.vars(Object)
-    movl _my_Object_i_runtime(%ebx), %eax           // load @runtime (Type Runtime)
-    movl %eax, 16(%ebp)                         // return @runtime (Type Runtime)
+            movl 12(%ebp), %eax                         // @this (Type Object)
+            movl _my_Object_hvo_my_Object(%eax), %ebx   // inst vars offset (Object)
+            addl 4(%eax), %ebx                          // @this.vars(Object)
+            movl _my_Object_i_runtime(%ebx), %eax       // load @runtime (Type Runtime)
+            movl %eax, 16(%ebp)                         // return @runtime (Type Runtime)
     
     leave
     ret
@@ -146,11 +146,11 @@ _e36c4e5b_md_rt:
 _e36c4e5b_md_setRt:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax                         // @this (Type Object)
-    movl _my_Object_hvo_my_Object(%eax), %ebx  // inst vars offset (Object)
-    addl 4(%eax), %ebx                          // @this.vars(Object)
-    movl 16(%ebp), %eax                         // arg @runtime (Type Runtime)
-    movl %eax, _my_Object_i_runtime(%ebx)           // store @runtime (Type Runtime)
+            movl 12(%ebp), %eax                         // @this (Type Object)
+            movl _my_Object_hvo_my_Object(%eax), %ebx   // inst vars offset (Object)
+            addl 4(%eax), %ebx                          // @this.vars(Object)
+            movl 16(%ebp), %eax                         // arg @runtime (Type Runtime)
+            movl %eax, _my_Object_i_runtime(%ebx)       // store @runtime (Type Runtime)
     
     leave
     ret

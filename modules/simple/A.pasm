@@ -139,14 +139,14 @@ _03904e05_tpl_end:
 _03904e05_md_init:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax               // @this (Type A)
-    movl _my_A_hvo_my_A(%eax), %ebx  // inst vars offset (A)
-    addl 4(%eax), %ebx                // @this.vars(A)
-    
-    movl 16(%esp), %eax         // param row
-    movl %eax, _my_A_i_row(%ebx)    // set this.row
-    movl 20(%esp), %eax         // param column
-    movl %eax, _my_A_i_column(%ebx) // set this.column
+            movl 12(%ebp), %eax             // @this (Type A)
+            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
+            addl 4(%eax), %ebx              // @this.vars(A)
+            
+            movl 16(%ebp), %eax             // param row
+            movl %eax, _my_A_i_row(%ebx)    // set this.row
+            movl 20(%ebp), %eax             // param column
+            movl %eax, _my_A_i_column(%ebx) // set this.column
     
     leave
     ret
@@ -156,12 +156,12 @@ _03904e05_md_init:
 _03904e05_md_getRow:
     pushl %ebp; movl %esp, %ebp
     
-    movl 12(%ebp), %eax               // @this (Type A)
-    movl _my_A_hvo_my_A(%eax), %ebx  // inst vars offset (A)
-    addl 4(%eax), %ebx                // @this.vars(A)
-    
-    movl _my_A_i_row(%ebx), %eax // row
-    movl %eax, 16(%ebp)      // return row
+            movl 12(%ebp), %eax             // @this (Type A)
+            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
+            addl 4(%eax), %ebx              // @this.vars(A)
+            
+            movl _my_A_i_row(%ebx), %eax    // row
+            movl %eax, 16(%ebp)             // return row
     
     leave
     ret
@@ -171,60 +171,60 @@ _03904e05_md_getRow:
 _03904e05_md_test:
     pushl %ebp; movl %esp, %ebp
     
-    pushl %ecx
-    pushl %edx
-    
-    movl 12(%ebp), %ecx               // @this (Type A)
-    
-    subl 4, %esp  # return value of rt
-    pushl %ecx; pushl _my_A_m_rt; call (%ecx)
-	addl 8, %esp
-    popl %edx   # Runtime (Type Runtime)
-    
-    subl 4, %esp  # return value of getClass
-    pushl %ecx; pushl _my_A_m_getClass; call (%ecx)
-	addl 8, %esp
-    popl %eax // Class instance ("A"|"B") (Type Class)
+            pushl %ecx
+            pushl %edx
+            
+            movl 12(%ebp), %ecx // @this (Type A)
+            
+            subl 4, %esp  # return value of rt
+            pushl %ecx; pushl _my_A_m_rt; call (%ecx)
+        	addl 8, %esp
+            popl %edx   # Runtime (Type Runtime)
+            
+            subl 4, %esp  # return value of getClass
+            pushl %ecx; pushl _my_A_m_getClass; call (%ecx)
+        	addl 8, %esp
+            popl %eax // Class instance ("A"|"B") (Type Class)
 /*
-    subl 4, %esp  # return value of getClass
-    pushl %eax; pushl _my_Class_m_getClass; call (%eax)
-	addl 8, %esp
-    popl %eax // Class instance "Class" (Type Class)
+            subl 4, %esp  # return value of getClass
+            pushl %eax; pushl _my_Class_m_getClass; call (%eax)
+        	addl 8, %esp
+            popl %eax // Class instance "Class" (Type Class)
 */
-    subl 4, %esp  # return value of getName
-    pushl %eax; pushl _my_Class_m_getName; call (%eax)
-	addl 8, %esp
-    popl %eax // name cstring ref
-    
-    pushl %eax; pushl _my_Runtime_c_out
-    pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
-    addl 16, %esp
-    
-    pushl 0x20; pushl _my_Runtime_c_out // ' '
-    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
-    addl 16, %esp
-    
-    movl _my_A_hvo_my_A(%ecx), %ebx  // inst vars offset (A)
-    addl 4(%ecx), %ebx                // @this.vars(A)
-    push _my_A_i_column(%ebx); pushl _my_Runtime_c_out // column
-    pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
-    addl 16, %esp
-    
-    pushl 0x20; pushl _my_Runtime_c_out // ' '
-    pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
-    addl 16, %esp
-    
-    pushl 16(%ebp); pushl _my_Runtime_c_out // row
-    pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
-    addl 16, %esp
-    
-    movl 8(%ebp), %eax      // @class-desc "A"
-    addl _my_A_coso_test, %eax
-    pushl %eax; pushl _my_Runtime_c_err
-    pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
-    addl 16, %esp
-    
-    popl %ecx
+            subl 4, %esp  # return value of getName
+            pushl %eax; pushl _my_Class_m_getName; call (%eax)
+        	addl 8, %esp
+            popl %eax // name cstring ref
+            
+            pushl %eax; pushl _my_Runtime_c_out
+            pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
+            addl 16, %esp
+            
+            pushl 0x20; pushl _my_Runtime_c_out // ' '
+            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            movl _my_A_hvo_my_A(%ecx), %ebx     // inst vars offset (A)
+            addl 4(%ecx), %ebx                  // @this.vars(A)
+            push _my_A_i_column(%ebx); pushl _my_Runtime_c_out // column
+            pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
+            addl 16, %esp
+            
+            pushl 0x20; pushl _my_Runtime_c_out // ' '
+            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            pushl 16(%ebp); pushl _my_Runtime_c_out // row
+            pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
+            addl 16, %esp
+            
+            movl 8(%ebp), %eax      // @class-desc "A"
+            addl _my_A_coso_test, %eax
+            pushl %eax; pushl _my_Runtime_c_err
+            pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
+            addl 16, %esp
+            
+            popl %ecx
     
     leave
     ret
