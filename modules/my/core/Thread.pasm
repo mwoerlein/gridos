@@ -4,6 +4,8 @@ description = class "/my/Thread"
 [pool]
 version = 0.1.0
 class = true
+[pool_source]
+unit = my::core::Thread
 */
 // class Thread
 _my_Thread:

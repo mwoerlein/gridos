@@ -4,6 +4,8 @@ description = class "/my/A"
 [pool]
 version = 0.1.0
 class = true
+[pool_source]
+unit = my::A
 */
 // class A
 _my_A:

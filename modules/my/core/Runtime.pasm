@@ -5,6 +5,8 @@ description = class "/my/Runtime"
 version = 0.1.0
 class = true
 bootstrapOffset = _my_Runtime_mdo_bootstrap
+[pool_source]
+unit = my::core::Runtime
 */
 // class Runtime
 _my_Runtime:

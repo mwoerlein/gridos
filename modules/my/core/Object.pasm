@@ -4,6 +4,8 @@ description = class "/my/Object"
 [pool]
 version = 0.1.0
 class = true
+[pool_source]
+unit = my::core::Object
 */
 // class Object
 _my_Object:
