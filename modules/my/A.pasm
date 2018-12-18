@@ -81,6 +81,10 @@ _07f7c73b_mtm_07f7c73b_init:
 _07f7c73b_mtm_07f7c73b_getRow:
     .long _my_A_mdo_getRow
     .long _07f7c73b_cto_07f7c73b
+.global _my_A_m_getRowAndColumn := (_07f7c73b_mtm_07f7c73b_getRowAndColumn - _07f7c73b_mt_07f7c73b)
+_07f7c73b_mtm_07f7c73b_getRowAndColumn:
+    .long _my_A_mdo_getRowAndColumn
+    .long _07f7c73b_cto_07f7c73b
 .global _my_A_m_test := (_07f7c73b_mtm_07f7c73b_test - _07f7c73b_mt_07f7c73b)
 _07f7c73b_mtm_07f7c73b_test:
     .long _my_A_mdo_test
@@ -168,6 +172,23 @@ _07f7c73b_md_getRow:
     leave
     ret
 
+// method getRowAndColumn
+.global _my_A_mdo_getRowAndColumn := (_07f7c73b_md_getRowAndColumn - _my_A)
+_07f7c73b_md_getRowAndColumn:
+    pushl %ebp; movl %esp, %ebp
+    
+            movl 12(%ebp), %eax             // @this (Type A)
+            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
+            addl 4(%eax), %ebx              // @this.vars(A)
+            
+            movl _my_A_i_row(%ebx), %eax    // row
+            movl %eax, 20(%ebp)             // return row
+            movl _my_A_i_column(%ebx), %eax // column
+            movl %eax, 16(%ebp)             // return column
+    
+    leave
+    ret
+
 // method test
 .global _my_A_mdo_test := (_07f7c73b_md_test - _my_A)
 _07f7c73b_md_test:
@@ -178,25 +199,25 @@ _07f7c73b_md_test:
             
             movl 12(%ebp), %ecx // @this (Type A)
             
-            subl 4, %esp  # return value of rt
+            subl 4, %esp    // return value of rt
             pushl %ecx; pushl _my_A_m_rt; call (%ecx)
         	addl 8, %esp
-            popl %edx   # Runtime (Type Runtime)
+            popl %edx       // Runtime (Type Runtime)
             
-            subl 4, %esp  # return value of getClass
+            subl 4, %esp    // return value of getClass
             pushl %ecx; pushl _my_A_m_getClass; call (%ecx)
         	addl 8, %esp
-            popl %eax // Class instance ("A"|"B") (Type Class)
+            popl %eax       // Class instance ("A"|"B") (Type Class)
 /*
-            subl 4, %esp  # return value of getClass
+            subl 4, %esp    // return value of getClass
             pushl %eax; pushl _my_core_Class_m_getClass; call (%eax)
         	addl 8, %esp
-            popl %eax // Class instance "Class" (Type Class)
+            popl %eax       // Class instance "Class" (Type Class)
 */
-            subl 4, %esp  # return value of getName
+            subl 4, %esp    // return value of getName
             pushl %eax; pushl _my_core_Class_m_getName; call (%eax)
         	addl 8, %esp
-            popl %eax // name cstring ref
+            popl %eax       // name cstring ref
             
             pushl %eax; pushl _my_core_Runtime_c_out
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
@@ -216,7 +237,29 @@ _07f7c73b_md_test:
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 16(%ebp); pushl _my_core_Runtime_c_out // row
+            pushl 16(%ebp); pushl _my_core_Runtime_c_out // param row
+            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
+            addl 16, %esp
+            
+            subl 8, %esp    // return values of getRowAndColumn
+            pushl %ecx; pushl _my_A_m_getRowAndColumn; call (%ecx)
+        	addl 8, %esp
+            
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            popl %eax       // column from getRowAndColumn
+            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
+            addl 16, %esp
+            
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            popl %eax       // row from getRowAndColumn
+            pushl %eax; pushl _my_core_Runtime_c_out
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
@@ -226,6 +269,7 @@ _07f7c73b_md_test:
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             
+            popl %edx
             popl %ecx
     
     leave

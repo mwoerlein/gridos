@@ -92,6 +92,8 @@ _07f7c73c_mt_07f7c73b:
     .long _07f7c73c_cto_07f7c73b
     .long _my_B_mdo_getRow
     .long _07f7c73c_cto_07f7c73c
+    .long _my_A_mdo_getRowAndColumn
+    .long _07f7c73c_cto_07f7c73b
     .long _my_A_mdo_test
     .long _07f7c73c_cto_07f7c73b
 _07f7c73c_mt_07f7c73c:
@@ -127,6 +129,10 @@ _07f7c73c_mtm_07f7c73c_init:
 _07f7c73c_mtm_07f7c73c_getRow:
     .long _my_B_mdo_getRow
     .long _07f7c73c_cto_07f7c73c
+.global _my_B_m_getRowAndColumn := (_07f7c73c_mtm_07f7c73c_getRowAndColumn - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_getRowAndColumn:
+    .long _my_A_mdo_getRowAndColumn
+    .long _07f7c73c_cto_07f7c73b
 .global _my_B_m_test := (_07f7c73c_mtm_07f7c73c_test - _07f7c73c_mt_07f7c73c)
 _07f7c73c_mtm_07f7c73c_test:
     .long _my_A_mdo_test
@@ -134,6 +140,10 @@ _07f7c73c_mtm_07f7c73c_test:
 .global _my_B_m_doIt := (_07f7c73c_mtm_07f7c73c_doIt - _07f7c73c_mt_07f7c73c)
 _07f7c73c_mtm_07f7c73c_doIt:
     .long _my_B_mdo_doIt
+    .long _07f7c73c_cto_07f7c73c
+.global _my_B_m_testAllocate := (_07f7c73c_mtm_07f7c73c_testAllocate - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_testAllocate:
+    .long _my_B_mdo_testAllocate
     .long _07f7c73c_cto_07f7c73c
 
 // constants
@@ -310,8 +320,62 @@ _07f7c73c_md_doIt:
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
+            pushl 0x1234    // size
+            pushl %ecx; pushl _my_B_m_testAllocate; call (%ecx)
+        	addl 12, %esp
+            
+            pushl 0x40; pushl _my_core_Runtime_c_err // '@'
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            pushl 0xa; pushl _my_core_Runtime_c_out // '/n'
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            subl 4, %esp    // return value of getRow
+            pushl %ecx; pushl _my_B_m_getRow; call (%ecx)
+        	addl 8, %esp
+            popl %eax
+            
+            pushl %eax      // row
+            pushl %ecx; pushl _my_B_m_test; call (%ecx)
+        	addl 12, %esp
+            
+            movl 16(%ebp), %ecx // param @a (Type A)
+        	
+            subl 4, %esp    // return value of getRow
+            pushl %ecx; pushl _my_A_m_getRow; call (%ecx)
+        	addl 8, %esp
+            popl %eax
+            
+            pushl %eax      // row
+            pushl %ecx; pushl _my_A_m_test; call (%ecx)
+        	addl 12, %esp
+        	
+            popl %edx
+            popl %ecx
+    
+    leave
+    ret
+
+// method testAllocate
+.global _my_B_mdo_testAllocate := (_07f7c73c_md_testAllocate - _my_B)
+_07f7c73c_md_testAllocate:
+    pushl %ebp; movl %esp, %ebp
+    
+            pushl %ecx
+            pushl %edx
+            pushl %esi
+            
+            movl 12(%ebp), %ecx // @this (Type B)
+            
+            subl 4, %esp        // return value of rt
+            pushl %ecx; pushl _my_B_m_rt; call (%ecx)
+        	addl 8, %esp
+            popl %edx           // Runtime(Type Runtime)
+            
             subl 4, %esp    // return value of allocate
-            pushl 0x124
+            pushl 16(%ebp)  // param size
             pushl %edx; pushl _my_core_Runtime_m_allocate; call (%edx)
         	addl 12, %esp
             popl %esi
@@ -340,34 +404,11 @@ _07f7c73c_md_doIt:
             pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0xa; pushl _my_core_Runtime_c_out // '/n'
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
             pushl %esi 
             pushl %edx; pushl _my_core_Runtime_m_free; call (%edx)
             addl 12, %esp
-            
-            subl 4, %esp    // return value of getRow
-            pushl %ecx; pushl _my_B_m_getRow; call (%ecx)
-        	addl 8, %esp
-            popl %eax
-            
-            pushl %eax      // row
-            pushl %ecx; pushl _my_B_m_test; call (%ecx)
-        	addl 12, %esp
-            
-            movl 16(%ebp), %ecx // param @a (Type A)
         	
-            subl 4, %esp    // return value of getRow
-            pushl %ecx; pushl _my_A_m_getRow; call (%ecx)
-        	addl 8, %esp
-            popl %eax
-            
-            pushl %eax      // row
-            pushl %ecx; pushl _my_A_m_test; call (%ecx)
-        	addl 12, %esp
-        	
+            popl %esi
             popl %edx
             popl %ecx
     
