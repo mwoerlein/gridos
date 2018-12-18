@@ -13,6 +13,7 @@ bool StartupHandler::handle(Module & module, KernelRuntime & runtime) {
         return false;
     }
     if (module.hasStringProperty("meta.mainThread")) {
+//        env().out() << "main thread: " << module.getStringProperty("meta.mainThread") << "\n";
         runtime.setStringProperty("meta.mainThread", module.getStringProperty("meta.mainThread"));
     }
     return true;

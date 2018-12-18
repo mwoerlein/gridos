@@ -14,16 +14,16 @@ entry:
     
     subl 4, %esp  # return value of createThread
     pushl %ebx
-    pushl %edi; pushl _my_Runtime_m_createThread; call (%edi)
+    pushl %edi; pushl _my_core_Runtime_m_createThread; call (%edi)
 	addl 12, %esp
     popl %ecx; // @instance (type "Thread")
     addl 0, %ecx; jz halt // break if not instantiated
     
-    pushl %ecx; pushl _my_Thread_m_run; call (%ecx)
+    pushl %ecx; pushl _my_core_Thread_m_run; call (%ecx)
 	addl 8, %esp
     
     pushl %ecx
-    pushl %edi; pushl _my_Runtime_m_destroyInstance; call (%edi)
+    pushl %edi; pushl _my_core_Runtime_m_destroyInstance; call (%edi)
 	addl 12, %esp
     
     movw 0xf40, (cga_testline)

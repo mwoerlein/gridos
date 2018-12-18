@@ -41,7 +41,7 @@ $(BOOTDIR)/__startup.bin: $(MODSIMPLE_STARTUP_PASMS)
 
 $(MODDIR)/my/core/Runtime_globals.pasm $(BOOTDIR)/Runtime.pbc: $(MODSIMPLE_RUNTIME_PASMS)
 	echo "creating $@"
-	cat $(MODSIMPLE_RUNTIME_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Runtime.pbc --bootstrap=_my_Runtime_mdo_bootstrap -
+	cat $(MODSIMPLE_RUNTIME_PASMS) | $(BINDIR)/pasm -g $@ -co $(BOOTDIR)/Runtime.pbc --bootstrap=_my_core_Runtime_mdo_bootstrap -
 #	cat $(MODSIMPLE_RUNTIME_PASMS) > $(BOOTDIR)/Runtime.pbc
 
 $(MODDIR)/my/core/Object_globals.pasm $(BOOTDIR)/Object.pbc: $(MODSIMPLE_OBJECT_PASMS)

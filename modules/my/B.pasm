@@ -1,6 +1,6 @@
 /*[meta]
 mimetype = text/x-pasm
-description = class "/my/B"
+description = class "my::B"
 [pool]
 version = 0.1.0
 class = true
@@ -12,39 +12,39 @@ _my_B:
     .long 0x15AC1A55
     .long 0
     .long _my_B_cno_my_B
-    .long (_03904e06_cts - _my_B)
-    .long (_03904e06_mts - _my_B)
-    .long (_03904e06_tpl - _my_B)
-    .long (_03904e06_tpl_end - _03904e06_tpl)
-    .long (_03904e06_tpl_h_e36c4e5b - _03904e06_tpl)
-    .long (_03904e06_tpl_h_03904e06 - _03904e06_tpl)
+    .long (_07f7c73c_cts - _my_B)
+    .long (_07f7c73c_mts - _my_B)
+    .long (_07f7c73c_tpl - _my_B)
+    .long (_07f7c73c_tpl_end - _07f7c73c_tpl)
+    .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
+    .long (_07f7c73c_tpl_h_07f7c73c - _07f7c73c_tpl)
 
 // class tab
-_03904e06_cts:
-_03904e06_cto_e36c4e5b := (_03904e06_ct_e36c4e5b - _my_B)
-_03904e06_ct_e36c4e5b:
+_07f7c73c_cts:
+_07f7c73c_cto_01a2e54e := (_07f7c73c_ct_01a2e54e - _my_B)
+_07f7c73c_ct_01a2e54e:
     .long 0
-    .long _my_B_cno_my_Object
-    .long (_03904e06_mt_e36c4e5b - _my_B)
-    .long (_03904e06_tpl_h_e36c4e5b - _03904e06_tpl)
-_03904e06_cto_ef870f3c := (_03904e06_ct_ef870f3c - _my_B)
-_03904e06_ct_ef870f3c:
+    .long _my_B_cno_my_core_Object
+    .long (_07f7c73c_mt_01a2e54e - _my_B)
+    .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
+_07f7c73c_cto_0dbda62f := (_07f7c73c_ct_0dbda62f - _my_B)
+_07f7c73c_ct_0dbda62f:
     .long 0
-    .long _my_B_cno_my_Thread
-    .long (_03904e06_mt_ef870f3c - _my_B)
-    .long (_03904e06_tpl_h_ef870f3c - _03904e06_tpl)
-_03904e06_cto_03904e05 := (_03904e06_ct_03904e05 - _my_B)
-_03904e06_ct_03904e05:
+    .long _my_B_cno_my_core_Thread
+    .long (_07f7c73c_mt_0dbda62f - _my_B)
+    .long (_07f7c73c_tpl_h_0dbda62f - _07f7c73c_tpl)
+_07f7c73c_cto_07f7c73b := (_07f7c73c_ct_07f7c73b - _my_B)
+_07f7c73c_ct_07f7c73b:
     .long 0
     .long _my_B_cno_my_A
-    .long (_03904e06_mt_03904e05 - _my_B)
-    .long (_03904e06_tpl_h_03904e05 - _03904e06_tpl)
-_03904e06_cto_03904e06 := (_03904e06_ct_03904e06 - _my_B)
-_03904e06_ct_03904e06:
+    .long (_07f7c73c_mt_07f7c73b - _my_B)
+    .long (_07f7c73c_tpl_h_07f7c73b - _07f7c73c_tpl)
+_07f7c73c_cto_07f7c73c := (_07f7c73c_ct_07f7c73c - _my_B)
+_07f7c73c_ct_07f7c73c:
     .long 0
     .long _my_B_cno_my_B
-    .long (_03904e06_mt_03904e06 - _my_B)
-    .long (_03904e06_tpl_h_03904e06 - _03904e06_tpl)
+    .long (_07f7c73c_mt_07f7c73c - _my_B)
+    .long (_07f7c73c_tpl_h_07f7c73c - _07f7c73c_tpl)
 // class tab end
     .long 0
     .long 0
@@ -52,169 +52,169 @@ _03904e06_ct_03904e06:
     .long 0
 
 // method tabs
-_03904e06_mts:
-_03904e06_mt_e36c4e5b:
-    .long _my_Object_mdo_getClass
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_hash
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_equals
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_rt
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_setRt
-    .long _03904e06_cto_e36c4e5b
-_03904e06_mt_ef870f3c:
-    .long _my_Object_mdo_getClass
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_hash
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_equals
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_rt
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_setRt
-    .long _03904e06_cto_e36c4e5b
+_07f7c73c_mts:
+_07f7c73c_mt_01a2e54e:
+    .long _my_core_Object_mdo_getClass
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_hash
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_equals
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_rt
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_setRt
+    .long _07f7c73c_cto_01a2e54e
+_07f7c73c_mt_0dbda62f:
+    .long _my_core_Object_mdo_getClass
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_hash
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_equals
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_rt
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_setRt
+    .long _07f7c73c_cto_01a2e54e
     .long _my_B_mdo_run
-    .long _03904e06_cto_03904e06
-_03904e06_mt_03904e05:
-    .long _my_Object_mdo_getClass
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_hash
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_equals
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_rt
-    .long _03904e06_cto_e36c4e5b
-    .long _my_Object_mdo_setRt
-    .long _03904e06_cto_e36c4e5b
+    .long _07f7c73c_cto_07f7c73c
+_07f7c73c_mt_07f7c73b:
+    .long _my_core_Object_mdo_getClass
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_hash
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_equals
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_rt
+    .long _07f7c73c_cto_01a2e54e
+    .long _my_core_Object_mdo_setRt
+    .long _07f7c73c_cto_01a2e54e
     .long _my_A_mdo_init
-    .long _03904e06_cto_03904e05
+    .long _07f7c73c_cto_07f7c73b
     .long _my_B_mdo_getRow
-    .long _03904e06_cto_03904e06
+    .long _07f7c73c_cto_07f7c73c
     .long _my_A_mdo_test
-    .long _03904e06_cto_03904e05
-_03904e06_mt_03904e06:
-.global _my_B_m_getClass := (_03904e06_mtm_03904e06_getClass - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_getClass:
-    .long _my_Object_mdo_getClass
-    .long _03904e06_cto_e36c4e5b
-.global _my_B_m_hash := (_03904e06_mtm_03904e06_hash - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_hash:
-    .long _my_Object_mdo_hash
-    .long _03904e06_cto_e36c4e5b
-.global _my_B_m_equals := (_03904e06_mtm_03904e06_equals - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_equals:
-    .long _my_Object_mdo_equals
-    .long _03904e06_cto_e36c4e5b
-.global _my_B_m_rt := (_03904e06_mtm_03904e06_rt - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_rt:
-    .long _my_Object_mdo_rt
-    .long _03904e06_cto_e36c4e5b
-.global _my_B_m_setRt := (_03904e06_mtm_03904e06_setRt - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_setRt:
-    .long _my_Object_mdo_setRt
-    .long _03904e06_cto_e36c4e5b
-.global _my_B_m_run := (_03904e06_mtm_03904e06_run - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_run:
+    .long _07f7c73c_cto_07f7c73b
+_07f7c73c_mt_07f7c73c:
+.global _my_B_m_getClass := (_07f7c73c_mtm_07f7c73c_getClass - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_getClass:
+    .long _my_core_Object_mdo_getClass
+    .long _07f7c73c_cto_01a2e54e
+.global _my_B_m_hash := (_07f7c73c_mtm_07f7c73c_hash - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_hash:
+    .long _my_core_Object_mdo_hash
+    .long _07f7c73c_cto_01a2e54e
+.global _my_B_m_equals := (_07f7c73c_mtm_07f7c73c_equals - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_equals:
+    .long _my_core_Object_mdo_equals
+    .long _07f7c73c_cto_01a2e54e
+.global _my_B_m_rt := (_07f7c73c_mtm_07f7c73c_rt - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_rt:
+    .long _my_core_Object_mdo_rt
+    .long _07f7c73c_cto_01a2e54e
+.global _my_B_m_setRt := (_07f7c73c_mtm_07f7c73c_setRt - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_setRt:
+    .long _my_core_Object_mdo_setRt
+    .long _07f7c73c_cto_01a2e54e
+.global _my_B_m_run := (_07f7c73c_mtm_07f7c73c_run - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_run:
     .long _my_B_mdo_run
-    .long _03904e06_cto_03904e06
-.global _my_B_m_init := (_03904e06_mtm_03904e06_init - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_init:
+    .long _07f7c73c_cto_07f7c73c
+.global _my_B_m_init := (_07f7c73c_mtm_07f7c73c_init - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_init:
     .long _my_A_mdo_init
-    .long _03904e06_cto_03904e05
-.global _my_B_m_getRow := (_03904e06_mtm_03904e06_getRow - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_getRow:
+    .long _07f7c73c_cto_07f7c73b
+.global _my_B_m_getRow := (_07f7c73c_mtm_07f7c73c_getRow - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_getRow:
     .long _my_B_mdo_getRow
-    .long _03904e06_cto_03904e06
-.global _my_B_m_test := (_03904e06_mtm_03904e06_test - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_test:
+    .long _07f7c73c_cto_07f7c73c
+.global _my_B_m_test := (_07f7c73c_mtm_07f7c73c_test - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_test:
     .long _my_A_mdo_test
-    .long _03904e06_cto_03904e05
-.global _my_B_m_doIt := (_03904e06_mtm_03904e06_doIt - _03904e06_mt_03904e06)
-_03904e06_mtm_03904e06_doIt:
+    .long _07f7c73c_cto_07f7c73b
+.global _my_B_m_doIt := (_07f7c73c_mtm_07f7c73c_doIt - _07f7c73c_mt_07f7c73c)
+_07f7c73c_mtm_07f7c73c_doIt:
     .long _my_B_mdo_doIt
-    .long _03904e06_cto_03904e06
+    .long _07f7c73c_cto_07f7c73c
 
 // constants
 // string doit
-_my_B_coso_doit := (_03904e06_cos_doit - _my_B)
-_03904e06_cos_doit:
+_my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
+_07f7c73c_cos_doit:
     .asciz "OMG! Compiling work's! "
 
 // class-name Object
-_my_B_cno_my_Object := (_03904e06_cn_e36c4e5b - _my_B)
-_03904e06_cn_e36c4e5b:
-    .asciz "/my/Object"
+_my_B_cno_my_core_Object := (_07f7c73c_cn_01a2e54e - _my_B)
+_07f7c73c_cn_01a2e54e:
+    .asciz "my::core::Object"
 
 // class-name Thread
-_my_B_cno_my_Thread := (_03904e06_cn_ef870f3c - _my_B)
-_03904e06_cn_ef870f3c:
-    .asciz "/my/Thread"
+_my_B_cno_my_core_Thread := (_07f7c73c_cn_0dbda62f - _my_B)
+_07f7c73c_cn_0dbda62f:
+    .asciz "my::core::Thread"
 
 // class-name A
-_my_B_cno_my_A := (_03904e06_cn_03904e05 - _my_B)
-_03904e06_cn_03904e05:
-    .asciz "/my/A"
+_my_B_cno_my_A := (_07f7c73c_cn_07f7c73b - _my_B)
+_07f7c73c_cn_07f7c73b:
+    .asciz "my::A"
 
 // class-name B
-_my_B_cno_my_B := (_03904e06_cn_03904e06 - _my_B)
-_03904e06_cn_03904e06:
-    .asciz "/my/B"
+_my_B_cno_my_B := (_07f7c73c_cn_07f7c73c - _my_B)
+_07f7c73c_cn_07f7c73c:
+    .asciz "my::B"
 
 // instance template
-_03904e06_tpl:
+_07f7c73c_tpl:
     .long 0
     .long 0
-_03904e06_tpl_h_e36c4e5b:
-    .long 0
-    .long 0
-    .long 0
-    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
-_03904e06_tpl_h_ef870f3c:
+_07f7c73c_tpl_h_01a2e54e:
     .long 0
     .long 0
     .long 0
-    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
-    .long (_03904e06_tpl_vs_ef870f3c - _03904e06_tpl)
-_03904e06_tpl_h_03904e05:
+    .long (_07f7c73c_tpl_vs_01a2e54e - _07f7c73c_tpl)
+_07f7c73c_tpl_h_0dbda62f:
     .long 0
     .long 0
     .long 0
-    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
-    .long (_03904e06_tpl_vs_03904e05 - _03904e06_tpl)
-_03904e06_tpl_h_03904e06:
+    .long (_07f7c73c_tpl_vs_01a2e54e - _07f7c73c_tpl)
+    .long (_07f7c73c_tpl_vs_0dbda62f - _07f7c73c_tpl)
+_07f7c73c_tpl_h_07f7c73b:
     .long 0
     .long 0
     .long 0
-_my_B_hvo_my_Object := (_03904e06_tpl_hv_e36c4e5b - _03904e06_tpl_h_03904e06)
-_03904e06_tpl_hv_e36c4e5b:
-    .long (_03904e06_tpl_vs_e36c4e5b - _03904e06_tpl)
-_my_B_hvo_my_Thread := (_03904e06_tpl_hv_ef870f3c - _03904e06_tpl_h_03904e06)
-_03904e06_tpl_hv_ef870f3c:
-    .long (_03904e06_tpl_vs_ef870f3c - _03904e06_tpl)
-_my_B_hvo_my_A := (_03904e06_tpl_hv_03904e05 - _03904e06_tpl_h_03904e06)
-_03904e06_tpl_hv_03904e05:
-    .long (_03904e06_tpl_vs_03904e05 - _03904e06_tpl)
-_my_B_hvo_my_B := (_03904e06_tpl_hv_03904e06 - _03904e06_tpl_h_03904e06)
-_03904e06_tpl_hv_03904e06:
-    .long (_03904e06_tpl_vs_03904e06 - _03904e06_tpl)
-_03904e06_tpl_vs_e36c4e5b:
+    .long (_07f7c73c_tpl_vs_01a2e54e - _07f7c73c_tpl)
+    .long (_07f7c73c_tpl_vs_07f7c73b - _07f7c73c_tpl)
+_07f7c73c_tpl_h_07f7c73c:
+    .long 0
+    .long 0
+    .long 0
+_my_B_hvo_my_core_Object := (_07f7c73c_tpl_hv_01a2e54e - _07f7c73c_tpl_h_07f7c73c)
+_07f7c73c_tpl_hv_01a2e54e:
+    .long (_07f7c73c_tpl_vs_01a2e54e - _07f7c73c_tpl)
+_my_B_hvo_my_core_Thread := (_07f7c73c_tpl_hv_0dbda62f - _07f7c73c_tpl_h_07f7c73c)
+_07f7c73c_tpl_hv_0dbda62f:
+    .long (_07f7c73c_tpl_vs_0dbda62f - _07f7c73c_tpl)
+_my_B_hvo_my_A := (_07f7c73c_tpl_hv_07f7c73b - _07f7c73c_tpl_h_07f7c73c)
+_07f7c73c_tpl_hv_07f7c73b:
+    .long (_07f7c73c_tpl_vs_07f7c73b - _07f7c73c_tpl)
+_my_B_hvo_my_B := (_07f7c73c_tpl_hv_07f7c73c - _07f7c73c_tpl_h_07f7c73c)
+_07f7c73c_tpl_hv_07f7c73c:
+    .long (_07f7c73c_tpl_vs_07f7c73c - _07f7c73c_tpl)
+_07f7c73c_tpl_vs_01a2e54e:
 // variable runtime
     .long 0
-_03904e06_tpl_vs_ef870f3c:
-_03904e06_tpl_vs_03904e05:
+_07f7c73c_tpl_vs_0dbda62f:
+_07f7c73c_tpl_vs_07f7c73b:
 // variable column
     .long 0
 // variable row
     .long 0
-_03904e06_tpl_vs_03904e06:
-_03904e06_tpl_end:
+_07f7c73c_tpl_vs_07f7c73c:
+_07f7c73c_tpl_end:
 
 // method definitions
 // method run
-.global _my_B_mdo_run := (_03904e06_md_run - _my_B)
-_03904e06_md_run:
+.global _my_B_mdo_run := (_07f7c73c_md_run - _my_B)
+_07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
     
             pushl %ecx
@@ -237,7 +237,7 @@ _03904e06_md_run:
             addl _my_B_cno_my_A, %eax   // "/my/A"
             subl 4, %esp  # return value of createInstance
             pushl %eax
-            pushl %edi; pushl _my_Runtime_m_createInstance; call (%edi)
+            pushl %edi; pushl _my_core_Runtime_m_createInstance; call (%edi)
         	addl 12, %esp
             popl %edx; // inst_A (type A)
             
@@ -251,7 +251,7 @@ _03904e06_md_run:
         	addl 12, %esp
             
             pushl %edx
-            pushl %edi; pushl _my_Runtime_m_destroyInstance; call (%edi)
+            pushl %edi; pushl _my_core_Runtime_m_destroyInstance; call (%edi)
         	addl 12, %esp
             
             popl %edi
@@ -262,8 +262,8 @@ _03904e06_md_run:
     ret
 
 // method doIt
-.global _my_B_mdo_doIt := (_03904e06_md_doIt - _my_B)
-_03904e06_md_doIt:
+.global _my_B_mdo_doIt := (_07f7c73c_md_doIt - _my_B)
+_07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
     
             pushl %ecx
@@ -276,14 +276,14 @@ _03904e06_md_doIt:
         	addl 8, %esp
             popl %edx           // Runtime(Type Runtime)
             
-            pushl 0x40; pushl _my_Runtime_c_err // '@'
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0x40; pushl _my_core_Runtime_c_err // '@'
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             movl 8(%ebp), %eax         // @class-desc "B"
             addl _my_B_coso_doit, %eax // "DoIt "
-            pushl %eax; pushl _my_Runtime_c_out
-            pushl %edx; pushl _my_Runtime_m_printString; call (%edx)
+            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             
             subl 4, %esp    // return value of equals
@@ -292,12 +292,12 @@ _03904e06_md_doIt:
             addl 12, %esp
             popl %eax
             
-            pushl %eax; pushl _my_Runtime_c_out
-            pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
+            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_Runtime_c_out // ' '
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             subl 4, %esp    // return value of equals
@@ -306,46 +306,46 @@ _03904e06_md_doIt:
             addl 12, %esp
             popl %eax
             
-            pushl %eax; pushl _my_Runtime_c_out
-            pushl %edx; pushl _my_Runtime_m_printInt; call (%edx)
+            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
             subl 4, %esp    // return value of allocate
             pushl 0x124
-            pushl %edx; pushl _my_Runtime_m_allocate; call (%edx)
+            pushl %edx; pushl _my_core_Runtime_m_allocate; call (%edx)
         	addl 12, %esp
             popl %esi
             
-            pushl 0x20; pushl _my_Runtime_c_out // ' '
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl %esi; pushl _my_Runtime_c_out
-            pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
+            pushl %esi; pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_Runtime_c_out // ' '
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl (%esi); pushl _my_Runtime_c_out
-            pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
+            pushl (%esi); pushl _my_core_Runtime_c_out
+            pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_Runtime_c_out // ' '
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 4(%esi); pushl _my_Runtime_c_out 
-            pushl %edx; pushl _my_Runtime_m_printHex; call (%edx)
+            pushl 4(%esi); pushl _my_core_Runtime_c_out 
+            pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0xa; pushl _my_Runtime_c_out // '/n'
-            pushl %edx; pushl _my_Runtime_m_printChar; call (%edx)
+            pushl 0xa; pushl _my_core_Runtime_c_out // '/n'
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             pushl %esi 
-            pushl %edx; pushl _my_Runtime_m_free; call (%edx)
+            pushl %edx; pushl _my_core_Runtime_m_free; call (%edx)
             addl 12, %esp
             
             subl 4, %esp    // return value of getRow
@@ -375,8 +375,8 @@ _03904e06_md_doIt:
     ret
 
 // method getRow
-.global _my_B_mdo_getRow := (_03904e06_md_getRow - _my_B)
-_03904e06_md_getRow:
+.global _my_B_mdo_getRow := (_07f7c73c_md_getRow - _my_B)
+_07f7c73c_md_getRow:
     pushl %ebp; movl %esp, %ebp
     
             movl 12(%ebp), %eax             // @this (Type B)

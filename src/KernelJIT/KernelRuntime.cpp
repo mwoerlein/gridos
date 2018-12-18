@@ -40,6 +40,7 @@ ClassDescriptor *KernelRuntime::registerClass(MemoryIOStream & mem, size_t boots
     }
     classes.set(cd.getName(), cd);
     if (cd.hasBootstrap() && !bsClass) {
+//        env().out() << "set bootstrap " << cd.getName() << "\n";
         bsClass = &cd;
     }
     return &cd;
@@ -81,6 +82,7 @@ ClassDescriptor * KernelRuntime::findClass(String &name) {
 }
 
 bool KernelRuntime::setEntry(MemoryIOStream & mem) {
+//    env().out() << "set entry " << &mem << "\n";
     if (entry) {
         return false;
     }
