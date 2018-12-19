@@ -2,11 +2,13 @@
 mimetype = text/x-pasm
 description = class "my::core::Runtime"
 [pool]
-version = 0.1.0
 class = true
+version = 0.1.0
 bootstrapOffset = _my_core_Runtime_mdo_bootstrap
 [pool_source]
 unit = my::core::Runtime
+version = 0.1.0
+author = Marc Woerlein <marc.woerlein@gmx.de>
 */
 // class Runtime
 _my_core_Runtime:
@@ -114,9 +116,9 @@ _4990fdfb_mtm_4990fdfb_printHex:
 _4990fdfb_mtm_4990fdfb_destroyInstance:
     .long _my_core_Runtime_mdo_destroyInstance
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_as := (_4990fdfb_mtm_4990fdfb_as - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_as:
-    .long _my_core_Runtime_mdo_as
+.global _my_core_Runtime_m_cast := (_4990fdfb_mtm_4990fdfb_cast - _4990fdfb_mt_4990fdfb)
+_4990fdfb_mtm_4990fdfb_cast:
+    .long _my_core_Runtime_mdo_cast
     .long _4990fdfb_cto_4990fdfb
 .global _my_core_Runtime_m_createThread := (_4990fdfb_mtm_4990fdfb_createThread - _4990fdfb_mt_4990fdfb)
 _4990fdfb_mtm_4990fdfb_createThread:
@@ -526,9 +528,9 @@ _4990fdfb_md_destroyInstance:
     leave
     ret
 
-// method as
-.global _my_core_Runtime_mdo_as := (_4990fdfb_md_as - _my_core_Runtime)
-_4990fdfb_md_as:
+// method cast
+.global _my_core_Runtime_mdo_cast := (_4990fdfb_md_cast - _my_core_Runtime)
+_4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
     
             pushl %ecx
@@ -586,7 +588,7 @@ _4990fdfb_md_createThread:
             subl 4, %esp        // return value of as
             pushl %eax
             pushl %ecx
-            pushl %esi; pushl _my_core_Runtime_m_as; call (%esi)
+            pushl %esi; pushl _my_core_Runtime_m_cast; call (%esi)
             addl 16, %esp
             popl %eax;          // @instance (type "Thread")
             addl 0, %eax; jz _crmct_cleanup // destroy instance if not a thread

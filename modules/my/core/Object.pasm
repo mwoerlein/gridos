@@ -2,10 +2,12 @@
 mimetype = text/x-pasm
 description = class "my::core::Object"
 [pool]
-version = 0.1.0
 class = true
+version = 0.1.0
 [pool_source]
 unit = my::core::Object
+version = 0.1.0
+author = Marc Woerlein <marc.woerlein@gmx.de>
 */
 // class Object
 _my_core_Object:

@@ -2,10 +2,12 @@
 mimetype = text/x-pasm
 description = class "my::B"
 [pool]
-version = 0.1.0
 class = true
+version = 0.1.0
 [pool_source]
 unit = my::B
+version = 0.1.0
+author = Marc Woerlein <marc.woerlein@gmx.de>
 */
 // class B
 _my_B:

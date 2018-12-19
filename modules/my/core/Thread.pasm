@@ -2,10 +2,12 @@
 mimetype = text/x-pasm
 description = class "my::core::Thread"
 [pool]
-version = 0.1.0
 class = true
+version = 0.1.0
 [pool_source]
 unit = my::core::Thread
+version = 0.1.0
+author = Marc Woerlein <marc.woerlein@gmx.de>
 */
 // class Thread
 _my_core_Thread:
