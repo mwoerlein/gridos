@@ -109,8 +109,8 @@ _my_core_Runtime_m_destroyInstance := 112
 _my_core_Runtime_m_cast := 120
     .long _my_core_Runtime_mdo_cast
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_createThread := 128
-    .long _my_core_Runtime_mdo_createThread
+_my_core_Runtime_m_createAndRunThread := 128
+    .long _my_core_Runtime_mdo_createAndRunThread
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_createInstance := 136
     .long _my_core_Runtime_mdo_createInstance
@@ -558,22 +558,23 @@ _4990fdfb_md_cast:
     leave
     ret
 
-// method createThread
-.global _my_core_Runtime_mdo_createThread := (_4990fdfb_md_createThread - _my_core_Runtime)
-_4990fdfb_md_createThread:
+// method createAndRunThread
+.global _my_core_Runtime_mdo_createAndRunThread := (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
+_4990fdfb_md_createAndRunThread:
     pushl %ebp; movl %esp, %ebp
     
+// TODO #3: inline method-indices in method-call-generation
+        _my_core_Thread_m_run := 40
             pushl %ecx
             pushl %esi
-        _crmct_start:
-            movl 0, 20(%ebp)    // default handle: NULL
+        _mcrmcart_start:
             movl 12(%ebp), %esi // @this (Type Runtime)
             subl 4, %esp        // return value of createInstance
             pushl 16(%ebp)      // param @classname
             pushl %esi; pushl _my_core_Runtime_m_createInstance; call (%esi)
         	addl 12, %esp
             popl %ecx;          // @instance (type <classname>)
-            addl 0, %ecx; jz _crmct_return // break if not instantiated
+            addl 0, %ecx; jz _mcrmcart_return // break if not instantiated
             movl 8(%ebp), %eax  // @class-desc "Runtime"
             addl _my_core_Runtime_coso_mThread, %eax
             subl 4, %esp        // return value of as
@@ -582,14 +583,15 @@ _4990fdfb_md_createThread:
             pushl %esi; pushl _my_core_Runtime_m_cast; call (%esi)
             addl 16, %esp
             popl %eax;          // @instance (type "Thread")
-            addl 0, %eax; jz _crmct_cleanup // destroy instance if not a thread
-            movl %eax, 20(%ebp)  // return @instance (type "Thread")
-        	jmp _crmct_return
-        _crmct_cleanup:
+            addl 0, %eax; jz _mcrmcart_cleanup // destroy instance if not a thread
+            movl %eax, %ecx
+            pushl %ecx; pushl _my_core_Thread_m_run; call (%ecx)
+            addl 8, %esp
+        _mcrmcart_cleanup:
             pushl %ecx
             pushl %esi; pushl _my_core_Runtime_m_destroyInstance; call (%esi)
         	addl 12, %esp
-        _crmct_return:
+        _mcrmcart_return:
             popl %esi
             popl %ecx
     

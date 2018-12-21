@@ -10,26 +10,12 @@ entry = true
 entry:
 // TODO #3: inline method-indices in method-call-generation
 //*/
-    _my_core_Runtime_m_destroyInstance := 112
-    _my_core_Runtime_m_createThread := 128
-    _my_core_Thread_m_run := 40
+    _my_core_Runtime_m_createAndRunThread := 128
 //*/
     movw 0xc40, (cga_testline)
     
-    movl %eax, %edi
-    
-    subl 4, %esp  # return value of createThread
     pushl %ebx
-    pushl %edi; pushl _my_core_Runtime_m_createThread; call (%edi)
-	addl 12, %esp
-    popl %ecx; // @instance (type "Thread")
-    addl 0, %ecx; jz halt // break if not instantiated
-    
-    pushl %ecx; pushl _my_core_Thread_m_run; call (%ecx)
-	addl 8, %esp
-    
-    pushl %ecx
-    pushl %edi; pushl _my_core_Runtime_m_destroyInstance; call (%edi)
+    pushl %eax; pushl _my_core_Runtime_m_createAndRunThread; call (%eax)
 	addl 12, %esp
     
     movw 0xf40, (cga_testline)
