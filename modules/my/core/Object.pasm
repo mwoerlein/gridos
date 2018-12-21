@@ -38,24 +38,19 @@ _01a2e54e_ct_01a2e54e:
 // method tabs
 _01a2e54e_mts:
 _01a2e54e_mt_01a2e54e:
-.global _my_core_Object_m_getClass := (_01a2e54e_mtm_01a2e54e_getClass - _01a2e54e_mt_01a2e54e)
-_01a2e54e_mtm_01a2e54e_getClass:
+_my_core_Object_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _01a2e54e_cto_01a2e54e
-.global _my_core_Object_m_hash := (_01a2e54e_mtm_01a2e54e_hash - _01a2e54e_mt_01a2e54e)
-_01a2e54e_mtm_01a2e54e_hash:
+_my_core_Object_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _01a2e54e_cto_01a2e54e
-.global _my_core_Object_m_equals := (_01a2e54e_mtm_01a2e54e_equals - _01a2e54e_mt_01a2e54e)
-_01a2e54e_mtm_01a2e54e_equals:
+_my_core_Object_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _01a2e54e_cto_01a2e54e
-.global _my_core_Object_m_rt := (_01a2e54e_mtm_01a2e54e_rt - _01a2e54e_mt_01a2e54e)
-_01a2e54e_mtm_01a2e54e_rt:
+_my_core_Object_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _01a2e54e_cto_01a2e54e
-.global _my_core_Object_m_setRt := (_01a2e54e_mtm_01a2e54e_setRt - _01a2e54e_mt_01a2e54e)
-_01a2e54e_mtm_01a2e54e_setRt:
+_my_core_Object_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _01a2e54e_cto_01a2e54e
 
@@ -81,7 +76,7 @@ _01a2e54e_tpl_hv_01a2e54e:
     .long (_01a2e54e_tpl_vs_01a2e54e - _01a2e54e_tpl)
 _01a2e54e_tpl_vs_01a2e54e:
 // variable runtime
-.global _my_core_Object_i_runtime := (_01a2e54e_tpl_v_01a2e54e_runtime - _01a2e54e_tpl_vs_01a2e54e)
+_my_core_Object_i_runtime := (_01a2e54e_tpl_v_01a2e54e_runtime - _01a2e54e_tpl_vs_01a2e54e)
 _01a2e54e_tpl_v_01a2e54e_runtime:
     .long 0
 _01a2e54e_tpl_end:

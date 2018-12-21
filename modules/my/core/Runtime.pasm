@@ -45,87 +45,74 @@ _4990fdfb_ct_4990fdfb:
 // method tabs
 _4990fdfb_mts:
 _4990fdfb_mt_01a2e54e:
+_my_core_Object_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _4990fdfb_cto_01a2e54e
+_my_core_Object_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _4990fdfb_cto_01a2e54e
+_my_core_Object_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _4990fdfb_cto_01a2e54e
+_my_core_Object_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _4990fdfb_cto_01a2e54e
+_my_core_Object_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _4990fdfb_cto_01a2e54e
 _4990fdfb_mt_4990fdfb:
-.global _my_core_Runtime_m_getClass := (_4990fdfb_mtm_4990fdfb_getClass - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_getClass:
+_my_core_Runtime_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _4990fdfb_cto_01a2e54e
-.global _my_core_Runtime_m_hash := (_4990fdfb_mtm_4990fdfb_hash - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_hash:
+_my_core_Runtime_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _4990fdfb_cto_01a2e54e
-.global _my_core_Runtime_m_equals := (_4990fdfb_mtm_4990fdfb_equals - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_equals:
+_my_core_Runtime_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _4990fdfb_cto_01a2e54e
-.global _my_core_Runtime_m_rt := (_4990fdfb_mtm_4990fdfb_rt - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_rt:
+_my_core_Runtime_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _4990fdfb_cto_01a2e54e
-.global _my_core_Runtime_m_setRt := (_4990fdfb_mtm_4990fdfb_setRt - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_setRt:
+_my_core_Runtime_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _4990fdfb_cto_01a2e54e
-.global _my_core_Runtime_m_bootstrap := (_4990fdfb_mtm_4990fdfb_bootstrap - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_bootstrap:
+_my_core_Runtime_m_bootstrap := 40
     .long _my_core_Runtime_mdo_bootstrap
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_initSysCall := (_4990fdfb_mtm_4990fdfb_initSysCall - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_initSysCall:
+_my_core_Runtime_m_initSysCall := 48
     .long _my_core_Runtime_mdo_initSysCall
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_getClassDesc := (_4990fdfb_mtm_4990fdfb_getClassDesc - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_getClassDesc:
+_my_core_Runtime_m_getClassDesc := 56
     .long _my_core_Runtime_mdo_getClassDesc
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_allocate := (_4990fdfb_mtm_4990fdfb_allocate - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_allocate:
+_my_core_Runtime_m_allocate := 64
     .long _my_core_Runtime_mdo_allocate
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_free := (_4990fdfb_mtm_4990fdfb_free - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_free:
+_my_core_Runtime_m_free := 72
     .long _my_core_Runtime_mdo_free
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_printChar := (_4990fdfb_mtm_4990fdfb_printChar - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_printChar:
+_my_core_Runtime_m_printChar := 80
     .long _my_core_Runtime_mdo_printChar
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_printString := (_4990fdfb_mtm_4990fdfb_printString - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_printString:
+_my_core_Runtime_m_printString := 88
     .long _my_core_Runtime_mdo_printString
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_printInt := (_4990fdfb_mtm_4990fdfb_printInt - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_printInt:
+_my_core_Runtime_m_printInt := 96
     .long _my_core_Runtime_mdo_printInt
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_printHex := (_4990fdfb_mtm_4990fdfb_printHex - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_printHex:
+_my_core_Runtime_m_printHex := 104
     .long _my_core_Runtime_mdo_printHex
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_destroyInstance := (_4990fdfb_mtm_4990fdfb_destroyInstance - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_destroyInstance:
+_my_core_Runtime_m_destroyInstance := 112
     .long _my_core_Runtime_mdo_destroyInstance
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_cast := (_4990fdfb_mtm_4990fdfb_cast - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_cast:
+_my_core_Runtime_m_cast := 120
     .long _my_core_Runtime_mdo_cast
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_createThread := (_4990fdfb_mtm_4990fdfb_createThread - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_createThread:
+_my_core_Runtime_m_createThread := 128
     .long _my_core_Runtime_mdo_createThread
     .long _4990fdfb_cto_4990fdfb
-.global _my_core_Runtime_m_createInstance := (_4990fdfb_mtm_4990fdfb_createInstance - _4990fdfb_mt_4990fdfb)
-_4990fdfb_mtm_4990fdfb_createInstance:
+_my_core_Runtime_m_createInstance := 136
     .long _my_core_Runtime_mdo_createInstance
     .long _4990fdfb_cto_4990fdfb
 
@@ -141,10 +128,10 @@ _4990fdfb_cos_mThread:
     .asciz "my::core::Thread"
 
 // int out
-.global _my_core_Runtime_c_out := 0
+_my_core_Runtime_coi_out := 0
 
 // int err
-.global _my_core_Runtime_c_err := 1
+_my_core_Runtime_coi_err := 1
 
 // int SysCall_allocate
 _my_core_Runtime_coi_SysCall_allocate := 1
@@ -237,14 +224,16 @@ _4990fdfb_tpl_hv_4990fdfb:
     .long (_4990fdfb_tpl_vs_4990fdfb - _4990fdfb_tpl)
 _4990fdfb_tpl_vs_01a2e54e:
 // variable runtime
+_my_core_Object_i_runtime := (_4990fdfb_tpl_v_01a2e54e_runtime - _4990fdfb_tpl_vs_01a2e54e)
+_4990fdfb_tpl_v_01a2e54e_runtime:
     .long 0
 _4990fdfb_tpl_vs_4990fdfb:
 // variable syscall_runtime
-.global _my_core_Runtime_i_syscall_runtime := (_4990fdfb_tpl_v_4990fdfb_syscall_runtime - _4990fdfb_tpl_vs_4990fdfb)
+_my_core_Runtime_i_syscall_runtime := (_4990fdfb_tpl_v_4990fdfb_syscall_runtime - _4990fdfb_tpl_vs_4990fdfb)
 _4990fdfb_tpl_v_4990fdfb_syscall_runtime:
     .long 0
 // variable syscall_entry
-.global _my_core_Runtime_i_syscall_entry := (_4990fdfb_tpl_v_4990fdfb_syscall_entry - _4990fdfb_tpl_vs_4990fdfb)
+_my_core_Runtime_i_syscall_entry := (_4990fdfb_tpl_v_4990fdfb_syscall_entry - _4990fdfb_tpl_vs_4990fdfb)
 _4990fdfb_tpl_v_4990fdfb_syscall_entry:
     .long 0
 _4990fdfb_tpl_end:
@@ -255,6 +244,8 @@ _4990fdfb_tpl_end:
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
     
+// TODO #3: inline method-indices in method-call-generation
+        _my_core_Class_m_setDesc := 48
             subl 12, %esp
             pushad
             

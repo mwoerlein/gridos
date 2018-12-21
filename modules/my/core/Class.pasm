@@ -44,47 +44,44 @@ _ff38e2ed_ct_ff38e2ed:
 // method tabs
 _ff38e2ed_mts:
 _ff38e2ed_mt_01a2e54e:
+_my_core_Object_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _ff38e2ed_cto_01a2e54e
+_my_core_Object_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _ff38e2ed_cto_01a2e54e
+_my_core_Object_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _ff38e2ed_cto_01a2e54e
+_my_core_Object_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _ff38e2ed_cto_01a2e54e
+_my_core_Object_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _ff38e2ed_cto_01a2e54e
 _ff38e2ed_mt_ff38e2ed:
-.global _my_core_Class_m_getClass := (_ff38e2ed_mtm_ff38e2ed_getClass - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_getClass:
+_my_core_Class_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _ff38e2ed_cto_01a2e54e
-.global _my_core_Class_m_hash := (_ff38e2ed_mtm_ff38e2ed_hash - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_hash:
+_my_core_Class_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _ff38e2ed_cto_01a2e54e
-.global _my_core_Class_m_equals := (_ff38e2ed_mtm_ff38e2ed_equals - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_equals:
+_my_core_Class_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _ff38e2ed_cto_01a2e54e
-.global _my_core_Class_m_rt := (_ff38e2ed_mtm_ff38e2ed_rt - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_rt:
+_my_core_Class_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _ff38e2ed_cto_01a2e54e
-.global _my_core_Class_m_setRt := (_ff38e2ed_mtm_ff38e2ed_setRt - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_setRt:
+_my_core_Class_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _ff38e2ed_cto_01a2e54e
-.global _my_core_Class_m_getDesc := (_ff38e2ed_mtm_ff38e2ed_getDesc - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_getDesc:
+_my_core_Class_m_getDesc := 40
     .long _my_core_Class_mdo_getDesc
     .long _ff38e2ed_cto_ff38e2ed
-.global _my_core_Class_m_setDesc := (_ff38e2ed_mtm_ff38e2ed_setDesc - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_setDesc:
+_my_core_Class_m_setDesc := 48
     .long _my_core_Class_mdo_setDesc
     .long _ff38e2ed_cto_ff38e2ed
-.global _my_core_Class_m_getName := (_ff38e2ed_mtm_ff38e2ed_getName - _ff38e2ed_mt_ff38e2ed)
-_ff38e2ed_mtm_ff38e2ed_getName:
+_my_core_Class_m_getName := 56
     .long _my_core_Class_mdo_getName
     .long _ff38e2ed_cto_ff38e2ed
 
@@ -126,10 +123,12 @@ _ff38e2ed_tpl_hv_ff38e2ed:
     .long (_ff38e2ed_tpl_vs_ff38e2ed - _ff38e2ed_tpl)
 _ff38e2ed_tpl_vs_01a2e54e:
 // variable runtime
+_my_core_Object_i_runtime := (_ff38e2ed_tpl_v_01a2e54e_runtime - _ff38e2ed_tpl_vs_01a2e54e)
+_ff38e2ed_tpl_v_01a2e54e_runtime:
     .long 0
 _ff38e2ed_tpl_vs_ff38e2ed:
 // variable desc
-.global _my_core_Class_i_desc := (_ff38e2ed_tpl_v_ff38e2ed_desc - _ff38e2ed_tpl_vs_ff38e2ed)
+_my_core_Class_i_desc := (_ff38e2ed_tpl_v_ff38e2ed_desc - _ff38e2ed_tpl_vs_ff38e2ed)
 _ff38e2ed_tpl_v_ff38e2ed_desc:
     .long 0
 _ff38e2ed_tpl_end:

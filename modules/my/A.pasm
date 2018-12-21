@@ -44,51 +44,47 @@ _07f7c73b_ct_07f7c73b:
 // method tabs
 _07f7c73b_mts:
 _07f7c73b_mt_01a2e54e:
+_my_core_Object_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _07f7c73b_cto_01a2e54e
+_my_core_Object_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _07f7c73b_cto_01a2e54e
+_my_core_Object_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _07f7c73b_cto_01a2e54e
+_my_core_Object_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _07f7c73b_cto_01a2e54e
+_my_core_Object_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _07f7c73b_cto_01a2e54e
 _07f7c73b_mt_07f7c73b:
-.global _my_A_m_getClass := (_07f7c73b_mtm_07f7c73b_getClass - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_getClass:
+_my_A_m_getClass := 0
     .long _my_core_Object_mdo_getClass
     .long _07f7c73b_cto_01a2e54e
-.global _my_A_m_hash := (_07f7c73b_mtm_07f7c73b_hash - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_hash:
+_my_A_m_hash := 8
     .long _my_core_Object_mdo_hash
     .long _07f7c73b_cto_01a2e54e
-.global _my_A_m_equals := (_07f7c73b_mtm_07f7c73b_equals - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_equals:
+_my_A_m_equals := 16
     .long _my_core_Object_mdo_equals
     .long _07f7c73b_cto_01a2e54e
-.global _my_A_m_rt := (_07f7c73b_mtm_07f7c73b_rt - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_rt:
+_my_A_m_rt := 24
     .long _my_core_Object_mdo_rt
     .long _07f7c73b_cto_01a2e54e
-.global _my_A_m_setRt := (_07f7c73b_mtm_07f7c73b_setRt - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_setRt:
+_my_A_m_setRt := 32
     .long _my_core_Object_mdo_setRt
     .long _07f7c73b_cto_01a2e54e
-.global _my_A_m_init := (_07f7c73b_mtm_07f7c73b_init - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_init:
+_my_A_m_init := 40
     .long _my_A_mdo_init
     .long _07f7c73b_cto_07f7c73b
-.global _my_A_m_getRow := (_07f7c73b_mtm_07f7c73b_getRow - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_getRow:
+_my_A_m_getRow := 48
     .long _my_A_mdo_getRow
     .long _07f7c73b_cto_07f7c73b
-.global _my_A_m_getRowAndColumn := (_07f7c73b_mtm_07f7c73b_getRowAndColumn - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_getRowAndColumn:
+_my_A_m_getRowAndColumn := 56
     .long _my_A_mdo_getRowAndColumn
     .long _07f7c73b_cto_07f7c73b
-.global _my_A_m_test := (_07f7c73b_mtm_07f7c73b_test - _07f7c73b_mt_07f7c73b)
-_07f7c73b_mtm_07f7c73b_test:
+_my_A_m_test := 64
     .long _my_A_mdo_test
     .long _07f7c73b_cto_07f7c73b
 
@@ -97,6 +93,12 @@ _07f7c73b_mtm_07f7c73b_test:
 _my_A_coso_test := (_07f7c73b_cos_test - _my_A)
 _07f7c73b_cos_test:
     .asciz " Test\n"
+
+// int out
+_my_A_coi_out := 0
+
+// int err
+_my_A_coi_err := 1
 
 // class-name Object
 _my_A_cno_my_core_Object := (_07f7c73b_cn_01a2e54e - _my_A)
@@ -129,14 +131,16 @@ _07f7c73b_tpl_hv_07f7c73b:
     .long (_07f7c73b_tpl_vs_07f7c73b - _07f7c73b_tpl)
 _07f7c73b_tpl_vs_01a2e54e:
 // variable runtime
+_my_core_Object_i_runtime := (_07f7c73b_tpl_v_01a2e54e_runtime - _07f7c73b_tpl_vs_01a2e54e)
+_07f7c73b_tpl_v_01a2e54e_runtime:
     .long 0
 _07f7c73b_tpl_vs_07f7c73b:
 // variable column
-.global _my_A_i_column := (_07f7c73b_tpl_v_07f7c73b_column - _07f7c73b_tpl_vs_07f7c73b)
+_my_A_i_column := (_07f7c73b_tpl_v_07f7c73b_column - _07f7c73b_tpl_vs_07f7c73b)
 _07f7c73b_tpl_v_07f7c73b_column:
     .long 0
 // variable row
-.global _my_A_i_row := (_07f7c73b_tpl_v_07f7c73b_row - _07f7c73b_tpl_vs_07f7c73b)
+_my_A_i_row := (_07f7c73b_tpl_v_07f7c73b_row - _07f7c73b_tpl_vs_07f7c73b)
 _07f7c73b_tpl_v_07f7c73b_row:
     .long 0
 _07f7c73b_tpl_end:
@@ -196,6 +200,21 @@ _07f7c73b_md_getRowAndColumn:
 _07f7c73b_md_test:
     pushl %ebp; movl %esp, %ebp
     
+// TODO #3: inline method-indices in method-call-generation
+//*/
+        _my_core_Class_m_getName := 56
+        _my_core_Runtime_m_getClassDesc := 56
+        _my_core_Runtime_m_allocate := 64
+        _my_core_Runtime_m_free := 72
+        _my_core_Runtime_m_printChar := 80
+        _my_core_Runtime_m_printString := 88
+        _my_core_Runtime_m_printInt := 96
+        _my_core_Runtime_m_printHex := 104
+        _my_core_Runtime_m_destroyInstance := 112
+        _my_core_Runtime_m_cast := 120
+        _my_core_Runtime_m_createThread := 128
+        _my_core_Runtime_m_createInstance := 136
+//*/            
             pushl %ecx
             pushl %edx
             
@@ -221,25 +240,25 @@ _07f7c73b_md_test:
         	addl 8, %esp
             popl %eax       // name cstring ref
             
-            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %eax; pushl _my_A_coi_out
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl 0x20; pushl _my_A_coi_out // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             movl _my_A_hvo_my_A(%ecx), %ebx     // inst vars offset (A)
             addl 4(%ecx), %ebx                  // @this.vars(A)
-            push _my_A_i_column(%ebx); pushl _my_core_Runtime_c_out // column
+            push _my_A_i_column(%ebx); pushl _my_A_coi_out // column
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl 0x20; pushl _my_A_coi_out // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 16(%ebp); pushl _my_core_Runtime_c_out // param row
+            pushl 16(%ebp); pushl _my_A_coi_out // param row
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
@@ -247,27 +266,27 @@ _07f7c73b_md_test:
             pushl %ecx; pushl _my_A_m_getRowAndColumn; call (%ecx)
         	addl 8, %esp
             
-            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl 0x20; pushl _my_A_coi_out // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             popl %eax       // column from getRowAndColumn
-            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %eax; pushl _my_A_coi_out
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_core_Runtime_c_out // ' '
+            pushl 0x20; pushl _my_A_coi_out // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             popl %eax       // row from getRowAndColumn
-            pushl %eax; pushl _my_core_Runtime_c_out
+            pushl %eax; pushl _my_A_coi_out
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
             movl 8(%ebp), %eax      // @class-desc "A"
             addl _my_A_coso_test, %eax
-            pushl %eax; pushl _my_core_Runtime_c_err
+            pushl %eax; pushl _my_A_coi_err
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             

@@ -8,6 +8,12 @@ entry = true
 */
 /* STARTUP */
 entry:
+// TODO #3: inline method-indices in method-call-generation
+//*/
+    _my_core_Runtime_m_destroyInstance := 112
+    _my_core_Runtime_m_createThread := 128
+    _my_core_Thread_m_run := 40
+//*/
     movw 0xc40, (cga_testline)
     
     movl %eax, %edi
