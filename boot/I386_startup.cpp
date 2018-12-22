@@ -41,14 +41,6 @@ void startup(unsigned long magic, void *mbi, void *mbh){
         debugLevel = 3;
     }
     
-    if (debugLevel >= 2) {
-        Iterator<Module> &modules = env.modules();
-        while (modules.hasNext()) {
-            modules.next().dump(env.out(), debugLevel >= 3);
-        }
-        modules.destroy();
-    }
-    
     I386KernelRuntime &runtime = env.create<I386KernelRuntime>();
     runtime.addHandler(env.create<StartupHandler>());
     runtime.addHandler(env.create<StoreHandler>());
