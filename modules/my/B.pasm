@@ -16,6 +16,7 @@ _my_B:
     .long _my_B_cno_my_B
     .long (_07f7c73c_cts - _my_B)
     .long (_07f7c73c_mts - _my_B)
+    .long (_07f7c73c_mdt - _my_B)
     .long (_07f7c73c_tpl - _my_B)
     .long (_07f7c73c_tpl_end - _07f7c73c_tpl)
     .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
@@ -57,110 +58,121 @@ _07f7c73c_ct_07f7c73c:
 _07f7c73c_mts:
 _07f7c73c_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73c_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73c_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73c_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73c_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73c_cto_01a2e54e
 _07f7c73c_mt_0dbda62f:
 _my_core_Thread_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73c_cto_01a2e54e
 _my_core_Thread_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73c_cto_01a2e54e
 _my_core_Thread_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73c_cto_01a2e54e
 _my_core_Thread_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73c_cto_01a2e54e
 _my_core_Thread_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73c_cto_01a2e54e
 _my_core_Thread_m_run := 40
-    .long _my_B_mdo_run
+    .long 0
     .long _07f7c73c_cto_07f7c73c
 _07f7c73c_mt_07f7c73b:
 _my_A_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73c_cto_01a2e54e
 _my_A_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73c_cto_01a2e54e
 _my_A_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73c_cto_01a2e54e
 _my_A_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73c_cto_01a2e54e
 _my_A_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73c_cto_01a2e54e
 _my_A_m_init := 40
-    .long _my_A_mdo_init
+    .long 0
     .long _07f7c73c_cto_07f7c73b
 _my_A_m_getRow := 48
-    .long _my_B_mdo_getRow
+    .long 12
     .long _07f7c73c_cto_07f7c73c
 _my_A_m_getRowAndColumn := 56
-    .long _my_A_mdo_getRowAndColumn
+    .long 8
     .long _07f7c73c_cto_07f7c73b
 _my_A_m_test := 64
-    .long _my_A_mdo_test
+    .long 12
     .long _07f7c73c_cto_07f7c73b
 _07f7c73c_mt_07f7c73c:
 _my_B_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73c_cto_01a2e54e
 _my_B_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73c_cto_01a2e54e
 _my_B_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73c_cto_01a2e54e
 _my_B_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73c_cto_01a2e54e
 _my_B_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73c_cto_01a2e54e
 _my_B_m_run := 40
-    .long _my_B_mdo_run
+    .long 0
     .long _07f7c73c_cto_07f7c73c
 _my_B_m_init := 48
-    .long _my_A_mdo_init
+    .long 0
     .long _07f7c73c_cto_07f7c73b
 _my_B_m_getRow := 56
-    .long _my_B_mdo_getRow
+    .long 12
     .long _07f7c73c_cto_07f7c73c
 _my_B_m_getRowAndColumn := 64
-    .long _my_A_mdo_getRowAndColumn
+    .long 8
     .long _07f7c73c_cto_07f7c73b
 _my_B_m_test := 72
-    .long _my_A_mdo_test
+    .long 12
     .long _07f7c73c_cto_07f7c73b
 _my_B_m_doIt := 80
-    .long _my_B_mdo_doIt
+    .long 4
     .long _07f7c73c_cto_07f7c73c
 _my_B_m_testAllocate := 88
-    .long _my_B_mdo_testAllocate
+    .long 8
     .long _07f7c73c_cto_07f7c73c
+
+// methods tab
+_07f7c73c_mdt:
+_my_B_mdo_run := (_07f7c73c_md_run - _my_B)
+    .long _my_B_mdo_run
+_my_B_mdo_doIt := (_07f7c73c_md_doIt - _my_B)
+    .long _my_B_mdo_doIt
+_my_B_mdo_testAllocate := (_07f7c73c_md_testAllocate - _my_B)
+    .long _my_B_mdo_testAllocate
+_my_B_mdo_getRow := (_07f7c73c_md_getRow - _my_B)
+    .long _my_B_mdo_getRow
 
 // constants
 // string doit
 _my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
 _07f7c73c_cos_doit:
-    .asciz "OMG! Compiling work's! "
+    .asciz "OMG! Compiling still work's! "
 
 // int out
 _my_B_coi_out := 0
@@ -245,7 +257,6 @@ _07f7c73c_tpl_end:
 
 // method definitions
 // method run
-.global _my_B_mdo_run := (_07f7c73c_md_run - _my_B)
 _07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
     
@@ -308,7 +319,6 @@ _07f7c73c_md_run:
     ret
 
 // method doIt
-.global _my_B_mdo_doIt := (_07f7c73c_md_doIt - _my_B)
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
     
@@ -395,7 +405,6 @@ _07f7c73c_md_doIt:
     ret
 
 // method testAllocate
-.global _my_B_mdo_testAllocate := (_07f7c73c_md_testAllocate - _my_B)
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
     
@@ -452,7 +461,6 @@ _07f7c73c_md_testAllocate:
     ret
 
 // method getRow
-.global _my_B_mdo_getRow := (_07f7c73c_md_getRow - _my_B)
 _07f7c73c_md_getRow:
     pushl %ebp; movl %esp, %ebp
     

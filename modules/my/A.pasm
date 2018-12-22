@@ -16,6 +16,7 @@ _my_A:
     .long _my_A_cno_my_A
     .long (_07f7c73b_cts - _my_A)
     .long (_07f7c73b_mts - _my_A)
+    .long (_07f7c73b_mdt - _my_A)
     .long (_07f7c73b_tpl - _my_A)
     .long (_07f7c73b_tpl_end - _07f7c73b_tpl)
     .long (_07f7c73b_tpl_h_01a2e54e - _07f7c73b_tpl)
@@ -45,48 +46,59 @@ _07f7c73b_ct_07f7c73b:
 _07f7c73b_mts:
 _07f7c73b_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73b_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73b_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73b_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73b_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73b_cto_01a2e54e
 _07f7c73b_mt_07f7c73b:
 _my_A_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _07f7c73b_cto_01a2e54e
 _my_A_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _07f7c73b_cto_01a2e54e
 _my_A_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _07f7c73b_cto_01a2e54e
 _my_A_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _07f7c73b_cto_01a2e54e
 _my_A_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _07f7c73b_cto_01a2e54e
 _my_A_m_init := 40
-    .long _my_A_mdo_init
+    .long 0
     .long _07f7c73b_cto_07f7c73b
 _my_A_m_getRow := 48
-    .long _my_A_mdo_getRow
+    .long 4
     .long _07f7c73b_cto_07f7c73b
 _my_A_m_getRowAndColumn := 56
-    .long _my_A_mdo_getRowAndColumn
+    .long 8
     .long _07f7c73b_cto_07f7c73b
 _my_A_m_test := 64
-    .long _my_A_mdo_test
+    .long 12
     .long _07f7c73b_cto_07f7c73b
+
+// methods tab
+_07f7c73b_mdt:
+_my_A_mdo_init := (_07f7c73b_md_init - _my_A)
+    .long _my_A_mdo_init
+_my_A_mdo_getRow := (_07f7c73b_md_getRow - _my_A)
+    .long _my_A_mdo_getRow
+_my_A_mdo_getRowAndColumn := (_07f7c73b_md_getRowAndColumn - _my_A)
+    .long _my_A_mdo_getRowAndColumn
+_my_A_mdo_test := (_07f7c73b_md_test - _my_A)
+    .long _my_A_mdo_test
 
 // constants
 // string test
@@ -147,7 +159,6 @@ _07f7c73b_tpl_end:
 
 // method definitions
 // method init
-.global _my_A_mdo_init := (_07f7c73b_md_init - _my_A)
 _07f7c73b_md_init:
     pushl %ebp; movl %esp, %ebp
     
@@ -164,7 +175,6 @@ _07f7c73b_md_init:
     ret
 
 // method getRow
-.global _my_A_mdo_getRow := (_07f7c73b_md_getRow - _my_A)
 _07f7c73b_md_getRow:
     pushl %ebp; movl %esp, %ebp
     
@@ -179,7 +189,6 @@ _07f7c73b_md_getRow:
     ret
 
 // method getRowAndColumn
-.global _my_A_mdo_getRowAndColumn := (_07f7c73b_md_getRowAndColumn - _my_A)
 _07f7c73b_md_getRowAndColumn:
     pushl %ebp; movl %esp, %ebp
     
@@ -196,7 +205,6 @@ _07f7c73b_md_getRowAndColumn:
     ret
 
 // method test
-.global _my_A_mdo_test := (_07f7c73b_md_test - _my_A)
 _07f7c73b_md_test:
     pushl %ebp; movl %esp, %ebp
     

@@ -24,7 +24,7 @@ rlibs:
 $(LIBDIR) $(IMGDIR) $(BINDIR):
 	@mkdir -p $@
 
-$(IMGDIR)/bootdisk.img: $(IMGDIR) $(BOOTBLOCKS)
+$(IMGDIR)/bootdisk.img: $(IMGDIR) $(BINDIR)/pasm $(BINDIR)/store $(BOOTBLOCKS)
 	@echo "creating $@"
 	@cat $(BOOTBLOCKS) > $@
 
@@ -32,7 +32,7 @@ $(BOOTDIR)/$(MASCHINE)_%:
 	@$(MAKEBOOT) $@
 
 clean:
-	@rm -rf $(OBJDIR) $(LIBDIR) test/suite
+	@rm -rf $(OBJDIR) $(LIBDIR) $(BINDIR)
 	@$(MAKEBOOT) $@
 
 $(BINDIR)/testsuite: $(SRCDIR)/commands/testsuite.cpp $(TESTSUITELIBS:%=$(LIBDIR)/%) $(BINDIR)

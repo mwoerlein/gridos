@@ -17,6 +17,7 @@ _my_core_Runtime:
     .long _my_core_Runtime_cno_my_core_Runtime
     .long (_4990fdfb_cts - _my_core_Runtime)
     .long (_4990fdfb_mts - _my_core_Runtime)
+    .long (_4990fdfb_mdt - _my_core_Runtime)
     .long (_4990fdfb_tpl - _my_core_Runtime)
     .long (_4990fdfb_tpl_end - _4990fdfb_tpl)
     .long (_4990fdfb_tpl_h_01a2e54e - _4990fdfb_tpl)
@@ -46,75 +47,106 @@ _4990fdfb_ct_4990fdfb:
 _4990fdfb_mts:
 _4990fdfb_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _4990fdfb_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _4990fdfb_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _4990fdfb_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _4990fdfb_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _4990fdfb_cto_01a2e54e
 _4990fdfb_mt_4990fdfb:
 _my_core_Runtime_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _4990fdfb_cto_01a2e54e
 _my_core_Runtime_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _4990fdfb_cto_01a2e54e
 _my_core_Runtime_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _4990fdfb_cto_01a2e54e
 _my_core_Runtime_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _4990fdfb_cto_01a2e54e
 _my_core_Runtime_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _4990fdfb_cto_01a2e54e
 _my_core_Runtime_m_bootstrap := 40
-    .long _my_core_Runtime_mdo_bootstrap
+    .long 0
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_initSysCall := 48
-    .long _my_core_Runtime_mdo_initSysCall
+    .long 4
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_getClassDesc := 56
-    .long _my_core_Runtime_mdo_getClassDesc
+    .long 8
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_allocate := 64
-    .long _my_core_Runtime_mdo_allocate
+    .long 12
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_free := 72
-    .long _my_core_Runtime_mdo_free
+    .long 16
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_printChar := 80
-    .long _my_core_Runtime_mdo_printChar
+    .long 20
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_printString := 88
-    .long _my_core_Runtime_mdo_printString
+    .long 24
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_printInt := 96
-    .long _my_core_Runtime_mdo_printInt
+    .long 28
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_printHex := 104
-    .long _my_core_Runtime_mdo_printHex
+    .long 32
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_destroyInstance := 112
-    .long _my_core_Runtime_mdo_destroyInstance
+    .long 36
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_cast := 120
-    .long _my_core_Runtime_mdo_cast
+    .long 40
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_createAndRunThread := 128
-    .long _my_core_Runtime_mdo_createAndRunThread
+    .long 44
     .long _4990fdfb_cto_4990fdfb
 _my_core_Runtime_m_createInstance := 136
-    .long _my_core_Runtime_mdo_createInstance
+    .long 48
     .long _4990fdfb_cto_4990fdfb
+
+// methods tab
+_4990fdfb_mdt:
+_my_core_Runtime_mdo_bootstrap := (_4990fdfb_md_bootstrap - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_bootstrap
+_my_core_Runtime_mdo_initSysCall := (_4990fdfb_md_initSysCall - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_initSysCall
+_my_core_Runtime_mdo_getClassDesc := (_4990fdfb_md_getClassDesc - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_getClassDesc
+_my_core_Runtime_mdo_allocate := (_4990fdfb_md_allocate - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_allocate
+_my_core_Runtime_mdo_free := (_4990fdfb_md_free - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_free
+_my_core_Runtime_mdo_printChar := (_4990fdfb_md_printChar - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_printChar
+_my_core_Runtime_mdo_printString := (_4990fdfb_md_printString - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_printString
+_my_core_Runtime_mdo_printInt := (_4990fdfb_md_printInt - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_printInt
+_my_core_Runtime_mdo_printHex := (_4990fdfb_md_printHex - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_printHex
+_my_core_Runtime_mdo_destroyInstance := (_4990fdfb_md_destroyInstance - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_destroyInstance
+_my_core_Runtime_mdo_cast := (_4990fdfb_md_cast - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_cast
+_my_core_Runtime_mdo_createAndRunThread := (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_createAndRunThread
+_my_core_Runtime_mdo_createInstance := (_4990fdfb_md_createInstance - _my_core_Runtime)
+    .long _my_core_Runtime_mdo_createInstance
+    .long 0
+    .long 0
 
 // constants
 // string mClass
@@ -169,17 +201,20 @@ _my_core_Runtime_coi_ch_inst_handle := 4
 // int ch_cts
 _my_core_Runtime_coi_ch_cts := 12
 
+// int ch_mt
+_my_core_Runtime_coi_ch_mt := 20
+
 // int ch_tpl
-_my_core_Runtime_coi_ch_tpl := 20
+_my_core_Runtime_coi_ch_tpl := 24
 
 // int ch_tpl_size
-_my_core_Runtime_coi_ch_tpl_size := 24
+_my_core_Runtime_coi_ch_tpl_size := 28
 
 // int ch_tpl_obj_handle
-_my_core_Runtime_coi_ch_tpl_obj_handle := 28
+_my_core_Runtime_coi_ch_tpl_obj_handle := 32
 
 // int ch_tpl_cls_handle
-_my_core_Runtime_coi_ch_tpl_cls_handle := 32
+_my_core_Runtime_coi_ch_tpl_cls_handle := 36
 
 // int cts_cdo
 _my_core_Runtime_coi_cts_cdo := 0
@@ -240,7 +275,6 @@ _4990fdfb_tpl_end:
 
 // method definitions
 // method bootstrap
-.global _my_core_Runtime_mdo_bootstrap := (_4990fdfb_md_bootstrap - _my_core_Runtime)
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
     
@@ -328,7 +362,6 @@ _4990fdfb_md_bootstrap:
     ret
 
 // method initSysCall
-.global _my_core_Runtime_mdo_initSysCall := (_4990fdfb_md_initSysCall - _my_core_Runtime)
 _4990fdfb_md_initSysCall:
     pushl %ebp; movl %esp, %ebp
     
@@ -344,7 +377,6 @@ _4990fdfb_md_initSysCall:
     ret
 
 // method getClassDesc
-.global _my_core_Runtime_mdo_getClassDesc := (_4990fdfb_md_getClassDesc - _my_core_Runtime)
 _4990fdfb_md_getClassDesc:
     pushl %ebp; movl %esp, %ebp
     
@@ -367,7 +399,6 @@ _4990fdfb_md_getClassDesc:
     ret
 
 // method allocate
-.global _my_core_Runtime_mdo_allocate := (_4990fdfb_md_allocate - _my_core_Runtime)
 _4990fdfb_md_allocate:
     pushl %ebp; movl %esp, %ebp
     
@@ -390,7 +421,6 @@ _4990fdfb_md_allocate:
     ret
 
 // method free
-.global _my_core_Runtime_mdo_free := (_4990fdfb_md_free - _my_core_Runtime)
 _4990fdfb_md_free:
     pushl %ebp; movl %esp, %ebp
     
@@ -412,7 +442,6 @@ _4990fdfb_md_free:
     ret
 
 // method printChar
-.global _my_core_Runtime_mdo_printChar := (_4990fdfb_md_printChar - _my_core_Runtime)
 _4990fdfb_md_printChar:
     pushl %ebp; movl %esp, %ebp
     
@@ -435,7 +464,6 @@ _4990fdfb_md_printChar:
     ret
 
 // method printString
-.global _my_core_Runtime_mdo_printString := (_4990fdfb_md_printString - _my_core_Runtime)
 _4990fdfb_md_printString:
     pushl %ebp; movl %esp, %ebp
     
@@ -458,7 +486,6 @@ _4990fdfb_md_printString:
     ret
 
 // method printInt
-.global _my_core_Runtime_mdo_printInt := (_4990fdfb_md_printInt - _my_core_Runtime)
 _4990fdfb_md_printInt:
     pushl %ebp; movl %esp, %ebp
     
@@ -481,7 +508,6 @@ _4990fdfb_md_printInt:
     ret
 
 // method printHex
-.global _my_core_Runtime_mdo_printHex := (_4990fdfb_md_printHex - _my_core_Runtime)
 _4990fdfb_md_printHex:
     pushl %ebp; movl %esp, %ebp
     
@@ -504,7 +530,6 @@ _4990fdfb_md_printHex:
     ret
 
 // method destroyInstance
-.global _my_core_Runtime_mdo_destroyInstance := (_4990fdfb_md_destroyInstance - _my_core_Runtime)
 _4990fdfb_md_destroyInstance:
     pushl %ebp; movl %esp, %ebp
     
@@ -520,7 +545,6 @@ _4990fdfb_md_destroyInstance:
     ret
 
 // method cast
-.global _my_core_Runtime_mdo_cast := (_4990fdfb_md_cast - _my_core_Runtime)
 _4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
     
@@ -559,7 +583,6 @@ _4990fdfb_md_cast:
     ret
 
 // method createAndRunThread
-.global _my_core_Runtime_mdo_createAndRunThread := (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
 _4990fdfb_md_createAndRunThread:
     pushl %ebp; movl %esp, %ebp
     
@@ -599,7 +622,6 @@ _4990fdfb_md_createAndRunThread:
     ret
 
 // method createInstance
-.global _my_core_Runtime_mdo_createInstance := (_4990fdfb_md_createInstance - _my_core_Runtime)
 _4990fdfb_md_createInstance:
     pushl %ebp; movl %esp, %ebp
     
@@ -687,10 +709,13 @@ _4990fdfb_md_createInstance:
             addl 8(%esp), %eax	// get vtab-entry by adding method-offset number
             movl 0(%ecx), %ebx	// get class-desc
             addl 4(%eax), %ebx  // get method-vtabs-entry
-            addl _my_core_Runtime_coi_cts_ho(%ebx), %ecx   // compute method-@this
+            addl _my_core_Runtime_coi_cts_ho(%ebx), %ecx  // compute method-@this
             movl %ecx, 12(%esp) // store method-@this
-            movl _my_core_Runtime_coi_cts_cdo(%ebx), %ebx  // get method-class-desc
+            movl _my_core_Runtime_coi_cts_cdo(%ebx), %ebx // get method-class-desc
             movl %ebx, 8(%esp)  // store method-class-desc
-            addl 0(%eax), %ebx  // compute method-addr
+            movl %ebx, %ecx
+            addl _my_core_Runtime_coi_ch_mt(%ecx), %ecx   // get methods-tab
+            addl 0(%eax), %ecx  // get method-offset-addr
+            addl (%ecx), %ebx   // compute method-addr
             popl %ecx
             jmp %ebx            // goto method

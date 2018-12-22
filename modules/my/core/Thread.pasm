@@ -16,6 +16,7 @@ _my_core_Thread:
     .long _my_core_Thread_cno_my_core_Thread
     .long (_0dbda62f_cts - _my_core_Thread)
     .long (_0dbda62f_mts - _my_core_Thread)
+    .long (_0dbda62f_mdt - _my_core_Thread)
     .long (_0dbda62f_tpl - _my_core_Thread)
     .long (_0dbda62f_tpl_end - _0dbda62f_tpl)
     .long (_0dbda62f_tpl_h_01a2e54e - _0dbda62f_tpl)
@@ -45,39 +46,43 @@ _0dbda62f_ct_0dbda62f:
 _0dbda62f_mts:
 _0dbda62f_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _0dbda62f_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _0dbda62f_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _0dbda62f_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _0dbda62f_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _0dbda62f_cto_01a2e54e
 _0dbda62f_mt_0dbda62f:
 _my_core_Thread_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _0dbda62f_cto_01a2e54e
 _my_core_Thread_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _0dbda62f_cto_01a2e54e
 _my_core_Thread_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _0dbda62f_cto_01a2e54e
 _my_core_Thread_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _0dbda62f_cto_01a2e54e
 _my_core_Thread_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _0dbda62f_cto_01a2e54e
 _my_core_Thread_m_run := 40
-    .long _my_core_Thread_mdo_run
+    .long 0
     .long _0dbda62f_cto_0dbda62f
+
+// methods tab
+_0dbda62f_mdt:
+    .long 0
 
 // constants
 // class-name Object
@@ -119,4 +124,3 @@ _0dbda62f_tpl_end:
 
 // method definitions
 // method run
-.global _my_core_Thread_mdo_run := 0

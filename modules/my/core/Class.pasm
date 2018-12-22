@@ -16,6 +16,7 @@ _my_core_Class:
     .long _my_core_Class_cno_my_core_Class
     .long (_ff38e2ed_cts - _my_core_Class)
     .long (_ff38e2ed_mts - _my_core_Class)
+    .long (_ff38e2ed_mdt - _my_core_Class)
     .long (_ff38e2ed_tpl - _my_core_Class)
     .long (_ff38e2ed_tpl_end - _ff38e2ed_tpl)
     .long (_ff38e2ed_tpl_h_01a2e54e - _ff38e2ed_tpl)
@@ -45,45 +46,54 @@ _ff38e2ed_ct_ff38e2ed:
 _ff38e2ed_mts:
 _ff38e2ed_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _ff38e2ed_cto_01a2e54e
 _ff38e2ed_mt_ff38e2ed:
 _my_core_Class_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Class_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Class_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Class_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Class_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _ff38e2ed_cto_01a2e54e
 _my_core_Class_m_getDesc := 40
-    .long _my_core_Class_mdo_getDesc
+    .long 0
     .long _ff38e2ed_cto_ff38e2ed
 _my_core_Class_m_setDesc := 48
-    .long _my_core_Class_mdo_setDesc
+    .long 4
     .long _ff38e2ed_cto_ff38e2ed
 _my_core_Class_m_getName := 56
-    .long _my_core_Class_mdo_getName
+    .long 8
     .long _ff38e2ed_cto_ff38e2ed
+
+// methods tab
+_ff38e2ed_mdt:
+_my_core_Class_mdo_getDesc := (_ff38e2ed_md_getDesc - _my_core_Class)
+    .long _my_core_Class_mdo_getDesc
+_my_core_Class_mdo_setDesc := (_ff38e2ed_md_setDesc - _my_core_Class)
+    .long _my_core_Class_mdo_setDesc
+_my_core_Class_mdo_getName := (_ff38e2ed_md_getName - _my_core_Class)
+    .long _my_core_Class_mdo_getName
 
 // constants
 // int ch_inst_handle
@@ -135,7 +145,6 @@ _ff38e2ed_tpl_end:
 
 // method definitions
 // method getDesc
-.global _my_core_Class_mdo_getDesc := (_ff38e2ed_md_getDesc - _my_core_Class)
 _ff38e2ed_md_getDesc:
     pushl %ebp; movl %esp, %ebp
     
@@ -149,7 +158,6 @@ _ff38e2ed_md_getDesc:
     ret
 
 // method setDesc
-.global _my_core_Class_mdo_setDesc := (_ff38e2ed_md_setDesc - _my_core_Class)
 _ff38e2ed_md_setDesc:
     pushl %ebp; movl %esp, %ebp
     
@@ -165,7 +173,6 @@ _ff38e2ed_md_setDesc:
     ret
 
 // method getName
-.global _my_core_Class_mdo_getName := (_ff38e2ed_md_getName - _my_core_Class)
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
     

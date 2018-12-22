@@ -16,6 +16,7 @@ _my_core_Object:
     .long _my_core_Object_cno_my_core_Object
     .long (_01a2e54e_cts - _my_core_Object)
     .long (_01a2e54e_mts - _my_core_Object)
+    .long (_01a2e54e_mdt - _my_core_Object)
     .long (_01a2e54e_tpl - _my_core_Object)
     .long (_01a2e54e_tpl_end - _01a2e54e_tpl)
     .long (_01a2e54e_tpl_h_01a2e54e - _01a2e54e_tpl)
@@ -39,20 +40,33 @@ _01a2e54e_ct_01a2e54e:
 _01a2e54e_mts:
 _01a2e54e_mt_01a2e54e:
 _my_core_Object_m_getClass := 0
-    .long _my_core_Object_mdo_getClass
+    .long 0
     .long _01a2e54e_cto_01a2e54e
 _my_core_Object_m_hash := 8
-    .long _my_core_Object_mdo_hash
+    .long 4
     .long _01a2e54e_cto_01a2e54e
 _my_core_Object_m_equals := 16
-    .long _my_core_Object_mdo_equals
+    .long 8
     .long _01a2e54e_cto_01a2e54e
 _my_core_Object_m_rt := 24
-    .long _my_core_Object_mdo_rt
+    .long 12
     .long _01a2e54e_cto_01a2e54e
 _my_core_Object_m_setRt := 32
-    .long _my_core_Object_mdo_setRt
+    .long 16
     .long _01a2e54e_cto_01a2e54e
+
+// methods tab
+_01a2e54e_mdt:
+_my_core_Object_mdo_getClass := (_01a2e54e_md_getClass - _my_core_Object)
+    .long _my_core_Object_mdo_getClass
+_my_core_Object_mdo_hash := (_01a2e54e_md_hash - _my_core_Object)
+    .long _my_core_Object_mdo_hash
+_my_core_Object_mdo_equals := (_01a2e54e_md_equals - _my_core_Object)
+    .long _my_core_Object_mdo_equals
+_my_core_Object_mdo_rt := (_01a2e54e_md_rt - _my_core_Object)
+    .long _my_core_Object_mdo_rt
+_my_core_Object_mdo_setRt := (_01a2e54e_md_setRt - _my_core_Object)
+    .long _my_core_Object_mdo_setRt
 
 // constants
 // int ch_inst_handle
@@ -83,7 +97,6 @@ _01a2e54e_tpl_end:
 
 // method definitions
 // method getClass
-.global _my_core_Object_mdo_getClass := (_01a2e54e_md_getClass - _my_core_Object)
 _01a2e54e_md_getClass:
     pushl %ebp; movl %esp, %ebp
     
@@ -97,7 +110,6 @@ _01a2e54e_md_getClass:
     ret
 
 // method hash
-.global _my_core_Object_mdo_hash := (_01a2e54e_md_hash - _my_core_Object)
 _01a2e54e_md_hash:
     pushl %ebp; movl %esp, %ebp
     
@@ -109,7 +121,6 @@ _01a2e54e_md_hash:
     ret
 
 // method equals
-.global _my_core_Object_mdo_equals := (_01a2e54e_md_equals - _my_core_Object)
 _01a2e54e_md_equals:
     pushl %ebp; movl %esp, %ebp
     
@@ -127,7 +138,6 @@ _01a2e54e_md_equals:
     ret
 
 // method rt
-.global _my_core_Object_mdo_rt := (_01a2e54e_md_rt - _my_core_Object)
 _01a2e54e_md_rt:
     pushl %ebp; movl %esp, %ebp
     
@@ -141,7 +151,6 @@ _01a2e54e_md_rt:
     ret
 
 // method setRt
-.global _my_core_Object_mdo_setRt := (_01a2e54e_md_setRt - _my_core_Object)
 _01a2e54e_md_setRt:
     pushl %ebp; movl %esp, %ebp
     

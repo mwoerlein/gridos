@@ -13,6 +13,7 @@ typedef struct pool_class_descriptor {
     size_t classname_offset;
     size_t class_tabs_offset;
     size_t method_tabs_offset;
+    size_t methods_tab_offset;
     size_t inst_tpl_offset;
     size_t inst_tpl_size;
     size_t obj_handle_offset;
