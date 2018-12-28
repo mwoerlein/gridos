@@ -101,16 +101,16 @@ _my_A_mdo_test := (_07f7c73b_md_test - _my_A)
     .long _my_A_mdo_test
 
 // constants
-// string test
-_my_A_coso_test := (_07f7c73b_cos_test - _my_A)
-_07f7c73b_cos_test:
-    .asciz " Test\n"
-
 // int out
 _my_A_coi_out := 0
 
 // int err
 _my_A_coi_err := 1
+
+// string test
+_my_A_coso_test := (_07f7c73b_cos_test - _my_A)
+_07f7c73b_cos_test:
+    .asciz " Test\n"
 
 // class-name Object
 _my_A_cno_my_core_Object := (_07f7c73b_cn_01a2e54e - _my_A)
@@ -211,18 +211,18 @@ _07f7c73b_md_test:
 // TODO #3: inline method-indices in method-call-generation
 //*/
         _my_core_Class_m_getName := 56
-        _my_core_Runtime_m_getClassDesc := 56
-        _my_core_Runtime_m_allocate := 64
-        _my_core_Runtime_m_free := 72
-        _my_core_Runtime_m_printChar := 80
-        _my_core_Runtime_m_printString := 88
-        _my_core_Runtime_m_printInt := 96
-        _my_core_Runtime_m_printHex := 104
-        _my_core_Runtime_m_destroyInstance := 112
-        _my_core_Runtime_m_cast := 120
-        _my_core_Runtime_m_createAndRunThread := 128
-        _my_core_Runtime_m_createInstance := 136
-//*/            
+        _my_core_Runtime_m_getClassDesc := 48
+        _my_core_Runtime_m_allocate := 56
+        _my_core_Runtime_m_free := 64
+        _my_core_Runtime_m_printChar := 72
+        _my_core_Runtime_m_printString := 80
+        _my_core_Runtime_m_printInt := 88
+        _my_core_Runtime_m_printHex := 96
+        _my_core_Runtime_m_destroyInstance := 104
+        _my_core_Runtime_m_cast := 112
+        _my_core_Runtime_m_createAndRunThread := 120
+        _my_core_Runtime_m_createInstance := 128
+//*/
             pushl %ecx
             pushl %edx
             

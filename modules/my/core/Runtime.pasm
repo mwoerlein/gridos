@@ -77,44 +77,44 @@ _my_core_Runtime_m_rt := 24
 _my_core_Runtime_m_setRt := 32
     .long 16
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_bootstrap := 40
-    .long 0
-    .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_initSysCall := 48
+_my_core_Runtime_m_initSysCall := 40
     .long 4
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_getClassDesc := 56
+_my_core_Runtime_m_getClassDesc := 48
     .long 8
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_allocate := 64
+_my_core_Runtime_m_allocate := 56
     .long 12
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_free := 72
+_my_core_Runtime_m_free := 64
     .long 16
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printChar := 80
+_my_core_Runtime_m_printChar := 72
     .long 20
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printString := 88
+_my_core_Runtime_m_printString := 80
     .long 24
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printInt := 96
+_my_core_Runtime_m_printInt := 88
     .long 28
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printHex := 104
+_my_core_Runtime_m_printHex := 96
     .long 32
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_destroyInstance := 112
+_my_core_Runtime_m_destroyInstance := 104
     .long 36
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_cast := 120
+_my_core_Runtime_m_cast := 112
     .long 40
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_createAndRunThread := 128
+_my_core_Runtime_m_createAndRunThread := 120
     .long 44
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_createInstance := 136
+_my_core_Runtime_m_createInstance := 128
     .long 48
+    .long _4990fdfb_cto_4990fdfb
+_my_core_Runtime_m_bootstrap := 136
+    .long 0
     .long _4990fdfb_cto_4990fdfb
 
 // methods tab
@@ -149,6 +149,12 @@ _my_core_Runtime_mdo_createInstance := (_4990fdfb_md_createInstance - _my_core_R
     .long 0
 
 // constants
+// int out
+_my_core_Runtime_coi_out := 0
+
+// int err
+_my_core_Runtime_coi_err := 1
+
 // string mClass
 _my_core_Runtime_coso_mClass := (_4990fdfb_cos_mClass - _my_core_Runtime)
 _4990fdfb_cos_mClass:
@@ -158,12 +164,6 @@ _4990fdfb_cos_mClass:
 _my_core_Runtime_coso_mThread := (_4990fdfb_cos_mThread - _my_core_Runtime)
 _4990fdfb_cos_mThread:
     .asciz "my::core::Thread"
-
-// int out
-_my_core_Runtime_coi_out := 0
-
-// int err
-_my_core_Runtime_coi_err := 1
 
 // int SysCall_allocate
 _my_core_Runtime_coi_SysCall_allocate := 1

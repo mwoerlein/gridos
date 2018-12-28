@@ -169,16 +169,16 @@ _my_B_mdo_getRow := (_07f7c73c_md_getRow - _my_B)
     .long _my_B_mdo_getRow
 
 // constants
-// string doit
-_my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
-_07f7c73c_cos_doit:
-    .asciz "OMG! Compiling still work's! "
-
 // int out
 _my_B_coi_out := 0
 
 // int err
 _my_B_coi_err := 1
+
+// string doit
+_my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
+_07f7c73c_cos_doit:
+    .asciz "OMG! Compiling still work's! "
 
 // class-name Object
 _my_B_cno_my_core_Object := (_07f7c73c_cn_01a2e54e - _my_B)
@@ -262,18 +262,18 @@ _07f7c73c_md_run:
     
 // TODO #3: inline method-indices in method-call-generation
 //*/
-        _my_core_Runtime_m_getClassDesc := 56
-        _my_core_Runtime_m_allocate := 64
-        _my_core_Runtime_m_free := 72
-        _my_core_Runtime_m_printChar := 80
-        _my_core_Runtime_m_printString := 88
-        _my_core_Runtime_m_printInt := 96
-        _my_core_Runtime_m_printHex := 104
-        _my_core_Runtime_m_destroyInstance := 112
-        _my_core_Runtime_m_cast := 120
-        _my_core_Runtime_m_createAndRunThread := 128
-        _my_core_Runtime_m_createInstance := 136
-//*/            
+        _my_core_Runtime_m_getClassDesc := 48
+        _my_core_Runtime_m_allocate := 56
+        _my_core_Runtime_m_free := 64
+        _my_core_Runtime_m_printChar := 72
+        _my_core_Runtime_m_printString := 80
+        _my_core_Runtime_m_printInt := 88
+        _my_core_Runtime_m_printHex := 96
+        _my_core_Runtime_m_destroyInstance := 104
+        _my_core_Runtime_m_cast := 112
+        _my_core_Runtime_m_createAndRunThread := 120
+        _my_core_Runtime_m_createInstance := 128
+//*/
             pushl %ecx
             pushl %edx
             pushl %edi
