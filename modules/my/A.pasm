@@ -197,9 +197,9 @@ _07f7c73b_md_getRowAndColumn:
             addl 4(%eax), %ebx              // @this.vars(A)
             
             movl _my_A_i_row(%ebx), %eax    // row
-            movl %eax, 20(%ebp)             // return row
+            movl %eax, 16(%ebp)             // return row
             movl _my_A_i_column(%ebx), %eax // column
-            movl %eax, 16(%ebp)             // return column
+            movl %eax, 20(%ebp)             // return column
     
     leave
     ret
@@ -248,25 +248,25 @@ _07f7c73b_md_test:
         	addl 8, %esp
             popl %eax       // name cstring ref
             
-            pushl %eax; pushl _my_A_coi_out
+            pushl _my_A_coi_out; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_A_coi_out // ' '
+            pushl _my_A_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             movl _my_A_hvo_my_A(%ecx), %ebx     // inst vars offset (A)
             addl 4(%ecx), %ebx                  // @this.vars(A)
-            push _my_A_i_column(%ebx); pushl _my_A_coi_out // column
+            pushl _my_A_coi_out; push _my_A_i_column(%ebx) // column
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_A_coi_out // ' '
+            pushl _my_A_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 16(%ebp); pushl _my_A_coi_out // param row
+            pushl _my_A_coi_out; pushl 16(%ebp) // param row
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
@@ -274,27 +274,27 @@ _07f7c73b_md_test:
             pushl %ecx; pushl _my_A_m_getRowAndColumn; call (%ecx)
         	addl 8, %esp
             
-            pushl 0x20; pushl _my_A_coi_out // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            popl %eax       // column from getRowAndColumn
-            pushl %eax; pushl _my_A_coi_out
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            pushl 0x20; pushl _my_A_coi_out // ' '
+            pushl _my_A_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             popl %eax       // row from getRowAndColumn
-            pushl %eax; pushl _my_A_coi_out
+            pushl _my_A_coi_out; pushl %eax
+            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
+            addl 16, %esp
+            
+            pushl _my_A_coi_out; pushl 0x20 // ' '
+            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
+            addl 16, %esp
+            
+            popl %eax       // column from getRowAndColumn
+            pushl _my_A_coi_out; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
             movl 8(%ebp), %eax      // @class-desc "A"
             addl _my_A_coso_test, %eax
-            pushl %eax; pushl _my_A_coi_err
+            pushl _my_A_coi_err; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             

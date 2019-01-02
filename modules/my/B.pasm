@@ -292,14 +292,14 @@ _07f7c73c_md_run:
         	
             movl 8(%ebp), %eax          // @class-desc "B"
             addl _my_B_cno_my_A, %eax   // "/my/A"
-            subl 4, %esp  # return value of createInstance
+            subl 4, %esp    // return value of createInstance
             pushl %eax
             pushl %edi; pushl _my_core_Runtime_m_createInstance; call (%edi)
         	addl 12, %esp
             popl %edx; // inst_A (type A)
             
-            pushl 5
             pushl 2
+            pushl 5
             pushl %edx; pushl _my_A_m_init; call (%edx)
         	addl 16, %esp
             
@@ -332,13 +332,13 @@ _07f7c73c_md_doIt:
         	addl 8, %esp
             popl %edx           // Runtime(Type Runtime)
             
-            pushl 0x40; pushl _my_B_coi_err // '@'
+            pushl _my_B_coi_err; pushl 0x40 // '@'
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
             movl 8(%ebp), %eax         // @class-desc "B"
             addl _my_B_coso_doit, %eax // "DoIt "
-            pushl %eax; pushl _my_B_coi_out
+            pushl _my_B_coi_out; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
             addl 16, %esp
             
@@ -348,11 +348,11 @@ _07f7c73c_md_doIt:
             addl 12, %esp
             popl %eax
             
-            pushl %eax; pushl _my_B_coi_out
+            pushl _my_B_coi_out; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_B_coi_out // ' '
+            pushl _my_B_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
@@ -362,7 +362,7 @@ _07f7c73c_md_doIt:
             addl 12, %esp
             popl %eax
             
-            pushl %eax; pushl _my_B_coi_out
+            pushl _my_B_coi_out; pushl %eax
             pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
             addl 16, %esp
             
@@ -370,11 +370,11 @@ _07f7c73c_md_doIt:
             pushl %ecx; pushl _my_B_m_testAllocate; call (%ecx)
         	addl 12, %esp
             
-            pushl 0x40; pushl _my_B_coi_err // '@'
+            pushl _my_B_coi_err; pushl 0x40 // '@'
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 0xa; pushl _my_B_coi_out // '/n'
+            pushl _my_B_coi_out; pushl 0xa // '/n'
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
@@ -425,27 +425,27 @@ _07f7c73c_md_testAllocate:
         	addl 12, %esp
             popl %esi
             
-            pushl 0x20; pushl _my_B_coi_out // ' '
+            pushl _my_B_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl %esi; pushl _my_B_coi_out
+            pushl _my_B_coi_out; pushl %esi
             pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_B_coi_out // ' '
+            pushl _my_B_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl (%esi); pushl _my_B_coi_out
+            pushl _my_B_coi_out; pushl (%esi)
             pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
-            pushl 0x20; pushl _my_B_coi_out // ' '
+            pushl _my_B_coi_out; pushl 0x20 // ' '
             pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
             addl 16, %esp
             
-            pushl 4(%esi); pushl _my_B_coi_out 
+            pushl _my_B_coi_out; pushl 4(%esi) 
             pushl %edx; pushl _my_core_Runtime_m_printHex; call (%edx)
             addl 16, %esp
             
