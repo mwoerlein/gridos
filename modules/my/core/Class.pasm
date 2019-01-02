@@ -147,41 +147,54 @@ _ff38e2ed_tpl_end:
 // method getDesc
 _ff38e2ed_md_getDesc:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax                     // @this (Type Class)
-            movl _my_core_Class_hvo_my_core_Class(%eax), %ebx // inst vars offset (Class)
-            addl 4(%eax), %ebx                      // @this.vars(Class)
-            movl _my_core_Class_i_desc(%ebx), %eax       // @class desc
-            movl %eax, 16(%ebp)                     // return @class desc
-    
+    subl 8, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_core_Class_i_desc(%ebx), %eax
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 16(%ebp)
+    jmp _ff38e2ed_md_getDesc_return
+_ff38e2ed_md_getDesc_return:
     leave
     ret
 
 // method setDesc
 _ff38e2ed_md_setDesc:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax                     // @this (Type Class)
-            movl _my_core_Class_hvo_my_core_Class(%eax), %ebx // inst vars offset (Class)
-            addl 4(%eax), %ebx                      // @this.vars(Class)
+    subl 8, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -8(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl -8(%ebp), %eax
+    movl %eax, _my_core_Class_i_desc(%ebx)
             movl 16(%ebp), %eax                     // param @class desc
-            movl %eax, _my_core_Class_i_desc(%ebx)       // store @class desc
             movl 12(%ebp), %ebx                     // @this (Type Class)
             movl %ebx, _my_core_Class_coi_ch_inst_handle(%eax)   // store @this (Type Class) in class desc
-    
+    jmp _ff38e2ed_md_setDesc_return
+_ff38e2ed_md_setDesc_return:
     leave
     ret
 
 // method getName
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             movl 12(%ebp), %eax                     // @this (Type Class)
             movl _my_core_Class_hvo_my_core_Class(%eax), %ebx // inst vars offset (Class)
             addl 4(%eax), %ebx                      // @this.vars(Class)
             movl _my_core_Class_i_desc(%ebx), %eax       // @class desc
             addl _my_core_Class_coi_ch_name(%eax), %eax  // load reference to cstring
             movl %eax, 16(%ebp)                     // return cstring-ref
-    
+_ff38e2ed_md_getName_return:
     leave
     ret

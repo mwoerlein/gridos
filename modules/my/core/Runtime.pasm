@@ -277,7 +277,6 @@ _4990fdfb_tpl_end:
 // method bootstrap
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
-    
 // TODO #3: inline method-indices in method-call-generation
         _my_core_Class_m_setDesc := 48
             subl 12, %esp
@@ -357,29 +356,40 @@ _4990fdfb_md_bootstrap:
             movl %esi, 24(%ebp) // store @runtime (Type Runtime) as result
         _bs_return:
             popad
-    
+_4990fdfb_md_bootstrap_return:
     leave
     ret
 
 // method initSysCall
 _4990fdfb_md_initSysCall:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax                             // @this (Type Runtime)
-            movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx     // inst vars offset (Runtime)
-            addl 4(%eax), %ebx                              // @this.vars(Runtime)
-            movl 16(%ebp), %eax                             // arg @syscall-runtime
-            movl %eax, _my_core_Runtime_i_syscall_runtime(%ebx)  // store @syscall-runtime
-            movl 20(%ebp), %eax                             // arg @syscall-entry
-            movl %eax, _my_core_Runtime_i_syscall_entry(%ebx)    // store @syscall-entry
-    
+    subl 12, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -8(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl -8(%ebp), %eax
+    movl %eax, _my_core_Runtime_i_syscall_runtime(%ebx)
+    movl 20(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl -12(%ebp), %eax
+    movl %eax, _my_core_Runtime_i_syscall_entry(%ebx)
+_4990fdfb_md_initSysCall_return:
     leave
     ret
 
 // method getClassDesc
 _4990fdfb_md_getClassDesc:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -394,14 +404,16 @@ _4990fdfb_md_getClassDesc:
             popl 20(%ebp)   // return @class desc
             
             popad
-    
+_4990fdfb_md_getClassDesc_return:
     leave
     ret
 
 // method allocate
 _4990fdfb_md_allocate:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -416,14 +428,16 @@ _4990fdfb_md_allocate:
             popl 20(%ebp)   // return info
             
             popad
-    
+_4990fdfb_md_allocate_return:
     leave
     ret
 
 // method free
 _4990fdfb_md_free:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -437,14 +451,16 @@ _4990fdfb_md_free:
             addl 20, %esp
             
             popad
-    
+_4990fdfb_md_free_return:
     leave
     ret
 
 // method printChar
 _4990fdfb_md_printChar:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -459,14 +475,16 @@ _4990fdfb_md_printChar:
             addl 24, %esp
             
             popad
-    
+_4990fdfb_md_printChar_return:
     leave
     ret
 
 // method printString
 _4990fdfb_md_printString:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -481,14 +499,16 @@ _4990fdfb_md_printString:
             addl 24, %esp
             
             popad
-    
+_4990fdfb_md_printString_return:
     leave
     ret
 
 // method printInt
 _4990fdfb_md_printInt:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -503,14 +523,16 @@ _4990fdfb_md_printInt:
             addl 24, %esp
             
             popad
-    
+_4990fdfb_md_printInt_return:
     leave
     ret
 
 // method printHex
 _4990fdfb_md_printHex:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
             
             movl 12(%ebp), %eax                             // @this (Type Runtime)
@@ -525,14 +547,16 @@ _4990fdfb_md_printHex:
             addl 24, %esp
             
             popad
-    
+_4990fdfb_md_printHex_return:
     leave
     ret
 
 // method destroyInstance
 _4990fdfb_md_destroyInstance:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             movl 16(%ebp), %eax       // @obj (Type ANY)
             movl 4(%eax), %eax        // @obj
             movl 12(%ebp), %ebx       // @this (Type Runtime)
@@ -540,14 +564,16 @@ _4990fdfb_md_destroyInstance:
             pushl 4(%eax)             // @obj meminfo
             pushl %ebx; pushl _my_core_Runtime_m_free; call (%ebx)
             addl 12, %esp
-    
+_4990fdfb_md_destroyInstance_return:
     leave
     ret
 
 // method cast
 _4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushl %ecx
             pushl %esi
         _crma_start:
@@ -578,14 +604,16 @@ _4990fdfb_md_cast:
         _crma_return:
             popl %esi
             popl %ecx
-    
+_4990fdfb_md_cast_return:
     leave
     ret
 
 // method createAndRunThread
 _4990fdfb_md_createAndRunThread:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
 // TODO #3: inline method-indices in method-call-generation
         _my_core_Thread_m_run := 40
             pushl %ecx
@@ -617,14 +645,16 @@ _4990fdfb_md_createAndRunThread:
         _mcrmcart_return:
             popl %esi
             popl %ecx
-    
+_4990fdfb_md_createAndRunThread_return:
     leave
     ret
 
 // method createInstance
 _4990fdfb_md_createInstance:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushad
         _crmci_start:
             movl 0, 20(%ebp)    // default handle: NULL
@@ -665,7 +695,7 @@ _4990fdfb_md_createInstance:
         	addl 12, %esp
         _crmci_return:
             popad
-    
+_4990fdfb_md_createInstance_return:
     leave
     ret
 

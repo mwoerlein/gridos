@@ -259,7 +259,9 @@ _07f7c73c_tpl_end:
 // method run
 _07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
 // TODO #3: inline method-indices in method-call-generation
 //*/
         _my_core_Runtime_m_getClassDesc := 48
@@ -314,14 +316,16 @@ _07f7c73c_md_run:
             popl %edi
             popl %edx
             popl %ecx
-    
+_07f7c73c_md_run_return:
     leave
     ret
 
 // method doIt
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushl %ecx
             pushl %edx
             
@@ -400,14 +404,16 @@ _07f7c73c_md_doIt:
         	
             popl %edx
             popl %ecx
-    
+_07f7c73c_md_doIt_return:
     leave
     ret
 
 // method testAllocate
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             pushl %ecx
             pushl %edx
             pushl %esi
@@ -456,14 +462,16 @@ _07f7c73c_md_testAllocate:
             popl %esi
             popl %edx
             popl %ecx
-    
+_07f7c73c_md_testAllocate_return:
     leave
     ret
 
 // method getRow
 _07f7c73c_md_getRow:
     pushl %ebp; movl %esp, %ebp
-    
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
             movl 12(%ebp), %eax             // @this (Type B)
             movl _my_B_hvo_my_A(%eax), %ebx // inst vars offset (A)
             addl 4(%eax), %ebx              // @this.vars(A)
@@ -471,6 +479,6 @@ _07f7c73c_md_getRow:
             movl _my_A_i_row(%ebx), %eax    // row
             addl %eax, %eax                 // *2
             movl %eax, 16(%ebp)             // return row*2
-    
+_07f7c73c_md_getRow_return:
     leave
     ret

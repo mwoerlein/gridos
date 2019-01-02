@@ -101,16 +101,10 @@ _my_A_mdo_test := (_07f7c73b_md_test - _my_A)
     .long _my_A_mdo_test
 
 // constants
-// int out
-_my_A_coi_out := 0
-
-// int err
-_my_A_coi_err := 1
-
-// string test
-_my_A_coso_test := (_07f7c73b_cos_test - _my_A)
-_07f7c73b_cos_test:
-    .asciz " Test\n"
+// string _83997363
+_my_A_coso__83997363 := (_07f7c73b_cos__83997363 - _my_A)
+_07f7c73b_cos__83997363:
+    .asciz " compile test\n"
 
 // class-name Object
 _my_A_cno_my_core_Object := (_07f7c73b_cn_01a2e54e - _my_A)
@@ -161,145 +155,190 @@ _07f7c73b_tpl_end:
 // method init
 _07f7c73b_md_init:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax             // @this (Type A)
-            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
-            addl 4(%eax), %ebx              // @this.vars(A)
-            
-            movl 16(%ebp), %eax             // param row
-            movl %eax, _my_A_i_row(%ebx)    // set this.row
-            movl 20(%ebp), %eax             // param column
-            movl %eax, _my_A_i_column(%ebx) // set this.column
-    
+    subl 12, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -8(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl -8(%ebp), %eax
+    movl %eax, _my_A_i_row(%ebx)
+    movl 20(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl -12(%ebp), %eax
+    movl %eax, _my_A_i_column(%ebx)
+    jmp _07f7c73b_md_init_return
+_07f7c73b_md_init_return:
     leave
     ret
 
 // method getRow
 _07f7c73b_md_getRow:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax             // @this (Type A)
-            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
-            addl 4(%eax), %ebx              // @this.vars(A)
-            
-            movl _my_A_i_row(%ebx), %eax    // row
-            movl %eax, 16(%ebp)             // return row
-    
+    subl 8, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_A_i_row(%ebx), %eax
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 16(%ebp)
+    jmp _07f7c73b_md_getRow_return
+_07f7c73b_md_getRow_return:
     leave
     ret
 
 // method getRowAndColumn
 _07f7c73b_md_getRowAndColumn:
     pushl %ebp; movl %esp, %ebp
-    
-            movl 12(%ebp), %eax             // @this (Type A)
-            movl _my_A_hvo_my_A(%eax), %ebx // inst vars offset (A)
-            addl 4(%eax), %ebx              // @this.vars(A)
-            
-            movl _my_A_i_row(%ebx), %eax    // row
-            movl %eax, 16(%ebp)             // return row
-            movl _my_A_i_column(%ebx), %eax // column
-            movl %eax, 20(%ebp)             // return column
-    
+    subl 12, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_A_i_row(%ebx), %eax
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 16(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_A_i_column(%ebx), %eax
+    movl %eax, -12(%ebp)
+    movl -12(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _07f7c73b_md_getRowAndColumn_return
+_07f7c73b_md_getRowAndColumn_return:
     leave
     ret
 
 // method test
 _07f7c73b_md_test:
     pushl %ebp; movl %esp, %ebp
-    
-// TODO #3: inline method-indices in method-call-generation
-//*/
-        _my_core_Class_m_getName := 56
-        _my_core_Runtime_m_getClassDesc := 48
-        _my_core_Runtime_m_allocate := 56
-        _my_core_Runtime_m_free := 64
-        _my_core_Runtime_m_printChar := 72
-        _my_core_Runtime_m_printString := 80
-        _my_core_Runtime_m_printInt := 88
-        _my_core_Runtime_m_printHex := 96
-        _my_core_Runtime_m_destroyInstance := 104
-        _my_core_Runtime_m_cast := 112
-        _my_core_Runtime_m_createAndRunThread := 120
-        _my_core_Runtime_m_createInstance := 128
-//*/
-            pushl %ecx
-            pushl %edx
-            
-            movl 12(%ebp), %ecx // @this (Type A)
-            
-            subl 4, %esp    // return value of rt
-            pushl %ecx; pushl _my_A_m_rt; call (%ecx)
-        	addl 8, %esp
-            popl %edx       // Runtime (Type Runtime)
-            
-            subl 4, %esp    // return value of getClass
-            pushl %ecx; pushl _my_A_m_getClass; call (%ecx)
-        	addl 8, %esp
-            popl %eax       // Class instance ("A"|"B") (Type Class)
-/*
-            subl 4, %esp    // return value of getClass
-            pushl %eax; pushl _my_core_Class_m_getClass; call (%eax)
-        	addl 8, %esp
-            popl %eax       // Class instance "Class" (Type Class)
-*/
-            subl 4, %esp    // return value of getName
-            pushl %eax; pushl _my_core_Class_m_getName; call (%eax)
-        	addl 8, %esp
-            popl %eax       // name cstring ref
-            
-            pushl _my_A_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_A_coi_out; pushl 0x20 // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            movl _my_A_hvo_my_A(%ecx), %ebx     // inst vars offset (A)
-            addl 4(%ecx), %ebx                  // @this.vars(A)
-            pushl _my_A_coi_out; push _my_A_i_column(%ebx) // column
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_A_coi_out; pushl 0x20 // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_A_coi_out; pushl 16(%ebp) // param row
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            subl 8, %esp    // return values of getRowAndColumn
-            pushl %ecx; pushl _my_A_m_getRowAndColumn; call (%ecx)
-        	addl 8, %esp
-            
-            pushl _my_A_coi_out; pushl 0x20 // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            popl %eax       // row from getRowAndColumn
-            pushl _my_A_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_A_coi_out; pushl 0x20 // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            popl %eax       // column from getRowAndColumn
-            pushl _my_A_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            movl 8(%ebp), %eax      // @class-desc "A"
-            addl _my_A_coso_test, %eax
-            pushl _my_A_coi_err; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
-            addl 16, %esp
-            
-            popl %edx
-            popl %ecx
-    
+    subl 96, %esp
+    movl 12(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl 0, -8(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 24; call (%eax)
+    addl 8, %esp
+    popl -16(%ebp)
+    movl -16(%ebp), %eax
+    movl %eax, -12(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 0; call (%eax)
+    addl 8, %esp
+    popl -24(%ebp)
+    movl -24(%ebp), %eax
+    movl %eax, -20(%ebp)
+    subl 4, %esp
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 0; call (%eax)
+    addl 8, %esp
+    popl -28(%ebp)
+    movl -28(%ebp), %eax
+    movl %eax, -20(%ebp)
+    subl 4, %esp
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -32(%ebp)
+    pushl -8(%ebp)
+    pushl -32(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 80; call (%eax)
+    addl 16, %esp
+    movl 32, -36(%ebp)
+    pushl -8(%ebp)
+    pushl -36(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl -4(%ebp), %eax
+    movl _my_A_hvo_my_A(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_A_i_column(%ebx), %eax
+    movl %eax, -40(%ebp)
+    pushl -8(%ebp)
+    pushl -40(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 32, -44(%ebp)
+    pushl -8(%ebp)
+    pushl -44(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl 16(%ebp), %eax
+    movl %eax, -48(%ebp)
+    pushl -8(%ebp)
+    pushl -48(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 32, -52(%ebp)
+    pushl -8(%ebp)
+    pushl -52(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    subl 8, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -64(%ebp)
+    popl -68(%ebp)
+    movl -64(%ebp), %eax
+    movl %eax, -56(%ebp)
+    movl -68(%ebp), %eax
+    movl %eax, -60(%ebp)
+    subl 8, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -80(%ebp)
+    popl -84(%ebp)
+    movl -80(%ebp), %eax
+    movl %eax, -72(%ebp)
+    movl -84(%ebp), %eax
+    movl %eax, -76(%ebp)
+    pushl -8(%ebp)
+    pushl -72(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 32, -88(%ebp)
+    pushl -8(%ebp)
+    pushl -88(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    pushl -8(%ebp)
+    pushl -76(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 8(%ebp), %eax
+    addl _my_A_coso__83997363, %eax
+    movl %eax, -92(%ebp)
+    movl 1, -96(%ebp)
+    pushl -96(%ebp)
+    pushl -92(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 80; call (%eax)
+    addl 16, %esp
+    jmp _07f7c73b_md_test_return
+_07f7c73b_md_test_return:
     leave
     ret
