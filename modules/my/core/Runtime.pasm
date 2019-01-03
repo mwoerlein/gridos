@@ -277,7 +277,6 @@ _4990fdfb_tpl_end:
 // method bootstrap
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
-// TODO #3: inline method-indices in method-call-generation
         _my_core_Class_m_setDesc := 48
             subl 12, %esp
             pushad
@@ -614,7 +613,6 @@ _4990fdfb_md_createAndRunThread:
     subl 4, %esp
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
-// TODO #3: inline method-indices in method-call-generation
         _my_core_Thread_m_run := 40
             pushl %ecx
             pushl %esi
