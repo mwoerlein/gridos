@@ -100,6 +100,7 @@ _01a2e54e_tpl_end:
 _01a2e54e_md_getClass:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
             movl 12(%ebp), %eax    // @this (Type Object)
@@ -108,6 +109,7 @@ _01a2e54e_md_getClass:
             movl _my_core_Object_coi_ch_inst_handle(%eax), %eax // @class handle
             movl %eax, 16(%ebp)    // return @class handle
 _01a2e54e_md_getClass_return:
+    popad
     leave
     ret
 
@@ -115,12 +117,14 @@ _01a2e54e_md_getClass_return:
 _01a2e54e_md_hash:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
             movl 12(%ebp), %eax    // @this (Type Object)
             movl 4(%eax), %eax     // @this
             movl %eax, 16(%ebp)    // return @this as hash
 _01a2e54e_md_hash_return:
+    popad
     leave
     ret
 
@@ -128,6 +132,7 @@ _01a2e54e_md_hash_return:
 _01a2e54e_md_equals:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
             movl 0, 20(%ebp)       // default return: false
@@ -140,6 +145,7 @@ _01a2e54e_md_equals:
             movl 1, 20(%ebp)       // return true
             _come_ret:
 _01a2e54e_md_equals_return:
+    popad
     leave
     ret
 
@@ -147,6 +153,7 @@ _01a2e54e_md_equals_return:
 _01a2e54e_md_rt:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
@@ -158,6 +165,7 @@ _01a2e54e_md_rt:
     movl %eax, 16(%ebp)
     jmp _01a2e54e_md_rt_return
 _01a2e54e_md_rt_return:
+    popad
     leave
     ret
 
@@ -165,6 +173,7 @@ _01a2e54e_md_rt_return:
 _01a2e54e_md_setRt:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 16(%ebp), %eax
@@ -176,5 +185,6 @@ _01a2e54e_md_setRt:
     movl %eax, _my_core_Object_i_runtime(%ebx)
     jmp _01a2e54e_md_setRt_return
 _01a2e54e_md_setRt_return:
+    popad
     leave
     ret

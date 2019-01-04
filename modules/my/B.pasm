@@ -254,6 +254,7 @@ _07f7c73c_tpl_end:
 _07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
         _my_core_Runtime_m_destroyInstance := 104
@@ -300,6 +301,7 @@ _07f7c73c_md_run:
             popl %edx
             popl %ecx
 _07f7c73c_md_run_return:
+    popad
     leave
     ret
 
@@ -307,6 +309,7 @@ _07f7c73c_md_run_return:
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
         _my_core_Runtime_coi_out := 0
@@ -394,6 +397,7 @@ _07f7c73c_md_doIt:
             popl %edx
             popl %ecx
 _07f7c73c_md_doIt_return:
+    popad
     leave
     ret
 
@@ -401,6 +405,7 @@ _07f7c73c_md_doIt_return:
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
     subl 48, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
@@ -462,6 +467,7 @@ _07f7c73c_md_testAllocate:
     addl 12, %esp
     jmp _07f7c73c_md_testAllocate_return
 _07f7c73c_md_testAllocate_return:
+    popad
     leave
     ret
 
@@ -469,6 +475,7 @@ _07f7c73c_md_testAllocate_return:
 _07f7c73c_md_getRow:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
@@ -480,5 +487,6 @@ _07f7c73c_md_getRow:
     movl %eax, 16(%ebp)
     jmp _07f7c73c_md_getRow_return
 _07f7c73c_md_getRow_return:
+    popad
     leave
     ret

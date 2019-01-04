@@ -164,6 +164,7 @@ _07f7c73b_tpl_end:
 _07f7c73b_md_init:
     pushl %ebp; movl %esp, %ebp
     subl 12, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 16(%ebp), %eax
@@ -182,6 +183,7 @@ _07f7c73b_md_init:
     movl %eax, _my_A_i_column(%ebx)
     jmp _07f7c73b_md_init_return
 _07f7c73b_md_init_return:
+    popad
     leave
     ret
 
@@ -189,6 +191,7 @@ _07f7c73b_md_init_return:
 _07f7c73b_md_getRow:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
@@ -200,6 +203,7 @@ _07f7c73b_md_getRow:
     movl %eax, 16(%ebp)
     jmp _07f7c73b_md_getRow_return
 _07f7c73b_md_getRow_return:
+    popad
     leave
     ret
 
@@ -207,6 +211,7 @@ _07f7c73b_md_getRow_return:
 _07f7c73b_md_getRowAndColumn:
     pushl %ebp; movl %esp, %ebp
     subl 12, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
@@ -225,6 +230,7 @@ _07f7c73b_md_getRowAndColumn:
     movl %eax, 20(%ebp)
     jmp _07f7c73b_md_getRowAndColumn_return
 _07f7c73b_md_getRowAndColumn_return:
+    popad
     leave
     ret
 
@@ -232,6 +238,7 @@ _07f7c73b_md_getRowAndColumn_return:
 _07f7c73b_md_test:
     pushl %ebp; movl %esp, %ebp
     subl 108, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
@@ -362,5 +369,6 @@ _07f7c73b_md_test:
     addl 16, %esp
     jmp _07f7c73b_md_test_return
 _07f7c73b_md_test_return:
+    popad
     leave
     ret

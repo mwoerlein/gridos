@@ -148,6 +148,7 @@ _ff38e2ed_tpl_end:
 _ff38e2ed_md_getDesc:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
@@ -159,6 +160,7 @@ _ff38e2ed_md_getDesc:
     movl %eax, 16(%ebp)
     jmp _ff38e2ed_md_getDesc_return
 _ff38e2ed_md_getDesc_return:
+    popad
     leave
     ret
 
@@ -166,6 +168,7 @@ _ff38e2ed_md_getDesc_return:
 _ff38e2ed_md_setDesc:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 16(%ebp), %eax
@@ -180,6 +183,7 @@ _ff38e2ed_md_setDesc:
             movl %ebx, _my_core_Class_coi_ch_inst_handle(%eax)   // store @this (Type Class) in class desc
     jmp _ff38e2ed_md_setDesc_return
 _ff38e2ed_md_setDesc_return:
+    popad
     leave
     ret
 
@@ -187,6 +191,7 @@ _ff38e2ed_md_setDesc_return:
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
+    pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
             movl 12(%ebp), %eax                     // @this (Type Class)
@@ -196,5 +201,6 @@ _ff38e2ed_md_getName:
             addl _my_core_Class_coi_ch_name(%eax), %eax  // load reference to cstring
             movl %eax, 16(%ebp)                     // return cstring-ref
 _ff38e2ed_md_getName_return:
+    popad
     leave
     ret
