@@ -13,7 +13,7 @@ author = Marc Woerlein <marc.woerlein@gmx.de>
 _my_B:
     .long 0x15AC1A55
     .long 0
-    .long _my_B_cno_my_B
+    .long _my_B_coso_CLASSNAME
     .long (_07f7c73c_cts - _my_B)
     .long (_07f7c73c_mts - _my_B)
     .long (_07f7c73c_mdt - _my_B)
@@ -27,25 +27,25 @@ _07f7c73c_cts:
 _07f7c73c_cto_01a2e54e := (_07f7c73c_ct_01a2e54e - _my_B)
 _07f7c73c_ct_01a2e54e:
     .long 0
-    .long _my_B_cno_my_core_Object
+    .long _my_B_coso_string_3
     .long (_07f7c73c_mt_01a2e54e - _my_B)
     .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
 _07f7c73c_cto_0dbda62f := (_07f7c73c_ct_0dbda62f - _my_B)
 _07f7c73c_ct_0dbda62f:
     .long 0
-    .long _my_B_cno_my_core_Thread
+    .long _my_B_coso_string_4
     .long (_07f7c73c_mt_0dbda62f - _my_B)
     .long (_07f7c73c_tpl_h_0dbda62f - _07f7c73c_tpl)
 _07f7c73c_cto_07f7c73b := (_07f7c73c_ct_07f7c73b - _my_B)
 _07f7c73c_ct_07f7c73b:
     .long 0
-    .long _my_B_cno_my_A
+    .long _my_B_coso_mA
     .long (_07f7c73c_mt_07f7c73b - _my_B)
     .long (_07f7c73c_tpl_h_07f7c73b - _07f7c73c_tpl)
 _07f7c73c_cto_07f7c73c := (_07f7c73c_ct_07f7c73c - _my_B)
 _07f7c73c_ct_07f7c73c:
     .long 0
-    .long _my_B_cno_my_B
+    .long _my_B_coso_CLASSNAME
     .long (_07f7c73c_mt_07f7c73c - _my_B)
     .long (_07f7c73c_tpl_h_07f7c73c - _07f7c73c_tpl)
 // class tab end
@@ -180,25 +180,25 @@ _my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
 _07f7c73c_cos_doit:
     .asciz "OMG! Compiling still work's! "
 
-// class-name Object
-_my_B_cno_my_core_Object := (_07f7c73c_cn_01a2e54e - _my_B)
-_07f7c73c_cn_01a2e54e:
-    .asciz "my::core::Object"
-
-// class-name Thread
-_my_B_cno_my_core_Thread := (_07f7c73c_cn_0dbda62f - _my_B)
-_07f7c73c_cn_0dbda62f:
-    .asciz "my::core::Thread"
-
-// class-name A
-_my_B_cno_my_A := (_07f7c73c_cn_07f7c73b - _my_B)
-_07f7c73c_cn_07f7c73b:
+// string mA
+_my_B_coso_mA := (_07f7c73c_cos_mA - _my_B)
+_07f7c73c_cos_mA:
     .asciz "my::A"
 
-// class-name B
-_my_B_cno_my_B := (_07f7c73c_cn_07f7c73c - _my_B)
-_07f7c73c_cn_07f7c73c:
+// string CLASSNAME
+_my_B_coso_CLASSNAME := (_07f7c73c_cos_CLASSNAME - _my_B)
+_07f7c73c_cos_CLASSNAME:
     .asciz "my::B"
+
+// string string_3
+_my_B_coso_string_3 := (_07f7c73c_cos_string_3 - _my_B)
+_07f7c73c_cos_string_3:
+    .asciz "my::core::Object"
+
+// string string_4
+_my_B_coso_string_4 := (_07f7c73c_cos_string_4 - _my_B)
+_07f7c73c_cos_string_4:
+    .asciz "my::core::Thread"
 
 // instance template
 _07f7c73c_tpl:
@@ -282,7 +282,7 @@ _07f7c73c_md_run:
         	addl 16, %esp
         	
             movl 8(%ebp), %eax          // @class-desc "B"
-            addl _my_B_cno_my_A, %eax   // "/my/A"
+            addl _my_B_coso_mA, %eax   // "my::A"
             subl 4, %esp    // return value of createInstance
             pushl %eax
             pushl %edi; pushl _my_core_Runtime_m_createInstance; call (%edi)
@@ -404,69 +404,64 @@ _07f7c73c_md_doIt_return:
 // method testAllocate
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
-    subl 68, %esp
+    subl 48, %esp
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
+    movl 0, -8(%ebp)
     subl 4, %esp
     movl -4(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
-    popl -12(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -8(%ebp)
+    popl -16(%ebp)
+    movl -16(%ebp), %eax
+    movl %eax, -12(%ebp)
     movl 16(%ebp), %eax
-    movl %eax, -20(%ebp)
+    movl %eax, -24(%ebp)
     subl 4, %esp
-    pushl -20(%ebp)
-    movl -8(%ebp), %eax
+    pushl -24(%ebp)
+    movl -12(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
     addl 12, %esp
-    popl -24(%ebp)
-    movl -24(%ebp), %eax
-    movl %eax, -16(%ebp)
-    movl 32, -28(%ebp)
-    movl 0, -32(%ebp)
+    popl -28(%ebp)
+    movl -28(%ebp), %eax
+    movl %eax, -20(%ebp)
+    movl 32, -32(%ebp)
+    pushl -8(%ebp)
     pushl -32(%ebp)
-    pushl -28(%ebp)
-    movl -8(%ebp), %eax
+    movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 0, -36(%ebp)
+    pushl -8(%ebp)
+    pushl -20(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 96; call (%eax)
+    addl 16, %esp
+    movl 32, -36(%ebp)
+    pushl -8(%ebp)
     pushl -36(%ebp)
-    pushl -16(%ebp)
-    movl -8(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 32, -40(%ebp)
-    movl 0, -44(%ebp)
-    pushl -44(%ebp)
+    movl 57005, -40(%ebp)
+    pushl -8(%ebp)
     pushl -40(%ebp)
-    movl -8(%ebp), %eax
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 96; call (%eax)
+    addl 16, %esp
+    movl 32, -44(%ebp)
+    pushl -8(%ebp)
+    pushl -44(%ebp)
+    movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 57005, -48(%ebp)
-    movl 0, -52(%ebp)
-    pushl -52(%ebp)
+    movl 49374, -48(%ebp)
+    pushl -8(%ebp)
     pushl -48(%ebp)
-    movl -8(%ebp), %eax
+    movl -12(%ebp), %eax
     pushl %eax; pushl 96; call (%eax)
     addl 16, %esp
-    movl 32, -56(%ebp)
-    movl 0, -60(%ebp)
-    pushl -60(%ebp)
-    pushl -56(%ebp)
-    movl -8(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 49374, -64(%ebp)
-    movl 0, -68(%ebp)
-    pushl -68(%ebp)
-    pushl -64(%ebp)
-    movl -8(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    pushl -16(%ebp)
-    movl -8(%ebp), %eax
+    pushl -20(%ebp)
+    movl -12(%ebp), %eax
     pushl %eax; pushl 64; call (%eax)
     addl 12, %esp
     jmp _07f7c73c_md_testAllocate_return

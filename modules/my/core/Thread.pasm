@@ -13,7 +13,7 @@ author = Marc Woerlein <marc.woerlein@gmx.de>
 _my_core_Thread:
     .long 0x15AC1A55
     .long 0
-    .long _my_core_Thread_cno_my_core_Thread
+    .long _my_core_Thread_coso_CLASSNAME
     .long (_0dbda62f_cts - _my_core_Thread)
     .long (_0dbda62f_mts - _my_core_Thread)
     .long (_0dbda62f_mdt - _my_core_Thread)
@@ -27,13 +27,13 @@ _0dbda62f_cts:
 _0dbda62f_cto_01a2e54e := (_0dbda62f_ct_01a2e54e - _my_core_Thread)
 _0dbda62f_ct_01a2e54e:
     .long 0
-    .long _my_core_Thread_cno_my_core_Object
+    .long _my_core_Thread_coso_string_1
     .long (_0dbda62f_mt_01a2e54e - _my_core_Thread)
     .long (_0dbda62f_tpl_h_01a2e54e - _0dbda62f_tpl)
 _0dbda62f_cto_0dbda62f := (_0dbda62f_ct_0dbda62f - _my_core_Thread)
 _0dbda62f_ct_0dbda62f:
     .long 0
-    .long _my_core_Thread_cno_my_core_Thread
+    .long _my_core_Thread_coso_CLASSNAME
     .long (_0dbda62f_mt_0dbda62f - _my_core_Thread)
     .long (_0dbda62f_tpl_h_0dbda62f - _0dbda62f_tpl)
 // class tab end
@@ -85,15 +85,15 @@ _0dbda62f_mdt:
     .long 0
 
 // constants
-// class-name Object
-_my_core_Thread_cno_my_core_Object := (_0dbda62f_cn_01a2e54e - _my_core_Thread)
-_0dbda62f_cn_01a2e54e:
-    .asciz "my::core::Object"
-
-// class-name Thread
-_my_core_Thread_cno_my_core_Thread := (_0dbda62f_cn_0dbda62f - _my_core_Thread)
-_0dbda62f_cn_0dbda62f:
+// string CLASSNAME
+_my_core_Thread_coso_CLASSNAME := (_0dbda62f_cos_CLASSNAME - _my_core_Thread)
+_0dbda62f_cos_CLASSNAME:
     .asciz "my::core::Thread"
+
+// string string_1
+_my_core_Thread_coso_string_1 := (_0dbda62f_cos_string_1 - _my_core_Thread)
+_0dbda62f_cos_string_1:
+    .asciz "my::core::Object"
 
 // instance template
 _0dbda62f_tpl:

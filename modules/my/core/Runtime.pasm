@@ -14,7 +14,7 @@ author = Marc Woerlein <marc.woerlein@gmx.de>
 _my_core_Runtime:
     .long 0x15AC1A55
     .long 0
-    .long _my_core_Runtime_cno_my_core_Runtime
+    .long _my_core_Runtime_coso_CLASSNAME
     .long (_4990fdfb_cts - _my_core_Runtime)
     .long (_4990fdfb_mts - _my_core_Runtime)
     .long (_4990fdfb_mdt - _my_core_Runtime)
@@ -28,13 +28,13 @@ _4990fdfb_cts:
 _4990fdfb_cto_01a2e54e := (_4990fdfb_ct_01a2e54e - _my_core_Runtime)
 _4990fdfb_ct_01a2e54e:
     .long 0
-    .long _my_core_Runtime_cno_my_core_Object
+    .long _my_core_Runtime_coso_string_4
     .long (_4990fdfb_mt_01a2e54e - _my_core_Runtime)
     .long (_4990fdfb_tpl_h_01a2e54e - _4990fdfb_tpl)
 _4990fdfb_cto_4990fdfb := (_4990fdfb_ct_4990fdfb - _my_core_Runtime)
 _4990fdfb_ct_4990fdfb:
     .long 0
-    .long _my_core_Runtime_cno_my_core_Runtime
+    .long _my_core_Runtime_coso_CLASSNAME
     .long (_4990fdfb_mt_4990fdfb - _my_core_Runtime)
     .long (_4990fdfb_tpl_h_4990fdfb - _4990fdfb_tpl)
 // class tab end
@@ -155,16 +155,6 @@ _my_core_Runtime_coi_out := 0
 // int err
 _my_core_Runtime_coi_err := 1
 
-// string mClass
-_my_core_Runtime_coso_mClass := (_4990fdfb_cos_mClass - _my_core_Runtime)
-_4990fdfb_cos_mClass:
-    .asciz "my::core::Class"
-
-// string mThread
-_my_core_Runtime_coso_mThread := (_4990fdfb_cos_mThread - _my_core_Runtime)
-_4990fdfb_cos_mThread:
-    .asciz "my::core::Thread"
-
 // int SysCall_allocate
 _my_core_Runtime_coi_SysCall_allocate := 1
 
@@ -228,15 +218,30 @@ _my_core_Runtime_coi_cts_ho := 12
 // int cts_size
 _my_core_Runtime_coi_cts_size := 16
 
-// class-name Object
-_my_core_Runtime_cno_my_core_Object := (_4990fdfb_cn_01a2e54e - _my_core_Runtime)
-_4990fdfb_cn_01a2e54e:
-    .asciz "my::core::Object"
+// string newline
+_my_core_Runtime_coso_newline := (_4990fdfb_cos_newline - _my_core_Runtime)
+_4990fdfb_cos_newline:
+    .asciz "\n"
 
-// class-name Runtime
-_my_core_Runtime_cno_my_core_Runtime := (_4990fdfb_cn_4990fdfb - _my_core_Runtime)
-_4990fdfb_cn_4990fdfb:
+// string mClass
+_my_core_Runtime_coso_mClass := (_4990fdfb_cos_mClass - _my_core_Runtime)
+_4990fdfb_cos_mClass:
+    .asciz "my::core::Class"
+
+// string mThread
+_my_core_Runtime_coso_mThread := (_4990fdfb_cos_mThread - _my_core_Runtime)
+_4990fdfb_cos_mThread:
+    .asciz "my::core::Thread"
+
+// string CLASSNAME
+_my_core_Runtime_coso_CLASSNAME := (_4990fdfb_cos_CLASSNAME - _my_core_Runtime)
+_4990fdfb_cos_CLASSNAME:
     .asciz "my::core::Runtime"
+
+// string string_4
+_my_core_Runtime_coso_string_4 := (_4990fdfb_cos_string_4 - _my_core_Runtime)
+_4990fdfb_cos_string_4:
+    .asciz "my::core::Object"
 
 // instance template
 _4990fdfb_tpl:

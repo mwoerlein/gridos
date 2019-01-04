@@ -13,7 +13,7 @@ author = Marc Woerlein <marc.woerlein@gmx.de>
 _my_core_Object:
     .long 0x15AC1A55
     .long 0
-    .long _my_core_Object_cno_my_core_Object
+    .long _my_core_Object_coso_CLASSNAME
     .long (_01a2e54e_cts - _my_core_Object)
     .long (_01a2e54e_mts - _my_core_Object)
     .long (_01a2e54e_mdt - _my_core_Object)
@@ -27,7 +27,7 @@ _01a2e54e_cts:
 _01a2e54e_cto_01a2e54e := (_01a2e54e_ct_01a2e54e - _my_core_Object)
 _01a2e54e_ct_01a2e54e:
     .long 0
-    .long _my_core_Object_cno_my_core_Object
+    .long _my_core_Object_coso_CLASSNAME
     .long (_01a2e54e_mt_01a2e54e - _my_core_Object)
     .long (_01a2e54e_tpl_h_01a2e54e - _01a2e54e_tpl)
 // class tab end
@@ -72,9 +72,9 @@ _my_core_Object_mdo_setRt := (_01a2e54e_md_setRt - _my_core_Object)
 // int ch_inst_handle
 _my_core_Object_coi_ch_inst_handle := 4
 
-// class-name Object
-_my_core_Object_cno_my_core_Object := (_01a2e54e_cn_01a2e54e - _my_core_Object)
-_01a2e54e_cn_01a2e54e:
+// string CLASSNAME
+_my_core_Object_coso_CLASSNAME := (_01a2e54e_cos_CLASSNAME - _my_core_Object)
+_01a2e54e_cos_CLASSNAME:
     .asciz "my::core::Object"
 
 // instance template
