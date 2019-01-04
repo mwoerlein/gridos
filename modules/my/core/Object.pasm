@@ -57,16 +57,11 @@ _my_core_Object_m_setRt := 32
 
 // methods tab
 _01a2e54e_mdt:
-_my_core_Object_mdo_getClass := (_01a2e54e_md_getClass - _my_core_Object)
-    .long _my_core_Object_mdo_getClass
-_my_core_Object_mdo_hash := (_01a2e54e_md_hash - _my_core_Object)
-    .long _my_core_Object_mdo_hash
-_my_core_Object_mdo_equals := (_01a2e54e_md_equals - _my_core_Object)
-    .long _my_core_Object_mdo_equals
-_my_core_Object_mdo_rt := (_01a2e54e_md_rt - _my_core_Object)
-    .long _my_core_Object_mdo_rt
-_my_core_Object_mdo_setRt := (_01a2e54e_md_setRt - _my_core_Object)
-    .long _my_core_Object_mdo_setRt
+    .long (_01a2e54e_md_getClass - _my_core_Object)
+    .long (_01a2e54e_md_hash - _my_core_Object)
+    .long (_01a2e54e_md_equals - _my_core_Object)
+    .long (_01a2e54e_md_rt - _my_core_Object)
+    .long (_01a2e54e_md_setRt - _my_core_Object)
 
 // constants
 // int ch_inst_handle

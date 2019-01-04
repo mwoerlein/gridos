@@ -91,14 +91,10 @@ _my_A_m_test := 64
 
 // methods tab
 _07f7c73b_mdt:
-_my_A_mdo_init := (_07f7c73b_md_init - _my_A)
-    .long _my_A_mdo_init
-_my_A_mdo_getRow := (_07f7c73b_md_getRow - _my_A)
-    .long _my_A_mdo_getRow
-_my_A_mdo_getRowAndColumn := (_07f7c73b_md_getRowAndColumn - _my_A)
-    .long _my_A_mdo_getRowAndColumn
-_my_A_mdo_test := (_07f7c73b_md_test - _my_A)
-    .long _my_A_mdo_test
+    .long (_07f7c73b_md_init - _my_A)
+    .long (_07f7c73b_md_getRow - _my_A)
+    .long (_07f7c73b_md_getRowAndColumn - _my_A)
+    .long (_07f7c73b_md_test - _my_A)
 
 // constants
 // int cafe

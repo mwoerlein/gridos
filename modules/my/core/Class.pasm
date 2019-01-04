@@ -88,12 +88,9 @@ _my_core_Class_m_getName := 56
 
 // methods tab
 _ff38e2ed_mdt:
-_my_core_Class_mdo_getDesc := (_ff38e2ed_md_getDesc - _my_core_Class)
-    .long _my_core_Class_mdo_getDesc
-_my_core_Class_mdo_setDesc := (_ff38e2ed_md_setDesc - _my_core_Class)
-    .long _my_core_Class_mdo_setDesc
-_my_core_Class_mdo_getName := (_ff38e2ed_md_getName - _my_core_Class)
-    .long _my_core_Class_mdo_getName
+    .long (_ff38e2ed_md_getDesc - _my_core_Class)
+    .long (_ff38e2ed_md_setDesc - _my_core_Class)
+    .long (_ff38e2ed_md_getName - _my_core_Class)
 
 // constants
 // int ch_inst_handle

@@ -159,14 +159,10 @@ _my_B_m_testAllocate := 88
 
 // methods tab
 _07f7c73c_mdt:
-_my_B_mdo_run := (_07f7c73c_md_run - _my_B)
-    .long _my_B_mdo_run
-_my_B_mdo_doIt := (_07f7c73c_md_doIt - _my_B)
-    .long _my_B_mdo_doIt
-_my_B_mdo_testAllocate := (_07f7c73c_md_testAllocate - _my_B)
-    .long _my_B_mdo_testAllocate
-_my_B_mdo_getRow := (_07f7c73c_md_getRow - _my_B)
-    .long _my_B_mdo_getRow
+    .long (_07f7c73c_md_run - _my_B)
+    .long (_07f7c73c_md_doIt - _my_B)
+    .long (_07f7c73c_md_testAllocate - _my_B)
+    .long (_07f7c73c_md_getRow - _my_B)
 
 // constants
 // string doit

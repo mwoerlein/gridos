@@ -120,31 +120,19 @@ _my_core_Runtime_m_bootstrap := 136
 // methods tab
 _4990fdfb_mdt:
 _my_core_Runtime_mdo_bootstrap := (_4990fdfb_md_bootstrap - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_bootstrap
-_my_core_Runtime_mdo_initSysCall := (_4990fdfb_md_initSysCall - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_initSysCall
-_my_core_Runtime_mdo_getClassDesc := (_4990fdfb_md_getClassDesc - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_getClassDesc
-_my_core_Runtime_mdo_allocate := (_4990fdfb_md_allocate - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_allocate
-_my_core_Runtime_mdo_free := (_4990fdfb_md_free - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_free
-_my_core_Runtime_mdo_printChar := (_4990fdfb_md_printChar - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_printChar
-_my_core_Runtime_mdo_printString := (_4990fdfb_md_printString - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_printString
-_my_core_Runtime_mdo_printInt := (_4990fdfb_md_printInt - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_printInt
-_my_core_Runtime_mdo_printHex := (_4990fdfb_md_printHex - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_printHex
-_my_core_Runtime_mdo_destroyInstance := (_4990fdfb_md_destroyInstance - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_destroyInstance
-_my_core_Runtime_mdo_cast := (_4990fdfb_md_cast - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_cast
-_my_core_Runtime_mdo_createAndRunThread := (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_createAndRunThread
-_my_core_Runtime_mdo_createInstance := (_4990fdfb_md_createInstance - _my_core_Runtime)
-    .long _my_core_Runtime_mdo_createInstance
+    .long (_4990fdfb_md_bootstrap - _my_core_Runtime)
+    .long (_4990fdfb_md_initSysCall - _my_core_Runtime)
+    .long (_4990fdfb_md_getClassDesc - _my_core_Runtime)
+    .long (_4990fdfb_md_allocate - _my_core_Runtime)
+    .long (_4990fdfb_md_free - _my_core_Runtime)
+    .long (_4990fdfb_md_printChar - _my_core_Runtime)
+    .long (_4990fdfb_md_printString - _my_core_Runtime)
+    .long (_4990fdfb_md_printInt - _my_core_Runtime)
+    .long (_4990fdfb_md_printHex - _my_core_Runtime)
+    .long (_4990fdfb_md_destroyInstance - _my_core_Runtime)
+    .long (_4990fdfb_md_cast - _my_core_Runtime)
+    .long (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
+    .long (_4990fdfb_md_createInstance - _my_core_Runtime)
     .long 0
     .long 0
 
