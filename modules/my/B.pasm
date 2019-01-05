@@ -27,7 +27,7 @@ _07f7c73c_cts:
 _07f7c73c_cto_01a2e54e := (_07f7c73c_ct_01a2e54e - _my_B)
 _07f7c73c_ct_01a2e54e:
     .long 0
-    .long _my_B_coso_string_3
+    .long _my_B_coso_oa
     .long (_07f7c73c_mt_01a2e54e - _my_B)
     .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
 _07f7c73c_cto_0dbda62f := (_07f7c73c_ct_0dbda62f - _my_B)
@@ -39,7 +39,7 @@ _07f7c73c_ct_0dbda62f:
 _07f7c73c_cto_07f7c73b := (_07f7c73c_ct_07f7c73b - _my_B)
 _07f7c73c_ct_07f7c73b:
     .long 0
-    .long _my_B_coso_mA
+    .long _my_B_coso_a
     .long (_07f7c73c_mt_07f7c73b - _my_B)
     .long (_07f7c73c_tpl_h_07f7c73b - _07f7c73c_tpl)
 _07f7c73c_cto_07f7c73c := (_07f7c73c_ct_07f7c73c - _my_B)
@@ -165,25 +165,25 @@ _07f7c73c_mdt:
     .long (_07f7c73c_md_getRow - _my_B)
 
 // constants
-// string doit
-_my_B_coso_doit := (_07f7c73c_cos_doit - _my_B)
-_07f7c73c_cos_doit:
-    .asciz "OMG! Compiling still work's! "
-
-// string mA
-_my_B_coso_mA := (_07f7c73c_cos_mA - _my_B)
-_07f7c73c_cos_mA:
-    .asciz "my::A"
-
 // string CLASSNAME
 _my_B_coso_CLASSNAME := (_07f7c73c_cos_CLASSNAME - _my_B)
 _07f7c73c_cos_CLASSNAME:
     .asciz "my::B"
 
+// string a
+_my_B_coso_a := (_07f7c73c_cos_a - _my_B)
+_07f7c73c_cos_a:
+    .asciz "my::A"
+
+// string oa
+_my_B_coso_oa := (_07f7c73c_cos_oa - _my_B)
+_07f7c73c_cos_oa:
+    .asciz "my::core::Object"
+
 // string string_3
 _my_B_coso_string_3 := (_07f7c73c_cos_string_3 - _my_B)
 _07f7c73c_cos_string_3:
-    .asciz "my::core::Object"
+    .asciz "OMG!! "
 
 // string string_4
 _my_B_coso_string_4 := (_07f7c73c_cos_string_4 - _my_B)
@@ -249,53 +249,65 @@ _07f7c73c_tpl_end:
 // method run
 _07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 56, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
-        _my_core_Runtime_m_destroyInstance := 104
-        _my_core_Runtime_m_cast := 112
-        _my_core_Runtime_m_createInstance := 128
-            pushl %ecx
-            pushl %edx
-            pushl %edi
-            
-            movl 12(%ebp), %ecx // @this (Type B)
-            
-            subl 4, %esp        // return value of rt
-            pushl %ecx; pushl _my_B_m_rt; call (%ecx)
-        	addl 8, %esp
-            popl %edi           // Runtime(Type Runtime)
-            
-            pushl 20
-            pushl 2
-            pushl %ecx; pushl _my_B_m_init; call (%ecx)
-        	addl 16, %esp
-        	
-            movl 8(%ebp), %eax          // @class-desc "B"
-            addl _my_B_coso_mA, %eax   // "my::A"
-            subl 4, %esp    // return value of createInstance
-            pushl %eax
-            pushl %edi; pushl _my_core_Runtime_m_createInstance; call (%edi)
-        	addl 12, %esp
-            popl %edx; // inst_A (type A)
-            
-            pushl 2
-            pushl 5
-            pushl %edx; pushl _my_A_m_init; call (%edx)
-        	addl 16, %esp
-            
-            pushl %edx    
-            pushl %ecx; pushl _my_B_m_doIt; call (%ecx)
-        	addl 12, %esp
-            
-            pushl %edx
-            pushl %edi; pushl _my_core_Runtime_m_destroyInstance; call (%edi)
-        	addl 12, %esp
-            
-            popl %edi
-            popl %edx
-            popl %ecx
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 24; call (%eax)
+    addl 8, %esp
+    popl -12(%ebp)
+    movl -12(%ebp), %eax
+    movl %eax, -8(%ebp)
+    movl 7, -16(%ebp)
+    movl 20, -20(%ebp)
+    pushl -20(%ebp)
+    pushl -16(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
+    addl 16, %esp
+    movl 8(%ebp), %eax
+    addl _my_B_coso_a, %eax
+    movl %eax, -28(%ebp)
+    subl 4, %esp
+    pushl -28(%ebp)
+    movl -8(%ebp), %eax
+    pushl %eax; pushl 128; call (%eax)
+    addl 12, %esp
+    popl -32(%ebp)
+    movl -32(%ebp), %eax
+    movl %eax, -24(%ebp)
+    movl 5, -36(%ebp)
+    movl 2, -40(%ebp)
+    pushl -40(%ebp)
+    pushl -36(%ebp)
+    movl -24(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 16, %esp
+    pushl -24(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 80; call (%eax)
+    addl 12, %esp
+    movl -24(%ebp), %eax
+    movl %eax, -44(%ebp)
+    movl 8(%ebp), %eax
+    addl _my_B_coso_oa, %eax
+    movl %eax, -52(%ebp)
+    subl 4, %esp
+    pushl -44(%ebp)
+    pushl -52(%ebp)
+    movl -8(%ebp), %eax
+    pushl %eax; pushl 112; call (%eax)
+    addl 16, %esp
+    popl -56(%ebp)
+    movl -56(%ebp), %eax
+    movl %eax, -48(%ebp)
+    pushl -48(%ebp)
+    movl -8(%ebp), %eax
+    pushl %eax; pushl 104; call (%eax)
+    addl 12, %esp
+    jmp _07f7c73c_md_run_return
 _07f7c73c_md_run_return:
     popad
     leave
@@ -304,94 +316,132 @@ _07f7c73c_md_run_return:
 // method doIt
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 108, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
-        _my_core_Runtime_coi_out := 0
-        _my_core_Runtime_coi_err := 1
-        _my_core_Runtime_m_printChar := 72
-        _my_core_Runtime_m_printString := 80
-        _my_core_Runtime_m_printInt := 88
-        _my_core_Runtime_m_printHex := 96
-            pushl %ecx
-            pushl %edx
-            
-            movl 12(%ebp), %ecx // @this (Type B)
-            
-            subl 4, %esp        // return value of rt
-            pushl %ecx; pushl _my_B_m_rt; call (%ecx)
-        	addl 8, %esp
-            popl %edx           // Runtime(Type Runtime)
-            
-            pushl _my_core_Runtime_coi_err; pushl 0x40 // '@'
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            movl 8(%ebp), %eax         // @class-desc "B"
-            addl _my_B_coso_doit, %eax // "DoIt "
-            pushl _my_core_Runtime_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printString; call (%edx)
-            addl 16, %esp
-            
-            subl 4, %esp    // return value of equals
-            pushl 12(%ebp)  // @this (Type B)
-            pushl %ecx; pushl _my_B_m_equals; call (%ecx)
-            addl 12, %esp
-            popl %eax
-            
-            pushl _my_core_Runtime_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_core_Runtime_coi_out; pushl 0x20 // ' '
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            subl 4, %esp    // return value of equals
-            pushl 16(%ebp)  // param @a (Type A)
-            pushl %ecx; pushl _my_B_m_equals; call (%ecx)
-            addl 12, %esp
-            popl %eax
-            
-            pushl _my_core_Runtime_coi_out; pushl %eax
-            pushl %edx; pushl _my_core_Runtime_m_printInt; call (%edx)
-            addl 16, %esp
-            
-            pushl 0x1234    // size
-            pushl %ecx; pushl _my_B_m_testAllocate; call (%ecx)
-        	addl 12, %esp
-            
-            pushl _my_core_Runtime_coi_err; pushl 0x40 // '@'
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            pushl _my_core_Runtime_coi_out; pushl 0xa // '/n'
-            pushl %edx; pushl _my_core_Runtime_m_printChar; call (%edx)
-            addl 16, %esp
-            
-            subl 4, %esp    // return value of getRow
-            pushl %ecx; pushl _my_B_m_getRow; call (%ecx)
-        	addl 8, %esp
-            popl %eax
-            
-            pushl %eax      // row
-            pushl %ecx; pushl _my_B_m_test; call (%ecx)
-        	addl 12, %esp
-            
-            movl 16(%ebp), %ecx // param @a (Type A)
-        	
-            subl 4, %esp    // return value of getRow
-            pushl %ecx; pushl _my_A_m_getRow; call (%ecx)
-        	addl 8, %esp
-            popl %eax
-            
-            pushl %eax      // row
-            pushl %ecx; pushl _my_A_m_test; call (%ecx)
-        	addl 12, %esp
-        	
-            popl %edx
-            popl %ecx
+    movl 0, -8(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 24; call (%eax)
+    addl 8, %esp
+    popl -16(%ebp)
+    movl -16(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -24(%ebp)
+    movl -24(%ebp), %eax
+    movl %eax, -20(%ebp)
+    movl 8(%ebp), %eax
+    addl _my_B_coso_oa, %eax
+    movl %eax, -32(%ebp)
+    subl 4, %esp
+    pushl -20(%ebp)
+    pushl -32(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 112; call (%eax)
+    addl 16, %esp
+    popl -36(%ebp)
+    movl -36(%ebp), %eax
+    movl %eax, -28(%ebp)
+    movl -4(%ebp), %eax
+    movl %eax, -40(%ebp)
+    movl 8(%ebp), %eax
+    addl _my_B_coso_oa, %eax
+    movl %eax, -48(%ebp)
+    subl 4, %esp
+    pushl -40(%ebp)
+    pushl -48(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 112; call (%eax)
+    addl 16, %esp
+    popl -52(%ebp)
+    movl -52(%ebp), %eax
+    movl %eax, -44(%ebp)
+    movl 64, -56(%ebp)
+    movl 1, -60(%ebp)
+    pushl -60(%ebp)
+    pushl -56(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl 8(%ebp), %eax
+    addl _my_B_coso_string_3, %eax
+    movl %eax, -64(%ebp)
+    pushl -8(%ebp)
+    pushl -64(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 80; call (%eax)
+    addl 16, %esp
+    subl 4, %esp
+    pushl -44(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 16; call (%eax)
+    addl 12, %esp
+    popl -68(%ebp)
+    pushl -8(%ebp)
+    pushl -68(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 32, -72(%ebp)
+    pushl -8(%ebp)
+    pushl -72(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    subl 4, %esp
+    pushl -28(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 16; call (%eax)
+    addl 12, %esp
+    popl -76(%ebp)
+    pushl -8(%ebp)
+    pushl -76(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 16, %esp
+    movl 4660, -80(%ebp)
+    pushl -80(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
+    addl 12, %esp
+    movl 64, -84(%ebp)
+    movl 1, -88(%ebp)
+    pushl -88(%ebp)
+    pushl -84(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl 10, -92(%ebp)
+    pushl -8(%ebp)
+    pushl -92(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -96(%ebp)
+    pushl -96(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 12, %esp
+    movl 16(%ebp), %eax
+    movl %eax, -100(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -104(%ebp)
+    subl 4, %esp
+    movl -104(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
+    addl 8, %esp
+    popl -108(%ebp)
+    pushl -108(%ebp)
+    movl -100(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 12, %esp
+    jmp _07f7c73c_md_doIt_return
 _07f7c73c_md_doIt_return:
     popad
     leave
