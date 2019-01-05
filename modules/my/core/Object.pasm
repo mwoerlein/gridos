@@ -39,19 +39,14 @@ _01a2e54e_ct_01a2e54e:
 // method tabs
 _01a2e54e_mts:
 _01a2e54e_mt_01a2e54e:
-_my_core_Object_m_getClass := 0
     .long 0
     .long _01a2e54e_cto_01a2e54e
-_my_core_Object_m_hash := 8
     .long 4
     .long _01a2e54e_cto_01a2e54e
-_my_core_Object_m_equals := 16
     .long 8
     .long _01a2e54e_cto_01a2e54e
-_my_core_Object_m_rt := 24
     .long 12
     .long _01a2e54e_cto_01a2e54e
-_my_core_Object_m_setRt := 32
     .long 16
     .long _01a2e54e_cto_01a2e54e
 

@@ -27,7 +27,7 @@ _07f7c73c_cts:
 _07f7c73c_cto_01a2e54e := (_07f7c73c_ct_01a2e54e - _my_B)
 _07f7c73c_ct_01a2e54e:
     .long 0
-    .long _my_B_coso_oa
+    .long _my_B_coso_string_3
     .long (_07f7c73c_mt_01a2e54e - _my_B)
     .long (_07f7c73c_tpl_h_01a2e54e - _07f7c73c_tpl)
 _07f7c73c_cto_0dbda62f := (_07f7c73c_ct_0dbda62f - _my_B)
@@ -39,7 +39,7 @@ _07f7c73c_ct_0dbda62f:
 _07f7c73c_cto_07f7c73b := (_07f7c73c_ct_07f7c73b - _my_B)
 _07f7c73c_ct_07f7c73b:
     .long 0
-    .long _my_B_coso_a
+    .long _my_B_coso_string_2
     .long (_07f7c73c_mt_07f7c73b - _my_B)
     .long (_07f7c73c_tpl_h_07f7c73b - _07f7c73c_tpl)
 _07f7c73c_cto_07f7c73c := (_07f7c73c_ct_07f7c73c - _my_B)
@@ -57,103 +57,71 @@ _07f7c73c_ct_07f7c73c:
 // method tabs
 _07f7c73c_mts:
 _07f7c73c_mt_01a2e54e:
-_my_core_Object_m_getClass := 0
     .long 0
     .long _07f7c73c_cto_01a2e54e
-_my_core_Object_m_hash := 8
     .long 4
     .long _07f7c73c_cto_01a2e54e
-_my_core_Object_m_equals := 16
     .long 8
     .long _07f7c73c_cto_01a2e54e
-_my_core_Object_m_rt := 24
     .long 12
     .long _07f7c73c_cto_01a2e54e
-_my_core_Object_m_setRt := 32
     .long 16
     .long _07f7c73c_cto_01a2e54e
 _07f7c73c_mt_0dbda62f:
-_my_core_Thread_m_getClass := 0
     .long 0
     .long _07f7c73c_cto_01a2e54e
-_my_core_Thread_m_hash := 8
     .long 4
     .long _07f7c73c_cto_01a2e54e
-_my_core_Thread_m_equals := 16
     .long 8
     .long _07f7c73c_cto_01a2e54e
-_my_core_Thread_m_rt := 24
     .long 12
     .long _07f7c73c_cto_01a2e54e
-_my_core_Thread_m_setRt := 32
     .long 16
     .long _07f7c73c_cto_01a2e54e
-_my_core_Thread_m_run := 40
     .long 0
     .long _07f7c73c_cto_07f7c73c
 _07f7c73c_mt_07f7c73b:
-_my_A_m_getClass := 0
     .long 0
     .long _07f7c73c_cto_01a2e54e
-_my_A_m_hash := 8
     .long 4
     .long _07f7c73c_cto_01a2e54e
-_my_A_m_equals := 16
     .long 8
     .long _07f7c73c_cto_01a2e54e
-_my_A_m_rt := 24
     .long 12
     .long _07f7c73c_cto_01a2e54e
-_my_A_m_setRt := 32
     .long 16
     .long _07f7c73c_cto_01a2e54e
-_my_A_m_init := 40
     .long 0
     .long _07f7c73c_cto_07f7c73b
-_my_A_m_getRow := 48
     .long 12
     .long _07f7c73c_cto_07f7c73c
-_my_A_m_getRowAndColumn := 56
     .long 8
     .long _07f7c73c_cto_07f7c73b
-_my_A_m_test := 64
     .long 12
     .long _07f7c73c_cto_07f7c73b
 _07f7c73c_mt_07f7c73c:
-_my_B_m_getClass := 0
     .long 0
     .long _07f7c73c_cto_01a2e54e
-_my_B_m_hash := 8
     .long 4
     .long _07f7c73c_cto_01a2e54e
-_my_B_m_equals := 16
     .long 8
     .long _07f7c73c_cto_01a2e54e
-_my_B_m_rt := 24
     .long 12
     .long _07f7c73c_cto_01a2e54e
-_my_B_m_setRt := 32
     .long 16
     .long _07f7c73c_cto_01a2e54e
-_my_B_m_run := 40
     .long 0
     .long _07f7c73c_cto_07f7c73c
-_my_B_m_init := 48
     .long 0
     .long _07f7c73c_cto_07f7c73b
-_my_B_m_getRow := 56
     .long 12
     .long _07f7c73c_cto_07f7c73c
-_my_B_m_getRowAndColumn := 64
     .long 8
     .long _07f7c73c_cto_07f7c73b
-_my_B_m_test := 72
     .long 12
     .long _07f7c73c_cto_07f7c73b
-_my_B_m_doIt := 80
     .long 4
     .long _07f7c73c_cto_07f7c73c
-_my_B_m_testAllocate := 88
     .long 8
     .long _07f7c73c_cto_07f7c73c
 
@@ -170,20 +138,20 @@ _my_B_coso_CLASSNAME := (_07f7c73c_cos_CLASSNAME - _my_B)
 _07f7c73c_cos_CLASSNAME:
     .asciz "my::B"
 
-// string a
-_my_B_coso_a := (_07f7c73c_cos_a - _my_B)
-_07f7c73c_cos_a:
-    .asciz "my::A"
+// string string_1
+_my_B_coso_string_1 := (_07f7c73c_cos_string_1 - _my_B)
+_07f7c73c_cos_string_1:
+    .asciz "OMG!! "
 
-// string oa
-_my_B_coso_oa := (_07f7c73c_cos_oa - _my_B)
-_07f7c73c_cos_oa:
-    .asciz "my::core::Object"
+// string string_2
+_my_B_coso_string_2 := (_07f7c73c_cos_string_2 - _my_B)
+_07f7c73c_cos_string_2:
+    .asciz "my::A"
 
 // string string_3
 _my_B_coso_string_3 := (_07f7c73c_cos_string_3 - _my_B)
 _07f7c73c_cos_string_3:
-    .asciz "OMG!! "
+    .asciz "my::core::Object"
 
 // string string_4
 _my_B_coso_string_4 := (_07f7c73c_cos_string_4 - _my_B)
@@ -268,7 +236,7 @@ _07f7c73c_md_run:
     pushl %eax; pushl 48; call (%eax)
     addl 16, %esp
     movl 8(%ebp), %eax
-    addl _my_B_coso_a, %eax
+    addl _my_B_coso_string_2, %eax
     movl %eax, -28(%ebp)
     subl 4, %esp
     pushl -28(%ebp)
@@ -292,7 +260,7 @@ _07f7c73c_md_run:
     movl -24(%ebp), %eax
     movl %eax, -44(%ebp)
     movl 8(%ebp), %eax
-    addl _my_B_coso_oa, %eax
+    addl _my_B_coso_string_3, %eax
     movl %eax, -52(%ebp)
     subl 4, %esp
     pushl -44(%ebp)
@@ -333,7 +301,7 @@ _07f7c73c_md_doIt:
     movl -24(%ebp), %eax
     movl %eax, -20(%ebp)
     movl 8(%ebp), %eax
-    addl _my_B_coso_oa, %eax
+    addl _my_B_coso_string_3, %eax
     movl %eax, -32(%ebp)
     subl 4, %esp
     pushl -20(%ebp)
@@ -347,7 +315,7 @@ _07f7c73c_md_doIt:
     movl -4(%ebp), %eax
     movl %eax, -40(%ebp)
     movl 8(%ebp), %eax
-    addl _my_B_coso_oa, %eax
+    addl _my_B_coso_string_3, %eax
     movl %eax, -48(%ebp)
     subl 4, %esp
     pushl -40(%ebp)
@@ -366,7 +334,7 @@ _07f7c73c_md_doIt:
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
     movl 8(%ebp), %eax
-    addl _my_B_coso_string_3, %eax
+    addl _my_B_coso_string_1, %eax
     movl %eax, -64(%ebp)
     pushl -8(%ebp)
     pushl -64(%ebp)

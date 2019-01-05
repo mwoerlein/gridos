@@ -45,44 +45,31 @@ _ff38e2ed_ct_ff38e2ed:
 // method tabs
 _ff38e2ed_mts:
 _ff38e2ed_mt_01a2e54e:
-_my_core_Object_m_getClass := 0
     .long 0
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Object_m_hash := 8
     .long 4
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Object_m_equals := 16
     .long 8
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Object_m_rt := 24
     .long 12
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Object_m_setRt := 32
     .long 16
     .long _ff38e2ed_cto_01a2e54e
 _ff38e2ed_mt_ff38e2ed:
-_my_core_Class_m_getClass := 0
     .long 0
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Class_m_hash := 8
     .long 4
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Class_m_equals := 16
     .long 8
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Class_m_rt := 24
     .long 12
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Class_m_setRt := 32
     .long 16
     .long _ff38e2ed_cto_01a2e54e
-_my_core_Class_m_getDesc := 40
     .long 0
     .long _ff38e2ed_cto_ff38e2ed
-_my_core_Class_m_setDesc := 48
     .long 4
     .long _ff38e2ed_cto_ff38e2ed
-_my_core_Class_m_getName := 56
     .long 8
     .long _ff38e2ed_cto_ff38e2ed
 

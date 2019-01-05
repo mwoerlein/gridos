@@ -46,74 +46,51 @@ _4990fdfb_ct_4990fdfb:
 // method tabs
 _4990fdfb_mts:
 _4990fdfb_mt_01a2e54e:
-_my_core_Object_m_getClass := 0
     .long 0
     .long _4990fdfb_cto_01a2e54e
-_my_core_Object_m_hash := 8
     .long 4
     .long _4990fdfb_cto_01a2e54e
-_my_core_Object_m_equals := 16
     .long 8
     .long _4990fdfb_cto_01a2e54e
-_my_core_Object_m_rt := 24
     .long 12
     .long _4990fdfb_cto_01a2e54e
-_my_core_Object_m_setRt := 32
     .long 16
     .long _4990fdfb_cto_01a2e54e
 _4990fdfb_mt_4990fdfb:
-_my_core_Runtime_m_getClass := 0
     .long 0
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_hash := 8
     .long 4
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_equals := 16
     .long 8
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_rt := 24
     .long 12
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_setRt := 32
     .long 16
     .long _4990fdfb_cto_01a2e54e
-_my_core_Runtime_m_initSysCall := 40
     .long 4
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_getClassDesc := 48
     .long 8
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_allocate := 56
     .long 12
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_free := 64
     .long 16
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printChar := 72
     .long 20
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printString := 80
     .long 24
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printInt := 88
     .long 28
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_printHex := 96
     .long 32
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_destroyInstance := 104
     .long 36
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_cast := 112
     .long 40
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_createAndRunThread := 120
     .long 44
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_createInstance := 128
     .long 48
     .long _4990fdfb_cto_4990fdfb
-_my_core_Runtime_m_bootstrap := 136
     .long 0
     .long _4990fdfb_cto_4990fdfb
 
@@ -597,21 +574,28 @@ _4990fdfb_md_destroyInstance_return:
 // method cast
 _4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 28, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
-        _crma_start:
-            movl 0, 24(%ebp)    // not-found default handle: NULL
-            movl 12(%ebp), %esi // @this (Type Runtime)
-            
-            subl 4, %esp        // return value of getClassDesc
-            pushl 16(%ebp)      // param @classname
-            pushl %esi; pushl _my_core_Runtime_m_getClassDesc; call (%esi)
-        	addl 12, %esp
-            popl %ecx           // @class-desc
-            addl 0, %ecx; jz _crma_return   // return NULL if class not exists
-           
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl 0, -16(%ebp)
+    movl -12(%ebp), %eax
+    movl %eax, -20(%ebp)
+    movl 16(%ebp), %eax
+    movl %eax, -24(%ebp)
+    subl 4, %esp
+    pushl -24(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
+    addl 12, %esp
+    popl -28(%ebp)
+    movl -28(%ebp), %eax
+    movl %eax, -16(%ebp)
+cmpl 0, -16(%ebp); jz _crma_return_null   // return NULL if class not exists
+            movl -16(%ebp), %ecx // var <classDesc>
             movl 20(%ebp), %eax // @obj (Type ANY)
             movl 4(%eax), %ebx  // @obj
             movl (%ebx), %eax   // @obj-class desc
@@ -621,12 +605,18 @@ _4990fdfb_md_cast:
             je _crma_found
             addl _my_core_Runtime_coi_cts_size, %eax
             cmpl 0, (%eax)
-            je _crma_return
+            je _crma_return_null
             jmp _crma_loop
         _crma_found:
             addl _my_core_Runtime_coi_cts_ho(%eax), %ebx
-            movl %ebx, 24(%ebp) // return correct handle
-        _crma_return:
+            movl %ebx, -20(%ebp) // return correct handle
+    movl -20(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_cast_return
+_crma_return_null:
+    movl -12(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_cast_return
 _4990fdfb_md_cast_return:
     popad
     leave

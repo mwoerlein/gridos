@@ -45,47 +45,33 @@ _07f7c73b_ct_07f7c73b:
 // method tabs
 _07f7c73b_mts:
 _07f7c73b_mt_01a2e54e:
-_my_core_Object_m_getClass := 0
     .long 0
     .long _07f7c73b_cto_01a2e54e
-_my_core_Object_m_hash := 8
     .long 4
     .long _07f7c73b_cto_01a2e54e
-_my_core_Object_m_equals := 16
     .long 8
     .long _07f7c73b_cto_01a2e54e
-_my_core_Object_m_rt := 24
     .long 12
     .long _07f7c73b_cto_01a2e54e
-_my_core_Object_m_setRt := 32
     .long 16
     .long _07f7c73b_cto_01a2e54e
 _07f7c73b_mt_07f7c73b:
-_my_A_m_getClass := 0
     .long 0
     .long _07f7c73b_cto_01a2e54e
-_my_A_m_hash := 8
     .long 4
     .long _07f7c73b_cto_01a2e54e
-_my_A_m_equals := 16
     .long 8
     .long _07f7c73b_cto_01a2e54e
-_my_A_m_rt := 24
     .long 12
     .long _07f7c73b_cto_01a2e54e
-_my_A_m_setRt := 32
     .long 16
     .long _07f7c73b_cto_01a2e54e
-_my_A_m_init := 40
     .long 0
     .long _07f7c73b_cto_07f7c73b
-_my_A_m_getRow := 48
     .long 4
     .long _07f7c73b_cto_07f7c73b
-_my_A_m_getRowAndColumn := 56
     .long 8
     .long _07f7c73b_cto_07f7c73b
-_my_A_m_test := 64
     .long 12
     .long _07f7c73b_cto_07f7c73b
 
