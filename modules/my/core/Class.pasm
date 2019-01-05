@@ -27,7 +27,7 @@ _ff38e2ed_cts:
 _ff38e2ed_cto_01a2e54e := (_ff38e2ed_ct_01a2e54e - _my_core_Class)
 _ff38e2ed_ct_01a2e54e:
     .long 0
-    .long _my_core_Class_coso_string_1
+    .long _my_core_Class_coso_string_2
     .long (_ff38e2ed_mt_01a2e54e - _my_core_Class)
     .long (_ff38e2ed_tpl_h_01a2e54e - _ff38e2ed_tpl)
 _ff38e2ed_cto_ff38e2ed := (_ff38e2ed_ct_ff38e2ed - _my_core_Class)
@@ -104,9 +104,14 @@ _my_core_Class_coso_CLASSNAME := (_ff38e2ed_cos_CLASSNAME - _my_core_Class)
 _ff38e2ed_cos_CLASSNAME:
     .asciz "my::core::Class"
 
-// string string_1
-_my_core_Class_coso_string_1 := (_ff38e2ed_cos_string_1 - _my_core_Class)
-_ff38e2ed_cos_string_1:
+// string name
+_my_core_Class_coso_name := (_ff38e2ed_cos_name - _my_core_Class)
+_ff38e2ed_cos_name:
+    .asciz ""
+
+// string string_2
+_my_core_Class_coso_string_2 := (_ff38e2ed_cos_string_2 - _my_core_Class)
+_ff38e2ed_cos_string_2:
     .asciz "my::core::Object"
 
 // instance template
@@ -187,16 +192,27 @@ _ff38e2ed_md_setDesc_return:
 // method getName
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 16, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
-            movl 12(%ebp), %eax                     // @this (Type Class)
-            movl _my_core_Class_hvo_my_core_Class(%eax), %ebx // inst vars offset (Class)
-            addl 4(%eax), %ebx                      // @this.vars(Class)
-            movl _my_core_Class_i_desc(%ebx), %eax       // @class desc
-            addl _my_core_Class_coi_ch_name(%eax), %eax  // load reference to cstring
-            movl %eax, 16(%ebp)                     // return cstring-ref
+    movl 0, -8(%ebp)
+    movl 8(%ebp), %eax
+    addl _my_core_Class_coso_name, %eax
+    movl %eax, -12(%ebp)
+    movl -4(%ebp), %eax
+    movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
+    addl 4(%eax), %ebx
+    movl _my_core_Class_i_desc(%ebx), %eax
+    movl %eax, -16(%ebp)
+    movl -16(%ebp), %eax
+    movl %eax, -8(%ebp)
+            movl -8(%ebp), %eax     // var <desc>
+            addl _my_core_Class_coi_ch_name(%eax), %eax
+            movl %eax, -12(%ebp)    // var <name>
+    movl -12(%ebp), %eax
+    movl %eax, 16(%ebp)
+    jmp _ff38e2ed_md_getName_return
 _ff38e2ed_md_getName_return:
     popad
     leave
