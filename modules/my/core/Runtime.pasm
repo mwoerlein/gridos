@@ -247,122 +247,103 @@ _4990fdfb_tpl_end:
 // method bootstrap
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
-    subl 80, %esp
+    subl 52, %esp
     pushad
     movl 0, -4(%ebp)
-    movl -4(%ebp), %eax
-    movl %eax, -8(%ebp)
-    movl -4(%ebp), %eax
-    movl %eax, -12(%ebp)
-    movl -4(%ebp), %eax
-    movl %eax, -16(%ebp)
+    movl 0, -8(%ebp)
+    movl 0, -12(%ebp)
+    movl 0, -16(%ebp)
     movl 0, -20(%ebp)
     movl 0, -24(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -28(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -32(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -36(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -40(%ebp)
-    movl -16(%ebp), %eax
-    movl %eax, -44(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -48(%ebp)
-    movl 0, -52(%ebp)
-    movl 0, -56(%ebp)
+    movl 0, -28(%ebp)
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_string_2, %eax
-    movl %eax, -60(%ebp)
+    movl %eax, -32(%ebp)
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_CLASSNAME, %eax
-    movl %eax, -64(%ebp)
+    movl %eax, -36(%ebp)
             pushl 0         // desc
-            pushl -60(%ebp) // var <sClass>
+            pushl -32(%ebp) // var <sClass>
             pushl _my_core_Runtime_coi_SysCall_find_class
             pushl %esp; pushl 16(%ebp); call 20(%ebp)
             addl 16, %esp
-            popl -20(%ebp)  // store @class desc in var <cdClass>
-cmpl 0, -20(%ebp); je _bs_return_null // return NULL if class not found
+            popl -4(%ebp)   // store @class desc in var <cdClass>
+cmpl 0, -4(%ebp); je _bs_return_null // return NULL if class not found
             pushl 0                 // space for meminfo
-            movl -20(%ebp), %edx    // var <cdClass>
+            movl -4(%ebp), %edx     // var <cdClass>
             pushl _my_core_Runtime_coi_ch_tpl_size(%edx) // instance size
             pushl _my_core_Runtime_coi_SysCall_allocate
             pushl %esp; pushl 16(%ebp); call 20(%ebp)
             addl 16, %esp
-            popl -52(%ebp)  // store meminfo in var <icClass>
-cmpl 0, -52(%ebp); je _bs_return_null // return NULL on allocate error
-            movl -52(%ebp), %eax    // var <icClass>
+            popl -24(%ebp)  // store meminfo in var <icClass>
+cmpl 0, -24(%ebp); je _bs_return_null // return NULL on allocate error
+            movl -24(%ebp), %eax    // var <icClass>
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
-            movl -20(%ebp), %edx    // var <cdClass>
+            movl -4(%ebp), %edx     // var <cdClass>
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-        	movl %edi, -36(%ebp)    // store @Class (Type Object) in var <ocClass>
-        	movl %esi, -28(%ebp)    // store @Class (Type Class) in var <cClass>
+        	movl %esi, -12(%ebp)    // store @Class (Type Class) in var <cClass>
             pushl 0         // desc
-            pushl -64(%ebp) // var <sRuntime>
+            pushl -36(%ebp) // var <sRuntime>
             pushl _my_core_Runtime_coi_SysCall_find_class
             pushl %esp; pushl 16(%ebp); call 20(%ebp)
             addl 16, %esp
-            popl -24(%ebp)  // store @class desc in var <cdRuntime>
-cmpl 0, -24(%ebp); je _bs_return_null // return NULL if class not found
+            popl -8(%ebp)   // store @class desc in var <cdRuntime>
+cmpl 0, -8(%ebp); je _bs_return_null // return NULL if class not found
             pushl 0                 // space for meminfo
-            movl -24(%ebp), %edx    // var <cdRuntime>
+            movl -8(%ebp), %edx     // var <cdRuntime>
             pushl _my_core_Runtime_coi_ch_tpl_size(%edx) // instance size
             pushl _my_core_Runtime_coi_SysCall_allocate
             pushl %esp; pushl 16(%ebp); call 20(%ebp)
             addl 16, %esp
-            popl -56(%ebp)  // store meminfo in var <irt>
-cmpl 0, -56(%ebp); je _bs_return_null // return NULL on allocate error
-            movl -56(%ebp), %eax    // var <irt>
+            popl -28(%ebp)  // store meminfo in var <irt>
+cmpl 0, -28(%ebp); je _bs_return_null // return NULL on allocate error
+            movl -28(%ebp), %eax    // var <irt>
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
-            movl -24(%ebp), %edx    // var <cdRuntime>
+            movl -8(%ebp), %edx     // var <cdRuntime>
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-        	movl %edi, -48(%ebp)    // store @Class (Type Object) in var <ort>
-        	movl %esi, -44(%ebp)    // store @Class (Type Runtime) in var <rt>
-    pushl -44(%ebp)
-    movl -28(%ebp), %eax
+        	movl %esi, -20(%ebp)    // store @Class (Type Runtime) in var <rt>
+    pushl -20(%ebp)
+    movl -12(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
-    pushl -20(%ebp)
-    movl -28(%ebp), %eax
+    pushl -4(%ebp)
+    movl -12(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    pushl -44(%ebp)
-    movl -44(%ebp), %eax
+    pushl -20(%ebp)
+    movl -20(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
     movl 16(%ebp), %eax
-    movl %eax, -68(%ebp)
+    movl %eax, -40(%ebp)
     movl 20(%ebp), %eax
-    movl %eax, -72(%ebp)
-    pushl -72(%ebp)
-    pushl -68(%ebp)
-    movl -44(%ebp), %eax
+    movl %eax, -44(%ebp)
+    pushl -44(%ebp)
+    pushl -40(%ebp)
+    movl -20(%ebp), %eax
     pushl %eax; pushl 40; call (%eax)
     addl 16, %esp
     subl 4, %esp
-    pushl -60(%ebp)
-    movl -44(%ebp), %eax
+    pushl -32(%ebp)
+    movl -20(%ebp), %eax
     pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
-    popl -80(%ebp)
-    movl -80(%ebp), %eax
-    movl %eax, -76(%ebp)
-    movl -76(%ebp), %eax
-    movl %eax, -32(%ebp)
-cmpl 0, -32(%ebp); je _bs_return_null // return NULL if class could not be initialized
-    pushl -24(%ebp)
-    movl -32(%ebp), %eax
+    popl -48(%ebp)
+    movl -48(%ebp), %eax
+    movl %eax, -16(%ebp)
+cmpl 0, -16(%ebp); je _bs_return_null // return NULL if class could not be initialized
+    pushl -8(%ebp)
+    movl -16(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    movl -44(%ebp), %eax
+    movl -20(%ebp), %eax
     movl %eax, 24(%ebp)
     jmp _4990fdfb_md_bootstrap_return
 _bs_return_null:
-    movl -16(%ebp), %eax
+    movl 0, -52(%ebp)
+    movl -52(%ebp), %eax
     movl %eax, 24(%ebp)
     jmp _4990fdfb_md_bootstrap_return
 _4990fdfb_md_bootstrap_return:
@@ -574,28 +555,24 @@ _4990fdfb_md_destroyInstance_return:
 // method cast
 _4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
-    subl 28, %esp
+    subl 24, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -12(%ebp)
-    movl 0, -16(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -20(%ebp)
+    movl 0, -12(%ebp)
     movl 16(%ebp), %eax
-    movl %eax, -24(%ebp)
+    movl %eax, -16(%ebp)
     subl 4, %esp
-    pushl -24(%ebp)
+    pushl -16(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    popl -28(%ebp)
-    movl -28(%ebp), %eax
-    movl %eax, -16(%ebp)
-cmpl 0, -16(%ebp); jz _crma_return_null   // return NULL if class not exists
-            movl -16(%ebp), %ecx // var <classDesc>
+    popl -20(%ebp)
+    movl -20(%ebp), %eax
+    movl %eax, -8(%ebp)
+cmpl 0, -8(%ebp); jz _crma_return_null   // return NULL if class not exists
+            movl -8(%ebp), %ecx // var <classDesc>
             movl 20(%ebp), %eax // @obj (Type ANY)
             movl 4(%eax), %ebx  // @obj
             movl (%ebx), %eax   // @obj-class desc
@@ -609,12 +586,13 @@ cmpl 0, -16(%ebp); jz _crma_return_null   // return NULL if class not exists
             jmp _crma_loop
         _crma_found:
             addl _my_core_Runtime_coi_cts_ho(%eax), %ebx
-            movl %ebx, -20(%ebp) // return correct handle
-    movl -20(%ebp), %eax
+            movl %ebx, -12(%ebp) // var <ret>
+    movl -12(%ebp), %eax
     movl %eax, 24(%ebp)
     jmp _4990fdfb_md_cast_return
 _crma_return_null:
-    movl -12(%ebp), %eax
+    movl 0, -24(%ebp)
+    movl -24(%ebp), %eax
     movl %eax, 24(%ebp)
     jmp _4990fdfb_md_cast_return
 _4990fdfb_md_cast_return:
@@ -625,50 +603,41 @@ _4990fdfb_md_cast_return:
 // method createAndRunThread
 _4990fdfb_md_createAndRunThread:
     pushl %ebp; movl %esp, %ebp
-    subl 44, %esp
+    subl 28, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -12(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -16(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -20(%ebp)
-    movl -16(%ebp), %eax
-    movl %eax, -24(%ebp)
+    movl 0, -12(%ebp)
     movl 16(%ebp), %eax
-    movl %eax, -28(%ebp)
+    movl %eax, -16(%ebp)
     subl 4, %esp
-    pushl -28(%ebp)
+    pushl -16(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
-    popl -32(%ebp)
-    movl -32(%ebp), %eax
-    movl %eax, -20(%ebp)
-cmpl 0, -20(%ebp); je _mcrmcart_return    // break if not instantiated
+    popl -20(%ebp)
+    movl -20(%ebp), %eax
+    movl %eax, -8(%ebp)
+cmpl 0, -8(%ebp); je _mcrmcart_return     // break if not instantiated
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_string_3, %eax
-    movl %eax, -40(%ebp)
+    movl %eax, -24(%ebp)
     subl 4, %esp
-    pushl -20(%ebp)
-    pushl -40(%ebp)
+    pushl -8(%ebp)
+    pushl -24(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 112; call (%eax)
     addl 16, %esp
-    popl -44(%ebp)
-    movl -44(%ebp), %eax
-    movl %eax, -36(%ebp)
-    movl -36(%ebp), %eax
-    movl %eax, -24(%ebp)
-cmpl 0, -24(%ebp); je _mcrmcart_cleanup   // destroy instance if not a thread
-    movl -24(%ebp), %eax
+    popl -28(%ebp)
+    movl -28(%ebp), %eax
+    movl %eax, -12(%ebp)
+cmpl 0, -12(%ebp); je _mcrmcart_cleanup   // destroy instance if not a thread
+    movl -12(%ebp), %eax
     pushl %eax; pushl 40; call (%eax)
     addl 8, %esp
 _mcrmcart_cleanup:
-    pushl -20(%ebp)
+    pushl -8(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 104; call (%eax)
     addl 12, %esp
@@ -682,86 +651,77 @@ _4990fdfb_md_createAndRunThread_return:
 // method createInstance
 _4990fdfb_md_createInstance:
     pushl %ebp; movl %esp, %ebp
-    subl 68, %esp
+    subl 56, %esp
     pushad
     movl 12(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -12(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -16(%ebp)
+    movl 0, -12(%ebp)
+    movl 0, -16(%ebp)
     movl 0, -20(%ebp)
     movl 0, -24(%ebp)
     movl 0, -28(%ebp)
     movl 0, -32(%ebp)
-    movl -16(%ebp), %eax
-    movl %eax, -36(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -40(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, -44(%ebp)
     movl 16(%ebp), %eax
-    movl %eax, -48(%ebp)
+    movl %eax, -36(%ebp)
     subl 4, %esp
-    pushl -48(%ebp)
+    pushl -36(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    popl -52(%ebp)
-    movl -52(%ebp), %eax
-    movl %eax, -20(%ebp)
-cmpl 0, -20(%ebp); je _crmci_return_null   // return NULL if class not found
-            movl -20(%ebp), %eax    // var <classDesc>
+    popl -40(%ebp)
+    movl -40(%ebp), %eax
+    movl %eax, -8(%ebp)
+cmpl 0, -8(%ebp); je _crmci_return_null   // return NULL if class not found
+            movl -8(%ebp), %eax    // var <classDesc>
             movl _my_core_Runtime_coi_ch_inst_handle(%eax), %ebx
-            movl %ebx, -24(%ebp)    // var <instHandle>
+            movl %ebx, -12(%ebp)    // var <instHandle>
             movl _my_core_Runtime_coi_ch_tpl_size(%eax), %ebx
-            movl %ebx, -28(%ebp)    // var <tplSize>
-cmpl 0, -24(%ebp); jnz _crmci_instantiate  // class already initialized
+            movl %ebx, -16(%ebp)    // var <tplSize>
+cmpl 0, -12(%ebp); jnz _crmci_instantiate  // class already initialized
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_string_2, %eax
-    movl %eax, -60(%ebp)
+    movl %eax, -44(%ebp)
     subl 4, %esp
-    pushl -60(%ebp)
+    pushl -44(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
-    popl -64(%ebp)
-    movl -64(%ebp), %eax
-    movl %eax, -56(%ebp)
-    movl -56(%ebp), %eax
-    movl %eax, -36(%ebp)
-cmpl 0, -36(%ebp); je _crmci_return_null  // return NULL if class could not be initialized
-    pushl -20(%ebp)
-    movl -36(%ebp), %eax
+    popl -48(%ebp)
+    movl -48(%ebp), %eax
+    movl %eax, -24(%ebp)
+cmpl 0, -24(%ebp); je _crmci_return_null  // return NULL if class could not be initialized
+    pushl -8(%ebp)
+    movl -24(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
 _crmci_instantiate:
     subl 4, %esp
-    pushl -28(%ebp)
+    pushl -16(%ebp)
     movl -4(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
     addl 12, %esp
-    popl -68(%ebp)
-    movl -68(%ebp), %eax
-    movl %eax, -32(%ebp)
-cmpl 0, -32(%ebp); je _crmci_return_null  // return NULL on allocate error
-            movl -32(%ebp), %eax    // var <instInfo>
+    popl -52(%ebp)
+    movl -52(%ebp), %eax
+    movl %eax, -20(%ebp)
+cmpl 0, -20(%ebp); je _crmci_return_null  // return NULL on allocate error
+            movl -20(%ebp), %eax    // var <instInfo>
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
-            movl -20(%ebp), %edx    // var <class_desc>
+            movl -8(%ebp), %edx    // var <class_desc>
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <name>)
-        	movl %edi, -40(%ebp)    // store @Class (Type Object) in var <oinstance>
-        	movl %esi, -44(%ebp)    // store @Class (Type <name>) in var <instance>
+        	movl %edi, -28(%ebp)    // store @Class (Type Object) in var <oinstance>
+        	movl %esi, -32(%ebp)    // store @Class (Type <name>) in var <instance>
     pushl -4(%ebp)
-    movl -40(%ebp), %eax
+    movl -28(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
-    movl -44(%ebp), %eax
+    movl -32(%ebp), %eax
     movl %eax, 20(%ebp)
     jmp _4990fdfb_md_createInstance_return
 _crmci_return_null:
-    movl -12(%ebp), %eax
+    movl 0, -56(%ebp)
+    movl -56(%ebp), %eax
     movl %eax, 20(%ebp)
     jmp _4990fdfb_md_createInstance_return
 _4990fdfb_md_createInstance_return:
