@@ -219,10 +219,8 @@ _07f7c73c_md_run:
     pushl %ebp; movl %esp, %ebp
     subl 40, %esp
     pushad
-    movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
     subl 4, %esp
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
     popl -12(%ebp)
@@ -232,7 +230,7 @@ _07f7c73c_md_run:
     movl 20, -20(%ebp)
     pushl -20(%ebp)
     pushl -16(%ebp)
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 16, %esp
     movl 8(%ebp), %eax
@@ -254,7 +252,7 @@ _07f7c73c_md_run:
     pushl %eax; pushl 40; call (%eax)
     addl 16, %esp
     pushl -24(%ebp)
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 80; call (%eax)
     addl 12, %esp
     pushl -24(%ebp)
@@ -270,13 +268,11 @@ _07f7c73c_md_run_return:
 // method doIt
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
-    subl 76, %esp
+    subl 64, %esp
     pushad
-    movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
     subl 4, %esp
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
     popl -16(%ebp)
@@ -298,8 +294,8 @@ _07f7c73c_md_doIt:
     pushl %eax; pushl 80; call (%eax)
     addl 16, %esp
     subl 4, %esp
-    pushl -4(%ebp)
-    movl -4(%ebp), %eax
+    pushl 12(%ebp)
+    movl 12(%ebp), %eax
     pushl %eax; pushl 16; call (%eax)
     addl 12, %esp
     popl -32(%ebp)
@@ -314,57 +310,51 @@ _07f7c73c_md_doIt:
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 16(%ebp), %eax
-    movl %eax, -40(%ebp)
     subl 4, %esp
-    pushl -40(%ebp)
-    movl -4(%ebp), %eax
+    pushl 16(%ebp)
+    movl 12(%ebp), %eax
     pushl %eax; pushl 16; call (%eax)
     addl 12, %esp
-    popl -44(%ebp)
+    popl -40(%ebp)
     pushl -8(%ebp)
-    pushl -44(%ebp)
+    pushl -40(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 88; call (%eax)
     addl 16, %esp
-    movl 4660, -48(%ebp)
-    pushl -48(%ebp)
-    movl -4(%ebp), %eax
+    movl 4660, -44(%ebp)
+    pushl -44(%ebp)
+    movl 12(%ebp), %eax
     pushl %eax; pushl 88; call (%eax)
     addl 12, %esp
-    movl 64, -52(%ebp)
-    movl 1, -56(%ebp)
-    pushl -56(%ebp)
+    movl 64, -48(%ebp)
+    movl 1, -52(%ebp)
     pushl -52(%ebp)
+    pushl -48(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 10, -60(%ebp)
+    movl 10, -56(%ebp)
     pushl -8(%ebp)
-    pushl -60(%ebp)
+    pushl -56(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
     subl 4, %esp
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -60(%ebp)
+    pushl -60(%ebp)
+    movl 12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 12, %esp
+    subl 4, %esp
+    movl 16(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
     addl 8, %esp
     popl -64(%ebp)
     pushl -64(%ebp)
-    movl -4(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 12, %esp
     movl 16(%ebp), %eax
-    movl %eax, -68(%ebp)
-    movl 16(%ebp), %eax
-    movl %eax, -72(%ebp)
-    subl 4, %esp
-    movl -72(%ebp), %eax
-    pushl %eax; pushl 48; call (%eax)
-    addl 8, %esp
-    popl -76(%ebp)
-    pushl -76(%ebp)
-    movl -68(%ebp), %eax
     pushl %eax; pushl 64; call (%eax)
     addl 12, %esp
     jmp _07f7c73c_md_doIt_return
@@ -376,31 +366,27 @@ _07f7c73c_md_doIt_return:
 // method testAllocate
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
-    subl 48, %esp
+    subl 44, %esp
     pushad
-    movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
     movl 0, -8(%ebp)
     subl 4, %esp
-    movl -4(%ebp), %eax
+    movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
     popl -16(%ebp)
     movl -16(%ebp), %eax
     movl %eax, -12(%ebp)
-    movl 16(%ebp), %eax
-    movl %eax, -24(%ebp)
     subl 4, %esp
-    pushl -24(%ebp)
+    pushl 16(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
     addl 12, %esp
-    popl -28(%ebp)
-    movl -28(%ebp), %eax
+    popl -24(%ebp)
+    movl -24(%ebp), %eax
     movl %eax, -20(%ebp)
-    movl 32, -32(%ebp)
+    movl 32, -28(%ebp)
     pushl -8(%ebp)
-    pushl -32(%ebp)
+    pushl -28(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
@@ -409,27 +395,27 @@ _07f7c73c_md_testAllocate:
     movl -12(%ebp), %eax
     pushl %eax; pushl 96; call (%eax)
     addl 16, %esp
-    movl 32, -36(%ebp)
+    movl 32, -32(%ebp)
+    pushl -8(%ebp)
+    pushl -32(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl 57005, -36(%ebp)
     pushl -8(%ebp)
     pushl -36(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
+    pushl %eax; pushl 96; call (%eax)
     addl 16, %esp
-    movl 57005, -40(%ebp)
+    movl 32, -40(%ebp)
     pushl -8(%ebp)
     pushl -40(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    movl 32, -44(%ebp)
-    pushl -8(%ebp)
-    pushl -44(%ebp)
-    movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
-    movl 49374, -48(%ebp)
+    movl 49374, -44(%ebp)
     pushl -8(%ebp)
-    pushl -48(%ebp)
+    pushl -44(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 96; call (%eax)
     addl 16, %esp
@@ -449,8 +435,6 @@ _07f7c73c_md_getRow:
     subl 8, %esp
     pushad
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-    movl -4(%ebp), %eax
     movl _my_B_hvo_my_A(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_A_i_row(%ebx), %eax

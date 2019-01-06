@@ -89,15 +89,17 @@ _01a2e54e_tpl_end:
 // method getClass
 _01a2e54e_md_getClass:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
+    movl 0, -8(%ebp)
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-            movl 12(%ebp), %eax    // @this (Type Object)
-            movl 4(%eax), %eax     // @this
-            movl (%eax), %eax      // @class desc
-            movl _my_core_Object_coi_ch_inst_handle(%eax), %eax // @class handle
-            movl %eax, 16(%ebp)    // return @class handle
+             movl 4(%eax), %eax     // @this
+             movl (%eax), %eax      // @class desc
+             movl _my_core_Object_coi_ch_inst_handle(%eax), %eax // @class handle
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 16(%ebp)
+    jmp _01a2e54e_md_getClass_return
 _01a2e54e_md_getClass_return:
     popad
     leave
@@ -106,13 +108,15 @@ _01a2e54e_md_getClass_return:
 // method hash
 _01a2e54e_md_hash:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
+    movl 0, -8(%ebp)
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-            movl 12(%ebp), %eax    // @this (Type Object)
-            movl 4(%eax), %eax     // @this
-            movl %eax, 16(%ebp)    // return @this as hash
+             movl 4(%eax), %eax     // @this
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 16(%ebp)
+    jmp _01a2e54e_md_hash_return
 _01a2e54e_md_hash_return:
     popad
     leave
@@ -121,19 +125,21 @@ _01a2e54e_md_hash_return:
 // method equals
 _01a2e54e_md_equals:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
+    movl 0, -8(%ebp)
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-            movl 0, 20(%ebp)       // default return: false
-            movl 12(%ebp), %eax    // @this (Type Object)
-            movl 4(%eax), %eax     // @this
-            movl 16(%ebp), %ebx    // @obj (Type ANY)
-            movl 4(%ebx), %ebx     // @obj
-            cmpl %eax, %ebx
+    movl 16(%ebp), %ebx
+    movl -8(%ebp), %ecx
+            movl 4(%eax), %eax  // @this
+            cmpl %eax, 4(%ebx)  // @obj
             jne _come_ret
-            movl 1, 20(%ebp)       // return true
+            movl 1, %ecx        // return true
             _come_ret:
+    movl %ecx, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _01a2e54e_md_equals_return
 _01a2e54e_md_equals_return:
     popad
     leave
@@ -145,8 +151,6 @@ _01a2e54e_md_rt:
     subl 8, %esp
     pushad
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-    movl -4(%ebp), %eax
     movl _my_core_Object_hvo_my_core_Object(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Object_i_runtime(%ebx), %eax
@@ -162,16 +166,12 @@ _01a2e54e_md_rt_return:
 // method setRt
 _01a2e54e_md_setRt:
     pushl %ebp; movl %esp, %ebp
-    subl 8, %esp
+    subl 4, %esp
     pushad
     movl 12(%ebp), %eax
-    movl %eax, -4(%ebp)
-    movl 16(%ebp), %eax
-    movl %eax, -8(%ebp)
-    movl -4(%ebp), %eax
     movl _my_core_Object_hvo_my_core_Object(%eax), %ebx
     addl 4(%eax), %ebx
-    movl -8(%ebp), %eax
+    movl 16(%ebp), %eax
     movl %eax, _my_core_Object_i_runtime(%ebx)
     jmp _01a2e54e_md_setRt_return
 _01a2e54e_md_setRt_return:
