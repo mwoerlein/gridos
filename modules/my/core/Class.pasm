@@ -91,9 +91,9 @@ _my_core_Class_coso_CLASSNAME := (_ff38e2ed_cos_CLASSNAME - _my_core_Class)
 _ff38e2ed_cos_CLASSNAME:
     .asciz "my::core::Class"
 
-// string name
-_my_core_Class_coso_name := (_ff38e2ed_cos_name - _my_core_Class)
-_ff38e2ed_cos_name:
+// string string_1
+_my_core_Class_coso_string_1 := (_ff38e2ed_cos_string_1 - _my_core_Class)
+_ff38e2ed_cos_string_1:
     .asciz ""
 
 // string string_2
@@ -175,7 +175,7 @@ _ff38e2ed_md_getName:
     subl 8, %esp
     pushad
     movl 8(%ebp), %eax
-    addl _my_core_Class_coso_name, %eax
+    addl _my_core_Class_coso_string_1, %eax
     movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
