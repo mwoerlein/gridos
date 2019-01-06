@@ -136,14 +136,14 @@ _ff38e2ed_tpl_end:
 // method getDesc
 _ff38e2ed_md_getDesc:
     pushl %ebp; movl %esp, %ebp
-    subl 8, %esp
+    subl 4, %esp
     pushad
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Class_i_desc(%ebx), %eax
-    movl %eax, -8(%ebp)
-    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
     jmp _ff38e2ed_md_getDesc_return
 _ff38e2ed_md_getDesc_return:
@@ -154,7 +154,6 @@ _ff38e2ed_md_getDesc_return:
 // method setDesc
 _ff38e2ed_md_setDesc:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
     pushad
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
@@ -173,20 +172,20 @@ _ff38e2ed_md_setDesc_return:
 // method getName
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
+    subl 8, %esp
     pushad
     movl 8(%ebp), %eax
     addl _my_core_Class_coso_name, %eax
-    movl %eax, -8(%ebp)
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Class_i_desc(%ebx), %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-addl _my_core_Class_coi_ch_name(%eax), %eax
     movl %eax, -8(%ebp)
     movl -8(%ebp), %eax
+addl _my_core_Class_coi_ch_name(%eax), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
     jmp _ff38e2ed_md_getName_return
 _ff38e2ed_md_getName_return:
