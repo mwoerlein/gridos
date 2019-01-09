@@ -432,14 +432,19 @@ _07f7c73c_md_testAllocate_return:
 // method getRow
 _07f7c73c_md_getRow:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 12, %esp
     pushad
+    movl 2, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_B_hvo_my_A(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_A_i_row(%ebx), %eax
-    movl %eax, -4(%ebp)
+    movl %eax, -8(%ebp)
     movl -4(%ebp), %eax
+    movl -8(%ebp), %ebx
+    .byte 0x0f; .byte 0xaf; .byte 0xc3 #//imul %ebx, %eax
+    movl %eax, -12(%ebp)
+    movl -12(%ebp), %eax
     movl %eax, 16(%ebp)
     jmp _07f7c73c_md_getRow_return
 _07f7c73c_md_getRow_return:
