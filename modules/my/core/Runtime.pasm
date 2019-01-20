@@ -247,13 +247,22 @@ _4990fdfb_tpl_end:
 // method bootstrap
 _4990fdfb_md_bootstrap:
     pushl %ebp; movl %esp, %ebp
-    subl 48, %esp
+    subl 96, %esp
     pushad
-    movl 0, -4(%ebp)
+    movl 0, -16(%ebp)
+    jmp _4990fdfb_md_bootstrap_bb_2
+_4990fdfb_md_bootstrap_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_bootstrap_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_string_2, %eax
-    movl %eax, -8(%ebp)
-    movl -8(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl -12(%ebp), %eax
     movl 16(%ebp), %edi
     movl 20(%ebp), %esi
             pushl 0; pushl %eax; pushl _my_core_Runtime_coi_SysCall_find_class
@@ -261,8 +270,13 @@ _4990fdfb_md_bootstrap:
             addl 16, %esp; popl %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
-cmpl 0, %eax; je _bs_return_null // return NULL if class not found
-    movl 0, -12(%ebp)
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_bootstrap_bb_5
+    jmp _4990fdfb_md_bootstrap_bb_4
+_4990fdfb_md_bootstrap_bb_3:
+    movl 0, -28(%ebp)
+    movl -28(%ebp), %eax
+    movl %eax, -24(%ebp)
     movl -4(%ebp), %eax
     movl 16(%ebp), %edi
     movl 20(%ebp), %esi
@@ -271,31 +285,61 @@ cmpl 0, %eax; je _bs_return_null // return NULL if class not found
             pushl _my_core_Runtime_coi_SysCall_allocate
             pushl %esp; pushl %edi; call %esi
             addl 16, %esp; popl %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-cmpl 0, %eax; je _bs_return_null // return NULL on allocate error
-    movl 0, -16(%ebp)
-    movl -12(%ebp), %eax
+    movl %eax, -24(%ebp)
+    movl -24(%ebp), %eax
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_bootstrap_bb_9
+    jmp _4990fdfb_md_bootstrap_bb_8
+_4990fdfb_md_bootstrap_bb_4:
+    movl 0, -20(%ebp)
+    movl -20(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_5:
+    jmp _4990fdfb_md_bootstrap_bb_3
+_4990fdfb_md_bootstrap_bb_6:
+    jmp _4990fdfb_md_bootstrap_bb_3
+_4990fdfb_md_bootstrap_bb_7:
+    movl 0, -40(%ebp)
+    movl -40(%ebp), %eax
+    movl %eax, -36(%ebp)
+    movl -24(%ebp), %eax
     movl -4(%ebp), %edx
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-    movl %esi, -16(%ebp)
-    movl 0, -20(%ebp)
+    movl %esi, -36(%ebp)
+    movl 0, -48(%ebp)
+    movl -48(%ebp), %eax
+    movl %eax, -44(%ebp)
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_CLASSNAME, %eax
-    movl %eax, -24(%ebp)
-    movl -24(%ebp), %eax
+    movl %eax, -52(%ebp)
+    movl -52(%ebp), %eax
     movl 16(%ebp), %edi
     movl 20(%ebp), %esi
             pushl 0; pushl %eax; pushl _my_core_Runtime_coi_SysCall_find_class
             pushl %esp; pushl %edi; call %esi
             addl 16, %esp; popl %eax
-    movl %eax, -20(%ebp)
-    movl -20(%ebp), %eax
-cmpl 0, %eax; je _bs_return_null // return NULL if class not found
-    movl 0, -28(%ebp)
-    movl -20(%ebp), %eax
+    movl %eax, -44(%ebp)
+    movl -44(%ebp), %eax
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_bootstrap_bb_13
+    jmp _4990fdfb_md_bootstrap_bb_12
+_4990fdfb_md_bootstrap_bb_8:
+    movl 0, -32(%ebp)
+    movl -32(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_9:
+    jmp _4990fdfb_md_bootstrap_bb_7
+_4990fdfb_md_bootstrap_bb_10:
+    jmp _4990fdfb_md_bootstrap_bb_7
+_4990fdfb_md_bootstrap_bb_11:
+    movl 0, -64(%ebp)
+    movl -64(%ebp), %eax
+    movl %eax, -60(%ebp)
+    movl -44(%ebp), %eax
     movl 16(%ebp), %edi
     movl 20(%ebp), %esi
             pushl 0
@@ -303,67 +347,103 @@ cmpl 0, %eax; je _bs_return_null // return NULL if class not found
             pushl _my_core_Runtime_coi_SysCall_allocate
             pushl %esp; pushl %edi; call %esi
             addl 16, %esp; popl %eax
-    movl %eax, -28(%ebp)
-    movl -28(%ebp), %eax
-cmpl 0, %eax; je _bs_return_null // return NULL on allocate error
-    movl 0, -32(%ebp)
-    movl -28(%ebp), %eax
-    movl -20(%ebp), %edx
+    movl %eax, -60(%ebp)
+    movl -60(%ebp), %eax
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_bootstrap_bb_17
+    jmp _4990fdfb_md_bootstrap_bb_16
+_4990fdfb_md_bootstrap_bb_12:
+    movl 0, -56(%ebp)
+    movl -56(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_13:
+    jmp _4990fdfb_md_bootstrap_bb_11
+_4990fdfb_md_bootstrap_bb_14:
+    jmp _4990fdfb_md_bootstrap_bb_11
+_4990fdfb_md_bootstrap_bb_15:
+    movl 0, -76(%ebp)
+    movl -76(%ebp), %eax
+    movl %eax, -72(%ebp)
+    movl -60(%ebp), %eax
+    movl -44(%ebp), %edx
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-    movl %esi, -32(%ebp)
-    pushl -32(%ebp)
-    movl -16(%ebp), %eax
+    movl %esi, -72(%ebp)
+    pushl -72(%ebp)
+    movl -36(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
     pushl -4(%ebp)
-    movl -16(%ebp), %eax
+    movl -36(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    pushl -32(%ebp)
-    movl -32(%ebp), %eax
+    pushl -72(%ebp)
+    movl -72(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
     pushl 20(%ebp)
     pushl 16(%ebp)
-    movl -32(%ebp), %eax
+    movl -72(%ebp), %eax
     pushl %eax; pushl 40; call (%eax)
     addl 16, %esp
     movl 8(%ebp), %eax
     addl _my_core_Runtime_coso_string_2, %eax
-    movl %eax, -40(%ebp)
+    movl %eax, -84(%ebp)
     subl 4, %esp
-    pushl -40(%ebp)
-    movl -32(%ebp), %eax
+    pushl -84(%ebp)
+    movl -72(%ebp), %eax
     pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
-    popl -44(%ebp)
-    movl -44(%ebp), %eax
-    movl %eax, -36(%ebp)
-    movl -36(%ebp), %eax
-cmpl 0, %eax; je _bs_return_null // return NULL if class could not be initialized
-    pushl -20(%ebp)
-    movl -36(%ebp), %eax
+    popl -88(%ebp)
+    movl -88(%ebp), %eax
+    movl %eax, -80(%ebp)
+    movl -80(%ebp), %eax
+    movl %eax, -92(%ebp)
+    movl -92(%ebp), %eax
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_bootstrap_bb_21
+    jmp _4990fdfb_md_bootstrap_bb_20
+_4990fdfb_md_bootstrap_bb_16:
+    movl 0, -68(%ebp)
+    movl -68(%ebp), %eax
+    movl %eax, 24(%ebp)
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_17:
+    jmp _4990fdfb_md_bootstrap_bb_15
+_4990fdfb_md_bootstrap_bb_18:
+    jmp _4990fdfb_md_bootstrap_bb_15
+_4990fdfb_md_bootstrap_bb_19:
+    pushl -44(%ebp)
+    movl -80(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    movl -32(%ebp), %eax
+    movl -72(%ebp), %eax
     movl %eax, 24(%ebp)
-    jmp _4990fdfb_md_bootstrap_return
-_bs_return_null:
-    movl 0, -48(%ebp)
-    movl -48(%ebp), %eax
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_20:
+    movl 0, -96(%ebp)
+    movl -96(%ebp), %eax
     movl %eax, 24(%ebp)
-    jmp _4990fdfb_md_bootstrap_return
-_4990fdfb_md_bootstrap_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_bootstrap_bb_1
+_4990fdfb_md_bootstrap_bb_21:
+    jmp _4990fdfb_md_bootstrap_bb_19
+_4990fdfb_md_bootstrap_bb_22:
+    jmp _4990fdfb_md_bootstrap_bb_19
+_4990fdfb_md_bootstrap_bb_23:
+    jmp _4990fdfb_md_bootstrap_bb_1
 
 // method initSysCall
 _4990fdfb_md_initSysCall:
     pushl %ebp; movl %esp, %ebp
     pushad
+    jmp _4990fdfb_md_initSysCall_bb_2
+_4990fdfb_md_initSysCall_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_initSysCall_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -374,78 +454,93 @@ _4990fdfb_md_initSysCall:
     addl 4(%eax), %ebx
     movl 20(%ebp), %eax
     movl %eax, _my_core_Runtime_i_syscall_entry(%ebx)
-_4990fdfb_md_initSysCall_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_initSysCall_bb_1
 
 // method getClassDesc
 _4990fdfb_md_getClassDesc:
     pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
+    subl 16, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _4990fdfb_md_getClassDesc_bb_2
+_4990fdfb_md_getClassDesc_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_getClassDesc_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Runtime_i_syscall_runtime(%ebx), %eax
-    movl %eax, -8(%ebp)
+    movl %eax, -12(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Runtime_i_syscall_entry(%ebx), %eax
-    movl %eax, -12(%ebp)
+    movl %eax, -16(%ebp)
     movl 16(%ebp), %eax
-    movl -8(%ebp), %edi
-    movl -12(%ebp), %esi
+    movl -12(%ebp), %edi
+    movl -16(%ebp), %esi
             pushl 0; pushl %eax; pushl _my_core_Runtime_coi_SysCall_find_class
             pushl %esp; pushl %edi; call %esi
             addl 16, %esp; popl %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _4990fdfb_md_getClassDesc_return
-_4990fdfb_md_getClassDesc_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_getClassDesc_bb_1
+_4990fdfb_md_getClassDesc_bb_3:
+    jmp _4990fdfb_md_getClassDesc_bb_1
 
 // method allocate
 _4990fdfb_md_allocate:
     pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
+    subl 16, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _4990fdfb_md_allocate_bb_2
+_4990fdfb_md_allocate_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_allocate_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Runtime_i_syscall_runtime(%ebx), %eax
-    movl %eax, -8(%ebp)
+    movl %eax, -12(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Runtime_i_syscall_entry(%ebx), %eax
-    movl %eax, -12(%ebp)
+    movl %eax, -16(%ebp)
     movl 16(%ebp), %eax
-    movl -8(%ebp), %edi
-    movl -12(%ebp), %esi
+    movl -12(%ebp), %edi
+    movl -16(%ebp), %esi
             pushl 0; pushl %eax; pushl _my_core_Runtime_coi_SysCall_allocate
             pushl %esp; pushl %edi; call %esi
             addl 16, %esp; popl %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _4990fdfb_md_allocate_return
-_4990fdfb_md_allocate_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_allocate_bb_1
+_4990fdfb_md_allocate_bb_3:
+    jmp _4990fdfb_md_allocate_bb_1
 
 // method free
 _4990fdfb_md_free:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
     pushad
+    jmp _4990fdfb_md_free_bb_2
+_4990fdfb_md_free_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_free_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -462,16 +557,19 @@ _4990fdfb_md_free:
             pushl %eax; pushl 0; pushl _my_core_Runtime_coi_SysCall_free
             pushl %esp; pushl %edi; call %esi
             addl 20, %esp
-_4990fdfb_md_free_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_free_bb_1
 
 // method printChar
 _4990fdfb_md_printChar:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
     pushad
+    jmp _4990fdfb_md_printChar_bb_2
+_4990fdfb_md_printChar_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_printChar_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -489,16 +587,19 @@ _4990fdfb_md_printChar:
             pushl %eax; pushl _my_core_Runtime_coi_spk_char; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
             pushl %esp; pushl %edi; call %esi
             addl 24, %esp
-_4990fdfb_md_printChar_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_printChar_bb_1
 
 // method printString
 _4990fdfb_md_printString:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
     pushad
+    jmp _4990fdfb_md_printString_bb_2
+_4990fdfb_md_printString_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_printString_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -516,16 +617,19 @@ _4990fdfb_md_printString:
             pushl %eax; pushl _my_core_Runtime_coi_spk_string; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
             pushl %esp; pushl %edi; call %esi
             addl 24, %esp
-_4990fdfb_md_printString_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_printString_bb_1
 
 // method printInt
 _4990fdfb_md_printInt:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
     pushad
+    jmp _4990fdfb_md_printInt_bb_2
+_4990fdfb_md_printInt_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_printInt_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -543,16 +647,19 @@ _4990fdfb_md_printInt:
             pushl %eax; pushl _my_core_Runtime_coi_spk_int; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
             pushl %esp; pushl %edi; call %esi
             addl 24, %esp
-_4990fdfb_md_printInt_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_printInt_bb_1
 
 // method printHex
 _4990fdfb_md_printHex:
     pushl %ebp; movl %esp, %ebp
     subl 8, %esp
     pushad
+    jmp _4990fdfb_md_printHex_bb_2
+_4990fdfb_md_printHex_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_printHex_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
     addl 4(%eax), %ebx
@@ -570,17 +677,22 @@ _4990fdfb_md_printHex:
             pushl %eax; pushl _my_core_Runtime_coi_spk_hex; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
             pushl %esp; pushl %edi; call %esi
             addl 24, %esp
-_4990fdfb_md_printHex_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_printHex_bb_1
 
 // method destroyInstance
 _4990fdfb_md_destroyInstance:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _4990fdfb_md_destroyInstance_bb_2
+_4990fdfb_md_destroyInstance_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_destroyInstance_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 16(%ebp), %eax
             movl 4(%eax), %eax  // @obj
             movl 4(%eax), %eax  // @obj meminfo
@@ -589,179 +701,261 @@ _4990fdfb_md_destroyInstance:
     movl 12(%ebp), %eax
     pushl %eax; pushl 64; call (%eax)
     addl 12, %esp
-    jmp _4990fdfb_md_destroyInstance_return
-_4990fdfb_md_destroyInstance_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_destroyInstance_bb_1
+_4990fdfb_md_destroyInstance_bb_3:
+    jmp _4990fdfb_md_destroyInstance_bb_1
 
 // method cast
 _4990fdfb_md_cast:
     pushl %ebp; movl %esp, %ebp
-    subl 16, %esp
+    subl 20, %esp
     pushad
+    movl 0, -20(%ebp)
+    jmp _4990fdfb_md_cast_bb_2
+_4990fdfb_md_cast_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_cast_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     subl 4, %esp
     pushl 16(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-    popl -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -4(%ebp)
-    movl -4(%ebp), %eax
-cmpl 0, %eax; jz _crma_return_null   // return NULL if class not exists
-    movl 0, -12(%ebp)
-    movl 20(%ebp), %eax
-    movl -4(%ebp), %ecx
-            movl 4(%eax), %ebx  // @obj
-            movl (%ebx), %eax   // @obj-class desc
-            addl _my_core_Runtime_coi_ch_cts(%eax), %eax // @obj-class vtabs entry
-        _crma_loop:
-            cmpl (%eax), %ecx
-            je _crma_found
-            addl _my_core_Runtime_coi_cts_size, %eax
-            cmpl 0, (%eax)
-            je _crma_return_null
-            jmp _crma_loop
-        _crma_found:
-            addl _my_core_Runtime_coi_cts_ho(%eax), %ebx
-    movl %ebx, -12(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, 24(%ebp)
-    jmp _4990fdfb_md_cast_return
-_crma_return_null:
-    movl 0, -16(%ebp)
+    popl -16(%ebp)
     movl -16(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl -12(%ebp), %eax
+    cmpl -20(%ebp), %eax
+    jne _4990fdfb_md_cast_bb_4
+    jmp _4990fdfb_md_cast_bb_5
+_4990fdfb_md_cast_bb_3:
+_crma_return:
+    movl -4(%ebp), %eax
     movl %eax, 24(%ebp)
-    jmp _4990fdfb_md_cast_return
-_4990fdfb_md_cast_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_cast_bb_1
+_4990fdfb_md_cast_bb_4:
+    movl 20(%ebp), %eax
+    movl -12(%ebp), %ecx
+                movl 4(%eax), %ebx  // @obj
+                movl (%ebx), %eax   // @obj-class desc
+                addl _my_core_Runtime_coi_ch_cts(%eax), %eax // @obj-class vtabs entry
+            _crma_loop:
+                cmpl (%eax), %ecx
+                je _crma_found
+                addl _my_core_Runtime_coi_cts_size, %eax
+                cmpl 0, (%eax)
+                je _crma_return
+                jmp _crma_loop
+            _crma_found:
+                addl _my_core_Runtime_coi_cts_ho(%eax), %ebx
+    movl %ebx, -4(%ebp)
+    jmp _4990fdfb_md_cast_bb_3
+_4990fdfb_md_cast_bb_5:
+    jmp _4990fdfb_md_cast_bb_3
+_4990fdfb_md_cast_bb_6:
+    jmp _4990fdfb_md_cast_bb_1
 
 // method createAndRunThread
 _4990fdfb_md_createAndRunThread:
     pushl %ebp; movl %esp, %ebp
-    subl 20, %esp
+    subl 32, %esp
     pushad
-    subl 4, %esp
-    pushl 16(%ebp)
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
-    addl 12, %esp
-    popl -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -4(%ebp)
-    movl -4(%ebp), %eax
-cmpl 0, %eax; je _mcrmcart_return     // break if not instantiated
-    movl 8(%ebp), %eax
-    addl _my_core_Runtime_coso_string_3, %eax
-    movl %eax, -16(%ebp)
-    subl 4, %esp
-    pushl -4(%ebp)
-    pushl -16(%ebp)
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 112; call (%eax)
-    addl 16, %esp
-    popl -20(%ebp)
-    movl -20(%ebp), %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-cmpl 0, %eax; je _mcrmcart_cleanup   // destroy instance if not a thread
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 40; call (%eax)
-    addl 8, %esp
-_mcrmcart_cleanup:
-    pushl -4(%ebp)
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 104; call (%eax)
-    addl 12, %esp
-_mcrmcart_return:
-    jmp _4990fdfb_md_createAndRunThread_return
-_4990fdfb_md_createAndRunThread_return:
+    movl 0, -16(%ebp)
+    jmp _4990fdfb_md_createAndRunThread_bb_2
+_4990fdfb_md_createAndRunThread_bb_1:
     popad
     leave
     ret
-
-// method createInstance
-_4990fdfb_md_createInstance:
-    pushl %ebp; movl %esp, %ebp
-    subl 48, %esp
-    pushad
+_4990fdfb_md_createAndRunThread_bb_2:
     subl 4, %esp
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 48; call (%eax)
+    pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
     popl -8(%ebp)
     movl -8(%ebp), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
-cmpl 0, %eax; je _crmci_return_null   // return NULL if class not found
-    movl 0, -12(%ebp)
-    movl 0, -16(%ebp)
-    movl -4(%ebp), %eax
-            movl _my_core_Runtime_coi_ch_inst_handle(%eax), %ebx
-            movl _my_core_Runtime_coi_ch_tpl_size(%eax), %eax
-    movl %eax, -16(%ebp)
-    movl %ebx, -12(%ebp)
+    movl %eax, -12(%ebp)
     movl -12(%ebp), %eax
-cmpl 0, %eax; jnz _crmci_instantiate  // class already initialized
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_createAndRunThread_bb_5
+    jmp _4990fdfb_md_createAndRunThread_bb_4
+_4990fdfb_md_createAndRunThread_bb_3:
     movl 8(%ebp), %eax
-    addl _my_core_Runtime_coso_string_2, %eax
+    addl _my_core_Runtime_coso_string_3, %eax
     movl %eax, -24(%ebp)
     subl 4, %esp
+    pushl -4(%ebp)
     pushl -24(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
-    addl 12, %esp
+    pushl %eax; pushl 112; call (%eax)
+    addl 16, %esp
     popl -28(%ebp)
     movl -28(%ebp), %eax
     movl %eax, -20(%ebp)
     movl -20(%ebp), %eax
-cmpl 0, %eax; je _crmci_return_null  // return NULL if class could not be initialized
+    movl %eax, -32(%ebp)
+    movl -32(%ebp), %eax
+    cmpl -16(%ebp), %eax
+    jne _4990fdfb_md_createAndRunThread_bb_8
+    jmp _4990fdfb_md_createAndRunThread_bb_9
+_4990fdfb_md_createAndRunThread_bb_4:
+    jmp _4990fdfb_md_createAndRunThread_bb_1
+_4990fdfb_md_createAndRunThread_bb_5:
+    jmp _4990fdfb_md_createAndRunThread_bb_3
+_4990fdfb_md_createAndRunThread_bb_6:
+    jmp _4990fdfb_md_createAndRunThread_bb_3
+_4990fdfb_md_createAndRunThread_bb_7:
     pushl -4(%ebp)
+    movl 12(%ebp), %eax
+    pushl %eax; pushl 104; call (%eax)
+    addl 12, %esp
+    jmp _4990fdfb_md_createAndRunThread_bb_1
+_4990fdfb_md_createAndRunThread_bb_8:
     movl -20(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 8, %esp
+    jmp _4990fdfb_md_createAndRunThread_bb_7
+_4990fdfb_md_createAndRunThread_bb_9:
+    jmp _4990fdfb_md_createAndRunThread_bb_7
+
+// method createInstance
+_4990fdfb_md_createInstance:
+    pushl %ebp; movl %esp, %ebp
+    subl 80, %esp
+    pushad
+    movl 0, -12(%ebp)
+    jmp _4990fdfb_md_createInstance_bb_2
+_4990fdfb_md_createInstance_bb_1:
+    popad
+    leave
+    ret
+_4990fdfb_md_createInstance_bb_2:
+    subl 4, %esp
+    pushl 16(%ebp)
+    movl 12(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 12, %esp
-_crmci_instantiate:
+    popl -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl -4(%ebp), %eax
+    cmpl -12(%ebp), %eax
+    jne _4990fdfb_md_createInstance_bb_5
+    jmp _4990fdfb_md_createInstance_bb_4
+_4990fdfb_md_createInstance_bb_3:
+    movl 0, -24(%ebp)
+    movl -24(%ebp), %eax
+    movl %eax, -20(%ebp)
+    movl 0, -32(%ebp)
+    movl -32(%ebp), %eax
+    movl %eax, -28(%ebp)
+    movl -4(%ebp), %eax
+            movl _my_core_Runtime_coi_ch_inst_handle(%eax), %ebx
+            movl _my_core_Runtime_coi_ch_tpl_size(%eax), %eax
+    movl %eax, -28(%ebp)
+    movl %ebx, -20(%ebp)
+    movl -20(%ebp), %eax
+    cmpl -12(%ebp), %eax
+    jne _4990fdfb_md_createInstance_bb_9
+    jmp _4990fdfb_md_createInstance_bb_8
+_4990fdfb_md_createInstance_bb_4:
+    movl 0, -16(%ebp)
+    movl -16(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _4990fdfb_md_createInstance_bb_1
+_4990fdfb_md_createInstance_bb_5:
+    jmp _4990fdfb_md_createInstance_bb_3
+_4990fdfb_md_createInstance_bb_6:
+    jmp _4990fdfb_md_createInstance_bb_3
+_4990fdfb_md_createInstance_bb_7:
     subl 4, %esp
-    pushl -16(%ebp)
+    pushl -28(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
     addl 12, %esp
-    popl -36(%ebp)
+    popl -60(%ebp)
+    movl -60(%ebp), %eax
+    movl %eax, -56(%ebp)
+    movl -56(%ebp), %eax
+    cmpl -12(%ebp), %eax
+    jne _4990fdfb_md_createInstance_bb_16
+    jmp _4990fdfb_md_createInstance_bb_15
+_4990fdfb_md_createInstance_bb_8:
+    movl 8(%ebp), %eax
+    addl _my_core_Runtime_coso_string_2, %eax
+    movl %eax, -40(%ebp)
+    subl 4, %esp
+    pushl -40(%ebp)
+    movl 12(%ebp), %eax
+    pushl %eax; pushl 128; call (%eax)
+    addl 12, %esp
+    popl -44(%ebp)
+    movl -44(%ebp), %eax
+    movl %eax, -36(%ebp)
     movl -36(%ebp), %eax
-    movl %eax, -32(%ebp)
-    movl -32(%ebp), %eax
-cmpl 0, %eax; je _crmci_return_null  // return NULL on allocate error
-    movl 0, -40(%ebp)
-    movl 0, -44(%ebp)
-    movl -32(%ebp), %eax
+    movl %eax, -48(%ebp)
+    movl -48(%ebp), %eax
+    cmpl -12(%ebp), %eax
+    jne _4990fdfb_md_createInstance_bb_12
+    jmp _4990fdfb_md_createInstance_bb_11
+_4990fdfb_md_createInstance_bb_9:
+    jmp _4990fdfb_md_createInstance_bb_7
+_4990fdfb_md_createInstance_bb_10:
+    pushl -4(%ebp)
+    movl -36(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
+    addl 12, %esp
+    jmp _4990fdfb_md_createInstance_bb_7
+_4990fdfb_md_createInstance_bb_11:
+    movl 0, -52(%ebp)
+    movl -52(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _4990fdfb_md_createInstance_bb_1
+_4990fdfb_md_createInstance_bb_12:
+    jmp _4990fdfb_md_createInstance_bb_10
+_4990fdfb_md_createInstance_bb_13:
+    jmp _4990fdfb_md_createInstance_bb_10
+_4990fdfb_md_createInstance_bb_14:
+    movl 0, -72(%ebp)
+    movl -72(%ebp), %eax
+    movl %eax, -68(%ebp)
+    movl 0, -80(%ebp)
+    movl -80(%ebp), %eax
+    movl %eax, -76(%ebp)
+    movl -56(%ebp), %eax
     movl -4(%ebp), %edx
             movl 8(%ebp), %ebx      // @class-desc "Runtime"
             addl _cr_mo_call_entry, %ebx
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
-    movl %edi, -40(%ebp)
-    movl %esi, -44(%ebp)
+    movl %edi, -68(%ebp)
+    movl %esi, -76(%ebp)
     pushl 12(%ebp)
-    movl -40(%ebp), %eax
+    movl -68(%ebp), %eax
     pushl %eax; pushl 32; call (%eax)
     addl 12, %esp
-    movl -44(%ebp), %eax
+    movl -76(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _4990fdfb_md_createInstance_return
-_crmci_return_null:
-    movl 0, -48(%ebp)
-    movl -48(%ebp), %eax
+    jmp _4990fdfb_md_createInstance_bb_1
+_4990fdfb_md_createInstance_bb_15:
+    movl 0, -64(%ebp)
+    movl -64(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _4990fdfb_md_createInstance_return
-_4990fdfb_md_createInstance_return:
-    popad
-    leave
-    ret
+    jmp _4990fdfb_md_createInstance_bb_1
+_4990fdfb_md_createInstance_bb_16:
+    jmp _4990fdfb_md_createInstance_bb_14
+_4990fdfb_md_createInstance_bb_17:
+    jmp _4990fdfb_md_createInstance_bb_14
+_4990fdfb_md_createInstance_bb_18:
+    jmp _4990fdfb_md_createInstance_bb_1
 
 // method _crh_instantiate
+_4990fdfb_md__crh_instantiate_bb_2:
         _crh_instantiate:       // %eax: @object-meminfo %ebx: @_call_entry %edx: @Class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
             movl (%eax), %edi   // @object
             movl %edx, %esi
@@ -791,6 +985,7 @@ _4990fdfb_md_createInstance_return:
             ret
 
 // method _call_entry
+_4990fdfb_md__call_entry_bb_2:
         _cr_mo_call_entry := (_call_entry - _my_core_Runtime)
         _call_entry:
             pushl %ecx

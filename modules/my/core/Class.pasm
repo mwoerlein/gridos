@@ -138,6 +138,12 @@ _ff38e2ed_md_getDesc:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
     pushad
+    jmp _ff38e2ed_md_getDesc_bb_2
+_ff38e2ed_md_getDesc_bb_1:
+    popad
+    leave
+    ret
+_ff38e2ed_md_getDesc_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
     addl 4(%eax), %ebx
@@ -145,16 +151,20 @@ _ff38e2ed_md_getDesc:
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
-    jmp _ff38e2ed_md_getDesc_return
-_ff38e2ed_md_getDesc_return:
-    popad
-    leave
-    ret
+    jmp _ff38e2ed_md_getDesc_bb_1
+_ff38e2ed_md_getDesc_bb_3:
+    jmp _ff38e2ed_md_getDesc_bb_1
 
 // method setDesc
 _ff38e2ed_md_setDesc:
     pushl %ebp; movl %esp, %ebp
     pushad
+    jmp _ff38e2ed_md_setDesc_bb_2
+_ff38e2ed_md_setDesc_bb_1:
+    popad
+    leave
+    ret
+_ff38e2ed_md_setDesc_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
     addl 4(%eax), %ebx
@@ -163,32 +173,36 @@ _ff38e2ed_md_setDesc:
     movl 12(%ebp), %eax
     movl 16(%ebp), %ebx
 movl %eax, _my_core_Class_coi_ch_inst_handle(%ebx)
-    jmp _ff38e2ed_md_setDesc_return
-_ff38e2ed_md_setDesc_return:
-    popad
-    leave
-    ret
+    jmp _ff38e2ed_md_setDesc_bb_1
+_ff38e2ed_md_setDesc_bb_3:
+    jmp _ff38e2ed_md_setDesc_bb_1
 
 // method getName
 _ff38e2ed_md_getName:
     pushl %ebp; movl %esp, %ebp
-    subl 8, %esp
+    subl 12, %esp
     pushad
+    jmp _ff38e2ed_md_getName_bb_2
+_ff38e2ed_md_getName_bb_1:
+    popad
+    leave
+    ret
+_ff38e2ed_md_getName_bb_2:
     movl 8(%ebp), %eax
     addl _my_core_Class_coso_string_1, %eax
+    movl %eax, -8(%ebp)
+    movl -8(%ebp), %eax
     movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl _my_core_Class_hvo_my_core_Class(%eax), %ebx
     addl 4(%eax), %ebx
     movl _my_core_Class_i_desc(%ebx), %eax
-    movl %eax, -8(%ebp)
-    movl -8(%ebp), %eax
+    movl %eax, -12(%ebp)
+    movl -12(%ebp), %eax
 addl _my_core_Class_coi_ch_name(%eax), %eax
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
-    jmp _ff38e2ed_md_getName_return
-_ff38e2ed_md_getName_return:
-    popad
-    leave
-    ret
+    jmp _ff38e2ed_md_getName_bb_1
+_ff38e2ed_md_getName_bb_3:
+    jmp _ff38e2ed_md_getName_bb_1

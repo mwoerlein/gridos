@@ -89,9 +89,17 @@ _01a2e54e_tpl_end:
 // method getClass
 _01a2e54e_md_getClass:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _01a2e54e_md_getClass_bb_2
+_01a2e54e_md_getClass_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_getClass_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
              movl 4(%eax), %eax     // @this
              movl (%eax), %eax      // @class desc
@@ -99,35 +107,47 @@ _01a2e54e_md_getClass:
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
-    jmp _01a2e54e_md_getClass_return
-_01a2e54e_md_getClass_return:
-    popad
-    leave
-    ret
+    jmp _01a2e54e_md_getClass_bb_1
+_01a2e54e_md_getClass_bb_3:
+    jmp _01a2e54e_md_getClass_bb_1
 
 // method hash
 _01a2e54e_md_hash:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _01a2e54e_md_hash_bb_2
+_01a2e54e_md_hash_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_hash_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
              movl 4(%eax), %eax     // @this
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
-    jmp _01a2e54e_md_hash_return
-_01a2e54e_md_hash_return:
-    popad
-    leave
-    ret
+    jmp _01a2e54e_md_hash_bb_1
+_01a2e54e_md_hash_bb_3:
+    jmp _01a2e54e_md_hash_bb_1
 
 // method equals
 _01a2e54e_md_equals:
     pushl %ebp; movl %esp, %ebp
-    subl 4, %esp
+    subl 8, %esp
     pushad
-    movl 0, -4(%ebp)
+    jmp _01a2e54e_md_equals_bb_2
+_01a2e54e_md_equals_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_equals_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
     movl 12(%ebp), %eax
     movl 16(%ebp), %ebx
     movl -4(%ebp), %ecx
@@ -139,17 +159,21 @@ _01a2e54e_md_equals:
     movl %ecx, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _01a2e54e_md_equals_return
-_01a2e54e_md_equals_return:
-    popad
-    leave
-    ret
+    jmp _01a2e54e_md_equals_bb_1
+_01a2e54e_md_equals_bb_3:
+    jmp _01a2e54e_md_equals_bb_1
 
 // method rt
 _01a2e54e_md_rt:
     pushl %ebp; movl %esp, %ebp
     subl 4, %esp
     pushad
+    jmp _01a2e54e_md_rt_bb_2
+_01a2e54e_md_rt_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_rt_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Object_hvo_my_core_Object(%eax), %ebx
     addl 4(%eax), %ebx
@@ -157,23 +181,25 @@ _01a2e54e_md_rt:
     movl %eax, -4(%ebp)
     movl -4(%ebp), %eax
     movl %eax, 16(%ebp)
-    jmp _01a2e54e_md_rt_return
-_01a2e54e_md_rt_return:
-    popad
-    leave
-    ret
+    jmp _01a2e54e_md_rt_bb_1
+_01a2e54e_md_rt_bb_3:
+    jmp _01a2e54e_md_rt_bb_1
 
 // method setRt
 _01a2e54e_md_setRt:
     pushl %ebp; movl %esp, %ebp
     pushad
+    jmp _01a2e54e_md_setRt_bb_2
+_01a2e54e_md_setRt_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_setRt_bb_2:
     movl 12(%ebp), %eax
     movl _my_core_Object_hvo_my_core_Object(%eax), %ebx
     addl 4(%eax), %ebx
     movl 16(%ebp), %eax
     movl %eax, _my_core_Object_i_runtime(%ebx)
-    jmp _01a2e54e_md_setRt_return
-_01a2e54e_md_setRt_return:
-    popad
-    leave
-    ret
+    jmp _01a2e54e_md_setRt_bb_1
+_01a2e54e_md_setRt_bb_3:
+    jmp _01a2e54e_md_setRt_bb_1
