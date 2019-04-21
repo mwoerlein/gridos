@@ -384,7 +384,7 @@ _07f7c73c_md_doIt_bb_3:
 // method testLoop
 _07f7c73c_md_testLoop:
     pushl %ebp; movl %esp, %ebp
-    subl 60, %esp
+    subl 96, %esp
     pushad
     movl 1, -28(%ebp)
     movl 0, -32(%ebp)
@@ -424,17 +424,18 @@ _07f7c73c_md_testLoop_bb_5:
     jne _07f7c73c_md_testLoop_bb_4
     jmp _07f7c73c_md_testLoop_bb_3
 _07f7c73c_md_testLoop_bb_6:
-    movl 10, -60(%ebp)
+    movl 10, -96(%ebp)
     pushl -4(%ebp)
-    pushl -60(%ebp)
+    pushl -96(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
     jmp _07f7c73c_md_testLoop_bb_5
 _07f7c73c_md_testLoop_bb_7:
-    movl -20(%ebp), %eax
-    cmpl -36(%ebp), %eax
-    jle _07f7c73c_md_testLoop_bb_10
+    movl 10, -44(%ebp)
+    movl 16(%ebp), %eax
+    cmpl -44(%ebp), %eax
+    jge _07f7c73c_md_testLoop_bb_10
     jmp _07f7c73c_md_testLoop_bb_11
 _07f7c73c_md_testLoop_bb_8:
     movl -36(%ebp), %eax
@@ -452,9 +453,9 @@ _07f7c73c_md_testLoop_bb_9:
     movl -12(%ebp), %eax
     pushl %eax; pushl 88; call (%eax)
     addl 16, %esp
-    movl 32, -52(%ebp)
+    movl 32, -84(%ebp)
     pushl -4(%ebp)
-    pushl -52(%ebp)
+    pushl -84(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
@@ -463,23 +464,90 @@ _07f7c73c_md_testLoop_bb_9:
     movl -12(%ebp), %eax
     pushl %eax; pushl 88; call (%eax)
     addl 16, %esp
-    movl 9, -56(%ebp)
+    movl -36(%ebp), %eax
+    cmpl -32(%ebp), %eax
+    jne _07f7c73c_md_testLoop_bb_23
+    jmp _07f7c73c_md_testLoop_bb_24
+_07f7c73c_md_testLoop_bb_10:
+    movl -20(%ebp), %eax
+    cmpl -36(%ebp), %eax
+    je _07f7c73c_md_testLoop_bb_13
+    jmp _07f7c73c_md_testLoop_bb_15
+_07f7c73c_md_testLoop_bb_11:
+    movl -20(%ebp), %eax
+    cmpl -36(%ebp), %eax
+    jle _07f7c73c_md_testLoop_bb_20
+    jmp _07f7c73c_md_testLoop_bb_21
+_07f7c73c_md_testLoop_bb_12:
+    movl 10, -68(%ebp)
+    movl -20(%ebp), %eax
+    cmpl -68(%ebp), %eax
+    jlt _07f7c73c_md_testLoop_bb_17
+    jmp _07f7c73c_md_testLoop_bb_18
+_07f7c73c_md_testLoop_bb_13:
+    movl 1, -60(%ebp)
+    movl -60(%ebp), %eax
+    movl %eax, -4(%ebp)
+    jmp _07f7c73c_md_testLoop_bb_12
+_07f7c73c_md_testLoop_bb_14:
+    movl 0, -64(%ebp)
+    movl -64(%ebp), %eax
+    movl %eax, -4(%ebp)
+    jmp _07f7c73c_md_testLoop_bb_12
+_07f7c73c_md_testLoop_bb_15:
+    movl -20(%ebp), %eax
+    addl -36(%ebp), %eax
+    movl %eax, -48(%ebp)
+    movl 1, -52(%ebp)
+    movl 16(%ebp), %eax
+    subl -52(%ebp), %eax
+    movl %eax, -56(%ebp)
+    movl -48(%ebp), %eax
+    cmpl -56(%ebp), %eax
+    je _07f7c73c_md_testLoop_bb_13
+    jmp _07f7c73c_md_testLoop_bb_14
+_07f7c73c_md_testLoop_bb_16:
+    jmp _07f7c73c_md_testLoop_bb_9
+_07f7c73c_md_testLoop_bb_17:
+    movl 32, -72(%ebp)
     pushl -4(%ebp)
-    pushl -56(%ebp)
+    pushl -72(%ebp)
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 16, %esp
+    jmp _07f7c73c_md_testLoop_bb_16
+_07f7c73c_md_testLoop_bb_18:
+    jmp _07f7c73c_md_testLoop_bb_16
+_07f7c73c_md_testLoop_bb_19:
+    jmp _07f7c73c_md_testLoop_bb_9
+_07f7c73c_md_testLoop_bb_20:
+    movl 0, -76(%ebp)
+    movl -76(%ebp), %eax
+    movl %eax, -4(%ebp)
+    jmp _07f7c73c_md_testLoop_bb_19
+_07f7c73c_md_testLoop_bb_21:
+    movl 1, -80(%ebp)
+    movl -80(%ebp), %eax
+    movl %eax, -4(%ebp)
+    jmp _07f7c73c_md_testLoop_bb_19
+_07f7c73c_md_testLoop_bb_22:
     jmp _07f7c73c_md_testLoop_bb_8
-_07f7c73c_md_testLoop_bb_10:
-    movl 0, -44(%ebp)
-    movl -44(%ebp), %eax
-    movl %eax, -4(%ebp)
-    jmp _07f7c73c_md_testLoop_bb_9
-_07f7c73c_md_testLoop_bb_11:
-    movl 1, -48(%ebp)
-    movl -48(%ebp), %eax
-    movl %eax, -4(%ebp)
-    jmp _07f7c73c_md_testLoop_bb_9
+_07f7c73c_md_testLoop_bb_23:
+    movl 32, -88(%ebp)
+    pushl -4(%ebp)
+    pushl -88(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    movl 32, -92(%ebp)
+    pushl -4(%ebp)
+    pushl -92(%ebp)
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 16, %esp
+    jmp _07f7c73c_md_testLoop_bb_22
+_07f7c73c_md_testLoop_bb_24:
+    jmp _07f7c73c_md_testLoop_bb_22
 
 // method testAllocate
 _07f7c73c_md_testAllocate:
