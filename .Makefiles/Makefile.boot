@@ -11,7 +11,7 @@ LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS
 MOD_SIMPLE_CLASSES = A B
 MOD_SIMPLE_FILES = $(patsubst %, $(BOOTDIR)/my/%.pbc, $(MOD_SIMPLE_CLASSES))
 
-MOD_KERNEL_CLASSES = Object Thread Class Runtime
+MOD_KERNEL_CLASSES = Object Class Thread OStream Runtime RuntimeOStream
 MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
 #MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
 #MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))

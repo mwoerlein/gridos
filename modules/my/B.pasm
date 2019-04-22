@@ -248,7 +248,7 @@ _07f7c73c_md_run_bb_2:
     subl 4, %esp
     pushl -24(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
+    pushl %eax; pushl 152; call (%eax)
     addl 12, %esp
     popl -28(%ebp)
     movl -28(%ebp), %eax
@@ -266,7 +266,7 @@ _07f7c73c_md_run_bb_2:
     addl 12, %esp
     pushl -20(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 104; call (%eax)
+    pushl %eax; pushl 128; call (%eax)
     addl 12, %esp
     jmp _07f7c73c_md_run_bb_1
 _07f7c73c_md_run_bb_3:
@@ -275,7 +275,7 @@ _07f7c73c_md_run_bb_3:
 // method doIt
 _07f7c73c_md_doIt:
     pushl %ebp; movl %esp, %ebp
-    subl 68, %esp
+    subl 92, %esp
     pushad
     jmp _07f7c73c_md_doIt_bb_2
 _07f7c73c_md_doIt_bb_1:
@@ -283,79 +283,93 @@ _07f7c73c_md_doIt_bb_1:
     leave
     ret
 _07f7c73c_md_doIt_bb_2:
-    movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -4(%ebp)
     subl 4, %esp
     movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
+    popl -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
     popl -16(%ebp)
     movl -16(%ebp), %eax
     movl %eax, -12(%ebp)
-    movl 64, -20(%ebp)
-    movl 1, -24(%ebp)
-    pushl -24(%ebp)
-    pushl -20(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 8, %esp
+    popl -24(%ebp)
+    movl -24(%ebp), %eax
+    movl %eax, -20(%ebp)
+    movl 64, -28(%ebp)
+    subl 4, %esp
+    pushl -28(%ebp)
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -32(%ebp)
     movl 8(%ebp), %eax
     addl _my_B_coso_string_1, %eax
-    movl %eax, -28(%ebp)
-    pushl -4(%ebp)
-    pushl -28(%ebp)
+    movl %eax, -36(%ebp)
+    subl 4, %esp
+    pushl -36(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 80; call (%eax)
-    addl 16, %esp
+    pushl %eax; pushl 48; call (%eax)
+    addl 12, %esp
+    popl -40(%ebp)
     subl 4, %esp
     pushl 12(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 16; call (%eax)
     addl 12, %esp
-    popl -32(%ebp)
-    pushl -4(%ebp)
-    pushl -32(%ebp)
+    popl -44(%ebp)
+    subl 4, %esp
+    pushl -44(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
-    addl 16, %esp
-    movl 32, -36(%ebp)
-    pushl -4(%ebp)
-    pushl -36(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
+    pushl %eax; pushl 56; call (%eax)
+    addl 12, %esp
+    popl -48(%ebp)
+    movl 32, -52(%ebp)
+    subl 4, %esp
+    pushl -52(%ebp)
+    movl -48(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -56(%ebp)
     subl 4, %esp
     pushl 16(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 16; call (%eax)
     addl 12, %esp
-    popl -40(%ebp)
-    pushl -4(%ebp)
-    pushl -40(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
-    addl 16, %esp
-    movl 4660, -44(%ebp)
-    pushl -44(%ebp)
+    popl -60(%ebp)
+    subl 4, %esp
+    pushl -60(%ebp)
+    movl -56(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 12, %esp
+    popl -64(%ebp)
+    movl 4660, -68(%ebp)
+    pushl -68(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 96; call (%eax)
     addl 12, %esp
-    movl 64, -48(%ebp)
-    movl 1, -52(%ebp)
-    pushl -52(%ebp)
-    pushl -48(%ebp)
-    movl -12(%ebp), %eax
+    movl 64, -72(%ebp)
+    subl 4, %esp
+    pushl -72(%ebp)
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -76(%ebp)
+    subl 4, %esp
+    movl -76(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 10, -56(%ebp)
-    pushl -4(%ebp)
-    pushl -56(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 4, -60(%ebp)
-    pushl -60(%ebp)
+    addl 8, %esp
+    popl -80(%ebp)
+    movl 4, -84(%ebp)
+    pushl -84(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 88; call (%eax)
     addl 12, %esp
@@ -363,8 +377,8 @@ _07f7c73c_md_doIt_bb_2:
     movl 12(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
     addl 8, %esp
-    popl -64(%ebp)
-    pushl -64(%ebp)
+    popl -88(%ebp)
+    pushl -88(%ebp)
     movl 12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
     addl 12, %esp
@@ -372,8 +386,8 @@ _07f7c73c_md_doIt_bb_2:
     movl 16(%ebp), %eax
     pushl %eax; pushl 48; call (%eax)
     addl 8, %esp
-    popl -68(%ebp)
-    pushl -68(%ebp)
+    popl -92(%ebp)
+    pushl -92(%ebp)
     movl 16(%ebp), %eax
     pushl %eax; pushl 64; call (%eax)
     addl 12, %esp
@@ -384,7 +398,7 @@ _07f7c73c_md_doIt_bb_3:
 // method testLoop
 _07f7c73c_md_testLoop:
     pushl %ebp; movl %esp, %ebp
-    subl 96, %esp
+    subl 120, %esp
     pushad
     movl 1, -28(%ebp)
     movl 0, -32(%ebp)
@@ -394,12 +408,16 @@ _07f7c73c_md_testLoop_bb_1:
     leave
     ret
 _07f7c73c_md_testLoop_bb_2:
-    movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -4(%ebp)
     subl 4, %esp
     movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
+    addl 8, %esp
+    popl -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
     addl 8, %esp
     popl -16(%ebp)
     movl -16(%ebp), %eax
@@ -424,12 +442,11 @@ _07f7c73c_md_testLoop_bb_5:
     jne _07f7c73c_md_testLoop_bb_4
     jmp _07f7c73c_md_testLoop_bb_3
 _07f7c73c_md_testLoop_bb_6:
-    movl 10, -96(%ebp)
-    pushl -4(%ebp)
-    pushl -96(%ebp)
+    subl 4, %esp
     movl -12(%ebp), %eax
     pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
+    addl 8, %esp
+    popl -120(%ebp)
     jmp _07f7c73c_md_testLoop_bb_5
 _07f7c73c_md_testLoop_bb_7:
     movl 10, -44(%ebp)
@@ -448,22 +465,25 @@ _07f7c73c_md_testLoop_bb_8:
     jne _07f7c73c_md_testLoop_bb_7
     jmp _07f7c73c_md_testLoop_bb_6
 _07f7c73c_md_testLoop_bb_9:
-    pushl -4(%ebp)
+    subl 4, %esp
     pushl -20(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
-    addl 16, %esp
-    movl 32, -84(%ebp)
-    pushl -4(%ebp)
-    pushl -84(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    pushl -4(%ebp)
+    pushl %eax; pushl 56; call (%eax)
+    addl 12, %esp
+    popl -88(%ebp)
+    movl 32, -92(%ebp)
+    subl 4, %esp
+    pushl -92(%ebp)
+    movl -88(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -96(%ebp)
+    subl 4, %esp
     pushl -36(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
-    addl 16, %esp
+    movl -96(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 12, %esp
+    popl -100(%ebp)
     movl -36(%ebp), %eax
     cmpl -32(%ebp), %eax
     jne _07f7c73c_md_testLoop_bb_23
@@ -485,14 +505,22 @@ _07f7c73c_md_testLoop_bb_12:
     jlt _07f7c73c_md_testLoop_bb_17
     jmp _07f7c73c_md_testLoop_bb_18
 _07f7c73c_md_testLoop_bb_13:
-    movl 1, -60(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 8, %esp
+    popl -60(%ebp)
     movl -60(%ebp), %eax
-    movl %eax, -4(%ebp)
+    movl %eax, -12(%ebp)
     jmp _07f7c73c_md_testLoop_bb_12
 _07f7c73c_md_testLoop_bb_14:
-    movl 0, -64(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -64(%ebp)
     movl -64(%ebp), %eax
-    movl %eax, -4(%ebp)
+    movl %eax, -12(%ebp)
     jmp _07f7c73c_md_testLoop_bb_12
 _07f7c73c_md_testLoop_bb_15:
     movl -20(%ebp), %eax
@@ -510,41 +538,52 @@ _07f7c73c_md_testLoop_bb_16:
     jmp _07f7c73c_md_testLoop_bb_9
 _07f7c73c_md_testLoop_bb_17:
     movl 32, -72(%ebp)
-    pushl -4(%ebp)
+    subl 4, %esp
     pushl -72(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -76(%ebp)
     jmp _07f7c73c_md_testLoop_bb_16
 _07f7c73c_md_testLoop_bb_18:
     jmp _07f7c73c_md_testLoop_bb_16
 _07f7c73c_md_testLoop_bb_19:
     jmp _07f7c73c_md_testLoop_bb_9
 _07f7c73c_md_testLoop_bb_20:
-    movl 0, -76(%ebp)
-    movl -76(%ebp), %eax
-    movl %eax, -4(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -80(%ebp)
+    movl -80(%ebp), %eax
+    movl %eax, -12(%ebp)
     jmp _07f7c73c_md_testLoop_bb_19
 _07f7c73c_md_testLoop_bb_21:
-    movl 1, -80(%ebp)
-    movl -80(%ebp), %eax
-    movl %eax, -4(%ebp)
+    subl 4, %esp
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 8, %esp
+    popl -84(%ebp)
+    movl -84(%ebp), %eax
+    movl %eax, -12(%ebp)
     jmp _07f7c73c_md_testLoop_bb_19
 _07f7c73c_md_testLoop_bb_22:
     jmp _07f7c73c_md_testLoop_bb_8
 _07f7c73c_md_testLoop_bb_23:
-    movl 32, -88(%ebp)
-    pushl -4(%ebp)
-    pushl -88(%ebp)
+    movl 32, -104(%ebp)
+    subl 4, %esp
+    pushl -104(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 32, -92(%ebp)
-    pushl -4(%ebp)
-    pushl -92(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -108(%ebp)
+    movl 32, -112(%ebp)
+    subl 4, %esp
+    pushl -112(%ebp)
+    movl -108(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -116(%ebp)
     jmp _07f7c73c_md_testLoop_bb_22
 _07f7c73c_md_testLoop_bb_24:
     jmp _07f7c73c_md_testLoop_bb_22
@@ -552,7 +591,7 @@ _07f7c73c_md_testLoop_bb_24:
 // method testAllocate
 _07f7c73c_md_testAllocate:
     pushl %ebp; movl %esp, %ebp
-    subl 44, %esp
+    subl 64, %esp
     pushad
     jmp _07f7c73c_md_testAllocate_bb_2
 _07f7c73c_md_testAllocate_bb_1:
@@ -560,62 +599,70 @@ _07f7c73c_md_testAllocate_bb_1:
     leave
     ret
 _07f7c73c_md_testAllocate_bb_2:
-    movl 0, -8(%ebp)
-    movl -8(%ebp), %eax
-    movl %eax, -4(%ebp)
     subl 4, %esp
     movl 12(%ebp), %eax
     pushl %eax; pushl 24; call (%eax)
     addl 8, %esp
+    popl -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    subl 4, %esp
+    pushl 16(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 80; call (%eax)
+    addl 12, %esp
     popl -16(%ebp)
     movl -16(%ebp), %eax
     movl %eax, -12(%ebp)
     subl 4, %esp
-    pushl 16(%ebp)
-    movl -12(%ebp), %eax
+    movl -4(%ebp), %eax
     pushl %eax; pushl 56; call (%eax)
+    addl 8, %esp
+    popl -20(%ebp)
+    movl 32, -24(%ebp)
+    subl 4, %esp
+    pushl -24(%ebp)
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
     addl 12, %esp
-    popl -24(%ebp)
-    movl -24(%ebp), %eax
-    movl %eax, -20(%ebp)
-    movl 32, -28(%ebp)
-    pushl -4(%ebp)
-    pushl -28(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    pushl -4(%ebp)
-    pushl -20(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    movl 32, -32(%ebp)
-    pushl -4(%ebp)
-    pushl -32(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 57005, -36(%ebp)
-    pushl -4(%ebp)
-    pushl -36(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    movl 32, -40(%ebp)
-    pushl -4(%ebp)
-    pushl -40(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
-    addl 16, %esp
-    movl 49374, -44(%ebp)
-    pushl -4(%ebp)
-    pushl -44(%ebp)
-    movl -12(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    pushl -20(%ebp)
-    movl -12(%ebp), %eax
+    popl -28(%ebp)
+    subl 4, %esp
+    pushl -12(%ebp)
+    movl -28(%ebp), %eax
     pushl %eax; pushl 64; call (%eax)
+    addl 12, %esp
+    popl -32(%ebp)
+    movl 32, -36(%ebp)
+    subl 4, %esp
+    pushl -36(%ebp)
+    movl -32(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -40(%ebp)
+    movl 57005, -44(%ebp)
+    subl 4, %esp
+    pushl -44(%ebp)
+    movl -40(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 12, %esp
+    popl -48(%ebp)
+    movl 32, -52(%ebp)
+    subl 4, %esp
+    pushl -52(%ebp)
+    movl -48(%ebp), %eax
+    pushl %eax; pushl 40; call (%eax)
+    addl 12, %esp
+    popl -56(%ebp)
+    movl 49374, -60(%ebp)
+    subl 4, %esp
+    pushl -60(%ebp)
+    movl -56(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 12, %esp
+    popl -64(%ebp)
+    pushl -12(%ebp)
+    movl -4(%ebp), %eax
+    pushl %eax; pushl 88; call (%eax)
     addl 12, %esp
     jmp _07f7c73c_md_testAllocate_bb_1
 _07f7c73c_md_testAllocate_bb_3:
