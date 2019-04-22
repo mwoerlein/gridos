@@ -8,15 +8,15 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
 
-MOD_SIMPLE_CLASSES = A B
-MOD_SIMPLE_FILES = $(patsubst %, $(BOOTDIR)/my/%.pbc, $(MOD_SIMPLE_CLASSES))
+MOD_SIMPLE_PASMS = $(shell find $(MODDIR)/my/simple/ -type f -name '*.pasm')
+MOD_SIMPLE_FILES = $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_SIMPLE_PASMS))
 
-MOD_KERNEL_CLASSES = Object Class Thread OStream Runtime RuntimeOStream
-MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
-#MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
-#MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
-#MOD_KERNEL_FILES = $(BOOTDIR)/at_relocateable.bin $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
-#MOD_KERNEL_FILES = $(MODDIR)/at_relocateable.pasm $(patsubst %, $(BOOTDIR)/my/core/%.pbc, $(MOD_KERNEL_CLASSES))
+MOD_KERNEL_PASMS = $(shell find $(MODDIR)/my/core/ -type f -name '*.pasm')
+MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
+#MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
+#MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
+#MOD_KERNEL_FILES = $(BOOTDIR)/at_relocateable.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
+#MOD_KERNEL_FILES = $(MODDIR)/at_relocateable.pasm $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 
 $(BOOTDIR)/my/core/Runtime.pbc: $(MODDIR)/my/core/Runtime.pasm $(BINDIR)/pasm
 	echo "creating $@ with bootstrap"

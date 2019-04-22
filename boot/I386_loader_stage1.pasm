@@ -236,7 +236,7 @@ mbi_tag_name_end:
 mbi_tag_command_line:
     .long   MULTIBOOT_TAG_TYPE_CMDLINE
     .long   (mbi_tag_command_line_end - mbi_tag_command_line)
-    .asciz  "--test = 0 --debug=2 --mainThread=my::B" // STARTUP_CMD
+    .asciz  "--test = 0 --debug=2 --mainThread=my::simple::B" // STARTUP_CMD
 .align MULTIBOOT_TAG_ALIGN
 mbi_tag_command_line_end:
 mbi_tag_mod_kernel:
