@@ -96,12 +96,15 @@ _13be4a12_mt_13be4a12:
     .long _13be4a12_cto_13be4a12
     .long 48
     .long _13be4a12_cto_13be4a12
+    .long 52
+    .long _13be4a12_cto_13be4a12
 
 // methods tab
 _13be4a12_mdt:
     .long 0
     .long (_13be4a12_md_printInt - _my_core_OStream)
     .long (_13be4a12_md_printHex - _my_core_OStream)
+    .long (_13be4a12_md_printPtr - _my_core_OStream)
     .long (_13be4a12_md_printCString - _my_core_OStream)
     .long (_13be4a12_md_print - _my_core_OStream)
     .long (_13be4a12_md_printNewline - _my_core_OStream)
@@ -172,7 +175,7 @@ _13be4a12_md_printInt_bb_2:
     pushl -4(%ebp)
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
+    pushl %eax; pushl 104; call (%eax)
     addl 20, %esp
     popl -12(%ebp)
     movl -12(%ebp), %eax
@@ -197,7 +200,7 @@ _13be4a12_md_printHex_bb_2:
     pushl -4(%ebp)
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 112; call (%eax)
+    pushl %eax; pushl 120; call (%eax)
     addl 16, %esp
     popl -8(%ebp)
     movl -8(%ebp), %eax
@@ -205,6 +208,31 @@ _13be4a12_md_printHex_bb_2:
     jmp _13be4a12_md_printHex_bb_1
 _13be4a12_md_printHex_bb_3:
     jmp _13be4a12_md_printHex_bb_1
+
+// method printPtr
+_13be4a12_md_printPtr:
+    pushl %ebp; movl %esp, %ebp
+    subl 8, %esp
+    pushad
+    jmp _13be4a12_md_printPtr_bb_2
+_13be4a12_md_printPtr_bb_1:
+    popad
+    leave
+    ret
+_13be4a12_md_printPtr_bb_2:
+    movl 8, -4(%ebp)
+    subl 4, %esp
+    pushl -4(%ebp)
+    pushl 16(%ebp)
+    movl 12(%ebp), %eax
+    pushl %eax; pushl 128; call (%eax)
+    addl 16, %esp
+    popl -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _13be4a12_md_printPtr_bb_1
+_13be4a12_md_printPtr_bb_3:
+    jmp _13be4a12_md_printPtr_bb_1
 
 // method printCString
 _13be4a12_md_printCString:
@@ -226,7 +254,7 @@ _13be4a12_md_printCString_bb_2:
     subl 4, %esp
     pushl -4(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -12(%ebp)
     movl -12(%ebp), %eax
@@ -322,7 +350,7 @@ _13be4a12_md__printInt_bb_3:
     pushl 20(%ebp)
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 104; call (%eax)
+    pushl %eax; pushl 112; call (%eax)
     addl 20, %esp
     popl -24(%ebp)
     movl -24(%ebp), %eax
@@ -376,7 +404,7 @@ movl %esp, %ebx; subl %eax, %esp
     pushl -24(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     movl -12(%ebp), %eax
     subl 24(%ebp), %eax
@@ -408,7 +436,7 @@ _13be4a12_md__printUInt_bb_4:
     pushl -52(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     jmp _13be4a12_md__printUInt_bb_3
 _13be4a12_md__printUInt_bb_5:
@@ -426,7 +454,7 @@ _13be4a12_md__printUInt_bb_5:
     pushl -68(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     jmp _13be4a12_md__printUInt_bb_3
 _13be4a12_md__printUInt_bb_6:
@@ -467,7 +495,7 @@ _13be4a12_md__printUInt_bb_10:
     pushl -92(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     jmp _13be4a12_md__printUInt_bb_9
 _13be4a12_md__printUInt_bb_11:
@@ -485,14 +513,14 @@ _13be4a12_md__printUInt_bb_11:
     pushl -108(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     jmp _13be4a12_md__printUInt_bb_9
 _13be4a12_md__printUInt_bb_12:
     subl 4, %esp
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -116(%ebp)
     movl -4(%ebp), %eax
@@ -508,7 +536,7 @@ _13be4a12_md__printUInt_bb_13:
     pushl -112(%ebp)
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 144; call (%eax)
     addl 16, %esp
     jmp _13be4a12_md__printUInt_bb_14
 _13be4a12_md__printUInt_bb_14:
@@ -541,7 +569,7 @@ _13be4a12_md__printHex_bb_3:
     pushl 20(%ebp)
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 120; call (%eax)
+    pushl %eax; pushl 128; call (%eax)
     addl 16, %esp
     popl -24(%ebp)
     movl -24(%ebp), %eax
@@ -597,7 +625,7 @@ _13be4a12_md__printUHex_bb_2:
     pushl -20(%ebp)
     pushl 16(%ebp)
     movl -16(%ebp), %eax
-    pushl %eax; pushl 104; call (%eax)
+    pushl %eax; pushl 112; call (%eax)
     addl 20, %esp
     popl -24(%ebp)
     movl -24(%ebp), %eax
@@ -644,7 +672,7 @@ _13be4a12_md__printCStringBuffer_bb_5:
     subl 4, %esp
     pushl -12(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 144; call (%eax)
+    pushl %eax; pushl 152; call (%eax)
     addl 12, %esp
     popl -20(%ebp)
     movl -20(%ebp), %eax

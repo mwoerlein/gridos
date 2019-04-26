@@ -331,7 +331,7 @@ _1e73907a_md_doIt_bb_2:
     subl 4, %esp
     pushl -36(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
+    pushl %eax; pushl 80; call (%eax)
     addl 12, %esp
     popl -40(%ebp)
     subl 4, %esp
@@ -379,7 +379,7 @@ _1e73907a_md_doIt_bb_2:
     popl -76(%ebp)
     subl 4, %esp
     movl -76(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
+    pushl %eax; pushl 96; call (%eax)
     addl 8, %esp
     popl -80(%ebp)
     movl 4, -84(%ebp)
@@ -458,7 +458,7 @@ _1e73907a_md_testLoop_bb_5:
 _1e73907a_md_testLoop_bb_6:
     subl 4, %esp
     movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
+    pushl %eax; pushl 96; call (%eax)
     addl 8, %esp
     popl -120(%ebp)
     jmp _1e73907a_md_testLoop_bb_5
@@ -643,7 +643,7 @@ _1e73907a_md_testAllocate_bb_2:
     subl 4, %esp
     pushl -12(%ebp)
     movl -28(%ebp), %eax
-    pushl %eax; pushl 64; call (%eax)
+    pushl %eax; pushl 72; call (%eax)
     addl 12, %esp
     popl -32(%ebp)
     movl 32, -36(%ebp)
@@ -657,7 +657,7 @@ _1e73907a_md_testAllocate_bb_2:
     subl 4, %esp
     pushl -44(%ebp)
     movl -40(%ebp), %eax
-    pushl %eax; pushl 64; call (%eax)
+    pushl %eax; pushl 72; call (%eax)
     addl 12, %esp
     popl -48(%ebp)
     movl 32, -52(%ebp)
@@ -726,7 +726,7 @@ _1e73907a_md_printToStream_bb_2:
     subl 4, %esp
     pushl -4(%ebp)
     movl 16(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
+    pushl %eax; pushl 80; call (%eax)
     addl 12, %esp
     popl -8(%ebp)
     movl -8(%ebp), %eax

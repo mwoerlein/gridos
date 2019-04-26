@@ -485,7 +485,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -16(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 160; call (%eax)
     addl 12, %esp
     popl -20(%ebp)
     movl 12(%ebp), %eax
@@ -508,7 +508,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -36(%ebp)
     movl -24(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 160; call (%eax)
     addl 12, %esp
     popl -40(%ebp)
     movl 12(%ebp), %eax

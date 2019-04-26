@@ -102,6 +102,8 @@ _26c65996_mt_13be4a12:
     .long _26c65996_cto_13be4a12
     .long 48
     .long _26c65996_cto_13be4a12
+    .long 52
+    .long _26c65996_cto_13be4a12
 _26c65996_mt_26c65996:
     .long 0
     .long _26c65996_cto_01a2e54e
@@ -140,6 +142,8 @@ _26c65996_mt_26c65996:
     .long 44
     .long _26c65996_cto_13be4a12
     .long 48
+    .long _26c65996_cto_13be4a12
+    .long 52
     .long _26c65996_cto_13be4a12
     .long 0
     .long _26c65996_cto_26c65996

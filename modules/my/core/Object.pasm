@@ -196,7 +196,7 @@ movl 4(%eax), %eax     // @this
     subl 4, %esp
     pushl -16(%ebp)
     movl 16(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
+    pushl %eax; pushl 80; call (%eax)
     addl 12, %esp
     popl -20(%ebp)
     movl 64, -24(%ebp)
@@ -209,7 +209,7 @@ movl 4(%eax), %eax     // @this
     subl 4, %esp
     pushl -4(%ebp)
     movl -28(%ebp), %eax
-    pushl %eax; pushl 64; call (%eax)
+    pushl %eax; pushl 72; call (%eax)
     addl 12, %esp
     popl -32(%ebp)
     movl -32(%ebp), %eax

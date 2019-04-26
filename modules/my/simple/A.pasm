@@ -244,7 +244,7 @@ _1e739079_md_test_bb_2:
     subl 4, %esp
     pushl 12(%ebp)
     movl -12(%ebp), %eax
-    pushl %eax; pushl 80; call (%eax)
+    pushl %eax; pushl 88; call (%eax)
     addl 12, %esp
     popl -20(%ebp)
     movl 32, -24(%ebp)
@@ -354,12 +354,12 @@ _1e739079_md_test_bb_2:
     subl 4, %esp
     pushl -132(%ebp)
     movl -128(%ebp), %eax
-    pushl %eax; pushl 72; call (%eax)
+    pushl %eax; pushl 80; call (%eax)
     addl 12, %esp
     popl -136(%ebp)
     subl 4, %esp
     movl -12(%ebp), %eax
-    pushl %eax; pushl 88; call (%eax)
+    pushl %eax; pushl 96; call (%eax)
     addl 8, %esp
     popl -140(%ebp)
     jmp _1e739079_md_test_bb_1
