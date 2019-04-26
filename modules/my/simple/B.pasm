@@ -262,7 +262,7 @@ _1e73907a_md_run_bb_2:
     subl 4, %esp
     pushl -24(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -28(%ebp)
     movl -28(%ebp), %eax
@@ -280,7 +280,7 @@ _1e73907a_md_run_bb_2:
     addl 12, %esp
     pushl -20(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
+    pushl %eax; pushl 112; call (%eax)
     addl 12, %esp
     jmp _1e73907a_md_run_bb_1
 _1e73907a_md_run_bb_3:

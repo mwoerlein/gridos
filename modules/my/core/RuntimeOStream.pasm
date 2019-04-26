@@ -78,15 +78,29 @@ _26c65996_mt_13be4a12:
     .long _26c65996_cto_01a2e54e
     .long 4
     .long _26c65996_cto_26c65996
+    .long 4
+    .long _26c65996_cto_13be4a12
     .long 8
-    .long _26c65996_cto_26c65996
-    .long 12
-    .long _26c65996_cto_26c65996
+    .long _26c65996_cto_13be4a12
     .long 12
     .long _26c65996_cto_13be4a12
     .long 16
     .long _26c65996_cto_13be4a12
     .long 20
+    .long _26c65996_cto_13be4a12
+    .long 24
+    .long _26c65996_cto_13be4a12
+    .long 28
+    .long _26c65996_cto_13be4a12
+    .long 32
+    .long _26c65996_cto_13be4a12
+    .long 36
+    .long _26c65996_cto_13be4a12
+    .long 40
+    .long _26c65996_cto_13be4a12
+    .long 44
+    .long _26c65996_cto_13be4a12
+    .long 48
     .long _26c65996_cto_13be4a12
 _26c65996_mt_26c65996:
     .long 0
@@ -103,15 +117,29 @@ _26c65996_mt_26c65996:
     .long _26c65996_cto_01a2e54e
     .long 4
     .long _26c65996_cto_26c65996
+    .long 4
+    .long _26c65996_cto_13be4a12
     .long 8
-    .long _26c65996_cto_26c65996
-    .long 12
-    .long _26c65996_cto_26c65996
+    .long _26c65996_cto_13be4a12
     .long 12
     .long _26c65996_cto_13be4a12
     .long 16
     .long _26c65996_cto_13be4a12
     .long 20
+    .long _26c65996_cto_13be4a12
+    .long 24
+    .long _26c65996_cto_13be4a12
+    .long 28
+    .long _26c65996_cto_13be4a12
+    .long 32
+    .long _26c65996_cto_13be4a12
+    .long 36
+    .long _26c65996_cto_13be4a12
+    .long 40
+    .long _26c65996_cto_13be4a12
+    .long 44
+    .long _26c65996_cto_13be4a12
+    .long 48
     .long _26c65996_cto_13be4a12
     .long 0
     .long _26c65996_cto_26c65996
@@ -120,8 +148,6 @@ _26c65996_mt_26c65996:
 _26c65996_mdt:
     .long (_26c65996_md_initOStream - _my_core_RuntimeOStream)
     .long (_26c65996_md_printChar - _my_core_RuntimeOStream)
-    .long (_26c65996_md_printInt - _my_core_RuntimeOStream)
-    .long (_26c65996_md_printHex - _my_core_RuntimeOStream)
 
 // constants
 // string CLASSNAME
@@ -213,7 +239,7 @@ _26c65996_md_initOStream_bb_2:
     pushl 12(%ebp)
     pushl -8(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 120; call (%eax)
     addl 16, %esp
     popl -12(%ebp)
     movl 12(%ebp), %eax
@@ -268,77 +294,3 @@ _26c65996_md_printChar_bb_2:
     jmp _26c65996_md_printChar_bb_1
 _26c65996_md_printChar_bb_3:
     jmp _26c65996_md_printChar_bb_1
-
-// method printInt
-_26c65996_md_printInt:
-    pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
-    pushad
-    jmp _26c65996_md_printInt_bb_2
-_26c65996_md_printInt_bb_1:
-    popad
-    leave
-    ret
-_26c65996_md_printInt_bb_2:
-    subl 4, %esp
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 32; call (%eax)
-    addl 8, %esp
-    popl -4(%ebp)
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_stream(%ebx), %eax
-    movl %eax, -8(%ebp)
-    pushl -8(%ebp)
-    pushl 16(%ebp)
-    movl -4(%ebp), %eax
-    pushl %eax; pushl 112; call (%eax)
-    addl 16, %esp
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_self(%ebx), %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, 20(%ebp)
-    jmp _26c65996_md_printInt_bb_1
-_26c65996_md_printInt_bb_3:
-    jmp _26c65996_md_printInt_bb_1
-
-// method printHex
-_26c65996_md_printHex:
-    pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
-    pushad
-    jmp _26c65996_md_printHex_bb_2
-_26c65996_md_printHex_bb_1:
-    popad
-    leave
-    ret
-_26c65996_md_printHex_bb_2:
-    subl 4, %esp
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 32; call (%eax)
-    addl 8, %esp
-    popl -4(%ebp)
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_stream(%ebx), %eax
-    movl %eax, -8(%ebp)
-    pushl -8(%ebp)
-    pushl 16(%ebp)
-    movl -4(%ebp), %eax
-    pushl %eax; pushl 120; call (%eax)
-    addl 16, %esp
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_self(%ebx), %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, 20(%ebp)
-    jmp _26c65996_md_printHex_bb_1
-_26c65996_md_printHex_bb_3:
-    jmp _26c65996_md_printHex_bb_1

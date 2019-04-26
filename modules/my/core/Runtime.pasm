@@ -95,10 +95,6 @@ _4990fdfb_mt_4990fdfb:
     .long _4990fdfb_cto_4990fdfb
     .long 48
     .long _4990fdfb_cto_4990fdfb
-    .long 52
-    .long _4990fdfb_cto_4990fdfb
-    .long 56
-    .long _4990fdfb_cto_4990fdfb
     .long 0
     .long _4990fdfb_cto_4990fdfb
 
@@ -114,8 +110,6 @@ _my_core_Runtime_mdo_bootstrap := (_4990fdfb_md_bootstrap - _my_core_Runtime)
     .long (_4990fdfb_md_allocate - _my_core_Runtime)
     .long (_4990fdfb_md_free - _my_core_Runtime)
     .long (_4990fdfb_md_printChar - _my_core_Runtime)
-    .long (_4990fdfb_md_printInt - _my_core_Runtime)
-    .long (_4990fdfb_md_printHex - _my_core_Runtime)
     .long (_4990fdfb_md_destroyInstance - _my_core_Runtime)
     .long (_4990fdfb_md_cast - _my_core_Runtime)
     .long (_4990fdfb_md_createAndRunThread - _my_core_Runtime)
@@ -400,7 +394,7 @@ _4990fdfb_md_bootstrap_bb_15:
     subl 4, %esp
     pushl -84(%ebp)
     movl -72(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -88(%ebp)
     movl -88(%ebp), %eax
@@ -482,7 +476,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -8(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -12(%ebp)
     movl -12(%ebp), %eax
@@ -491,7 +485,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -16(%ebp)
     movl -4(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
+    pushl %eax; pushl 152; call (%eax)
     addl 12, %esp
     popl -20(%ebp)
     movl 12(%ebp), %eax
@@ -505,7 +499,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -28(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -32(%ebp)
     movl -32(%ebp), %eax
@@ -514,7 +508,7 @@ _4990fdfb_md_initStreams_bb_2:
     subl 4, %esp
     pushl -36(%ebp)
     movl -24(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
+    pushl %eax; pushl 152; call (%eax)
     addl 12, %esp
     popl -40(%ebp)
     movl 12(%ebp), %eax
@@ -701,66 +695,6 @@ _4990fdfb_md_printChar_bb_2:
             addl 24, %esp
     jmp _4990fdfb_md_printChar_bb_1
 
-// method printInt
-_4990fdfb_md_printInt:
-    pushl %ebp; movl %esp, %ebp
-    subl 8, %esp
-    pushad
-    jmp _4990fdfb_md_printInt_bb_2
-_4990fdfb_md_printInt_bb_1:
-    popad
-    leave
-    ret
-_4990fdfb_md_printInt_bb_2:
-    movl 12(%ebp), %eax
-    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_Runtime_i_syscall_runtime(%ebx), %eax
-    movl %eax, -4(%ebp)
-    movl 12(%ebp), %eax
-    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_Runtime_i_syscall_entry(%ebx), %eax
-    movl %eax, -8(%ebp)
-    movl 16(%ebp), %eax
-    movl 20(%ebp), %ebx
-    movl -4(%ebp), %edi
-    movl -8(%ebp), %esi
-            pushl %eax; pushl _my_core_Runtime_coi_spk_int; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
-            pushl %esp; pushl %edi; call %esi
-            addl 24, %esp
-    jmp _4990fdfb_md_printInt_bb_1
-
-// method printHex
-_4990fdfb_md_printHex:
-    pushl %ebp; movl %esp, %ebp
-    subl 8, %esp
-    pushad
-    jmp _4990fdfb_md_printHex_bb_2
-_4990fdfb_md_printHex_bb_1:
-    popad
-    leave
-    ret
-_4990fdfb_md_printHex_bb_2:
-    movl 12(%ebp), %eax
-    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_Runtime_i_syscall_runtime(%ebx), %eax
-    movl %eax, -4(%ebp)
-    movl 12(%ebp), %eax
-    movl _my_core_Runtime_hvo_my_core_Runtime(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_Runtime_i_syscall_entry(%ebx), %eax
-    movl %eax, -8(%ebp)
-    movl 16(%ebp), %eax
-    movl 20(%ebp), %ebx
-    movl -4(%ebp), %edi
-    movl -8(%ebp), %esi
-            pushl %eax; pushl _my_core_Runtime_coi_spk_hex; pushl %ebx; pushl _my_core_Runtime_coi_SysCall_print
-            pushl %esp; pushl %edi; call %esi
-            addl 24, %esp
-    jmp _4990fdfb_md_printHex_bb_1
-
 // method destroyInstance
 _4990fdfb_md_destroyInstance:
     pushl %ebp; movl %esp, %ebp
@@ -856,7 +790,7 @@ _4990fdfb_md_createAndRunThread_bb_2:
     subl 4, %esp
     pushl 16(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -8(%ebp)
     movl -8(%ebp), %eax
@@ -875,7 +809,7 @@ _4990fdfb_md_createAndRunThread_bb_3:
     pushl -4(%ebp)
     pushl -24(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 136; call (%eax)
+    pushl %eax; pushl 120; call (%eax)
     addl 16, %esp
     popl -28(%ebp)
     movl -28(%ebp), %eax
@@ -895,7 +829,7 @@ _4990fdfb_md_createAndRunThread_bb_6:
 _4990fdfb_md_createAndRunThread_bb_7:
     pushl -4(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 128; call (%eax)
+    pushl %eax; pushl 112; call (%eax)
     addl 12, %esp
     jmp _4990fdfb_md_createAndRunThread_bb_1
 _4990fdfb_md_createAndRunThread_bb_8:
@@ -975,7 +909,7 @@ _4990fdfb_md_createInstance_bb_8:
     subl 4, %esp
     pushl -40(%ebp)
     movl 12(%ebp), %eax
-    pushl %eax; pushl 152; call (%eax)
+    pushl %eax; pushl 136; call (%eax)
     addl 12, %esp
     popl -44(%ebp)
     movl -44(%ebp), %eax
