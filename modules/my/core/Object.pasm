@@ -49,12 +49,15 @@ _01a2e54e_mt_01a2e54e:
     .long _01a2e54e_cto_01a2e54e
     .long 16
     .long _01a2e54e_cto_01a2e54e
+    .long 20
+    .long _01a2e54e_cto_01a2e54e
 
 // methods tab
 _01a2e54e_mdt:
     .long (_01a2e54e_md_getClass - _my_core_Object)
     .long (_01a2e54e_md_hash - _my_core_Object)
     .long (_01a2e54e_md_equals - _my_core_Object)
+    .long (_01a2e54e_md_printToStream - _my_core_Object)
     .long (_01a2e54e_md_rt - _my_core_Object)
     .long (_01a2e54e_md_setRt - _my_core_Object)
 
@@ -162,6 +165,58 @@ _01a2e54e_md_equals_bb_2:
     jmp _01a2e54e_md_equals_bb_1
 _01a2e54e_md_equals_bb_3:
     jmp _01a2e54e_md_equals_bb_1
+
+// method printToStream
+_01a2e54e_md_printToStream:
+    pushl %ebp; movl %esp, %ebp
+    subl 32, %esp
+    pushad
+    jmp _01a2e54e_md_printToStream_bb_2
+_01a2e54e_md_printToStream_bb_1:
+    popad
+    leave
+    ret
+_01a2e54e_md_printToStream_bb_2:
+    movl 0, -8(%ebp)
+    movl -8(%ebp), %eax
+    movl %eax, -4(%ebp)
+    movl 12(%ebp), %eax
+movl 4(%eax), %eax     // @this
+    movl %eax, -4(%ebp)
+    subl 4, %esp
+    movl 12(%ebp), %eax
+    pushl %eax; pushl 0; call (%eax)
+    addl 8, %esp
+    popl -12(%ebp)
+    subl 4, %esp
+    movl -12(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 8, %esp
+    popl -16(%ebp)
+    subl 4, %esp
+    pushl -16(%ebp)
+    movl 16(%ebp), %eax
+    pushl %eax; pushl 72; call (%eax)
+    addl 12, %esp
+    popl -20(%ebp)
+    movl 64, -24(%ebp)
+    subl 4, %esp
+    pushl -24(%ebp)
+    movl -20(%ebp), %eax
+    pushl %eax; pushl 48; call (%eax)
+    addl 12, %esp
+    popl -28(%ebp)
+    subl 4, %esp
+    pushl -4(%ebp)
+    movl -28(%ebp), %eax
+    pushl %eax; pushl 64; call (%eax)
+    addl 12, %esp
+    popl -32(%ebp)
+    movl -32(%ebp), %eax
+    movl %eax, 20(%ebp)
+    jmp _01a2e54e_md_printToStream_bb_1
+_01a2e54e_md_printToStream_bb_3:
+    jmp _01a2e54e_md_printToStream_bb_1
 
 // method rt
 _01a2e54e_md_rt:

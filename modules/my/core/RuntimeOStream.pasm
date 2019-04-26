@@ -61,6 +61,8 @@ _26c65996_mt_01a2e54e:
     .long _26c65996_cto_01a2e54e
     .long 16
     .long _26c65996_cto_01a2e54e
+    .long 20
+    .long _26c65996_cto_01a2e54e
 _26c65996_mt_13be4a12:
     .long 0
     .long _26c65996_cto_01a2e54e
@@ -72,15 +74,19 @@ _26c65996_mt_13be4a12:
     .long _26c65996_cto_01a2e54e
     .long 16
     .long _26c65996_cto_01a2e54e
+    .long 20
+    .long _26c65996_cto_01a2e54e
     .long 4
     .long _26c65996_cto_26c65996
     .long 8
     .long _26c65996_cto_26c65996
     .long 12
     .long _26c65996_cto_26c65996
+    .long 12
+    .long _26c65996_cto_13be4a12
     .long 16
-    .long _26c65996_cto_26c65996
-    .long 16
+    .long _26c65996_cto_13be4a12
+    .long 20
     .long _26c65996_cto_13be4a12
 _26c65996_mt_26c65996:
     .long 0
@@ -93,15 +99,19 @@ _26c65996_mt_26c65996:
     .long _26c65996_cto_01a2e54e
     .long 16
     .long _26c65996_cto_01a2e54e
+    .long 20
+    .long _26c65996_cto_01a2e54e
     .long 4
     .long _26c65996_cto_26c65996
     .long 8
     .long _26c65996_cto_26c65996
     .long 12
     .long _26c65996_cto_26c65996
+    .long 12
+    .long _26c65996_cto_13be4a12
     .long 16
-    .long _26c65996_cto_26c65996
-    .long 16
+    .long _26c65996_cto_13be4a12
+    .long 20
     .long _26c65996_cto_13be4a12
     .long 0
     .long _26c65996_cto_26c65996
@@ -110,7 +120,6 @@ _26c65996_mt_26c65996:
 _26c65996_mdt:
     .long (_26c65996_md_initOStream - _my_core_RuntimeOStream)
     .long (_26c65996_md_printChar - _my_core_RuntimeOStream)
-    .long (_26c65996_md_printString - _my_core_RuntimeOStream)
     .long (_26c65996_md_printInt - _my_core_RuntimeOStream)
     .long (_26c65996_md_printHex - _my_core_RuntimeOStream)
 
@@ -194,7 +203,7 @@ _26c65996_md_initOStream_bb_2:
     movl %eax, _my_core_RuntimeOStream_i_stream(%ebx)
     subl 4, %esp
     movl 12(%ebp), %eax
-    pushl %eax; pushl 24; call (%eax)
+    pushl %eax; pushl 32; call (%eax)
     addl 8, %esp
     popl -4(%ebp)
     movl 8(%ebp), %eax
@@ -236,44 +245,7 @@ _26c65996_md_printChar_bb_1:
 _26c65996_md_printChar_bb_2:
     subl 4, %esp
     movl 12(%ebp), %eax
-    pushl %eax; pushl 24; call (%eax)
-    addl 8, %esp
-    popl -4(%ebp)
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_stream(%ebx), %eax
-    movl %eax, -8(%ebp)
-    pushl -8(%ebp)
-    pushl 16(%ebp)
-    movl -4(%ebp), %eax
-    pushl %eax; pushl 96; call (%eax)
-    addl 16, %esp
-    movl 12(%ebp), %eax
-    movl _my_core_RuntimeOStream_hvo_my_core_RuntimeOStream(%eax), %ebx
-    addl 4(%eax), %ebx
-    movl _my_core_RuntimeOStream_i_self(%ebx), %eax
-    movl %eax, -12(%ebp)
-    movl -12(%ebp), %eax
-    movl %eax, 20(%ebp)
-    jmp _26c65996_md_printChar_bb_1
-_26c65996_md_printChar_bb_3:
-    jmp _26c65996_md_printChar_bb_1
-
-// method printString
-_26c65996_md_printString:
-    pushl %ebp; movl %esp, %ebp
-    subl 12, %esp
-    pushad
-    jmp _26c65996_md_printString_bb_2
-_26c65996_md_printString_bb_1:
-    popad
-    leave
-    ret
-_26c65996_md_printString_bb_2:
-    subl 4, %esp
-    movl 12(%ebp), %eax
-    pushl %eax; pushl 24; call (%eax)
+    pushl %eax; pushl 32; call (%eax)
     addl 8, %esp
     popl -4(%ebp)
     movl 12(%ebp), %eax
@@ -293,9 +265,9 @@ _26c65996_md_printString_bb_2:
     movl %eax, -12(%ebp)
     movl -12(%ebp), %eax
     movl %eax, 20(%ebp)
-    jmp _26c65996_md_printString_bb_1
-_26c65996_md_printString_bb_3:
-    jmp _26c65996_md_printString_bb_1
+    jmp _26c65996_md_printChar_bb_1
+_26c65996_md_printChar_bb_3:
+    jmp _26c65996_md_printChar_bb_1
 
 // method printInt
 _26c65996_md_printInt:
@@ -310,7 +282,7 @@ _26c65996_md_printInt_bb_1:
 _26c65996_md_printInt_bb_2:
     subl 4, %esp
     movl 12(%ebp), %eax
-    pushl %eax; pushl 24; call (%eax)
+    pushl %eax; pushl 32; call (%eax)
     addl 8, %esp
     popl -4(%ebp)
     movl 12(%ebp), %eax
@@ -347,7 +319,7 @@ _26c65996_md_printHex_bb_1:
 _26c65996_md_printHex_bb_2:
     subl 4, %esp
     movl 12(%ebp), %eax
-    pushl %eax; pushl 24; call (%eax)
+    pushl %eax; pushl 32; call (%eax)
     addl 8, %esp
     popl -4(%ebp)
     movl 12(%ebp), %eax

@@ -55,6 +55,8 @@ _ff38e2ed_mt_01a2e54e:
     .long _ff38e2ed_cto_01a2e54e
     .long 16
     .long _ff38e2ed_cto_01a2e54e
+    .long 20
+    .long _ff38e2ed_cto_01a2e54e
 _ff38e2ed_mt_ff38e2ed:
     .long 0
     .long _ff38e2ed_cto_01a2e54e
@@ -65,6 +67,8 @@ _ff38e2ed_mt_ff38e2ed:
     .long 12
     .long _ff38e2ed_cto_01a2e54e
     .long 16
+    .long _ff38e2ed_cto_01a2e54e
+    .long 20
     .long _ff38e2ed_cto_01a2e54e
     .long 0
     .long _ff38e2ed_cto_ff38e2ed

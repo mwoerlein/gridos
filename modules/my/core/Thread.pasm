@@ -55,6 +55,8 @@ _0dbda62f_mt_01a2e54e:
     .long _0dbda62f_cto_01a2e54e
     .long 16
     .long _0dbda62f_cto_01a2e54e
+    .long 20
+    .long _0dbda62f_cto_01a2e54e
 _0dbda62f_mt_0dbda62f:
     .long 0
     .long _0dbda62f_cto_01a2e54e
@@ -65,6 +67,8 @@ _0dbda62f_mt_0dbda62f:
     .long 12
     .long _0dbda62f_cto_01a2e54e
     .long 16
+    .long _0dbda62f_cto_01a2e54e
+    .long 20
     .long _0dbda62f_cto_01a2e54e
     .long 0
     .long _0dbda62f_cto_0dbda62f
