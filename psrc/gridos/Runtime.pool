@@ -13,6 +13,8 @@ use sys::core::Object;
 use sys::core::OStream;
 use sys::core::Runtime as CoreRuntime;
 
+use gridos::i386::CgaScreen;
+
 class Runtime extends CoreRuntime {
     
     // TODO: remove with syscall
@@ -132,10 +134,17 @@ class Runtime extends CoreRuntime {
     }
     
     [] initStreams() {
+    //*/
         RuntimeOStream rs0 = this.createInstance(RuntimeOStream:CLASSNAME);
         this.setOut(rs0.initOStream(this, 0));
         RuntimeOStream rs1 = this.createInstance(RuntimeOStream:CLASSNAME);
         this.setErr(rs1.initOStream(this, 1));
+    /*/
+        CgaScreen screen = this.createInstance(CgaScreen:CLASSNAME);
+        screen.init();
+        this.setOut(screen.getFormattedOStream(7));
+        this.setErr(screen.getFormattedOStream(12));
+    //*/
     }
     
     // TODO: replace int with working ClassHeader "struct"

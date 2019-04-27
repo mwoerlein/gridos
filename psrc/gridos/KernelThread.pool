@@ -10,7 +10,8 @@ class KernelThread extends sys::core::Thread {
     // methods
     [] run() {
         sys::core::Runtime rt = this.rt();
-        rt.out().printCString("run kernel thread").printNewline();
+        rt.err().printCString("add more implementation");
+        rt.out().printNewline().printCString("run kernel thread").printNewline();
     }
     
 }

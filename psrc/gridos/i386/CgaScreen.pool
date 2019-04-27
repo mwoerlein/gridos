@@ -1,0 +1,102 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::OStream;
+
+class CgaScreen extends sys::core::Object {
+    
+    // private
+    int cga_ram := 0xB8000;
+    int max_x := 80;
+    int max_y := 25;
+    int max_pos := 2000; //80 * 25;
+    
+    int cursor;
+    
+    // public
+    [] init() {
+        this.syncCursor();
+    }
+    
+    [OStream] getFormattedOStream(int format) {
+        CgaFormattedOStream o = this.rt().createInstance(CgaFormattedOStream:CLASSNAME);
+        return o.initOStream(this, format);
+    }
+    
+    [] drawCharAt(int c, int format, int x, int y) {
+        this.drawCharAtPos(c, format, x + max_x * y);
+    }
+    
+    [] drawChar(int c, int format) {
+        if (c == 0 || c == '\r') {
+            return;
+        }
+        
+        int pos = cursor;
+        if (c == '\n') {
+            this.drawCharAtPos(' ', format, pos++); // TODO: use do {...} while, if available
+            while (pos % max_x) { this.drawCharAtPos(' ', format, pos++); }
+        } else if (c == '\t') {
+            this.drawCharAtPos(' ', format, pos++); // TODO: use do {...} while, if available
+            while (pos % 8) { this.drawCharAtPos(' ', format, pos++); }
+        } else {
+            this.drawCharAtPos(c, format, pos++);
+        }
+        
+        if (pos >= max_pos) {
+            // end of screen => scroll up
+            int p1 = 0;
+            int p2 = max_x;
+            while (p2 < max_pos) { this.copyCharAtPos(p2++, p1++); }
+            while (p1 < max_pos) { this.drawCharAtPos(' ', format, p1++); }
+            pos -= max_x;
+        }
+        
+        this.setCursor(pos);
+    }
+    
+    [] clear(int format) {
+        int pos = 0;
+        while (pos < max_pos) { this.drawCharAtPos(' ', format, pos++); }
+        
+        this.setCursor(0);
+    }
+    
+    // private
+    // int index_port := 0x3d4;
+    // int data_port := 0x3d5;
+    [] syncCursor() {
+        int cursor = 0;
+        __pasm__(<"
+            movw 0x3d4, %dx; movb 14, %al; .byte 0xEE  #// "outb 14, 0x3d4"
+            movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
+            movb %al, %bh
+            movw 0x3d4, %dx; movb 15, %al; .byte 0xEE  #// "outb 15, 0x3d4"
+            movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
+            movb %al, %bl
+        ">, {"%ebx": cursor}, {"%ebx": cursor});
+        this.cursor = cursor;
+    }
+    
+    [] setCursor(int cursor) {
+        __pasm__(<"
+            movw 0x3d4, %dx; movb 14, %al; .byte 0xEE  #// "outb 14, 0x3d4"
+            movw 0x3d5, %dx; movb %bh, %al; .byte 0xEE #// "outb %bh, 0x3d5"
+            movw 0x3d4, %dx; movb 15, %al; .byte 0xEE  #// "outb 15, 0x3d4"
+            movw 0x3d5, %dx; movb %bl, %al; .byte 0xEE #// "outb %bl, 0x3d5"
+        ">, {"%ebx": cursor});
+        this.cursor = cursor;
+    }
+    
+    [] drawCharAtPos(int c, int format, int pos) {
+        __pasm__("movw %bx, (%eax)", {"%eax": cga_ram + 2*pos, "%ebx": c + 256*format});
+    }
+    
+    [] copyCharAtPos(int src, int dest) {
+        __pasm__("movw (%esi), %ax; movw %ax, (%edi)", {"%esi": cga_ram + 2*src, "%edi": cga_ram + 2*dest});
+    }
+}
