@@ -16,10 +16,9 @@ class RuntimeOStream extends OStream {
     OStream self;
     
     [OStream] initOStream(Runtime rt, int stream) {
-        OStream o = rt.cast(OStream:CLASSNAME, this);
         this.gridosRT = rt;
         this.stream = stream;
-        return self = o;
+        return self = this.rt().cast(OStream:CLASSNAME, this);
     }
     
     [OStream] printChar(int c) {
