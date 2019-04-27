@@ -1,0 +1,16 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos;
+
+class KernelThread extends sys::core::Thread {
+
+    // methods
+    [] run() {
+        sys::core::Runtime rt = this.rt();
+        rt.out().printCString("run kernel thread").printNewline();
+    }
+    
+}

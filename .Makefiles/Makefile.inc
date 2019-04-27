@@ -11,8 +11,12 @@ else
 CXX_VERSION=$(shell g++ --version | grep g++ | cut -d ' ' -f4 | sed "s/\./\_/g")
 endif
 
+POOLC=../pool/bootstrap/bin/poolbc
+POOLCORE=../pool/src
+
 LIBDIR=./lib
 SRCDIR=./src
+POOLSRC=./psrc
 OBJDIR=./obj
 BINDIR=./bin
 IMGDIR=./img

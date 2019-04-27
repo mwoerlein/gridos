@@ -8,20 +8,20 @@ STARTUP_LIBS = KernelJIT.a $(MASCHINE).a multiboot2.a KernelJIT.a $(MASCHINE)ASM
 LOADER_PARTS = dynamic_settings settings stage0 stage1
 LOADER_PASMS = $(patsubst %,$(BOOTDIR)/$(MASCHINE)_loader_%.pasm, $(LOADER_PARTS))
 
-MOD_SIMPLE_PASMS = $(shell find $(MODDIR)/my/simple/ -type f -name '*.pasm')
+MOD_SIMPLE_PASMS = $(shell find $(MODDIR)/sys/ $(MODDIR)/my/ -type f -name '*.pasm')
 MOD_SIMPLE_FILES = $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_SIMPLE_PASMS))
 
-MOD_KERNEL_PASMS = $(shell find $(MODDIR)/my/core/ -type f -name '*.pasm')
+MOD_KERNEL_PASMS = $(shell find $(MODDIR)/gridos/ -type f -name '*.pasm')
 MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 #MOD_KERNEL_FILES = $(BOOTDIR)/blinking.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 #MOD_KERNEL_FILES = $(MODDIR)/blinking.pasm $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 #MOD_KERNEL_FILES = $(BOOTDIR)/at_relocateable.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 #MOD_KERNEL_FILES = $(MODDIR)/at_relocateable.pasm $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 
-$(BOOTDIR)/my/core/Runtime.pbc: $(MODDIR)/my/core/Runtime.pasm $(BINDIR)/pasm
+$(BOOTDIR)/gridos/Runtime.pbc: $(MODDIR)/gridos/Runtime.pasm $(BINDIR)/pasm
 	echo "creating $@ with bootstrap"
 	mkdir -p $(dir $@)
-	$(BINDIR)/pasm -co $@ $< --bootstrap=_my_core_Runtime_mdo_bootstrap
+	$(BINDIR)/pasm -co $@ $< --bootstrap=_gridos_Runtime_mdo_bootstrap
 
 $(BOOTDIR)/%.pbc: $(MODDIR)/%.pasm $(BINDIR)/pasm
 	echo "creating $@"
@@ -67,4 +67,5 @@ $(BOOTDIR)/$(MASCHINE)_startup_entry.s: $(BOOTDIR)/$(MASCHINE)_startup_entry.S
 	dd if=$< of=$@ bs=512 conv=sync 2>/dev/null
 
 clean:
-	@rm -rf $(addprefix $(BOOTDIR)/, *.bin *.block *.o *.s) $(BOOTDIR)/my $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm
+	@rm -rf $(addprefix $(BOOTDIR)/, *.bin *.block *.o *.s) $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm  
+	@rm -rf $(BOOTDIR)/gridos $(BOOTDIR)/sys $(BOOTDIR)/my

@@ -1,0 +1,29 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos;
+
+use sys::core::OStream;
+
+class RuntimeOStream extends OStream {
+    
+    Runtime gridosRT;
+    int stream;
+    
+    // TODO: replace with this, after implicit casts are implemented
+    OStream self;
+    
+    [OStream] initOStream(Runtime rt, int stream) {
+        OStream o = rt.cast(OStream:CLASSNAME, this);
+        this.gridosRT = rt;
+        this.stream = stream;
+        return self = o;
+    }
+    
+    [OStream] printChar(int c) {
+        gridosRT.printChar(c, stream);
+        return self;
+    }
+}
