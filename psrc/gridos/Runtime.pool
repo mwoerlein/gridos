@@ -110,21 +110,26 @@ class Runtime extends CoreRuntime {
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
         ">, {"%eax": irt, "%edx": cdRuntime}, {"%esi": rt});
 
-        // init Runtime
+        // prepare Runtime
         rt.initSysCall(syscall_runtime, syscall_entry);
         CoreRuntime crt = rt.cast(CoreRuntime:CLASSNAME, rt);
         rt.setRt(crt);
         
-        // init class "Class"
+        // prepare class "Class"
         cClass.setRt(crt);
         cClass.setDesc(cdClass);
+        
+        // init class "Class"
+        cClass.__init();
+
+        // init Runtime
+        rt.__init();
         
         // create and init class "Runtime"
         Class cRuntime := rt.createInstance(Class:CLASSNAME);
         if (!cRuntime) { return null; } // abort on initialization error
         cRuntime.setDesc(cdRuntime);
         
-        rt.initStreams();
         return crt;
     }
     
@@ -133,7 +138,8 @@ class Runtime extends CoreRuntime {
         this.syscall_entry = syscall_entry;
     }
     
-    [] initStreams() {
+    // TODO #7: move to constructor with (implicit) parent calls
+    [] __init() {
     //*/
         RuntimeOStream rs0 = this.createInstance(RuntimeOStream:CLASSNAME);
         this.setOut(rs0.initOStream(this, 0));
@@ -257,6 +263,7 @@ __pasm__("_crma_return:");
             call _crh_instantiate   // %eax: @object-meminfo %ebx: @_call_entry %edx: @class-desc, return %edi: @object (Type Object) %esi: @object (Type <class>)
         ">, {"%eax": instInfo, "%edx": classDesc}, {"%edi": oinstance, "%esi": instance});
         oinstance.setRt(this.rt());
+        oinstance.__init();
         return instance;
     }
     

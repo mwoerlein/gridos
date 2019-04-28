@@ -10,7 +10,7 @@ entry = true
 entry:
 // TODO #3: inline method-indices in method-call-generation
 //*/
-    _sys_core_Runtime_m_createAndRunThread := 104
+    _sys_core_Runtime_m_createAndRunThread := 128
 //*/
     movw 0xc40, (cga_testline)
     
