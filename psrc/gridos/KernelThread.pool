@@ -5,13 +5,62 @@ version = 0.1.0
 */
 namespace gridos;
 
+use sys::core::Boolean;
+use sys::core::Character;
+use sys::core::Integer;
+use sys::core::String;
+
 class KernelThread extends sys::core::Thread {
 
     // methods
     [] run() {
         sys::core::Runtime rt = this.rt();
+        
+        
+        sys::core::OStream out = rt.out();
+        
+        {
+            //rt.createAndRunThread(my::simple::B:CLASSNAME);
+        }
+        {
+            String s = rt.createInstance(String:CLASSNAME);
+            s.assignCString("run kernel thread");
+            s.printCString(" with tests");
+            out.print(s).printNewline();
+            s.destroy();
+        }
+        {
+            Boolean b = rt.createInstance(Boolean:CLASSNAME);
+            b.assignBool(1);
+            out.print(b).printChar(' ');
+            b.flip();
+            out.print(b).printNewline();
+            b.destroy();
+        }
+        {
+            Character c = rt.createInstance(Character:CLASSNAME);
+            c.assignChar('a');
+            out.print(c).printChar(' ').printInt(c.compareChar('b')).printNewline();
+            c.destroy();
+        }
+        {
+            Integer i = rt.createInstance(Integer:CLASSNAME);
+            i.assignInt(-1);
+            while (i.compareInt(5) <= 0) {
+                out.print(i).printChar(':').printInt(this.fibo(i.getInt())).printNewline();
+                i.inc();
+            }
+            i.destroy();
+        }
+        
         rt.err().printCString("add more implementation");
-        rt.out().printNewline().printCString("run kernel thread").printNewline();
+        out.printNewline();
+    }
+    
+    [int] fibo(int i) {
+        if (i <= 0) { return 0; }
+        else if (i == 1) { return 1; }
+        else { return this.fibo(i-2) + this.fibo(i-1); }
     }
     
 }
