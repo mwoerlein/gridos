@@ -32,7 +32,7 @@ class Runtime extends CoreRuntime {
     int spk_string := 3;
     
     // TODO: remove with working global method calls
-    int _raw_instantiate := 44;
+    int _instantiateBootstrap := 48;
     // TODO: remove with working ClassHeader "struct"
     int ch_mdt := 20;
     int ch_tpl_size := 28;
@@ -45,7 +45,7 @@ class Runtime extends CoreRuntime {
     // methods
     global [CoreRuntime] bootstrap(int syscall_runtime, int syscall_entry) {
         
-        // create class "Class"
+        // get class descriptors
         // TODO: replace int with working ClassHeader "struct"
         int cdClass = 0;
         __pasm__(<"
@@ -54,7 +54,17 @@ class Runtime extends CoreRuntime {
             addl 16, %esp; popl %eax
         ">, {"%eax": Class:CLASSNAME, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": cdClass});
         if (!cdClass) { return null; } // abort on initialization error
+        
+        // TODO: replace int with working ClassHeader "struct"
+        int cdRuntime = 0;
+        __pasm__(<"
+            pushl 0; pushl %eax; pushl _gridos_Runtime_coi_SysCall_find_class
+            pushl %esp; pushl %edi; call %esi
+            addl 16, %esp; popl %eax
+        ">, {"%eax": Runtime:CLASSNAME, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": cdRuntime} );
+        if (!cdRuntime) { return null; } // abort on initialization error
 
+        // allocate spaces
         // TODO: replace int with working MemInfo "struct"
         int icClass = 0;
         __pasm__(<"
@@ -65,29 +75,6 @@ class Runtime extends CoreRuntime {
             addl 16, %esp; popl %eax
         ">, {"%eax": cdClass, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": icClass});
         if (!icClass) { return null; } // abort on initialization error
-
-        // TODO: Class cClass = CoreRuntime:_raw_instantiate(icClass, cdClass);
-        Class cClass = null;
-        __pasm__(<"
-            subl 4, %esp // ret
-            pushl %edx; pushl %ecx // args
-            movl 8(%ebp), %eax; movl _118ac840_cto_d67a0794(%eax), %eax // @class-desc "CoreRuntime"
-            movl %eax, %ebx; addl _gridos_Runtime_coi_ch_mdt(%eax), %ebx;
-            movl _gridos_Runtime_coi__raw_instantiate(%ebx), %ebx // get method offset
-            addl %eax, %ebx // @func
-            pushl 0; pushl %eax; call %ebx // call global func
-            addl 16, %esp; popl %eax
-        ">, {"%ecx": icClass, "%edx": cdClass}, {"%eax": cClass});
-
-        // create Runtime
-        // TODO: replace int with working ClassHeader "struct"
-        int cdRuntime = 0;
-        __pasm__(<"
-            pushl 0; pushl %eax; pushl _gridos_Runtime_coi_SysCall_find_class
-            pushl %esp; pushl %edi; call %esi
-            addl 16, %esp; popl %eax
-        ">, {"%eax": Runtime:CLASSNAME, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": cdRuntime} );
-        if (!cdRuntime) { return null; } // abort on initialization error
 
         // TODO: replace int with working MemInfo "struct"
         int irt = 0;
@@ -100,40 +87,22 @@ class Runtime extends CoreRuntime {
         ">, {"%eax": cdRuntime, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": irt});
         if (!irt) { return null; } // abort on initialization error
 
-        // TODO: Runtime rt = CoreRuntime:_raw_instantiate(irt, cdRuntime);
         Runtime rt = null;
+        Class cClass = null;
+        // TODO: [rt, cClass] = CoreRuntime:_instantiateBootstrap(irt, cdRuntime, icClass, cdClass);
         __pasm__(<"
-            subl 4, %esp // ret
-            pushl %edx; pushl %ecx // args
+            subl 8, %esp // ret
+            pushl %edx; pushl %ecx; pushl %ebx; pushl %eax // args
             movl 8(%ebp), %eax; movl _118ac840_cto_d67a0794(%eax), %eax // @class-desc "CoreRuntime"
             movl %eax, %ebx; addl _gridos_Runtime_coi_ch_mdt(%eax), %ebx;
-            movl _gridos_Runtime_coi__raw_instantiate(%ebx), %ebx // get method offset
+            movl _gridos_Runtime_coi__instantiateBootstrap(%ebx), %ebx // get method offset
             addl %eax, %ebx // @func
             pushl 0; pushl %eax; call %ebx // call global func
-            addl 16, %esp; popl %eax
-        ">, {"%ecx": irt, "%edx": cdRuntime}, {"%eax": rt});
-
-        // prepare Runtime
+            addl 24, %esp; popl %eax; popl %ebx
+        ">, {"%eax": irt, "%ebx": cdRuntime, "%ecx": icClass, "%edx": cdClass}, {"%eax": rt, "%ebx": cClass});
+        
         rt.initSysCall(syscall_runtime, syscall_entry);
-        CoreRuntime crt = rt.cast(CoreRuntime:CLASSNAME, rt);
-        crt.setRt(crt);
-        
-        // prepare class "Class"
-        cClass.setRt(crt);
-        cClass.setDesc(cdClass);
-        
-        // init class "Class"
-        cClass.__init();
-
-        // init Runtime
-        crt.__init();
-        
-        // create and init class "Runtime"
-        Class cRuntime := crt.createInstance(Class:CLASSNAME);
-        if (!cRuntime) { return null; } // abort on initialization error
-        cRuntime.setDesc(cdRuntime);
-        
-        return crt;
+        return rt._finalizeBootstrap(cClass, cdClass, cdRuntime);
     }
     
     [] initSysCall(int syscall_runtime, int syscall_entry) {
