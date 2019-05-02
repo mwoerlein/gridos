@@ -18,6 +18,7 @@ typedef struct pool_class_descriptor {
     size_t inst_tpl_size;
     size_t obj_handle_offset;
     size_t class_handle_offset;
+    size_t class_size;
     pool_vtabs_entry vtabs[];
 } pool_class_descriptor;
 
@@ -33,6 +34,9 @@ ClassDescriptor::~ClassDescriptor() {
 bool ClassDescriptor::isValid() {
     pool_class_descriptor *desc = (pool_class_descriptor*) mem.getStartAddress();
     if (desc->magic != 0x15AC1A55) {
+        return false;
+    }
+    if (desc->class_size != mem.length()) {
         return false;
     }
     if (bootstrapOffset != 0) {
