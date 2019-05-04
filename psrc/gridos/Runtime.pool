@@ -47,60 +47,27 @@ class Runtime extends CoreRuntime {
         
         // get class descriptors
         // TODO: replace int with working ClassHeader "struct"
-        int cdClass = 0;
-        __pasm__(<"
-            pushl 0; pushl %eax; pushl _gridos_Runtime_coi_SysCall_find_class
-            pushl %esp; pushl %edi; call %esi
-            addl 16, %esp; popl %eax
-        ">, {"%eax": Class:CLASSNAME, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": cdClass});
+        int cdClass = Class:_getClassDesc();
         if (!cdClass) { return null; } // abort on initialization error
         
         // TODO: replace int with working ClassHeader "struct"
-        int cdRuntime = 0;
-        __pasm__(<"
-            pushl 0; pushl %eax; pushl _gridos_Runtime_coi_SysCall_find_class
-            pushl %esp; pushl %edi; call %esi
-            addl 16, %esp; popl %eax
-        ">, {"%eax": Runtime:CLASSNAME, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": cdRuntime} );
+        int cdRuntime = Runtime:_getClassDesc();
         if (!cdRuntime) { return null; } // abort on initialization error
 
         // allocate spaces
+        int size = 0;
+        __pasm__("movl _gridos_Runtime_coi_ch_tpl_size(%eax), %eax", {"%eax": cdClass}, {"%eax": size});
         // TODO: replace int with working MemInfo "struct"
-        int icClass = 0;
-        __pasm__(<"
-            pushl 0
-            pushl _gridos_Runtime_coi_ch_tpl_size(%eax) // instance size
-            pushl _gridos_Runtime_coi_SysCall_allocate
-            pushl %esp; pushl %edi; call %esi
-            addl 16, %esp; popl %eax
-        ">, {"%eax": cdClass, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": icClass});
+        int icClass = Runtime:_allocate(size, syscall_runtime, syscall_entry);
         if (!icClass) { return null; } // abort on initialization error
 
+        __pasm__("movl _gridos_Runtime_coi_ch_tpl_size(%eax), %eax", {"%eax": cdRuntime}, {"%eax": size});
         // TODO: replace int with working MemInfo "struct"
-        int irt = 0;
-        __pasm__(<"
-            pushl 0
-            pushl _gridos_Runtime_coi_ch_tpl_size(%eax) // instance size
-            pushl _gridos_Runtime_coi_SysCall_allocate
-            pushl %esp; pushl %edi; call %esi
-            addl 16, %esp; popl %eax
-        ">, {"%eax": cdRuntime, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": irt});
+        int irt = Runtime:_allocate(size, syscall_runtime, syscall_entry);
         if (!irt) { return null; } // abort on initialization error
-
-        Runtime rt = null;
-        Class cClass = null;
-        // TODO: [rt, cClass] = CoreRuntime:_instantiateBootstrap(irt, cdRuntime, icClass, cdClass);
-        __pasm__(<"
-            subl 8, %esp // ret
-            pushl %edx; pushl %ecx; pushl %ebx; pushl %eax // args
-            movl 8(%ebp), %eax; movl _118ac840_cto_d67a0794(%eax), %eax // @class-desc "CoreRuntime"
-            movl %eax, %ebx; addl _gridos_Runtime_coi_ch_mdt(%eax), %ebx;
-            movl _gridos_Runtime_coi__instantiateBootstrap(%ebx), %ebx // get method offset
-            addl %eax, %ebx // @func
-            pushl 0; pushl %eax; call %ebx // call global func
-            addl 24, %esp; popl %eax; popl %ebx
-        ">, {"%eax": irt, "%ebx": cdRuntime, "%ecx": icClass, "%edx": cdClass}, {"%eax": rt, "%ebx": cClass});
         
+        Class cClass = CoreRuntime:_raw_instantiate(icClass, cdClass);
+        Runtime rt = CoreRuntime:_raw_instantiate(irt, cdRuntime);
         rt.initSysCall(syscall_runtime, syscall_entry);
         return rt._finalizeBootstrap(cClass, cdClass, cdRuntime);
     }
@@ -164,6 +131,22 @@ class Runtime extends CoreRuntime {
             pushl %esp; pushl %edi; call %esi
             addl 24, %esp
         ">, {"%eax": c, "%ebx": stream, "%edi": syscall_runtime, "%esi": syscall_entry});
+    }
+    
+    global [int] _getClassDesc() {
+        int desc = 0;
+        __pasm__("movl 8(%ebp), %eax", {}, {"%eax": desc});
+        return desc;
+    }
+    
+    global [int] _allocate(int size, int syscall_runtime, int syscall_entry) {
+        int info = 0;
+        __pasm__(<"
+            pushl 0; pushl %eax; pushl _gridos_Runtime_coi_SysCall_allocate
+            pushl %esp; pushl %edi; call %esi
+            addl 16, %esp; popl %eax
+        ">, {"%eax": size, "%edi": syscall_runtime, "%esi": syscall_entry}, {"%eax": info});
+        return info;
     }
     
 }
