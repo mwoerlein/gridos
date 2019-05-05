@@ -55,8 +55,8 @@ class Runtime extends CoreRuntime {
         MemoryInfo irt = Runtime:_allocate(cdRuntime.inst_tpl_size, syscall_runtime, syscall_entry);
         if (!irt) { return null; } // abort on initialization error
         
-        Class cClass = CoreRuntime:_raw_instantiate(icClass, cdClass);
-        Runtime rt = CoreRuntime:_raw_instantiate(irt, cdRuntime);
+        [Class cClass, Object ocClass] = Runtime:_initTemplate(icClass, cdClass);
+        [Runtime rt, Object ort] = Runtime:_initTemplate(irt, cdRuntime);
         rt.initSysCall(syscall_runtime, syscall_entry);
         return rt._finalizeBootstrap(cClass, cdClass, cdRuntime);
     }
