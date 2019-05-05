@@ -1,7 +1,7 @@
 #ifndef MEMORYTYPES_HPP_LOCK
 #define MEMORYTYPES_HPP_LOCK
 
-#define MEMORY_INFO_MAGIC 0xE3E0
+#define MEMORY_INFO_MAGIC 0x3E30
 
 #define notAnInfo ((MemoryInfo *) -1)
 

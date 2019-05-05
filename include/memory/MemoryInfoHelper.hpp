@@ -18,6 +18,7 @@
     (list)->owner = (list);\
     (list)->flags.reserved = 0;\
     (list)->flags.used = 0;\
+    (list)->flags.align = 0;\
     (list)->flags.magic = MEMORY_INFO_MAGIC;\
 }
     

@@ -102,6 +102,7 @@ MemoryInfo & MemoryRegistry::allocate(size_t len, void * owner) {
     ret->buf = memoryEnd(ret, sizeof(MemoryInfo));
     ret->len = len;
     ret->flags.magic = MEMORY_INFO_MAGIC;
+    ret->flags.align = 0;
     ret->flags.used = 1;
     ret->owner = owner;
     
@@ -248,6 +249,7 @@ MemoryInfo * MemoryRegistry::newInfo(void * mem, size_t len) {
     info->buf = mem;
     info->len = len;
     info->flags.magic = MEMORY_INFO_MAGIC;
+    info->flags.align = 0;
     return info;
 }
 

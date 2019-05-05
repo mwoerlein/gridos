@@ -37,6 +37,7 @@ MemoryInfo & MemoryManager::allocate(size_t len, void * owner) {
         remain->buf = (void *) remain;
         remain->len = avail->len - required;
         remain->flags.magic = MEMORY_INFO_MAGIC;
+        remain->flags.align = 0;
         remain->flags.used = remain->flags.reserved = 0;
 
         avail->buf = memoryEnd(avail, sizeof(MemoryInfo));
