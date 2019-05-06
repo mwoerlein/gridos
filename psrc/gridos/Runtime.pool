@@ -12,8 +12,8 @@ use sys::core::Class;
 use sys::core::Object;
 use sys::core::OStream;
 use sys::core::Runtime as CoreRuntime;
+use sys::memory::MemoryInfo;
 use sys::runtime::ClassDescriptor;
-use sys::runtime::MemoryInfo;
 
 use gridos::i386::CgaScreen;
 
