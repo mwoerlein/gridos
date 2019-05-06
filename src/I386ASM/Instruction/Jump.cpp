@@ -61,7 +61,7 @@ size_t Jump::compileOperands() {
     if (num1) {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1); 
+        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1, 2); 
         if (offsetWidth == bit_8) {
             op1 = 0xEB;
         } else {

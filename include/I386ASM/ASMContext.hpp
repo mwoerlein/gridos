@@ -20,8 +20,8 @@ class ASMContext: virtual public Object {
         return (addressSize == bit_16 && mode == bit_32) || (addressSize == bit_32 && mode == bit_16);
     }
     
-    inline size_t approximateOffset(size_t position) {
-        return position - (position > pos ? prePos : pos);
+    inline size_t approximateOffset(size_t position, size_t posIncr = 0) {
+        return position - (position > pos ? prePos : pos) - posIncr;
     }
 };
 

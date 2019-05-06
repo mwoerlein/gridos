@@ -168,6 +168,18 @@ bool JumpTest::testRelative() {
     
     success &= test(in, bin, pretty, message = "test \"jmp relative (16bit)\"", 0x1000);
     
+    (in = "")
+        << ".code32\n"
+        << "zero:\n"
+        << ".org 0x80\n"
+        << "jmp zero\n"
+    ;
+    (bin = "");
+    for (int i = 0; i<0x80; i++) { bin << (char) 0x00; }
+    bin << (char) 0xE9 << (char) 0x7b << (char) 0xFF << (char) 0xFF << (char) 0xFF;
+    
+    success &= test(in, bin, in, message = "test \"jmp relative (-128 Byte)\"", 0x0, "/tmp/blub.out");
+    
     return success;
 }
 

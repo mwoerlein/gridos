@@ -34,7 +34,7 @@ void ConditionalJump::validateOperands() {
             list->err<<"Only label based addressing allowed in: " << *this << '\n';
             return;
         }
-        if (approximateOffsetWidth(id1) != bit_8) {
+        if (approximateOffsetWidth(id1, 3) != bit_8) {
             list->err<<"Only byte offset allowed in: " << *this << '\n';
             return;
         }
@@ -52,7 +52,7 @@ size_t ConditionalJump::compileOperands() {
     if (num1) {
         size_t size = 1;
         // Offset of explicit address cannot be determined before final positioning in ASMInstructionList::finalize
-        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1);
+        BitWidth offsetWidth = num1->isConstant(*list) ? ctx->addr : approximateOffsetWidth(num1, 3);
         if (offsetWidth == bit_8) {
             if (condition == cond_reg_cx || condition == cond_reg_ecx) {
                 if (requiresAddressSizeOverride((condition == cond_reg_cx) ? bit_16 : bit_32)) {

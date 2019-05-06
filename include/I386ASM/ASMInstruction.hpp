@@ -43,7 +43,7 @@ class ASMInstruction: virtual public Object {
     virtual void writeIndirectToStream(OStream &stream, Indirect *i, int reg);
     virtual BitWidth getBitWidth(int value);
     virtual BitWidth getUnsignedBitWidth(unsigned int value);
-    virtual BitWidth approximateOffsetWidth(Numeric *num);
+    virtual BitWidth approximateOffsetWidth(Numeric *num, size_t posIncr = 0);
     virtual int getConditionEncoding(InstructionCondition cond);
 
     inline void writeModRMToStream(OStream &stream, Register *regO, Register *regM) {

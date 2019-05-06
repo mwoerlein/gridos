@@ -155,8 +155,8 @@ BitWidth ASMInstruction::getUnsignedBitWidth(unsigned int value) {
     return bit_32;
 }
 
-BitWidth ASMInstruction::approximateOffsetWidth(Numeric *num) {
-    return getBitWidth(ctx->approximateOffset(num->getValue(*list)));
+BitWidth ASMInstruction::approximateOffsetWidth(Numeric *num, size_t posIncr) {
+    return getBitWidth(ctx->approximateOffset(num->getValue(*list), posIncr));
 }
 
 int ASMInstruction::getConditionEncoding(InstructionCondition cond) {
