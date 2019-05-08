@@ -673,7 +673,7 @@ String * Parser::parseString(IStream & input, char enclosure) {
         re2c:define:YYCTXMARKER = ctxmarker;
         re2c:define:YYLIMIT = limit;
         re2c:yyfill:enable = 1;
-        re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
+        re2c:define:YYFILL = "if (fillBuffer(@@, input)) tok = current; else break;";
         re2c:define:YYFILL:naked = 1;
         
         *                    { break; }
@@ -712,7 +712,7 @@ detect_instruction:
         re2c:define:YYCTXMARKER = ctxmarker;
         re2c:define:YYLIMIT = limit;
         re2c:yyfill:enable = 1;
-        re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
+        re2c:define:YYFILL = "if (fillBuffer(@@, input)) token = current; else break;";
         re2c:define:YYFILL:naked = 1;
         
         inst        = id | "."[bB][yY][tT][eE] | "."[wW][oO][rR][dD] | "."[lL][oO][nN][gG] | "."[oO][rR][gG] | "."[aA][lL][iI][gG][nN];
