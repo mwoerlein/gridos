@@ -8,16 +8,18 @@ bootstrap2 = gridos::Runtime:bootstrap(int, int)
 */
 namespace gridos;
 
-use sys::core::Class;
 use sys::core::Object;
 use sys::core::OStream;
-use sys::core::Runtime as CoreRuntime;
+use sys::memory::Allocator;
 use sys::memory::MemoryInfo;
+use sys::runtime::Class;
 use sys::runtime::ClassDescriptor;
+use sys::runtime::ClassStorage;
+use sys::runtime::Runtime as CoreRuntime;
 
 use gridos::i386::CgaScreen;
 
-class Runtime extends CoreRuntime {
+class Runtime extends CoreRuntime, Allocator, ClassStorage {
     
     // TODO: remove with syscall
     // SysCall constants
@@ -58,7 +60,22 @@ class Runtime extends CoreRuntime {
         [Class cClass, Object ocClass] = Runtime:_initTemplate(icClass, cdClass);
         [Runtime rt, Object ort] = Runtime:_initTemplate(irt, cdRuntime);
         rt.initSysCall(syscall_runtime, syscall_entry);
-        return rt._finalizeBootstrap(cClass, cdClass, cdRuntime);
+        
+        // prepare for further instantiations
+        rt.setRt(rt.runtime());
+        rt.setAllocator(rt.allocator());
+        rt.setClassStorage(rt.classStorage());
+        cClass.setRt(rt.runtime());
+        cClass.setDesc(cdClass);
+        
+        // finalize instances
+        cClass.__init();
+        rt.__init();
+        
+        // create and init class for current Runtime
+        if (!rt._createClass(cdRuntime)) { return null; } // abort on initialization error
+        
+        return rt.runtime();
     }
     
     [] initSysCall(int syscall_runtime, int syscall_entry) {
@@ -108,6 +125,9 @@ class Runtime extends CoreRuntime {
             addl 20, %esp
         ">, {"%eax": info, "%edi": syscall_runtime, "%esi": syscall_entry});
     }
+    [MemoryInfo] getInfo(int addr) { return null; }
+    [int] getAvailableBytes() { return -1; }
+    [OStream] dumpToStream(OStream stream) { return stream.print(this); }
     
     [] printChar(int c, int stream) {
         __pasm__(<"

@@ -14,7 +14,7 @@ class KernelThread extends sys::core::Thread {
 
     // methods
     [] run() {
-        sys::core::Runtime rt = this.rt();
+        sys::runtime::Runtime rt = this.rt();
         
         
         sys::core::OStream out = rt.out();
