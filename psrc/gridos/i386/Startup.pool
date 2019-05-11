@@ -7,6 +7,7 @@ namespace gridos::i386;
 
 use gridos::multiboot2::BootInformation;
 use gridos::multiboot2::structs::Context;
+use sys::core::OStream;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 
@@ -22,12 +23,21 @@ class Startup extends Runtime, RuntimeBuilder {
 _entry_class_desc   := _gridos_i386_Startup
 _entry_global_func  := _ede2228d_md___entry__
         ">);
-        int context = 0;
+        
         // setup context
-        __pasm__("pushl %ecx; pushl %ebx; pushl %eax", {"%eax": magic, "%ebx": mbi, "%ecx": mbh}, {"%esp": context});
-        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, context);
+        int contextAddr = 0;
+        Context context = null;
+        __pasm__("subl %eax, %esp", {"%eax": Context:SIZEOF}, {"%esp": contextAddr});
+        __pasm__("", {"%eax": contextAddr}, {"%eax": context});
+        context.magic = magic;
+        context.mbi = mbi;
+        context.mbh = mbh;
+        
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, contextAddr);
+        
         // free context
-        __pasm__("addl 12, %esp"); 
+        __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
+        
         if (_rt) {
             Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
             if (rt) {
@@ -40,17 +50,26 @@ _entry_global_func  := _ede2228d_md___entry__
         Context c = null;
         __pasm__("", {"%eax": context}, {"%eax": c});
         Runtime bsRt := this.rt();
-        CgaScreen screen = bsRt.createInstance(CgaScreen:CLASSNAME);
-        screen.init();
-        bsRt.setOut(screen.getFormattedOStream(7));
-        bsRt.setErr(screen.getFormattedOStream(12));
+        CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
+        bsScreen.init();
+        OStream bsOut = bsScreen.getFormattedOStream(15);
+        bsRt.setOut(bsOut);
+        bsRt.setErr(bsOut);
         
-        bsRt.out().printPtr(context).printNewline();
-        bsRt.out()
-            .printPtr(c.magic).printNewline()
-            .printPtr(c.mbi).printNewline()
-            .printPtr(c.mbh).printNewline()
-        ;
+        if (c.magic != BootInformation:BOOTLOADER_MAGIC) {
+            bsOut.printCString("Invalid magic number: ").printPtr(c.magic).printNewline();
+            return null;
+        }
+        if (c.mbi % 8) {
+            bsOut.printCString("Unaligned mbi: ").printPtr(c.mbi).printNewline();
+            return null;
+        }
+        
+        BootInformation bi = bsRt.createInstance(BootInformation:CLASSNAME);
+        bi.initInfo(c.mbi, c.mbh);
+        bsOut.printCString("loaded via ").printCString(bi.getBootLoader()).printNewline();
+        bi.registerMemory();
+        bi.registerModules();
         
         return null;
     }

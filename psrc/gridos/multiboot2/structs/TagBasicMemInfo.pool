@@ -1,0 +1,14 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct TagBasicMemInfo {
+    int type;
+    int size;
+    int mem_lower;
+    int mem_upper;
+}

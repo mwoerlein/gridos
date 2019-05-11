@@ -1,0 +1,22 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct MMapEntry {
+    global int TYPE_AVAILABLE        := 1;
+    global int TYPE_RESERVED         := 2;
+    global int TYPE_ACPI_RECLAIMABLE := 3;
+    global int TYPE_NVS              := 4;
+    global int TYPE_BADRAM           := 5;
+    
+    int addr;
+    int addr_high;
+    int len;
+    int len_high;
+    int type;
+    int zero;
+}

@@ -5,11 +5,131 @@ version = 0.1.0
 */
 namespace gridos::multiboot2;
 
+use gridos::multiboot2::structs::HeaderTagAddress;
+use gridos::multiboot2::structs::MMapEntry;
+use gridos::multiboot2::structs::Tag;
+use gridos::multiboot2::structs::TagBasicMemInfo;
+use gridos::multiboot2::structs::TagMMap;
+use gridos::multiboot2::structs::TagModule;
+use gridos::multiboot2::structs::TagString;
+
 use sys::core::Object;
+use sys::core::OStream;
 
 class BootInformation extends Object {
     
-    int MULTIBOOT2_BOOTLOADER_MAGIC := 0x36d76289;
+    int BOOTLOADER_MAGIC := 0x36d76289;
     
-    // TODO: implement
+    int mbi;
+    int mbh;
+    
+    HeaderTagAddress address;
+    TagString commandline;
+    TagString bootloader;
+    TagBasicMemInfo meminfo;
+    TagMMap mmap;
+    TagModuleListElement modules;
+    
+    [] initInfo(int mbi, int mbh) {
+        OStream out = this.rt().out();
+        this.mbi = mbi;
+        this.mbh = mbh;
+        this.address = null;
+        this.commandline = null;
+        this.bootloader = null;
+        this.meminfo = null;
+        this.mmap = null;
+        this.modules = null;
+        
+        Tag tag = null;
+        __pasm__("addl %ebx, %eax", {"%eax": mbi, "%ebx": 8}, {"%eax": tag});
+        while (tag.type != Tag:TYPE_END) {
+            int type = tag.type;
+            if (type == Tag:TYPE_CMDLINE) {
+                __pasm__("", {"%eax": tag}, {"%eax": this.commandline});
+            } else if (type == Tag:TYPE_BOOT_LOADER_NAME) {
+                __pasm__("", {"%eax": tag}, {"%eax": this.bootloader});
+            } else if (type == Tag:TYPE_MODULE) {
+                TagModule module = null;
+                __pasm__("", {"%eax": tag}, {"%eax": module});
+                TagModuleListElement newElem = this.rt().createInstance(TagModuleListElement:CLASSNAME);
+                newElem.setModule(module);
+                newElem.setNext(this.modules);
+                this.modules = newElem;
+            } else if (type == Tag:TYPE_BASIC_MEMINFO) {
+                __pasm__("", {"%eax": tag}, {"%eax": this.meminfo});
+            } else if (type == Tag:TYPE_MMAP) {
+                __pasm__("", {"%eax": tag}, {"%eax": this.mmap});
+            }
+            __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": ((tag.size + 7) / 8) * 8}, {"%eax": tag});
+        }
+        
+        __pasm__("addl %ebx, %eax", {"%eax": mbh, "%ebx": 16}, {"%eax": tag});
+        while (tag.type != Tag:TYPE_END) {
+            int type = tag.type % 256;
+            if (type == Tag:HEADER_ADDRESS) {
+                __pasm__("", {"%eax": tag}, {"%eax": this.address});
+            }
+            __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": ((tag.size + 7) / 8) * 8}, {"%eax": tag});
+        }
+    }
+    
+    [cstring] getBootLoader() {
+        return this._getTagStringValue(bootloader);
+    }
+    
+    [cstring] getCommandLine() {
+        return this._getTagStringValue(commandline);
+    }
+    
+    [] registerMemory() {
+        OStream out = this.rt().out();
+        int curAddr = 0;
+        int endAddr = 0;
+        
+        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
+        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
+        while (curAddr < endAddr) {
+            MMapEntry entry = null;
+            __pasm__("", {"%eax": curAddr}, {"%eax": entry});
+            if (entry.addr_high) {
+                // ignore memory > 4GB, 64 bit not yet available
+                out.printCString(" ignore highmem @").printPtr(entry.addr_high).printChar(':').printPtr(entry.addr).printNewline();
+            } else {
+                out.printPtr(entry.addr).printChar(':').printPtr(entry.len);
+                if (entry.type == MMapEntry:TYPE_AVAILABLE) {
+                    out.printCString(" available2");
+                    out.printCString(" available").printNewline();
+                } else {
+                    out.printCString(" reserved").printNewline();
+                }
+            }
+            curAddr += mmap.entry_size;
+        }
+    }
+    
+    [] registerModules() {
+        OStream out = this.rt().out();
+        out.printPtr(address.load_addr).printChar(':').printPtr(address.bss_end_addr).printChar(' ').printCString(this.getCommandLine()).printNewline();
+        TagModuleListElement cur = modules;
+        while (cur) {
+            TagModule module = cur.getModule();
+            out.printPtr(module.mod_start).printChar(':').printPtr(module.mod_end).printChar(' ').printCString(this._getTagModuleCommandLine(module)).printNewline();
+            cur = cur.getNext();
+        }
+    }
+    
+    [cstring] _getTagStringValue(TagString tag) {
+        cstring string = "";
+        __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": TagString:SIZEOF}, {"%eax": string});
+        return string;
+    
+    }
+    
+    [cstring] _getTagModuleCommandLine(TagModule tag) {
+        cstring string = "";
+        __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": TagModule:SIZEOF}, {"%eax": string});
+        return string;
+    
+    }
 }
