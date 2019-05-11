@@ -45,13 +45,23 @@ $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block 
 	echo "MOD_STORE_SECTORS   := `wc -c $(BOOTDIR)/mod_store.block | awk '{print int(($$1+511)/512);}'`" >> $@
 	echo "STARTUP_SECTORS     := `wc -c $(BOOTDIR)/$(MASCHINE)_startup.block | awk '{print int(($$1+511)/512);}'`" >> $@
 
+$(BOOTDIR)/$(MASCHINE)_startup.block: $(BOOTDIR)/$(MASCHINE)_cpp_startup.bin
+#$(BOOTDIR)/$(MASCHINE)_startup.block: $(BOOTDIR)/$(MASCHINE)_pool_startup.bin
+	echo "creating $@"
+	dd if=$< of=$@ bs=512 conv=sync 2>/dev/null
+	
 $(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
 	echo "creating $@"
 	cat $(LOADER_PASMS) | $(BINDIR)/pasm -bo $@ -
 
-$(BOOTDIR)/$(MASCHINE)_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $(BOOTDIR)/$(MASCHINE)_startup.o $(STARTUP_LIBS:%=$(LIBDIR)/%) 
+$(BOOTDIR)/$(MASCHINE)_cpp_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $(BOOTDIR)/$(MASCHINE)_startup.o $(STARTUP_LIBS:%=$(LIBDIR)/%) 
 	echo "creating $@"
 	ld -e startup_start -Ttext 0x20000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_startup.o $(LDHEAD) $(STARTUP_LIBS:%=$(LIBDIR)/%) $(LDTAIL)
+
+$(BOOTDIR)/$(MASCHINE)_pool_startup.bin: 
+	rm -rf /tmp/pasm/*
+	@$(POOLC) --output /tmp/pasm --classpath $(POOLSRC) --classpath $(POOLCORE) gridos::i386::Startup -r --resolveClasses
+	cat $(POOLSRC)/gridos/i386/mb2_header.pasm `find /tmp/pasm/ -name *.pasm` $(POOLSRC)/gridos/i386/mb2_footer.pasm | $(BINDIR)/pasm -bo $@ -t 0x20000 -
 
 $(BOOTDIR)/$(MASCHINE)_startup.o: $(BOOTDIR)/$(MASCHINE)_startup.s
 	$(AS) $(ASFLAGS) $< -o $@

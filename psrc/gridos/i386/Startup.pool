@@ -1,0 +1,62 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use gridos::multiboot2::BootInformation;
+use gridos::multiboot2::structs::Context;
+use sys::runtime::Runtime;
+use sys::runtime::RuntimeBuilder;
+
+class Startup extends Runtime, RuntimeBuilder {
+    
+    // TODO: implement and collect modules 
+    int modules;
+    
+    // methods
+    global [] __entry__(int magic, int mbi, int mbh) {
+        // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
+        __pasm__(<"
+_entry_class_desc   := _gridos_i386_Startup
+_entry_global_func  := _ede2228d_md___entry__
+        ">);
+        int context = 0;
+        // setup context
+        __pasm__("pushl %ecx; pushl %ebx; pushl %eax", {"%eax": magic, "%ebx": mbi, "%ecx": mbh}, {"%esp": context});
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, context);
+        // free context
+        __pasm__("addl 12, %esp"); 
+        if (_rt) {
+            Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
+            if (rt) {
+                rt.initializeKernel();
+            }
+        }
+    }
+    
+    [Runtime] _buildRuntime(int context) {
+        Context c = null;
+        __pasm__("", {"%eax": context}, {"%eax": c});
+        Runtime bsRt := this.rt();
+        CgaScreen screen = bsRt.createInstance(CgaScreen:CLASSNAME);
+        screen.init();
+        bsRt.setOut(screen.getFormattedOStream(7));
+        bsRt.setErr(screen.getFormattedOStream(12));
+        
+        bsRt.out().printPtr(context).printNewline();
+        bsRt.out()
+            .printPtr(c.magic).printNewline()
+            .printPtr(c.mbi).printNewline()
+            .printPtr(c.mbh).printNewline()
+        ;
+        
+        return null;
+    }
+    
+    [] initializeKernel() {
+        // TODO: create and initialize kernel runtime
+        // TODO: run kernel thread and free/destroy startup memory/objects
+    }
+}

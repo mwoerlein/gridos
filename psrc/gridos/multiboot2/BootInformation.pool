@@ -1,0 +1,15 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2;
+
+use sys::core::Object;
+
+class BootInformation extends Object {
+    
+    int MULTIBOOT2_BOOTLOADER_MAGIC := 0x36d76289;
+    
+    // TODO: implement
+}
