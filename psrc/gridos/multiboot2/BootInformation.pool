@@ -15,6 +15,7 @@ use gridos::multiboot2::structs::TagString;
 
 use sys::core::Object;
 use sys::core::OStream;
+use sys::memory::Address;
 use sys::memory::MemoryRegistry;
 
 class BootInformation extends Object {
@@ -91,18 +92,13 @@ class BootInformation extends Object {
         __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
         __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
         while (curAddr < endAddr) {
-            MMapEntry entry = null;
-            __pasm__("", {"%eax": curAddr}, {"%eax": entry});
-            if (entry.addr_high || entry.len_high) {
+            MMapEntry entry = Address:cast(curAddr);
+            if (entry.addr_high) {
                 // ignore memory > 4GB, 64 bit not yet available
-                out.printCString(" ignore highmem @")
-                    .printPtr(entry.addr_high).printChar(':').printPtr(entry.addr)
-                   .printCString(" of len ")
-                    .printPtr(entry.len_high).printChar(':').printPtr(entry.len)
-                    .printNewline();
             } else if (entry.type == MMapEntry:TYPE_AVAILABLE) {
-                if (this._overflow(entry.addr, entry.len)) {
-                    registry.registerAvailableMemory(entry.addr, 0xffffffff-entry.addr);
+                if (entry.len_high || this._overflow(entry.addr, entry.len)) {
+                    // truncate to 4GB bound 
+                    registry.registerAvailableMemory(entry.addr, 0xffffffff - entry.addr);
                 } else {
                     registry.registerAvailableMemory(entry.addr, entry.len);
                 }
@@ -113,13 +109,13 @@ class BootInformation extends Object {
         __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
         __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
         while (curAddr < endAddr) {
-            MMapEntry entry = null;
-            __pasm__("", {"%eax": curAddr}, {"%eax": entry});
+            MMapEntry entry = Address:cast(curAddr);
             if (entry.addr_high) {
                 // ignore memory > 4GB, 64 bit not yet available
             } else if (entry.type != MMapEntry:TYPE_AVAILABLE) {
-                if (this._overflow(entry.addr, entry.len)) {
-                    registry.registerReservedMemory(entry.addr, 0xffffffff-entry.addr);
+                if (entry.len_high || this._overflow(entry.addr, entry.len)) {
+                    // truncate to 4GB bound 
+                    registry.registerReservedMemory(entry.addr, 0xffffffff - entry.addr);
                 } else {
                     registry.registerReservedMemory(entry.addr, entry.len);
                 }
