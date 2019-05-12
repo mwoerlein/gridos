@@ -15,6 +15,7 @@ use gridos::multiboot2::structs::TagString;
 
 use sys::core::Object;
 use sys::core::OStream;
+use sys::memory::MemoryRegistry;
 
 class BootInformation extends Object {
     
@@ -82,7 +83,7 @@ class BootInformation extends Object {
         return this._getTagStringValue(commandline);
     }
     
-    [] registerMemory() {
+    [] registerMemory(MemoryRegistry registry) {
         OStream out = this.rt().out();
         int curAddr = 0;
         int endAddr = 0;
@@ -92,20 +93,53 @@ class BootInformation extends Object {
         while (curAddr < endAddr) {
             MMapEntry entry = null;
             __pasm__("", {"%eax": curAddr}, {"%eax": entry});
-            if (entry.addr_high) {
+            if (entry.addr_high || entry.len_high) {
                 // ignore memory > 4GB, 64 bit not yet available
-                out.printCString(" ignore highmem @").printPtr(entry.addr_high).printChar(':').printPtr(entry.addr).printNewline();
-            } else {
-                out.printPtr(entry.addr).printChar(':').printPtr(entry.len);
-                if (entry.type == MMapEntry:TYPE_AVAILABLE) {
-                    out.printCString(" available2");
-                    out.printCString(" available").printNewline();
+                out.printCString(" ignore highmem @")
+                    .printPtr(entry.addr_high).printChar(':').printPtr(entry.addr)
+                   .printCString(" of len ")
+                    .printPtr(entry.len_high).printChar(':').printPtr(entry.len)
+                    .printNewline();
+            } else if (entry.type == MMapEntry:TYPE_AVAILABLE) {
+                if (this._overflow(entry.addr, entry.len)) {
+                    registry.registerAvailableMemory(entry.addr, 0xffffffff-entry.addr);
                 } else {
-                    out.printCString(" reserved").printNewline();
+                    registry.registerAvailableMemory(entry.addr, entry.len);
                 }
             }
             curAddr += mmap.entry_size;
         }
+        
+        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
+        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
+        while (curAddr < endAddr) {
+            MMapEntry entry = null;
+            __pasm__("", {"%eax": curAddr}, {"%eax": entry});
+            if (entry.addr_high) {
+                // ignore memory > 4GB, 64 bit not yet available
+            } else if (entry.type != MMapEntry:TYPE_AVAILABLE) {
+                if (this._overflow(entry.addr, entry.len)) {
+                    registry.registerReservedMemory(entry.addr, 0xffffffff-entry.addr);
+                } else {
+                    registry.registerReservedMemory(entry.addr, entry.len);
+                }
+            }
+            curAddr += mmap.entry_size;
+        }
+        
+        /* register kernel */
+        registry.registerUsedMemory(address.load_addr, address.bss_end_addr - address.load_addr);
+        /* register modules */
+        TagModuleListElement cur = modules;
+        while (cur) {
+            TagModule module = cur.getModule();
+            registry.registerUsedMemory(module.mod_start, module.mod_end - module.mod_start);
+            cur = cur.getNext();
+        }
+        /* register mbi */
+        int mbiLen = 0;
+        __pasm__("movl (%eax), %eax", {"%eax": mbi}, {"%eax": mbiLen});
+        registry.registerUsedMemory(mbi, mbiLen);
     }
     
     [] registerModules() {
@@ -130,6 +164,17 @@ class BootInformation extends Object {
         cstring string = "";
         __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": TagModule:SIZEOF}, {"%eax": string});
         return string;
+    }
     
+    [int] _overflow(int a, int b) {
+        int diff = 0;
+        __pasm__(<"
+            movl 1, %ecx
+            addl %ebx, %eax
+            jb _bi__overflow_ret
+            movl 0, %ecx
+        _bi__overflow_ret:
+        ">, {"%eax": a, "%ebx": b}, {"%ecx": diff});
+        return diff;
     }
 }

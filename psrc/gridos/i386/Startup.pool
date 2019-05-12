@@ -8,6 +8,7 @@ namespace gridos::i386;
 use gridos::multiboot2::BootInformation;
 use gridos::multiboot2::structs::Context;
 use sys::core::OStream;
+use sys::memory::MemoryRegistry;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 
@@ -33,7 +34,7 @@ _entry_global_func  := _ede2228d_md___entry__
         context.mbi = mbi;
         context.mbh = mbh;
         
-        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, contextAddr);
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, contextAddr);
         
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
@@ -68,7 +69,12 @@ _entry_global_func  := _ede2228d_md___entry__
         BootInformation bi = bsRt.createInstance(BootInformation:CLASSNAME);
         bi.initInfo(c.mbi, c.mbh);
         bsOut.printCString("loaded via ").printCString(bi.getBootLoader()).printNewline();
-        bi.registerMemory();
+        
+        MemoryRegistry bsMR = bsRt.createInstance(MemoryRegistry:CLASSNAME);
+        bsMR.initEmptyFromAllocator(bsRt.getAllocator(), 0, 100);
+        bi.registerMemory(bsMR);
+        bsMR.dumpToStream(bsRt.err(), 0);
+        
         bi.registerModules();
         
         return null;

@@ -18,7 +18,7 @@ __mb2_hdr_address_tag:
      .word MULTIBOOT_HEADER_TAG_OPTIONAL
      .long (__mb2_hdr_address_tag_end - __mb2_hdr_address_tag)
      .long __mb2_hdr
-     .long __mb2_code_start
+     .long __mb2_file_start
      .long __mb2_file_end
      .long (__mb2_file_end + GRIDOS_STARTUP_STACK_SIZE)
 __mb2_hdr_address_tag_end:
@@ -103,7 +103,7 @@ __mb2_idt_48:
     .long 0             # idt base = 0L
 
 // TODO: extract and inject constants
-GRIDOS_STARTUP_STACK_SIZE := 0x3000
+GRIDOS_STARTUP_STACK_SIZE := 0x6000
 MULTIBOOT_TAG_ALIGN := 8
 MULTIBOOT2_HEADER_MAGIC := 0xe85250d6
 MULTIBOOT_ARCHITECTURE_I386 := 0
