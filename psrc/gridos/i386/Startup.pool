@@ -122,7 +122,8 @@ _entry_global_func  := _ede2228d_md___entry__
     
     [] initializeKernel() {
         // TODO: create and initialize kernel runtime
-        // TODO: run kernel thread and free/destroy startup memory/objects
         this.rt().err().printCString("Initialize kernel").printNewline();
+        // TODO: run kernel thread and free/destroy startup memory/objects
+        this.rt().createAndRunThread(gridos::KernelThread:CLASSNAME);
     }
 }

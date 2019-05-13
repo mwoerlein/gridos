@@ -7,6 +7,8 @@ namespace gridos::multiboot2;
 
 use gridos::multiboot2::structs::HeaderTagAddress;
 use gridos::multiboot2::structs::MMapEntry;
+use gridos::multiboot2::structs::MultiBootHeader;
+use gridos::multiboot2::structs::MultiBootInformation;
 use gridos::multiboot2::structs::Tag;
 use gridos::multiboot2::structs::TagBasicMemInfo;
 use gridos::multiboot2::structs::TagMMap;
@@ -22,8 +24,8 @@ class BootInformation extends Object {
     
     int BOOTLOADER_MAGIC := 0x36d76289;
     
-    int mbi;
-    int mbh;
+    MultiBootInformation mbi;
+    MultiBootHeader mbh;
     
     HeaderTagAddress address;
     TagString commandline;
@@ -34,8 +36,8 @@ class BootInformation extends Object {
     
     [] initInfo(int mbi, int mbh) {
         OStream out = this.rt().out();
-        this.mbi = mbi;
-        this.mbh = mbh;
+        this.mbi = Address:cast(mbi);
+        this.mbh = Address:cast(mbh);
         this.address = null;
         this.commandline = null;
         this.bootloader = null;
@@ -43,60 +45,60 @@ class BootInformation extends Object {
         this.mmap = null;
         this.modules = null;
         
-        Tag tag = null;
-        __pasm__("addl %ebx, %eax", {"%eax": mbi, "%ebx": 8}, {"%eax": tag});
-        while (tag.type != Tag:TYPE_END) {
-            int type = tag.type;
-            if (type == Tag:TYPE_CMDLINE) {
-                __pasm__("", {"%eax": tag}, {"%eax": this.commandline});
-            } else if (type == Tag:TYPE_BOOT_LOADER_NAME) {
-                __pasm__("", {"%eax": tag}, {"%eax": this.bootloader});
-            } else if (type == Tag:TYPE_MODULE) {
-                TagModule module = null;
-                __pasm__("", {"%eax": tag}, {"%eax": module});
-                TagModuleListElement newElem = this.rt().createInstance(TagModuleListElement:CLASSNAME);
-                newElem.setModule(module);
-                newElem.setNext(this.modules);
-                this.modules = newElem;
-            } else if (type == Tag:TYPE_BASIC_MEMINFO) {
-                __pasm__("", {"%eax": tag}, {"%eax": this.meminfo});
-            } else if (type == Tag:TYPE_MMAP) {
-                __pasm__("", {"%eax": tag}, {"%eax": this.mmap});
+        {
+            Tag tag = Address:cast(mbi + MultiBootInformation:SIZEOF);
+            while (tag.type != Tag:TYPE_END) {
+                int type = tag.type;
+                if (type == Tag:TYPE_CMDLINE) {
+                    this.commandline = Address:convert(tag);
+                } else if (type == Tag:TYPE_BOOT_LOADER_NAME) {
+                    this.bootloader = Address:convert(tag);
+                } else if (type == Tag:TYPE_MODULE) {
+                    TagModule module = Address:convert(tag);
+                    TagModuleListElement newElem = this.rt().createInstance(TagModuleListElement:CLASSNAME);
+                    newElem.setModule(module);
+                    newElem.setNext(this.modules);
+                    this.modules = newElem;
+                } else if (type == Tag:TYPE_BASIC_MEMINFO) {
+                    this.meminfo = Address:convert(tag);
+                } else if (type == Tag:TYPE_MMAP) {
+                    this.mmap = Address:convert(tag);
+                }
+                tag = Address:offset(tag, ((tag.size + 7) / 8) * 8);
             }
-            __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": ((tag.size + 7) / 8) * 8}, {"%eax": tag});
         }
         
-        __pasm__("addl %ebx, %eax", {"%eax": mbh, "%ebx": 16}, {"%eax": tag});
-        while (tag.type != Tag:TYPE_END) {
-            int type = tag.type % 256;
-            if (type == Tag:HEADER_ADDRESS) {
-                __pasm__("", {"%eax": tag}, {"%eax": this.address});
+        {
+            Tag tag = Address:cast(mbh + MultiBootHeader:SIZEOF);
+            while (tag.type != Tag:TYPE_END) {
+                int type = tag.type % 256;
+                if (type == Tag:HEADER_ADDRESS) {
+                    this.address = Address:convert(tag);
+                }
+                tag = Address:offset(tag, ((tag.size + 7) / 8) * 8);
             }
-            __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": ((tag.size + 7) / 8) * 8}, {"%eax": tag});
         }
     }
     
     [cstring] getBootLoader() {
-        return this._getTagStringValue(bootloader);
+        return Address:string(bootloader, TagString:SIZEOF);
     }
     
     [cstring] getCommandLine() {
-        return this._getTagStringValue(commandline);
+        return Address:string(commandline, TagString:SIZEOF);
     }
     
     [] registerMemory(MemoryRegistry registry) {
         OStream out = this.rt().out();
-        int curAddr = 0;
-        int endAddr = 0;
+        int endAddr = Address:from(mmap) + mmap.size;
+        int curAddr = Address:from(mmap) + TagMMap:SIZEOF;
         
-        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
-        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
         while (curAddr < endAddr) {
             MMapEntry entry = Address:cast(curAddr);
             if (entry.addr_high) {
                 // ignore memory > 4GB, 64 bit not yet available
             } else if (entry.type == MMapEntry:TYPE_AVAILABLE) {
-                if (entry.len_high || this._overflow(entry.addr, entry.len)) {
+                if (entry.len_high || Address:sumOverflow(entry.addr, entry.len)) {
                     // truncate to 4GB bound 
                     registry.registerAvailableMemory(entry.addr, 0xffffffff - entry.addr);
                 } else {
@@ -106,14 +108,13 @@ class BootInformation extends Object {
             curAddr += mmap.entry_size;
         }
         
-        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": TagMMap:SIZEOF}, {"%eax": curAddr});
-        __pasm__("addl %ebx, %eax", {"%eax": mmap, "%ebx": mmap.size}, {"%eax": endAddr});
+        curAddr = Address:from(mmap) + TagMMap:SIZEOF;
         while (curAddr < endAddr) {
             MMapEntry entry = Address:cast(curAddr);
             if (entry.addr_high) {
                 // ignore memory > 4GB, 64 bit not yet available
             } else if (entry.type != MMapEntry:TYPE_AVAILABLE) {
-                if (entry.len_high || this._overflow(entry.addr, entry.len)) {
+                if (entry.len_high || Address:sumOverflow(entry.addr, entry.len)) {
                     // truncate to 4GB bound 
                     registry.registerReservedMemory(entry.addr, 0xffffffff - entry.addr);
                 } else {
@@ -133,9 +134,7 @@ class BootInformation extends Object {
             cur = cur.getNext();
         }
         /* register mbi */
-        int mbiLen = 0;
-        __pasm__("movl (%eax), %eax", {"%eax": mbi}, {"%eax": mbiLen});
-        registry.registerUsedMemory(mbi, mbiLen);
+        registry.registerUsedMemory(Address:offsetAddress(mbi, mbi.size), mbi.size);
     }
     
     [] registerModules() {
@@ -144,33 +143,8 @@ class BootInformation extends Object {
         TagModuleListElement cur = modules;
         while (cur) {
             TagModule module = cur.getModule();
-            out.printPtr(module.mod_start).printChar(':').printPtr(module.mod_end).printChar(' ').printCString(this._getTagModuleCommandLine(module)).printNewline();
+            out.printPtr(module.mod_start).printChar(':').printPtr(module.mod_end).printChar(' ').printCString(Address:string(module, TagModule:SIZEOF)).printNewline();
             cur = cur.getNext();
         }
-    }
-    
-    [cstring] _getTagStringValue(TagString tag) {
-        cstring string = "";
-        __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": TagString:SIZEOF}, {"%eax": string});
-        return string;
-    
-    }
-    
-    [cstring] _getTagModuleCommandLine(TagModule tag) {
-        cstring string = "";
-        __pasm__("addl %ebx, %eax", {"%eax": tag, "%ebx": TagModule:SIZEOF}, {"%eax": string});
-        return string;
-    }
-    
-    [int] _overflow(int a, int b) {
-        int diff = 0;
-        __pasm__(<"
-            movl 1, %ecx
-            addl %ebx, %eax
-            jb _bi__overflow_ret
-            movl 0, %ecx
-        _bi__overflow_ret:
-        ">, {"%eax": a, "%ebx": b}, {"%ecx": diff});
-        return diff;
     }
 }

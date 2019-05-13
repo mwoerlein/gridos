@@ -1,0 +1,19 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct MultiBootHeader {
+
+    global int MAGIC := 0xe85250d6;
+    global int ARCHITECTURE_I386    := 0;
+    global int ARCHITECTURE_MIPS32  := 4;
+    
+    int magic;          /*  Must be MultiBootHeader:MAGIC - see above. */
+    int architecture;
+    int header_length;
+    int checksum;       /*  The above fields plus this one must equal 0 mod 2^32. */
+}
