@@ -34,10 +34,10 @@ class BootInformation extends Object {
     TagMMap mmap;
     TagModuleListElement modules;
     
-    [] initInfo(int mbi, int mbh) {
+    [] initInfo(MultiBootInformation mbi, MultiBootHeader mbh) {
         OStream out = this.rt().out();
-        this.mbi = Address:cast(mbi);
-        this.mbh = Address:cast(mbh);
+        this.mbi = mbi;
+        this.mbh = mbh;
         this.address = null;
         this.commandline = null;
         this.bootloader = null;
@@ -46,9 +46,9 @@ class BootInformation extends Object {
         this.modules = null;
         
         {
-            Tag tag = Address:cast(mbi + MultiBootInformation:SIZEOF);
+            Tag tag = Address:offset(mbi, MultiBootInformation:SIZEOF);
             while (tag.type != Tag:TYPE_END) {
-                int type = tag.type;
+                int type = tag.type % 0x10000;
                 if (type == Tag:TYPE_CMDLINE) {
                     this.commandline = Address:convert(tag);
                 } else if (type == Tag:TYPE_BOOT_LOADER_NAME) {
@@ -69,9 +69,9 @@ class BootInformation extends Object {
         }
         
         {
-            Tag tag = Address:cast(mbh + MultiBootHeader:SIZEOF);
+            Tag tag = Address:offset(mbh, MultiBootHeader:SIZEOF);
             while (tag.type != Tag:TYPE_END) {
-                int type = tag.type % 256;
+                int type = tag.type % 0x10000;
                 if (type == Tag:HEADER_ADDRESS) {
                     this.address = Address:convert(tag);
                 }
@@ -90,8 +90,8 @@ class BootInformation extends Object {
     
     [] registerMemory(MemoryRegistry registry) {
         OStream out = this.rt().out();
-        int endAddr = Address:from(mmap) + mmap.size;
-        int curAddr = Address:from(mmap) + TagMMap:SIZEOF;
+        int endAddr = Address:offsetAddress(mmap, mmap.size);
+        int curAddr = Address:offsetAddress(mmap, TagMMap:SIZEOF);
         
         while (curAddr < endAddr) {
             MMapEntry entry = Address:cast(curAddr);
@@ -108,7 +108,7 @@ class BootInformation extends Object {
             curAddr += mmap.entry_size;
         }
         
-        curAddr = Address:from(mmap) + TagMMap:SIZEOF;
+        curAddr = Address:offsetAddress(mmap, TagMMap:SIZEOF);
         while (curAddr < endAddr) {
             MMapEntry entry = Address:cast(curAddr);
             if (entry.addr_high) {
@@ -134,7 +134,7 @@ class BootInformation extends Object {
             cur = cur.getNext();
         }
         /* register mbi */
-        registry.registerUsedMemory(Address:offsetAddress(mbi, mbi.size), mbi.size);
+        registry.registerUsedMemory(Address:from(mbi), mbi.size);
     }
     
     [] registerModules() {

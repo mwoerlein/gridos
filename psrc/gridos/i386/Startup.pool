@@ -7,6 +7,8 @@ namespace gridos::i386;
 
 use gridos::multiboot2::BootInformation;
 use gridos::multiboot2::structs::Context;
+use gridos::multiboot2::structs::MultiBootHeader;
+use gridos::multiboot2::structs::MultiBootInformation;
 use sys::core::OStream;
 use sys::memory::Address;
 use sys::memory::Allocator;
@@ -23,7 +25,7 @@ class Startup extends Runtime, RuntimeBuilder {
     int modules;
     
     // methods
-    global [] __entry__(int magic, int mbi, int mbh) {
+    global [] __entry__(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
         // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
         __pasm__(<"
 _entry_class_desc   := _gridos_i386_Startup
@@ -31,15 +33,13 @@ _entry_global_func  := _ede2228d_md___entry__
         ">);
         
         // setup context
-        int contextAddr = 0;
         Context context = null;
-        __pasm__("subl %eax, %esp", {"%eax": Context:SIZEOF}, {"%esp": contextAddr});
-        __pasm__("", {"%eax": contextAddr}, {"%eax": context});
+        __pasm__("subl %eax, %esp", {"%eax": Context:SIZEOF}, {"%esp": context});
         context.magic = magic;
         context.mbi = mbi;
         context.mbh = mbh;
         
-        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, contextAddr);
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, Address:from(context));
         
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
@@ -52,20 +52,19 @@ _entry_global_func  := _ede2228d_md___entry__
         }
     }
     
-    [Runtime] _buildRuntime(int context) {
-        Context c = null;
-        __pasm__("", {"%eax": context}, {"%eax": c});
+    [Runtime] _buildRuntime(int contextAddress) {
+        Context context = Address:cast(contextAddress);
         Runtime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
         bsScreen.init();
         OStream bsOut = bsScreen.getFormattedOStream(15);
         
-        if (c.magic != BootInformation:BOOTLOADER_MAGIC) {
-            bsOut.printCString("Invalid magic number: ").printPtr(c.magic).printNewline();
+        if (context.magic != BootInformation:BOOTLOADER_MAGIC) {
+            bsOut.printCString("Invalid magic number: ").printPtr(context.magic).printNewline();
             return null;
         }
-        if (c.mbi % 8) {
-            bsOut.printCString("Unaligned mbi: ").printPtr(c.mbi).printNewline();
+        if (Address:from(context.mbi) % 8) {
+            bsOut.printCString("Unaligned mbi: ").printAddr(context.mbi).printNewline();
             return null;
         }
         
@@ -74,7 +73,7 @@ _entry_global_func  := _ede2228d_md___entry__
         Allocator bsAllocator := bsRt.getAllocator();
         
         BootInformation bi = bsRt.createInstance(BootInformation:CLASSNAME);
-        bi.initInfo(c.mbi, c.mbh);
+        bi.initInfo(context.mbi, context.mbh);
         bsOut.printCString("loaded via ").printCString(bi.getBootLoader()).printNewline();
         
         // collect memory information on stack

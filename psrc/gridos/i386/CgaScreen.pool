@@ -38,11 +38,9 @@ class CgaScreen extends sys::core::Object {
         
         int pos = cursor;
         if (c == '\n') {
-            this.drawCharAtPos(' ', format, pos++); // TODO: use do {...} while, if available
-            while (pos % max_x) { this.drawCharAtPos(' ', format, pos++); }
+            do { this.drawCharAtPos(' ', format, pos++); } while (pos % max_x);
         } else if (c == '\t') {
-            this.drawCharAtPos(' ', format, pos++); // TODO: use do {...} while, if available
-            while (pos % 8) { this.drawCharAtPos(' ', format, pos++); }
+            do { this.drawCharAtPos(' ', format, pos++); } while (pos % 8);
         } else {
             this.drawCharAtPos(c, format, pos++);
         }
@@ -70,16 +68,15 @@ class CgaScreen extends sys::core::Object {
     // int index_port := 0x3d4;
     // int data_port := 0x3d5;
     [] syncCursor() {
-        int cursor = 0;
         __pasm__(<"
+            movl 0, %ebx;
             movw 0x3d4, %dx; movb 14, %al; .byte 0xEE  #// "outb 14, 0x3d4"
             movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
             movb %al, %bh
             movw 0x3d4, %dx; movb 15, %al; .byte 0xEE  #// "outb 15, 0x3d4"
             movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
             movb %al, %bl
-        ">, {"%ebx": cursor}, {"%ebx": cursor});
-        this.cursor = cursor;
+        ">, {}, {"%ebx": this.cursor});
     }
     
     [] setCursor(int cursor) {

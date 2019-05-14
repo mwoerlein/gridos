@@ -8,6 +8,6 @@ namespace gridos::multiboot2::structs;
 
 struct Context {
     int magic;
-    int mbi;
-    int mbh;
+    MultiBootInformation mbi;
+    MultiBootHeader mbh;
 }
