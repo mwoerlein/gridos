@@ -666,18 +666,18 @@ String * Parser::parseString(IStream & input, char enclosure) {
     int startLine = linesBuffer[current-buffer];
     int startColumn = columnsBuffer[current-buffer];
     for (;;) {
-        char * tok = current;
+        token = current;
 /*!re2c
         re2c:define:YYCURSOR = current;
         re2c:define:YYMARKER = marker;
         re2c:define:YYCTXMARKER = ctxmarker;
         re2c:define:YYLIMIT = limit;
         re2c:yyfill:enable = 1;
-        re2c:define:YYFILL = "if (fillBuffer(@@, input)) tok = current; else break;";
+        re2c:define:YYFILL = "if (!fillBuffer(@@, input)) break;";
         re2c:define:YYFILL:naked = 1;
         
         *                    { break; }
-        [^\n\\]              { if (enclosure == *tok) { return &s; }; s << *tok; continue; }
+        [^\n\\]              { if (enclosure == *token) { return &s; }; s << *token; continue; }
         "\\n"                { s << '\n'; continue; }
         "\\r"                { s << '\r'; continue; }
         "\\t"                { s << '\t'; continue; }
@@ -738,9 +738,11 @@ detect_instruction:
         "."[gG][lL][oO][bB][aA][lL] wsp { global = true; goto detect_instruction; }
         
         "."[aA][sS][cC][iI] @o1 [iIzZ] wsp @o2 ['"] {
+                     // read *o1 *before* parseString, because fillBuffer inside might invalidate *o1
+                    bool terminalZero = (*o1 == 'z' || *o1 == 'Z');
                     String *s = parseString(input, *o2);
                     if (!s) break;
-                    list->addInstruction(env().create<Ascii, String&, bool>(*s, (*o1 == 'z' || *o1 == 'Z')), data, addr);
+                    list->addInstruction(env().create<Ascii, String&, bool>(*s, terminalZero), data, addr);
                     continue;
                   }
  
