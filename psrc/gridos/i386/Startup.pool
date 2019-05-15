@@ -39,7 +39,7 @@ _entry_global_func  := _ede2228d_md___entry__
         context.mbi = mbi;
         context.mbh = mbh;
         
-        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, Address:from(context));
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
         
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
@@ -52,8 +52,7 @@ _entry_global_func  := _ede2228d_md___entry__
         }
     }
     
-    [Runtime] _buildRuntime(int contextAddress) {
-        Context context = Address:cast(contextAddress);
+    [Runtime] _buildRuntime(Context context) {
         Runtime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
         bsScreen.init();
