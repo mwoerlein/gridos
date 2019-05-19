@@ -18,27 +18,27 @@ MOD_KERNEL_FILES = $(BOOTDIR)/__startup.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTD
 #MOD_KERNEL_FILES = $(BOOTDIR)/at_relocateable.bin $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 #MOD_KERNEL_FILES = $(MODDIR)/at_relocateable.pasm $(patsubst $(MODDIR)/%.pasm, $(BOOTDIR)/%.pbc, $(MOD_KERNEL_PASMS))
 
-$(BOOTDIR)/gridos/Runtime.pbc: $(MODDIR)/gridos/Runtime.pasm $(BINDIR)/pasm
+$(BOOTDIR)/gridos/Runtime.pbc: $(MODDIR)/gridos/Runtime.pasm $(PASM)
 	echo "creating $@ with bootstrap"
 	mkdir -p $(dir $@)
-	$(BINDIR)/pasm -co $@ $< --bootstrap=_gridos_Runtime_mdo_bootstrap
+	$(PASM) -co $@ $< --bootstrap=_gridos_Runtime_mdo_bootstrap
 
-$(BOOTDIR)/%.pbc: $(MODDIR)/%.pasm $(BINDIR)/pasm
+$(BOOTDIR)/%.pbc: $(MODDIR)/%.pasm $(PASM)
 	echo "creating $@"
 	mkdir -p $(dir $@)
-	$(BINDIR)/pasm -co $@ $<
+	$(PASM) -co $@ $<
 
-$(BOOTDIR)/%.bin: $(MODDIR)/%.pasm $(BINDIR)/pasm
+$(BOOTDIR)/%.bin: $(MODDIR)/%.pasm $(PASM)
 	echo "creating $@"
-	$(BINDIR)/pasm -eo $@ $<
+	$(PASM) -eo $@ $<
 
-$(BOOTDIR)/mod_store.block: $(MOD_SIMPLE_FILES) $(BINDIR)/store
+$(BOOTDIR)/mod_store.block: $(MOD_SIMPLE_FILES) $(STORE)
 	echo "creating $@"
-	$(BINDIR)/store -o $@ -a 512 $(MOD_SIMPLE_FILES) 
+	$(STORE) -o $@ -a 512 $(MOD_SIMPLE_FILES) 
 
-$(BOOTDIR)/mod_kernel.block: $(MOD_KERNEL_FILES) $(BINDIR)/store
+$(BOOTDIR)/mod_kernel.block: $(MOD_KERNEL_FILES) $(STORE)
 	echo "creating $@"
-	$(BINDIR)/store -o $@ -a 512 $(MOD_KERNEL_FILES) 
+	$(STORE) -o $@ -a 512 $(MOD_KERNEL_FILES) 
 
 $(BOOTDIR)/$(MASCHINE)_loader_dynamic_settings.pasm: $(BOOTDIR)/mod_store.block $(BOOTDIR)/mod_kernel.block $(BOOTDIR)/$(MASCHINE)_startup.block
 	echo "MOD_KERNEL_SECTORS  := `wc -c $(BOOTDIR)/mod_kernel.block | awk '{print int(($$1+511)/512);}'`" > $@
@@ -50,18 +50,17 @@ $(BOOTDIR)/$(MASCHINE)_startup.block: $(BOOTDIR)/$(MASCHINE)_cpp_startup.bin
 	echo "creating $@"
 	dd if=$< of=$@ bs=512 conv=sync 2>/dev/null
 	
-$(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS)
+$(BOOTDIR)/$(MASCHINE)_loader.bin: $(LOADER_PASMS) $(PASM)
 	echo "creating $@"
-	cat $(LOADER_PASMS) | $(BINDIR)/pasm -bo $@ -
+	cat $(LOADER_PASMS) | $(PASM) -bo $@ -
 
 $(BOOTDIR)/$(MASCHINE)_cpp_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $(BOOTDIR)/$(MASCHINE)_startup.o $(STARTUP_LIBS:%=$(LIBDIR)/%) 
 	echo "creating $@"
 	ld -e startup_start -Ttext 0x20000 -s --oformat binary -m elf_i386 -o $@ $< $(BOOTDIR)/$(MASCHINE)_startup.o $(LDHEAD) $(STARTUP_LIBS:%=$(LIBDIR)/%) $(LDTAIL)
 
 $(BOOTDIR)/$(MASCHINE)_pool_startup.bin: 
-	rm -rf /tmp/pasm/*
-	@$(POOLC) --output /tmp/pasm --classpath $(POOLSRC) --classpath $(POOLCORE) gridos::i386::Startup -r --resolveClasses
-	cat $(POOLSRC)/gridos/i386/mb2_header.pasm `find /tmp/pasm/ -name *.pasm` $(POOLSRC)/gridos/i386/mb2_footer.pasm | $(BINDIR)/pasm -bo $@ -t 0x20000 -
+	echo "creating $@"
+	@$(POOLSC) --output $@ --classpath $(POOLSRC) --classpath $(POOLCORE) gridos::i386::Startup --binding gridos::i386::mb2 -t 0x20000
 
 $(BOOTDIR)/$(MASCHINE)_startup.o: $(BOOTDIR)/$(MASCHINE)_startup.s
 	$(AS) $(ASFLAGS) $< -o $@
