@@ -27,7 +27,7 @@ poolsrc:
 $(LIBDIR) $(IMGDIR) $(BINDIR):
 	@mkdir -p $@
 
-$(IMGDIR)/bootdisk.img: $(IMGDIR) $(BINDIR)/pasm $(BINDIR)/store $(BOOTBLOCKS)
+$(IMGDIR)/bootdisk.img: $(IMGDIR) $(BOOTBLOCKS)
 	@echo "creating $@"
 	@cat $(BOOTBLOCKS) > $@
 

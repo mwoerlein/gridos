@@ -11,13 +11,15 @@ else
 CXX_VERSION=$(shell g++ --version | grep g++ | cut -d ' ' -f4 | sed "s/\./\_/g")
 endif
 
+POOLBASEDIR = ../pool
+
 #STORE=$(BINDIR)/store
 #PASM=$(BINDIR)/pasm
-STORE=../pool/bootstrap/bin/storeb
-PASM=../pool/bootstrap/bin/pbasm
-POOLSC=../pool/bootstrap/bin/poolbsc
-POOLC=../pool/bootstrap/bin/poolbc
-POOLCORE=../pool/src
+STORE=$(POOLBASEDIR)/bootstrap/bin/storeb
+PASM=$(POOLBASEDIR)/bootstrap/bin/pbasm
+POOLSC=$(POOLBASEDIR)/bootstrap/bin/poolbsc
+POOLC=$(POOLBASEDIR)/bootstrap/bin/poolbc
+POOLCORE=$(POOLBASEDIR)/src
 
 LIBDIR=./lib
 SRCDIR=./src
