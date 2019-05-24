@@ -8,16 +8,16 @@ bootstrap2 = gridos::Runtime:bootstrap(int, int)
 */
 namespace gridos;
 
+use gridos::i386::CgaScreen;
+
 use sys::core::Object;
-use sys::core::OStream;
 use sys::memory::Allocator;
 use sys::memory::MemoryInfo;
 use sys::runtime::Class;
 use sys::runtime::ClassDescriptor;
 use sys::runtime::ClassStorage;
 use sys::runtime::Runtime as CoreRuntime;
-
-use gridos::i386::CgaScreen;
+use sys::stream::OStream;
 
 class Runtime extends CoreRuntime, Allocator, ClassStorage {
     

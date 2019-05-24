@@ -5,7 +5,7 @@ version = 0.1.0
 */
 namespace gridos::i386;
 
-use sys::core::OStream;
+use sys::stream::OStream;
 
 class CgaFormattedOStream extends OStream {
     
