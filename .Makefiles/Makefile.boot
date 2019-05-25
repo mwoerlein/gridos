@@ -60,7 +60,7 @@ $(BOOTDIR)/$(MASCHINE)_cpp_startup.bin: $(BOOTDIR)/$(MASCHINE)_startup_entry.o $
 
 $(BOOTDIR)/$(MASCHINE)_pool_startup.bin: 
 	echo "creating $@"
-	@$(POOLSC) --output $@ --classpath $(POOLSRC) --classpath $(POOLCORE) gridos::i386::Startup --binding gridos::i386::mb2 -t 0x20000
+	@$(POOLSC) $(PC_FLAGS) --output $@ gridos::i386::Startup --binding gridos::i386::mb2 -t 0x20000
 
 $(BOOTDIR)/$(MASCHINE)_startup.o: $(BOOTDIR)/$(MASCHINE)_startup.s
 	$(AS) $(ASFLAGS) $< -o $@

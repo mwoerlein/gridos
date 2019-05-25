@@ -22,7 +22,7 @@ rlibs:
 	if [ "$(REST)" != "" ] ; then $(MAKE) $(MAKEOP) MASCHINE=$(MASCHINE) RLIBS="$(REST)" rlibs; fi
 
 poolsrc:
-	@$(POOLC) --output $(MODDIR) --classpath $(POOLSRC) --classpath $(POOLCORE) gridos::KernelThread gridos::Runtime -r
+	@$(POOLC) $(PC_FLAGS) --output $(MODDIR) gridos::KernelThread gridos::Runtime -r
 
 $(LIBDIR) $(IMGDIR) $(BINDIR):
 	@mkdir -p $@

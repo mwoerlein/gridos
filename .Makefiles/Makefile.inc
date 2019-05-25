@@ -15,15 +15,15 @@ POOLBASEDIR = ../pool
 
 #STORE=$(BINDIR)/store
 #PASM=$(BINDIR)/pasm
-STORE=$(POOLBASEDIR)/bootstrap/bin/storeb
-PASM=$(POOLBASEDIR)/bootstrap/bin/pbasm
-POOLSC=$(POOLBASEDIR)/bootstrap/bin/poolbsc
-POOLC=$(POOLBASEDIR)/bootstrap/bin/poolbc
-POOLCORE=$(POOLBASEDIR)/src
+STORE=$(POOLBASEDIR)/bootstrap-pool/bin/storeb
+PASM=$(POOLBASEDIR)/bootstrap-cpp/bin/pbasm
+POOLC=$(POOLBASEDIR)/bootstrap-cpp/bin/poolbc
+POOLSC=$(POOLBASEDIR)/bootstrap-cpp/bin/poolbsc
+
+PC_FLAGS=--classpath ./psrc --classpath $(POOLBASEDIR)/src --classpath $(POOLBASEDIR)/bootstrap-pool/src
 
 LIBDIR=./lib
 SRCDIR=./src
-POOLSRC=./psrc
 OBJDIR=./obj
 BINDIR=./bin
 IMGDIR=./img
