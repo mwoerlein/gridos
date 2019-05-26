@@ -1,0 +1,58 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+
+class Keyboard extends InterruptHandler {
+
+    PIC pic;
+    InterruptVectorTable ivt;
+    
+    [] __init() {
+        /* empty keyboard buffer */
+        //empty_8042();
+        while (IOPort:inb(0x64) % 4) { IOPort:inb(0x60); }
+        IOPort:outb(0x64, 0xd1);
+        //empty_8042();
+        while (IOPort:inb(0x64) % 4) { IOPort:inb(0x60); }
+        IOPort:outb(0x60, 0xdf);
+        //empty_8042();
+        while (IOPort:inb(0x64) % 4) { IOPort:inb(0x60); }
+    }
+    
+    [] plugin(PIC pic, InterruptVectorTable ivt) {
+        this.pic = pic;
+        this.ivt = ivt;
+        ivt.insert(InterruptVectorTable:KEYBOARD, this.handler());
+        pic.activate(PIC:KEYBOARD);
+    }
+    
+    [] call(int nr, int errorCode) {
+        int scancode = IOPort:inb(0x60);
+        pic.finalize(PIC:KEYBOARD);
+        
+        // TODO: implement scancode/keycode/... handling
+        if (scancode == 0x81) { // ESC release
+            this.rt().out().printCString("rebooting").printNewline();
+            int w = 0x9ffffff;
+            while (w--) { } // sleep awhile
+            this.reboot();
+        }
+        
+        this.rt().out()
+            .printCString("scan code ").printHex(scancode)
+            .printCString(" error code ").printHex(errorCode)
+            .printNewline();
+    }
+    
+    [] reboot() {
+        // 0x1234: Warm boot without memory check, 0x0: Cold boot with memory check
+        sys::memory::Address:storeWord(0x472, 0x1234); 
+    
+        while (IOPort:inb(0x64) % 4 >= 2) { }
+        IOPort:outb(0x64, 0xfe);
+    }
+}

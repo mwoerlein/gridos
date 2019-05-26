@@ -9,6 +9,7 @@ use gridos::multiboot2::BootInformation;
 use gridos::multiboot2::structs::Context;
 use gridos::multiboot2::structs::MultiBootHeader;
 use gridos::multiboot2::structs::MultiBootInformation;
+
 use sys::memory::Address;
 use sys::memory::Allocator;
 use sys::memory::MemoryInfo;
@@ -119,6 +120,18 @@ _entry_global_func  := _ede2228d_md___entry__
     }
     
     [] initializeKernel() {
+        PIC pic = this.createInstance(PIC:CLASSNAME);
+        InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
+        Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
+
+        /* reset coprozessors */        
+        IOPort:outb(0xf0, 0); //delay();
+        IOPort:outb(0xf1, 0); //delay();
+        
+        /* activate keyboard and interrupts */
+        kbd.plugin(pic, ivt);
+        ivt.activate();
+        
         // TODO: create and initialize kernel runtime
         this.rt().err().printCString("Initialize kernel").printNewline();
         // TODO: run kernel thread and free/destroy startup memory/objects

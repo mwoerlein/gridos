@@ -5,6 +5,7 @@ version = 0.1.0
 */
 namespace gridos::i386;
 
+use sys::memory::Address;
 use sys::stream::OStream;
 
 class CgaScreen extends sys::core::Object {
@@ -65,35 +66,28 @@ class CgaScreen extends sys::core::Object {
     }
     
     // private
-    // int index_port := 0x3d4;
-    // int data_port := 0x3d5;
+    int _IO_INDEX := 0x3d4;
+    int _IO_DATA := 0x3d5;
     [] syncCursor() {
-        __pasm__(<"
-            movl 0, %ebx;
-            movw 0x3d4, %dx; movb 14, %al; .byte 0xEE  #// "outb 14, 0x3d4"
-            movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
-            movb %al, %bh
-            movw 0x3d4, %dx; movb 15, %al; .byte 0xEE  #// "outb 15, 0x3d4"
-            movw 0x3d5, %dx; .byte 0xEC                #// "inb 0x3d5, %al"
-            movb %al, %bl
-        ">, {}, {"%ebx": this.cursor});
+        IOPort:outb(_IO_INDEX, 14);
+        this.cursor = IOPort:inb(_IO_DATA) * 256;
+        IOPort:outb(_IO_INDEX, 15);
+        this.cursor += IOPort:inb(_IO_DATA);
     }
     
     [] setCursor(int cursor) {
-        __pasm__(<"
-            movw 0x3d4, %dx; movb 14, %al; .byte 0xEE  #// "outb 14, 0x3d4"
-            movw 0x3d5, %dx; movb %bh, %al; .byte 0xEE #// "outb %bh, 0x3d5"
-            movw 0x3d4, %dx; movb 15, %al; .byte 0xEE  #// "outb 15, 0x3d4"
-            movw 0x3d5, %dx; movb %bl, %al; .byte 0xEE #// "outb %bl, 0x3d5"
-        ">, {"%ebx": cursor});
+        IOPort:outb(_IO_INDEX, 14);
+        IOPort:outb(_IO_DATA, cursor / 256);
+        IOPort:outb(_IO_INDEX, 15);
+        IOPort:outb(_IO_DATA, cursor);
         this.cursor = cursor;
     }
     
     [] drawCharAtPos(int c, int format, int pos) {
-        __pasm__("movw %bx, (%eax)", {"%eax": cga_ram + 2*pos, "%ebx": c + 256*format});
+        Address:storeWord(cga_ram + 2*pos, c + 256*format);
     }
     
     [] copyCharAtPos(int src, int dest) {
-        __pasm__("movw (%esi), %ax; movw %ax, (%edi)", {"%esi": cga_ram + 2*src, "%edi": cga_ram + 2*dest});
+        Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
     }
 }

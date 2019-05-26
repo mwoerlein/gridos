@@ -1,0 +1,17 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::Object;
+
+// TODO: convert to interface 
+class InterruptHandler extends Object {
+
+    abstract [] call(int nr, int errorCode);
+    
+    // TODO: remove with implicit cast
+    [InterruptHandler] handler() { return this;}
+}

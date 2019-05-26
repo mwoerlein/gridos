@@ -1,0 +1,32 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+
+struct StackFrame {
+    int gs;
+    int fs;
+    int es;
+    int ds;
+    
+    int edi;
+    int esi;
+    int ebp;
+    int _esp;
+    int ebx;
+    int edx;
+    int ecx;
+    int eax;
+    
+    int interrupt;
+    int error;
+    
+    int eip;
+    int cs;
+    int eflags;
+    int esp;
+    int ss;
+}
