@@ -1,0 +1,15 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct TagMMap {
+    int type;
+    int size;
+    int entry_size;
+    int entry_version;
+    //MMapEntry entries[];
+}

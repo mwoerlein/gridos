@@ -1,0 +1,93 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::memory::Address;
+use sys::stream::OStream;
+
+class CgaScreen extends sys::core::Object {
+    
+    // private
+    int cga_ram := 0xB8000;
+    int max_x := 80;
+    int max_y := 25;
+    int max_pos := 2000; //80 * 25;
+    
+    int cursor;
+    
+    // public
+    [] init() {
+        this.syncCursor();
+    }
+    
+    [OStream] getFormattedOStream(int format) {
+        CgaFormattedOStream o = this.rt().createInstance(CgaFormattedOStream:CLASSNAME);
+        return o.initOStream(this, format);
+    }
+    
+    [] drawCharAt(int c, int format, int x, int y) {
+        this.drawCharAtPos(c, format, x + max_x * y);
+    }
+    
+    [] drawChar(int c, int format) {
+        if (c == 0 || c == '\r') {
+            return;
+        }
+        
+        int pos = cursor;
+        if (c == '\n') {
+            do { this.drawCharAtPos(' ', format, pos++); } while (pos % max_x);
+        } else if (c == '\t') {
+            do { this.drawCharAtPos(' ', format, pos++); } while (pos % 8);
+        } else {
+            this.drawCharAtPos(c, format, pos++);
+        }
+        
+        if (pos >= max_pos) {
+            // end of screen => scroll up
+            int p1 = 0;
+            int p2 = max_x;
+            while (p2 < max_pos) { this.copyCharAtPos(p2++, p1++); }
+            while (p1 < max_pos) { this.drawCharAtPos(' ', format, p1++); }
+            pos -= max_x;
+        }
+        
+        this.setCursor(pos);
+    }
+    
+    [] clear(int format) {
+        int pos = 0;
+        while (pos < max_pos) { this.drawCharAtPos(' ', format, pos++); }
+        
+        this.setCursor(0);
+    }
+    
+    // private
+    int _IO_INDEX := 0x3d4;
+    int _IO_DATA := 0x3d5;
+    [] syncCursor() {
+        IOPort:outb(_IO_INDEX, 14);
+        this.cursor = IOPort:inb(_IO_DATA) * 256;
+        IOPort:outb(_IO_INDEX, 15);
+        this.cursor += IOPort:inb(_IO_DATA);
+    }
+    
+    [] setCursor(int cursor) {
+        IOPort:outb(_IO_INDEX, 14);
+        IOPort:outb(_IO_DATA, cursor / 256);
+        IOPort:outb(_IO_INDEX, 15);
+        IOPort:outb(_IO_DATA, cursor);
+        this.cursor = cursor;
+    }
+    
+    [] drawCharAtPos(int c, int format, int pos) {
+        Address:storeWord(cga_ram + 2*pos, c + 256*format);
+    }
+    
+    [] copyCharAtPos(int src, int dest) {
+        Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
+    }
+}

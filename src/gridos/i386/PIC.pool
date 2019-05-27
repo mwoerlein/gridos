@@ -1,0 +1,64 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::Object;
+
+class PIC extends Object {
+
+    int TIMER := 0;
+    int KEYBOARD := 1;
+    
+    int mask;
+    
+    [] __init() {
+        /* initialize PICs */
+        IOPort:outb(0x20, 0x11);
+        IOPort:outb(0xa0, 0x11);
+        IOPort:outb(0x21, 0x20);
+        IOPort:outb(0xa1, 0x28);
+        IOPort:outb(0x21, 0x04);
+        IOPort:outb(0xa1, 0x02);
+        IOPort:outb(0x21, 0x01);
+        IOPort:outb(0xa1, 0x01);
+        
+        mask = 0xfffb;
+        this._storeMask();
+    }
+    
+    [] activate(int nr) {
+        __pasm__(<"
+            movl 1, %ebx
+            .byte 0xD3; .byte 0xE3  #// shl %ebx, %cl
+            .byte 0xF7; .byte 0xD3  #// not %ebx
+            .byte 0x21; .byte 0xD8  #// and %eax, %ebx
+        ">, {"%eax": mask, "%ecx": nr}, {"%eax": mask});
+        this._storeMask();
+    }
+    
+    [] deactivate(int nr) {
+        __pasm__(<"
+            movl 1, %ebx
+            .byte 0xD3; .byte 0xE3  #// shl %ebx, %cl
+            .byte 0x09; .byte 0xD8  #// or %eax, %ebx
+        ">, {"%eax": mask, "%ecx": nr}, {"%eax": mask});
+        this._storeMask();
+    }
+    
+    [] finalize(int nr) {
+        if ((nr >= 0) && (nr < 8)) {
+            IOPort:outb(0x20, 0x60 + (nr % 8));
+        } else if ((nr >= 8) && (nr < 16)) {
+            IOPort:outb(0x20, 0x62);
+            IOPort:outb(0xa0, 0x60 + ((nr/8) % 8));
+        }
+    }
+    
+    [] _storeMask() {
+        IOPort:outb(0xa1, mask / 8);
+        IOPort:outb(0x21, mask);
+    }
+}

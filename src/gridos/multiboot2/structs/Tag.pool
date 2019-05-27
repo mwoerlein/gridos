@@ -1,0 +1,47 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct Tag {
+    global int TYPE_END                      := 0;
+    global int TYPE_CMDLINE                  := 1;
+    global int TYPE_BOOT_LOADER_NAME         := 2;
+    global int TYPE_MODULE                   := 3;
+    global int TYPE_BASIC_MEMINFO            := 4;
+    global int TYPE_BOOTDEV                  := 5;
+    global int TYPE_MMAP                     := 6;
+    global int TYPE_VBE                      := 7;
+    global int TYPE_FRAMEBUFFER              := 8;
+    global int TYPE_ELF_SECTIONS             := 9;
+    global int TYPE_APM                      := 10;
+    global int TYPE_EFI32                    := 11;
+    global int TYPE_EFI64                    := 12;
+    global int TYPE_SMBIOS                   := 13;
+    global int TYPE_ACPI_OLD                 := 14;
+    global int TYPE_ACPI_NEW                 := 15;
+    global int TYPE_NETWORK                  := 16;
+    global int TYPE_EFI_MMAP                 := 17;
+    global int TYPE_EFI_BS                   := 18;
+    global int TYPE_EFI32_IH                 := 19;
+    global int TYPE_EFI64_IH                 := 20;
+    global int TYPE_LOAD_BASE_ADDR           := 21;
+    
+    global int HEADER_END                    := 0;
+    global int HEADER_INFORMATION_REQUEST    := 1;
+    global int HEADER_ADDRESS                := 2;
+    global int HEADER_ENTRY_ADDRESS          := 3;
+    global int HEADER_CONSOLE_FLAGS          := 4;
+    global int HEADER_FRAMEBUFFER            := 5;
+    global int HEADER_MODULE_ALIGN           := 6;
+    global int HEADER_EFI_BS                 := 7;
+    global int HEADER_ENTRY_ADDRESS_EFI32    := 8;
+    global int HEADER_ENTRY_ADDRESS_EFI64    := 9;
+    global int HEADER_RELOCATABLE            := 10;
+    
+    int type;
+    int size;
+}

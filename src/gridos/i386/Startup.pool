@@ -1,0 +1,140 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use gridos::multiboot2::BootInformation;
+use gridos::multiboot2::structs::Context;
+use gridos::multiboot2::structs::MultiBootHeader;
+use gridos::multiboot2::structs::MultiBootInformation;
+
+use sys::memory::Address;
+use sys::memory::Allocator;
+use sys::memory::MemoryInfo;
+use sys::memory::MemoryManager;
+use sys::memory::MemoryRegistry;
+use sys::runtime::Runtime;
+use sys::runtime::RuntimeBuilder;
+use sys::runtime::StaticResolvedClassStorage;
+use sys::stream::OStream;
+
+class Startup extends Runtime, RuntimeBuilder {
+    
+    // TODO: implement and collect modules 
+    int modules;
+    
+    // methods
+    global [] __entry__(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
+        // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
+        __pasm__(<"
+_entry_class_desc   := _gridos_i386_Startup
+_entry_global_func  := _ede2228d_md___entry__
+        ">);
+        
+        // setup context
+        Context context = null;
+        __pasm__("subl %eax, %esp", {"%eax": Context:SIZEOF}, {"%esp": context});
+        context.magic = magic;
+        context.mbi = mbi;
+        context.mbh = mbh;
+        
+        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
+        
+        // free context
+        __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
+        
+        if (_rt) {
+            Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
+            if (rt) {
+                rt.initializeKernel();
+            }
+        }
+    }
+    
+    [Runtime] _buildRuntime(Context context) {
+        Runtime bsRt := this.rt();
+        CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
+        bsScreen.init();
+        OStream bsOut = bsScreen.getFormattedOStream(15);
+        
+        if (context.magic != BootInformation:BOOTLOADER_MAGIC) {
+            bsOut.printCString("Invalid magic number: ").printPtr(context.magic).printNewline();
+            return null;
+        }
+        if (Address:from(context.mbi) % 8) {
+            bsOut.printCString("Unaligned mbi: ").printAddr(context.mbi).printNewline();
+            return null;
+        }
+        
+        bsRt.setOut(bsOut);
+        bsRt.setErr(bsOut);
+        Allocator bsAllocator := bsRt.getAllocator();
+        
+        BootInformation bi = bsRt.createInstance(BootInformation:CLASSNAME);
+        bi.initInfo(context.mbi, context.mbh);
+        bsOut.printCString("loaded via ").printCString(bi.getBootLoader()).printNewline();
+        
+        // collect memory information on stack
+        MemoryRegistry bsMR = bsRt.createInstance(MemoryRegistry:CLASSNAME);
+        bsMR.initEmptyFromAllocator(bsAllocator, 1, 100);
+        bi.registerMemory(bsMR);
+        
+        // create "heap"-based runtime
+        bsRt.setAllocator(bsMR.allocator());
+        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
+        bsRt.setAllocator(bsAllocator);
+        rt.setRt(rt.runtime());
+        rt.setAllocator(bsMR.allocator());
+        rt.setClassStorage(bsRt.getClassStorage());
+        
+        // create "heap"-based memory management
+        MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
+        bsMR.transferTo(mm);
+        rt.setAllocator(mm.allocator());
+        
+        // create "heap"-based class storage
+        StaticResolvedClassStorage crcs = rt.createInstance(StaticResolvedClassStorage:CLASSNAME);
+        rt.setClassStorage(crcs.classStorage());
+        crcs.rebuildClasses();
+        
+        // create "heap"-based stdOut
+        CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
+        screen.init();
+        rt.setOut(screen.getFormattedOStream(7));
+        rt.setErr(screen.getFormattedOStream(12));
+        
+        // TODO: create "heap"-based modules
+        bsRt.setOut(rt.out());
+        bsRt.setErr(rt.err());
+        bi.registerModules();
+        
+        // cleanup
+        bsMR.destroy();
+        bi.destroy();
+        bsOut.destroy();
+        bsScreen.destroy();
+        
+        return rt.runtime();
+    }
+    
+    [] initializeKernel() {
+        PIC pic = this.createInstance(PIC:CLASSNAME);
+        InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
+        Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
+
+        /* reset coprozessors */        
+        IOPort:outb(0xf0, 0); //delay();
+        IOPort:outb(0xf1, 0); //delay();
+        
+        /* activate keyboard and interrupts */
+        kbd.plugin(pic, ivt);
+        ivt.activate();
+        
+        // TODO: create and initialize kernel runtime
+        this.rt().err().printCString("Initialize kernel").printNewline();
+        // TODO: run kernel thread and free/destroy startup memory/objects
+        this.rt().createAndRunThread(gridos::KernelThread:CLASSNAME);
+    }
+}

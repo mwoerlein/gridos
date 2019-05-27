@@ -1,0 +1,21 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2;
+
+use gridos::multiboot2::structs::TagModule;
+use sys::core::Object;
+
+class TagModuleListElement extends Object {
+    
+    TagModule module;
+    TagModuleListElement next;
+    
+    [TagModule] getModule() { return this.module; }
+    [] setModule(TagModule module) { this.module = module; }
+    [TagModuleListElement] getNext() { return this.next; }
+    [] setNext(TagModuleListElement next) { this.next = next; }
+    
+}

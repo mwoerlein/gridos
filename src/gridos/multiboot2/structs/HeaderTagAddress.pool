@@ -1,0 +1,16 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2::structs;
+
+
+struct HeaderTagAddress {
+    int type;
+    int size;
+    int header_addr;
+    int load_addr;
+    int load_end_addr;
+    int bss_end_addr;
+}
