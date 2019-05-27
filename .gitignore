@@ -1,3 +1,8 @@
 .idea
 
-/img
+/img/
+/block/
+/build/
+/pasm/
+
+/bootloader/i386/dynamic_settings.pasm

@@ -1,3 +1,4 @@
 __classes_end:
     .long 0xF00C1A55 // ensure that *no* 0x15AC1A55 magic number follows real classes
+    .align 512
 __mb2_file_end:
