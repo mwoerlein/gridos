@@ -1,15 +1,9 @@
 .code16
 /* prepare kernel/modules/multiboot information and switch to protected mode */
 loader_stage1:
-/* TODO: load dap-list instead of hardcoded startup/mod_text */
-    movw startup_disk_address_packet, %ax
-    call load_sectors
-    
-    movw mod_kernel_disk_address_packet, %ax
-    call load_sectors
-    
-    movw mod_store_disk_address_packet, %ax
-    call load_sectors
+    movw dap_list_start, %ax
+    movw dap_list_end, %bx
+    call load_dap_list
     
     /* draw newline */
     movb 0x0a, %al; call write_char; movb 0x0d, %al; call write_char
@@ -192,73 +186,5 @@ gdt_48:
     .word   0x18             # gdt limit=24, 3 GDT entries
     .long   (LOADER_ADDR + gdt)
 
-/* TODO: load dap-list instead of hardcoded startup/mod_text */
 .align 4
-startup_disk_address_packet:
-    .byte 0x10
-    .byte 0x0
-    .word STARTUP_SECTORS  # count
-    .word STARTUP_OFFSET   # destination offset
-    .word STARTUP_SEGMENT  # destination segment
-    .long STARTUP_LBA      # lba block
-    .long 0                # lba block
-.align 4
-mod_kernel_disk_address_packet:
-    .byte 0x10
-    .byte 0x0
-    .word MOD_KERNEL_SECTORS # count
-    .word MOD_KERNEL_OFFSET  # destination offset
-    .word MOD_KERNEL_SEGMENT # destination segment
-    .long MOD_KERNEL_LBA     # lba block
-    .long 0                  # lba block
-.align 4
-mod_store_disk_address_packet:
-    .byte 0x10
-    .byte 0x0
-    .word MOD_STORE_SECTORS # count
-    .word MOD_STORE_OFFSET  # destination offset
-    .word MOD_STORE_SEGMENT # destination segment
-    .long MOD_STORE_LBA     # lba block
-    .long 0                 # lba block
-
-/* mbi-structures */
-.align MULTIBOOT_TAG_ALIGN
-mbi:
-    .long   0 # size (will be filled after memory-detection)
-    .long   0 # reserved
-mbi_tag_name:
-    .long   MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME
-    .long   (mbi_tag_name_end - mbi_tag_name)
-    .asciz  "GridOS Loader 0.2" // LOADER_NAME
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_name_end:
-/* TODO: generate from load dap-list instead of static startup/mod_kernel */
-mbi_tag_command_line:
-    .long   MULTIBOOT_TAG_TYPE_CMDLINE
-    .long   (mbi_tag_command_line_end - mbi_tag_command_line)
-    .asciz  "--test = 0 --debug=2 --mainThread=gridos::KernelThread" // STARTUP_CMD
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_command_line_end:
-mbi_tag_mod_kernel:
-    .long   MULTIBOOT_TAG_TYPE_MODULE
-    .long   (mbi_tag_mod_kernel_end - mbi_tag_mod_kernel)
-    .long   MOD_KERNEL_ADDR
-    .long   (MOD_KERNEL_ADDR + (MOD_KERNEL_SECTORS << 9))
-    .asciz  "kernel --debug=1" // MOD_KERNEL_CMD
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_mod_kernel_end:
-mbi_tag_mod_store:
-    .long   MULTIBOOT_TAG_TYPE_MODULE
-    .long   (mbi_tag_mod_store_end - mbi_tag_mod_store)
-    .long   MOD_STORE_ADDR
-    .long   (MOD_STORE_ADDR + (MOD_STORE_SECTORS << 9))
-    .asciz  "store --debug=1" // MOD_STORE_CMD
-.align MULTIBOOT_TAG_ALIGN
-mbi_tag_mod_store_end:
-mbi_static_end:
-/* further mb2 tags will be generated here */
-
-/* stage1 data END*/
-
-.align 512
-loader_end:
+dap_list_start:

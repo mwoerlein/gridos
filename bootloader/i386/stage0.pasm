@@ -57,6 +57,20 @@ loader_halt:
     jmp loader_halt
 
 /*
+ * load_dap_list (%ax, %bx)
+ *
+ * loads all sectors according to disk address packets referenced between %ax and %bx via load_sectors
+ */
+load_dap_list:
+    cmpw %ax, %bx
+    jb load_dap_list_end
+    call load_sectors
+    addw 16, %ax
+    jmp load_dap_list
+load_dap_list_end:
+    ret
+
+/*
  * load_sectors (%ax)
  *
  * loads sectors according to disk address packet referenced by %ax via BIOS interrupt 0x13

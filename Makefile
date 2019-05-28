@@ -7,7 +7,7 @@ include ./Makefile.inc
 BLOCKS=$(BLOCKDIR)/startup.block $(BLOCKDIR)/store.block
 BOOTBLOCKS=$(BLOCKDIR)/i386_loader.block $(BLOCKS)
 
-LOADER_PARTS = dynamic_settings settings stage0 stage1
+LOADER_PARTS = dynamic_settings settings stage0 stage1_1_start stage1_2_dap stage1_3_mid stage1_4_mbi stage1_5_end
 LOADER_PASMS = $(patsubst %,$(BOOTLDDIR)/%.pasm, $(LOADER_PARTS))
 
 STORE_PASMS = $(shell find $(PASMDIR)/ -type f -name '*.pasm')
@@ -15,7 +15,7 @@ STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.pbc, $(STORE_PASMS))
 
 
 clean:
-	@rm -rf $(BLOCKDIR) $(BUILDDIR) $(PASMDIR) $(BOOTLDDIR)/dynamic_settings.pasmj
+	@rm -rf $(BLOCKDIR) $(BUILDDIR) $(PASMDIR) $(BOOTLDDIR)/dynamic_settings.pasm
 
 bootdisk: kernelthread $(IMGDIR)/bootdisk.img
 
