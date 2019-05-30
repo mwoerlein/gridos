@@ -1,0 +1,143 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace command;
+
+use sys::core::String;
+use sys::core::anycollection::AnyIterator;
+use sys::stream::OStream;
+use sys::stream::SeekableIOStream;
+
+class ModuleBuilder extends linux::Command {
+
+    [] __init() {
+        this._initCommand();
+    }
+    
+    [] __destruct() {
+        this._destructCommand();
+    }
+    
+    [] configure() {
+        this.setName("modbuild")
+            .setVersion("0.1.0")
+            .setUsage(<"
+Bootloader Module Description Builder.
+
+    Usage:
+      modbuild [-s] -o <file> -l <label> -c <text>
+      modbuild [-s] -o <file> -l <label> -f <file> [-a <label>] [-t <addr>]
+
+    Options:
+      -h --help                     Show this screen.
+      --version                     Show version.
+      -s --startup                  Empty output file and add startup informations.
+      -o <file> --output <file>     Append module information to <file>.
+      -l <label> --label <label>    Internal name of the module.
+      -c <text> --cmdline <text>    The command line to use for mbi.
+      -f <file> --file <file>       The module to build dap information for.
+      -a <label> --after <label>    Current module follows this module in the bootimage. (Default: LOADER)
+      -t <addr> --segment <addr>    Bootloader loads module to this segment. If not set, the module will be placed after "after"
+">);
+        this.registerOptionAlias('h', "help")
+            .registerOptionAlias('s', "startup")
+            .registerOptionAlias('o', "output")
+            .registerOptionAlias('l', "label")
+            .registerOptionAlias('c', "cmdline")
+            .registerOptionAlias('f', "file")
+            .registerOptionAlias('a', "after")
+            .registerOptionAlias('t', "segment")
+        ;
+        
+        // TODO: implement default value handling
+        String opt = this.createStringFromCString("a");
+        this._options.set(this._optionAliases.get(opt), this.createOwnStringFromCString("LOADER"));
+        opt.destroy();
+    }
+
+    [int] run() {
+        OStream out = this.rt().out();
+        if (this.hasOption("help")) {
+            out.printCString(usage).printNewline();
+            return 0;
+        }
+        if (this.hasOption("version")) {
+            out.printCString(name).printChar(' ').printCString(version).printNewline();
+            return 0;
+        }
+        if (
+            !this.hasValueOption("output") || !this.hasValueOption("label") || this.getArgumentsSize() != 0
+            || (this.hasValueOption("cmdline") == this.hasValueOption("file"))
+        ) {
+            out.printCString(usage).printNewline();
+            return -1;
+        }
+        
+        int mode = linux::File:MODE_APPEND;
+        if (this.hasOption("startup")) {
+            mode = linux::File:MODE_WRITE;
+        }
+        SeekableIOStream outfile = this.openFile(this.getValueOption("output"), mode);
+        
+        String label = this.getValueOption("label");
+        
+        if (this.hasValueOption("file")) {
+            String after = this.getValueOption("after");
+            SeekableIOStream modfile = this.openFile(this.getValueOption("file"), linux::File:MODE_READ);
+            int sectors = ((modfile.length() + 511) / 512);
+            modfile.destroy();
+            outfile.print(label).printCString("_SECTORS := ")._printUHex(sectors, 4).printNewline();
+            outfile.print(label).printCString("_LBA     := (").print(after).printCString("_LBA + ").print(after).printCString("_SECTORS)").printNewline();
+            if (this.hasValueOption("segment")) {
+                outfile.print(label).printCString("_SEGMENT := ")._printUHex(this.getValueOption("segment").toInt(), 4).printNewline();
+            } else {
+                outfile.print(label).printCString("_SEGMENT := (").print(after).printCString("_SEGMENT + (").print(after).printCString("_SECTORS << 5))").printNewline();
+            }
+            outfile.print(label).printCString("_OFFSET  := ")._printUHex(0, 4).printNewline();
+            outfile.print(label).printCString("_ADDR    := ((").print(label).printCString("_SEGMENT << 4) + ").print(label).printCString("_OFFSET)").printNewline();
+            
+            outfile.print(label).printCString("_disk_address_packet:").printNewline();
+            outfile.printCString("    .byte 0x10").printNewline();
+            outfile.printCString("    .byte 0x0").printNewline();
+            outfile.printCString("    .word ").print(label).printCString("_SECTORS").printNewline();
+            outfile.printCString("    .word ").print(label).printCString("_OFFSET").printNewline();
+            outfile.printCString("    .word ").print(label).printCString("_SEGMENT").printNewline();
+            outfile.printCString("    .long ").print(label).printCString("_LBA").printNewline();
+            outfile.printCString("    .long 0").printNewline().printNewline();
+        } else {
+            if (this.hasOption("startup")) {
+                outfile.printCString("mbi_tag_command_line_start_").print(label).printChar(':').printNewline();
+                outfile.printCString("    .long  MULTIBOOT_TAG_TYPE_CMDLINE").printNewline();
+                outfile.printCString("    .long  (mbi_tag_command_line_end_").print(label).printCString(" - mbi_tag_command_line_start_").print(label).printChar(')').printNewline();
+                outfile.printCString("    .asciz ").printChar('"').print(this.getValueOption("cmdline")).printChar('"').printNewline();
+                outfile.printCString(".align MULTIBOOT_TAG_ALIGN").printNewline();
+                outfile.printCString("mbi_tag_command_line_end_").print(label).printChar(':').printNewline();
+            } else {
+                outfile.printCString("mbi_tag_mod_start_").print(label).printChar(':').printNewline();
+                outfile.printCString("    .long  MULTIBOOT_TAG_TYPE_MODULE").printNewline();
+                outfile.printCString("    .long  (mbi_tag_mod_end_").print(label).printCString(" - mbi_tag_mod_start_").print(label).printChar(')').printNewline();
+                outfile.printCString("    .long  ").print(label).printCString("_ADDR").printNewline();
+                outfile.printCString("    .long  (").print(label).printCString("_ADDR + (").print(label).printCString("_SECTORS << 9))").printNewline();
+                outfile.printCString("    .asciz ").printChar('"').print(this.getValueOption("cmdline")).printChar('"').printNewline();
+                outfile.printCString(".align MULTIBOOT_TAG_ALIGN").printNewline();
+                outfile.printCString("mbi_tag_mod_end_").print(label).printChar(':').printNewline();
+            }
+        }
+        outfile.destroy();
+        return 0;
+    }
+    
+    // methods
+    global [int] __entry__(int argc, int argv) {
+        // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
+        __pasm__(<"
+_entry_class_desc   := _command_ModuleBuilder
+_entry_global_func  := _8c25e1c0_md___entry__
+        ">);
+        
+        ModuleBuilder modbuild = linux::Runtime:buildRuntime().createInstance(ModuleBuilder:CLASSNAME);
+        return modbuild.execute(argc, argv);
+    }
+}

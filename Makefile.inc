@@ -11,9 +11,12 @@ BUILDDIR=./build
 IMGDIR=./img
 PASMDIR=./pasm
 SRCDIR=./src
+BINDIR=./bin
+
+MODBUILD=$(BINDIR)/modbuild
 
 
-$(IMGDIR) $(BLOCKDIR) $(BUILDDIR) $(PASMDIR):
+$(IMGDIR) $(BLOCKDIR) $(BUILDDIR) $(BINDIR) $(PASMDIR):
 	@mkdir -p $@
 
 $(BUILDDIR)/%.pbc: $(PASMDIR)/%.pasm $(PASM)

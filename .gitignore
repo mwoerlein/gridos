@@ -1,8 +1,10 @@
 .idea
 
 /img/
+/bin/
 /block/
 /build/
 /pasm/
 
-/bootloader/i386/dynamic_settings.pasm
+/bootloader/i386/stage1_2_dap.pasm
+/bootloader/i386/stage1_4_mbi.pasm
