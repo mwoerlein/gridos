@@ -117,6 +117,15 @@ ls_lba_load:
     ret
 
 ls_chs_load:
+    // normalize segment to N*0x1000
+    movw 6(%si), %ax
+    andw 0xf000, 6(%si)
+    .byte 0xc1; .byte 0xe0; .byte 0x04 #// shlw 4, %ax
+    addw %ax, 4(%si)
+    jnc ls_chs_load_loop
+    addw 0x1000, 6(%si)
+    
+ls_chs_load_loop:
     /* %si = dap address */
     movl 0, %edi
     addw 2(%si), %di              # segments to read
@@ -191,9 +200,9 @@ ls_chs_convert:
     addl %edi, 8(%si) // lba
     .byte 0xc1; .byte 0xe7; .byte 0x09 #// shlw 9, %di
     addw %di, 4(%si) // offset
-    jnc ls_chs_load
+    jnc ls_chs_load_loop
     addw 0x1000, 6(%si) // segment
-    jmp ls_chs_load
+    jmp ls_chs_load_loop
 
 /*
  * write_char (%al)
