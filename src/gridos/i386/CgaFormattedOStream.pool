@@ -12,17 +12,14 @@ class CgaFormattedOStream extends OStream {
     CgaScreen screen;
     int format;
     
-    // TODO: replace with this, after implicit casts are implemented
-    OStream self;
-    
     [OStream] initOStream(CgaScreen screen, int format) {
         this.screen = screen;
         this.format = format;
-        return self = this.rt().cast(OStream:CLASSNAME, this);
+        return this.ostream();
     }
     
     [OStream] printChar(int c) {
         screen.drawChar(c, format);
-        return self;
+        return this.ostream();
     }
 }
