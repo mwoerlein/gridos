@@ -26,12 +26,7 @@ class Startup extends Runtime, RuntimeBuilder {
     int modules;
     
     // methods
-    global [] __entry__(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
-        // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
-        __pasm__(<"
-_entry_class_desc   := _gridos_i386_Startup
-_entry_global_func  := _ede2228d_md___entry__
-        ">);
+    __entry__ [] blub(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
         
         // setup context
         Context context = null;

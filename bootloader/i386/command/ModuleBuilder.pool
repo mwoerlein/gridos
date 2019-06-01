@@ -130,13 +130,7 @@ Bootloader Module Description Builder.
     }
     
     // methods
-    global [int] __entry__(int argc, int argv) {
-        // TODO: generate automatically via new __entry__ flag for method or via naming convention? 
-        __pasm__(<"
-_entry_class_desc   := _command_ModuleBuilder
-_entry_global_func  := _8c25e1c0_md___entry__
-        ">);
-        
+    __entry__ [int] build(int argc, int argv) {
         ModuleBuilder modbuild = linux::Runtime:buildRuntime().createInstance(ModuleBuilder:CLASSNAME);
         return modbuild.execute(argc, argv);
     }
