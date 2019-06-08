@@ -119,7 +119,7 @@ class Startup extends Runtime, RuntimeBuilder {
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
 
-        /* reset coprozessors */        
+        /* reset coprocessors */        
         IOPort:outb(0xf0, 0); //delay();
         IOPort:outb(0xf1, 0); //delay();
         
