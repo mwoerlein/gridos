@@ -11,15 +11,16 @@ use sys::stream::OStream;
 class CgaScreen extends sys::core::Object {
     
     // private
-    int cga_ram := 0xB8000;
     int max_x := 80;
     int max_y := 25;
     int max_pos := 2000; //80 * 25;
     
+    int cga_ram;
     int cursor;
     
     // public
-    [] init() {
+    [] init(int cga_ram) {
+        this.cga_ram = cga_ram;
         this.syncCursor();
     }
     
