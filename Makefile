@@ -4,7 +4,7 @@ all: clean bootdisk
 
 include ./Makefile.inc
 
-BLOCKS=$(BLOCKDIR)/startup.block $(BLOCKDIR)/store.block
+BLOCKS=$(BLOCKDIR)/startup.block $(BLOCKDIR)/gidt.block $(BLOCKDIR)/store.block
 BOOTBLOCKS=$(BLOCKDIR)/i386_loader.block $(BLOCKS)
 
 LOADER_PARTS = settings stage0 stage1_1_start stage1_2_dap stage1_3_mid stage1_4_mbi stage1_5_end
@@ -31,15 +31,21 @@ $(BLOCKDIR)/i386_loader.block: $(BLOCKDIR) $(LOADER_PASMS) $(PASM)
 
 $(BOOTLDDIR)/stage1_2_dap.pasm: $(BLOCKS) $(MODBUILD)
 	@$(MODBUILD) -so $@ -l STARTUP -f $(BLOCKDIR)/startup.block -t $(STARTUP_SEGMENT)
-	@$(MODBUILD) -o $@ -l STORE -f $(BLOCKDIR)/store.block -a STARTUP -t $(MODULES_SEGMENT)
+	@$(MODBUILD) -o $@ -l GIDT -f $(BLOCKDIR)/gidt.block -a STARTUP -t $(MODULES_SEGMENT)
+	@$(MODBUILD) -o $@ -l STORE -f $(BLOCKDIR)/store.block -a GIDT
 	
 $(BOOTLDDIR)/stage1_4_mbi.pasm: $(BLOCKS) $(MODBUILD)
-	@$(MODBUILD) -so $@ -l STARTUP -c "pool --test=0 --debug=2 --mainThread=gridos::KernelThread"
+	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --mainThread=gridos::KernelThread"
+	@$(MODBUILD) -o $@ -l GIDT -c "gidt"
 	@$(MODBUILD) -o $@ -l STORE -c "store --debug=1"
 
 $(BLOCKDIR)/startup.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/Startup.pool $(POOLSC)
 	@echo "creating $@"
 	@$(POOLSC) $(PC_FLAGS) --output $@ gridos::i386::Startup --binding gridos::i386::mb2 -t $(STARTUP_SEGMENT)0
+
+$(BLOCKDIR)/gidt.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/gidt.pasm $(PASM)
+	@echo "creating $@"
+	@$(PASM) -bo $@ $(SRCDIR)/gridos/i386/gidt.pasm -t 0xFFBFD000
 
 $(BLOCKDIR)/store.block: $(BLOCKDIR) $(STORE_FILES) $(STORE)
 	@echo "creating $@"

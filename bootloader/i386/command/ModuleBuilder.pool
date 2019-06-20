@@ -93,6 +93,7 @@ Bootloader Module Description Builder.
             if (this.hasValueOption("segment")) {
                 outfile.print(label).printCString("_SEGMENT := ")._printUHex(this.getValueOption("segment").toInt(), 4).printNewline();
             } else {
+                // TODO: page align modules
                 outfile.print(label).printCString("_SEGMENT := (").print(after).printCString("_SEGMENT + (").print(after).printCString("_SECTORS << 5))").printNewline();
             }
             outfile.print(label).printCString("_OFFSET  := ")._printUHex(0, 4).printNewline();

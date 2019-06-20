@@ -1,0 +1,34 @@
+/* ****** Virt. Addr. *****
+ * +----- 0x00000000 -----+ vvv User-Space
+ * | unmapped
+ * +----- 0x00001000 -----+
+ * | vvv User-Heap               owner: MemoryManager/Allocator
+ * | (Ring 3-Classes/-Objects, ...)
+ * +
+ * | 
+ * +
+ * | ^^^ User-Stack              owner: Thread
+ * +----------------------+ ^^^ User-Space
+ * +----- 0xF0000000 -----+ (0x3C0:0x000)
+ * +----------------------+ vvv Kernel-Space
+ * | vvv Kernel-Heap             owner: (Kernel-)MemoryManager/Allocator
+ * | (Ring 0-Classes/-Objects, ...)
+ * +
+ * | 
+ * +
+ * | ^^^ Kernel-Stack            owner: (Kernel-)Thread
+ * +----- 0xFF800000 -----+ (0x3FE:0x000)
+ * | reserved (Remapped-Modules, shared, HW, ...)
+ * | ...
+ * +----- 0xFFBFD000 -----+ (0x3FE:0x3FD) owner: InterruptVectorTable
+ * | IDT/GDT/TSS
+ * | ISR entries
+ * +----- 0xFFBFF000 -----+ (0x3FE:0x3FF) owner: CgaScreen
+ * | EGA-Memory (0xB8000-0xB9000)
+ * +----- 0xFFC00000 -----+ (0x3FF:0x000) owner: MMU
+ * | Page Tables
+ * | ...
+ * +----- 0xFFFFF000 -----+ (0x3FF:0x3FF) owner: MMU
+ * | Page Directory 
+ * +----------------------+ ^^^ Kernel-Space
+ */

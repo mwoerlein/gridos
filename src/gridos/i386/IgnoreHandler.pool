@@ -9,7 +9,7 @@ namespace gridos::i386;
 class IgnoreHandler extends InterruptHandler {
 
     [] call(int nr, int errorCode) {
-        if (nr < 31) {
+        if (nr < 32) {
             this.rt().err()
                 .printCString(this.getName(nr))
                 .printCString(" (int ").printInt(nr)
