@@ -5,16 +5,23 @@ version = 0.1.0
 */
 namespace gridos::i386;
 
+use gridos::i386::memory::PhysicalFreePageInfo;
+use gridos::i386::memory::PhysicalPageManager;
+use gridos::i386::memory::StartupRegistry;
+
 use gridos::multiboot2::BootInformation;
 use gridos::multiboot2::structs::Context;
 use gridos::multiboot2::structs::MultiBootHeader;
 use gridos::multiboot2::structs::MultiBootInformation;
 
+use sys::core::utils::Bitset;
 use sys::memory::Address;
 use sys::memory::Allocator;
 use sys::memory::MemoryInfo;
+use sys::memory::MemoryIOStream;
 use sys::memory::MemoryManager;
 use sys::memory::MemoryRegistry;
+use sys::memory::PageAllocator;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
@@ -24,6 +31,11 @@ class Startup extends Runtime, RuntimeBuilder {
     
     // TODO: implement and collect modules 
     int modules;
+    
+    // TODO: extract PageManager/MMU/...
+    PhysicalFreePageInfo freePages;
+    [PhysicalFreePageInfo] getFreePages() { return freePages; }
+    [] setFreePages(PhysicalFreePageInfo freePages) { this.freePages = freePages; }
     
     // methods
     __entry__ [] blub(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
@@ -43,15 +55,17 @@ class Startup extends Runtime, RuntimeBuilder {
         if (_rt) {
             Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
             if (rt) {
+                // TODO: switch to (virtual) Kernel-Stack
                 rt.initializeKernel();
             }
         }
+        while (1) { __pasm__("hlt"); }
     }
     
     [Runtime] _buildRuntime(Context context) {
         Runtime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
-        bsScreen.init();
+        bsScreen.init(0xB8000);
         OStream bsOut = bsScreen.getFormattedOStream(15);
         
         if (context.magic != BootInformation:BOOTLOADER_MAGIC) {
@@ -72,9 +86,24 @@ class Startup extends Runtime, RuntimeBuilder {
         bsOut.printCString("loaded via ").printCString(bi.getBootLoader()).printNewline();
         
         // collect memory information on stack
-        MemoryRegistry bsMR = bsRt.createInstance(MemoryRegistry:CLASSNAME);
+        StartupRegistry bsSR = bsRt.createInstance(StartupRegistry:CLASSNAME);
+        MemoryRegistry bsMR = bsRt.cast(MemoryRegistry:CLASSNAME, bsSR);
         bsMR.initEmptyFromAllocator(bsAllocator, 1, 100);
         bi.registerMemory(bsMR);
+        
+        PhysicalFreePageInfo fp = bsSR.extractFreePages();
+        
+        // generate (bs)PhysicalPageManager
+        // - mark mbi-page and kernel/modules as used by Kernel/Startup
+        // generate (bs)KernelMMU and activate paging 
+        // - Identity-Map all modules/reserved, 
+        // - support PageDirectory/PageTables
+        // - User/Kernel-Stack/Heap
+        // - remap CgaScreen
+        // initialize DynamicClassStorage with copies of static classes
+        
+        
+        bsMR.dumpToStream(bsOut, 1).printNewline();
         
         // create "heap"-based runtime
         bsRt.setAllocator(bsMR.allocator());
@@ -83,6 +112,7 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setRt(rt.runtime());
         rt.setAllocator(bsMR.allocator());
         rt.setClassStorage(bsRt.getClassStorage());
+        rt.setFreePages(fp);
         
         // create "heap"-based memory management
         MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
@@ -96,11 +126,11 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // create "heap"-based stdOut
         CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
-        screen.init();
+        screen.init(0xB8000);
         rt.setOut(screen.getFormattedOStream(7));
         rt.setErr(screen.getFormattedOStream(12));
         
-        // TODO: create "heap"-based modules
+        // TODO: create "heap"-based module-descriptions
         bsRt.setOut(rt.out());
         bsRt.setErr(rt.err());
         bi.registerModules();
@@ -111,19 +141,84 @@ class Startup extends Runtime, RuntimeBuilder {
         bsOut.destroy();
         bsScreen.destroy();
         
+        // TODO: free mbi-page
         return rt.runtime();
     }
     
     [] initializeKernel() {
-        PIC pic = this.createInstance(PIC:CLASSNAME);
+        // TODO: analyse modules
+        // - remap/copy GIDT into Kernel-Space and initiate idt/gdt
+        // - remap/copy store into Kernel-Space and register at DynamicClassManager
+        // - free startup-pages and copied module-pages to free low memory
+        
+        PhysicalPageManager ppm = this.createInstance(PhysicalPageManager:CLASSNAME);
+        ppm.init(this.getFreePages());
+        
+        MemoryIOStream pt000 = this.createInstance(MemoryIOStream:CLASSNAME);
+        {
+            pt000._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            int i = 8;
+            int ptr = i * PageAllocator:PAGESIZE + 1;
+            pt000.seek(4 * i);
+            while (i++ < 0x100) { // low mem: 0x0 - 0x100000
+                pt000.printRawInt(ptr);
+                ptr += PageAllocator:PAGESIZE;
+            }
+        }
+        
+        MemoryIOStream pt3fe = this.createInstance(MemoryIOStream:CLASSNAME);
+        {
+            pt3fe._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            
+            pt3fe.seek(4 * 0x3fd);
+            pt3fe.printRawInt(Bitset:and(0x10000, 0xfffff000) + 1);
+            pt3fe.seek(4 * 0x3fe);
+            pt3fe.printRawInt(Bitset:and(0x11000, 0xfffff000) + 1);
+            pt3fe.seek(4 * 0x3ff);
+            pt3fe.printRawInt(Bitset:and(0xB8000, 0xfffff000) + 1);
+        }
+        
+        MemoryIOStream kernelPD = this.createInstance(MemoryIOStream:CLASSNAME);
+        {
+            kernelPD._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            
+            kernelPD.seek(4 * 0x0);
+            kernelPD.printRawInt(Bitset:and(pt000.startAddr(), 0xfffff000) + 1);
+            
+//            kernelPD.seek(4 * 0x2ff);
+//            kernelPD.printRawInt(Bitset:and(pt2ff.startAddr(), 0xfffff000) + 1);
+            
+            kernelPD.seek(4 * 0x3fe);
+            kernelPD.printRawInt(Bitset:and(pt3fe.startAddr(), 0xfffff000) + 1);
+            
+            kernelPD.seek(4 * 0x3ff);
+            kernelPD.printRawInt(Bitset:and(kernelPD.startAddr(), 0xfffff000) + 1);
+        }
+        
+        // enable paging
+        __pasm__(<"
+             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3 
+             .byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax
+             orl 0x80000001, %eax 
+             .byte 0x0F; .byte 0x22; .byte 0xC0 #//movl %eax, %cr0
+        ">, {"%eax": kernelPD.startAddr()});
+        
+        CgaScreen screen = this.createInstance(CgaScreen:CLASSNAME);
+        screen.init(0xFFBFF000);
+        this.setOut(screen.getFormattedOStream(15));
+        this.setErr(screen.getFormattedOStream(14));
+        
+
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
-        Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
+        ivt._init(Address:cast(0xFFBFE000));
 
         /* reset coprocessors */        
         IOPort:outb(0xf0, 0); //delay();
         IOPort:outb(0xf1, 0); //delay();
         
         /* activate keyboard and interrupts */
+        PIC pic = this.createInstance(PIC:CLASSNAME);
+        Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
         kbd.plugin(pic, ivt);
         ivt.activate();
         

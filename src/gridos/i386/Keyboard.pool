@@ -49,6 +49,8 @@ class Keyboard extends InterruptHandler {
     }
     
     [] reboot() {
+        // identity map page 0x0000-0x1000
+        sys::memory::Address:storeWord(0xFFC00000, 0x1); 
         // 0x1234: Warm boot without memory check, 0x0: Cold boot with memory check
         sys::memory::Address:storeWord(0x472, 0x1234); 
     
