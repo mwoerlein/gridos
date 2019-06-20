@@ -1,0 +1,18 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::memory;
+
+
+struct PhysicalFreePageInfo {
+
+    global int MAGIC := 0xF8EE7A9E;
+    
+    int magic;
+    PhysicalFreePageInfo self;
+    PhysicalFreePageInfo prev;
+    PhysicalFreePageInfo next;
+    int count;
+}

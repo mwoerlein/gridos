@@ -1,0 +1,45 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::memory;
+
+use sys::core::utils::Bitset;
+use sys::memory::Address;
+use sys::memory::MemoryInfo;
+use sys::memory::MemoryRegistry;
+use sys::memory::PageAllocator;
+
+class StartupRegistry extends MemoryRegistry {
+
+    [PhysicalFreePageInfo] extractFreePages() {
+        PhysicalFreePageInfo info = null;
+        MemoryInfo cur = available.next;
+        while (!Address:equals(cur, available)) {
+            int pagesStart = Bitset:rshift(cur.buf + PageAllocator:PAGESIZE - 1 , 12);
+            int pagesEnd = Bitset:rshift(cur.buf + cur.len, 12);
+            int pageCount = pagesEnd - pagesStart;
+            cur = cur.next;
+            int startAddr = pagesStart * PageAllocator:PAGESIZE;
+            
+            if (pageCount > 0) {
+                this._removeFromList(available, startAddr, pageCount * PageAllocator:PAGESIZE);
+                PhysicalFreePageInfo fp = Address:cast(startAddr);
+                fp.magic = PhysicalFreePageInfo:MAGIC;
+                fp.self = fp;
+                fp.count = pageCount;
+                if (info.magic != PhysicalFreePageInfo:MAGIC) {
+                    fp.prev = fp.next = fp;
+                } else {
+                    fp.prev = info;
+                    fp.next = info.next;
+                    fp.prev.next = fp.next.prev = fp;
+                }
+                info = fp;
+            }
+        }
+        return info;
+    }
+    
+}
