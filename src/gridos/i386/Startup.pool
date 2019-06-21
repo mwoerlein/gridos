@@ -32,11 +32,6 @@ class Startup extends Runtime, RuntimeBuilder {
     // TODO: implement and collect modules 
     int modules;
     
-    // TODO: extract PageManager/MMU/...
-    PhysicalFreePageInfo freePages;
-    [PhysicalFreePageInfo] getFreePages() { return freePages; }
-    [] setFreePages(PhysicalFreePageInfo freePages) { this.freePages = freePages; }
-    
     // methods
     __entry__ [] blub(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
         
@@ -56,6 +51,7 @@ class Startup extends Runtime, RuntimeBuilder {
             Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
             if (rt) {
                 // TODO: switch to (virtual) Kernel-Stack
+                // TODO: switch to dynamic loaded class and never return
                 rt.initializeKernel();
             }
         }
@@ -91,73 +87,22 @@ class Startup extends Runtime, RuntimeBuilder {
         bsMR.initEmptyFromAllocator(bsAllocator, 1, 100);
         bi.registerMemory(bsMR);
         
-        PhysicalFreePageInfo fp = bsSR.extractFreePages();
-        
-        // generate (bs)PhysicalPageManager
+        // TODO: generate (bs)PhysicalPageManager
         // - mark mbi-page and kernel/modules as used by Kernel/Startup
-        // generate (bs)KernelMMU and activate paging 
+        PhysicalPageManager bsPM = bsRt.createInstance(PhysicalPageManager:CLASSNAME);
+        bsPM.init(bsSR.extractFreePages());
+        
+        int kernelStackPages = 3;
+        
+        // TODO: generate (bs)KernelMMU and activate paging 
         // - Identity-Map all modules/reserved, 
         // - support PageDirectory/PageTables
         // - User/Kernel-Stack/Heap
         // - remap CgaScreen
-        // initialize DynamicClassStorage with copies of static classes
-        
-        
-        bsMR.dumpToStream(bsOut, 1).printNewline();
-        
-        // create "heap"-based runtime
-        bsRt.setAllocator(bsMR.allocator());
-        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
-        bsRt.setAllocator(bsAllocator);
-        rt.setRt(rt.runtime());
-        rt.setAllocator(bsMR.allocator());
-        rt.setClassStorage(bsRt.getClassStorage());
-        rt.setFreePages(fp);
-        
-        // create "heap"-based memory management
-        MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
-        bsMR.transferTo(mm);
-        rt.setAllocator(mm.allocator());
-        
-        // create "heap"-based class storage
-        StaticResolvedClassStorage crcs = rt.createInstance(StaticResolvedClassStorage:CLASSNAME);
-        rt.setClassStorage(crcs.classStorage());
-        crcs.rebuildClasses();
-        
-        // create "heap"-based stdOut
-        CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
-        screen.init(0xB8000);
-        rt.setOut(screen.getFormattedOStream(7));
-        rt.setErr(screen.getFormattedOStream(12));
-        
-        // TODO: create "heap"-based module-descriptions
-        bsRt.setOut(rt.out());
-        bsRt.setErr(rt.err());
-        bi.registerModules();
-        
-        // cleanup
-        bsMR.destroy();
-        bi.destroy();
-        bsOut.destroy();
-        bsScreen.destroy();
-        
-        // TODO: free mbi-page
-        return rt.runtime();
-    }
-    
-    [] initializeKernel() {
-        // TODO: analyse modules
-        // - remap/copy GIDT into Kernel-Space and initiate idt/gdt
-        // - remap/copy store into Kernel-Space and register at DynamicClassManager
-        // - free startup-pages and copied module-pages to free low memory
-        
-        PhysicalPageManager ppm = this.createInstance(PhysicalPageManager:CLASSNAME);
-        ppm.init(this.getFreePages());
-        
-        MemoryIOStream pt000 = this.createInstance(MemoryIOStream:CLASSNAME);
+        MemoryIOStream pt000 = bsRt.createInstance(MemoryIOStream:CLASSNAME);
         {
-            pt000._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
-            int i = 8;
+            pt000._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            int i = 0;
             int ptr = i * PageAllocator:PAGESIZE + 1;
             pt000.seek(4 * i);
             while (i++ < 0x100) { // low mem: 0x0 - 0x100000
@@ -166,27 +111,34 @@ class Startup extends Runtime, RuntimeBuilder {
             }
         }
         
-        MemoryIOStream pt3fe = this.createInstance(MemoryIOStream:CLASSNAME);
+        MemoryIOStream pt3c0 = bsRt.createInstance(MemoryIOStream:CLASSNAME);
         {
-            pt3fe._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            pt3c0._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            PhysicalFreePageInfo ksPages = bsPM.allocatePhysicalPages(kernelStackPages);
+            int i = kernelStackPages;
+            int ptr = Address:from(ksPages.self) + 1;
+            while (i-- > 0) { // kernel stack mem: 0xF0000000 - 0xF000X000
+                pt3c0.printRawInt(ptr);
+                ptr += PageAllocator:PAGESIZE;
+            }
+        }
+        MemoryIOStream pt3fe = bsRt.createInstance(MemoryIOStream:CLASSNAME);
+        {
+            pt3fe._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
             
-            pt3fe.seek(4 * 0x3fd);
-            pt3fe.printRawInt(Bitset:and(0x10000, 0xfffff000) + 1);
-            pt3fe.seek(4 * 0x3fe);
-            pt3fe.printRawInt(Bitset:and(0x11000, 0xfffff000) + 1);
             pt3fe.seek(4 * 0x3ff);
             pt3fe.printRawInt(Bitset:and(0xB8000, 0xfffff000) + 1);
         }
         
-        MemoryIOStream kernelPD = this.createInstance(MemoryIOStream:CLASSNAME);
+        MemoryIOStream kernelPD = bsRt.createInstance(MemoryIOStream:CLASSNAME);
         {
-            kernelPD._initBuf(ppm.allocateZeroedPage(), PageAllocator:PAGESIZE);
+            kernelPD._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
             
             kernelPD.seek(4 * 0x0);
             kernelPD.printRawInt(Bitset:and(pt000.startAddr(), 0xfffff000) + 1);
             
-//            kernelPD.seek(4 * 0x2ff);
-//            kernelPD.printRawInt(Bitset:and(pt2ff.startAddr(), 0xfffff000) + 1);
+            kernelPD.seek(4 * 0x3c0);
+            kernelPD.printRawInt(Bitset:and(pt3c0.startAddr(), 0xfffff000) + 1);
             
             kernelPD.seek(4 * 0x3fe);
             kernelPD.printRawInt(Bitset:and(pt3fe.startAddr(), 0xfffff000) + 1);
@@ -203,12 +155,77 @@ class Startup extends Runtime, RuntimeBuilder {
              .byte 0x0F; .byte 0x22; .byte 0xC0 #//movl %eax, %cr0
         ">, {"%eax": kernelPD.startAddr()});
         
-        CgaScreen screen = this.createInstance(CgaScreen:CLASSNAME);
-        screen.init(0xFFBFF000);
-        this.setOut(screen.getFormattedOStream(15));
-        this.setErr(screen.getFormattedOStream(14));
+        // initialize kernel heap
+        MemoryManager bsMM = bsRt.createInstance(MemoryManager:CLASSNAME);
+        MemoryInfo available = Address:cast(0xF0000000);
+        available.buf = 0xF0000000;
+        available.len = kernelStackPages * PageAllocator:PAGESIZE;
+        available.flags = MemoryInfo:FLAGS_AVAILABLE;
+        bsMM.initEmpty(available, 1, 0);
         
+        // create "heap"-based runtime
+        bsRt.setAllocator(bsMM.allocator());
+        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
+        bsRt.setAllocator(bsAllocator);
+        rt.setRt(rt.runtime());
+        rt.setAllocator(bsMM.allocator());
+        rt.setClassStorage(bsRt.getClassStorage());
+        
+        // create "heap"-based memory management
+        MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
+        mm.initFromMemoryManager(bsMM);
+        rt.setAllocator(mm.allocator());
+        
+        // TODO: initialize DynamicClassStorage with copies of static classes
+        // create "heap"-based class storage
+        StaticResolvedClassStorage crcs = rt.createInstance(StaticResolvedClassStorage:CLASSNAME);
+        rt.setClassStorage(crcs.classStorage());
+        crcs.rebuildClasses();
+        
+        // create "heap"-based stdOut
+        CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
+        screen.init(0xFFBFF000);
+        rt.setOut(screen.getFormattedOStream(7));
+        rt.setErr(screen.getFormattedOStream(12));
+        
+        // TODO: create "heap"-based module-descriptions
+        bsRt.setOut(rt.out());
+        bsRt.setErr(rt.err());
+        bi.registerModules();
+        
+        // cleanup
+        bsMR.destroy();
+        bsMM.destroy();
+        bi.destroy();
+        bsOut.destroy();
+        bsScreen.destroy();
+        
+        // TODO: free mbi-page
+        return rt.runtime();
+    }
+    
+    [] initializeKernel() {
+        // TODO: analyse modules
+        // - remap/copy GIDT into Kernel-Space and initiate idt/gdt
+        // - remap/copy store into Kernel-Space and register at DynamicClassManager
+        // - free startup-pages and copied module-pages to free low memory
+        
+        sys::memory::Address:storeAddress(
+            0xFFC00000 + Bitset:lshift(0x3fe, 12) + Bitset:lshift(0x3fd, 2),
+            Bitset:and(0x10000, 0xfffff000) + 1
+        ); 
+        sys::memory::Address:storeAddress(
+            0xFFC00000 + Bitset:lshift(0x3fe, 12) + Bitset:lshift(0x3fe, 2),
+            Bitset:and(0x11000, 0xfffff000) + 1
+        ); 
 
+/*        
+        // flush paging
+        __pasm__(<"
+             .byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax 
+             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
+        ">); 
+*/
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         ivt._init(Address:cast(0xFFBFE000));
 
