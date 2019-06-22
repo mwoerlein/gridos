@@ -12,6 +12,7 @@ use sys::memory::PageAllocator;
 
 class MMU extends Object {
     int activeDirectory;
+    PhysicalFreePageInfo info;
     
     [] __init() {
         int cr0 = 0;
@@ -21,6 +22,7 @@ class MMU extends Object {
         } else {
             activeDirectory = 0;
         }
+        info = Address:cast(0xFFBFB000);
     }
     
     [int] isActive() {
@@ -50,11 +52,27 @@ class MMU extends Object {
         
         int pdEntry = Address:loadAddress(pdEntryAddr);
         if (!Bitset:has(pdEntry, 0x1)) {
-            this.rt().err().printCString("TODO: allocate page table: ").printHex(pdIndex);
-            this.rt().out().printNewline();
-            return;
+            Address:storeAddress(pdEntryAddr, this.newPageTable() + 0x1);
+            this.flushTLB(); 
         }
         Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + 0x1); 
+    }
+    
+    [int] unmap(int vAddr) {
+        int pdIndex = Bitset:rshift(vAddr, 22);
+        int ptIndex = Bitset:and(Bitset:rshift(vAddr, 12), 0x3ff);
+        int pdEntryAddr = 0xFFFFF000 + 4*pdIndex;
+        int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
+        
+        int pdEntry = Address:loadAddress(pdEntryAddr);
+        if (!Bitset:has(pdEntry, 0x1)) {
+            return -1;
+        }
+        int ptEntry = Address:loadAddress(ptEntryAddr);
+        if (!Bitset:has(ptEntry, 0x1)) {
+            return -1;
+        }
+        return Bitset:and(ptEntry, 0xfffff000); 
     }
     
     [] flushTLB() {
@@ -64,4 +82,74 @@ class MMU extends Object {
         ">); 
     }
     
+    [] allocatePagesAt(int count, int virtualAddress) {
+        int pages = count;
+        if (info.count >= pages) {
+            info.count -= pages;
+            int pAddr = Address:offsetAddress(info.self, info.count * PageAllocator:PAGESIZE);
+            int vAddr = virtualAddress;
+            while (pages-- > 0) {
+                this.map(pAddr, vAddr);
+                pAddr += PageAllocator:PAGESIZE;
+                vAddr += PageAllocator:PAGESIZE;
+            }
+            return;
+        }
+        // TODO: handle page info list
+    }
+    
+    [int] newPageTable() {
+        this.allocatePagesAt(1, 0xFFBF9000);
+        int addr = 0xFFBF9000;
+        while (addr < 0xFFBFA000) {
+            Address:storeAddress(addr, 0);
+            addr += 4;
+        }
+        return this.unmap(0xFFBF9000);
+    }
+    
+    [] _bootstrap(PhysicalFreePageInfo freePages) {
+        int pages = 3;
+        if (freePages.count <= pages) {
+            // bailout
+            this.rt().err().printCString("insufficient free pages");
+            this.rt().out().printNewline();
+            return;
+        }
+        freePages.count -= pages;
+        int pAddr = Address:offsetAddress(freePages.self, freePages.count * PageAllocator:PAGESIZE);
+        { // zero pages
+            int cur = pAddr;
+            int end = pAddr + pages * PageAllocator:PAGESIZE;
+            while (cur < end) {
+                Address:storeAddress(cur, 0);
+                cur += 4;
+            }
+        }
+        int pd = pAddr;
+        int pt000 = pd + PageAllocator:PAGESIZE;
+        int pt3fe = pt000 + PageAllocator:PAGESIZE;
+        { // identity map low memory: 0x0 - 0x100000
+            int cur = pt000;
+            int end = pt000 + 4 * 0x100;
+            int ptr = 0x1;
+            while (cur < end) {
+                Address:storeAddress(cur, ptr);
+                ptr += PageAllocator:PAGESIZE;
+                cur += 4;
+            }
+        }
+        { // init free page handling
+            Address:storeAddress(pt3fe + 4 * 0x3fa, Address:from(freePages.prev) + 0x1);
+            Address:storeAddress(pt3fe + 4 * 0x3fb, Address:from(freePages.self) + 0x1);
+            Address:storeAddress(pt3fe + 4 * 0x3fc, Address:from(freePages.next) + 0x1);
+        }
+        { // init page directory
+            Address:storeAddress(pd + 4 * 0x000, pt000 + 0x1);
+            Address:storeAddress(pd + 4 * 0x3fe, pt3fe + 0x1);
+            Address:storeAddress(pd + 4 * 0x3ff, pd + 0x1);
+        }
+        
+        this.activate(pd);
+    }
 }

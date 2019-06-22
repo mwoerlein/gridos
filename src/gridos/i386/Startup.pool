@@ -6,8 +6,6 @@ version = 0.1.0
 namespace gridos::i386;
 
 use gridos::i386::memory::MMU;
-use gridos::i386::memory::PhysicalFreePageInfo;
-use gridos::i386::memory::PhysicalPageManager;
 use gridos::i386::memory::StartupRegistry;
 
 use gridos::multiboot2::BootInformation;
@@ -92,70 +90,21 @@ class Startup extends Runtime, RuntimeBuilder {
         bsMR.initEmptyFromAllocator(bsAllocator, 1, 100);
         bi.registerMemory(bsMR);
         
-        // TODO: generate (bs)PhysicalPageManager
-        // - mark mbi-page and kernel/modules as used by Kernel/Startup
-        PhysicalPageManager bsPM = bsRt.createInstance(PhysicalPageManager:CLASSNAME);
-        bsPM.init(bsSR.extractFreePages());
-        
-        int kernelStackPages = 3;
-        
-        MMU bsMMU = bsRt.createInstance(MMU:CLASSNAME);
-        // TODO: generate (bs)KernelMMU and activate paging 
-        // - Identity-Map all modules/reserved, 
-        // - support PageDirectory/PageTables
-        // - User/Kernel-Stack/Heap
-        // - remap CgaScreen
-        MemoryIOStream pt000 = bsRt.createInstance(MemoryIOStream:CLASSNAME);
-        {
-            pt000._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
-            int i = 0;
-            int ptr = i * PageAllocator:PAGESIZE + 1;
-            pt000.seek(4 * i);
-            while (i++ < 0x100) { // low mem: 0x0 - 0x100000
-                pt000.printRawInt(ptr);
-                ptr += PageAllocator:PAGESIZE;
-            }
-        }
-        
-        MemoryIOStream pt3c0 = bsRt.createInstance(MemoryIOStream:CLASSNAME);
-        {
-            pt3c0._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
-            PhysicalFreePageInfo ksPages = bsPM.allocatePhysicalPages(kernelStackPages);
-            int i = kernelStackPages;
-            int ptr = Address:from(ksPages.self) + 1;
-            while (i-- > 0) { // kernel stack mem: 0xF0000000 - 0xF000X000
-                pt3c0.printRawInt(ptr);
-                ptr += PageAllocator:PAGESIZE;
-            }
-        }
-        
-        MemoryIOStream kernelPD = bsRt.createInstance(MemoryIOStream:CLASSNAME);
-        {
-            kernelPD._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
-            
-            kernelPD.seek(4 * 0x0);
-            kernelPD.printRawInt(Bitset:and(pt000.startAddr(), 0xfffff000) + 1);
-            
-            kernelPD.seek(4 * 0x3c0);
-            kernelPD.printRawInt(Bitset:and(pt3c0.startAddr(), 0xfffff000) + 1);
-            
-            kernelPD.seek(4 * 0x3fe);
-            kernelPD.printRawInt(Bitset:and(bsPM.allocateZeroedPage(), 0xfffff000) + 1);
-            
-            kernelPD.seek(4 * 0x3ff);
-            kernelPD.printRawInt(Bitset:and(kernelPD.startAddr(), 0xfffff000) + 1);
-        }
-        
         // enable paging
-        bsMMU.activate(kernelPD.startAddr());
+        MMU bsMMU = bsRt.createInstance(MMU:CLASSNAME);
+        bsMMU._bootstrap(bsSR.extractFreePages());
+        // TODO: 
+        // - mark mbi-page and kernel/modules as used by Kernel/Startup
         
         // initialize kernel heap
         MemoryManager bsMM = bsRt.createInstance(MemoryManager:CLASSNAME);
-        MemoryInfo available = Address:cast(0xF0000000);
-        available.buf = 0xF0000000;
-        available.len = kernelStackPages * PageAllocator:PAGESIZE;
-        available.flags = MemoryInfo:FLAGS_AVAILABLE;
-        bsMM.initEmpty(available, 1, 0);
+        int kernelHeapPages = 3;
+        bsMMU.allocatePagesAt(kernelHeapPages, 0xF0000000);
+        MemoryInfo kernelHeapInfo = Address:cast(0xF0000000);
+        kernelHeapInfo.buf = 0xF0000000;
+        kernelHeapInfo.len = kernelHeapPages * PageAllocator:PAGESIZE;
+        kernelHeapInfo.flags = MemoryInfo:FLAGS_AVAILABLE;
+        bsMM.initEmpty(kernelHeapInfo, 1, 0);
         
         // create "heap"-based runtime
         bsRt.setAllocator(bsMM.allocator());
@@ -193,9 +142,9 @@ class Startup extends Runtime, RuntimeBuilder {
         bi.registerModules();
         
         // cleanup
-        bsMR.destroy();
         bsMM.destroy();
         bsMMU.destroy();
+        bsSR.destroy();
         bi.destroy();
         bsOut.destroy();
         bsScreen.destroy();

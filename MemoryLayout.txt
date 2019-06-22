@@ -18,8 +18,10 @@
  * +
  * | ^^^ Kernel-Stack            owner: (Kernel-)Thread
  * +----- 0xFF800000 -----+ (0x3FE:0x000)
- * | reserved (Remapped-Modules, shared, HW, free page management, ...)
+ * | reserved (Remapped-Modules, shared, HW, ...)
  * | ...
+ * +----- 0xFFBF9000 -----+ (0x3FE:0x3FD) owner: MMU
+ * | page management
  * +----- 0xFFBFD000 -----+ (0x3FE:0x3FD) owner: InterruptVectorTable
  * | IDT/GDT/TSS
  * | ISR entries
