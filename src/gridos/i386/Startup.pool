@@ -5,6 +5,7 @@ version = 0.1.0
 */
 namespace gridos::i386;
 
+use gridos::i386::memory::MMU;
 use gridos::i386::memory::PhysicalFreePageInfo;
 use gridos::i386::memory::PhysicalPageManager;
 use gridos::i386::memory::StartupRegistry;
@@ -31,6 +32,10 @@ class Startup extends Runtime, RuntimeBuilder {
     
     // TODO: implement and collect modules 
     int modules;
+    
+    MMU mmu;
+    [MMU] getMMU() { return mmu; }
+    [] setMMU(MMU mmu) { this.mmu = mmu; }
     
     // methods
     __entry__ [] blub(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
@@ -94,6 +99,7 @@ class Startup extends Runtime, RuntimeBuilder {
         
         int kernelStackPages = 3;
         
+        MMU bsMMU = bsRt.createInstance(MMU:CLASSNAME);
         // TODO: generate (bs)KernelMMU and activate paging 
         // - Identity-Map all modules/reserved, 
         // - support PageDirectory/PageTables
@@ -122,13 +128,6 @@ class Startup extends Runtime, RuntimeBuilder {
                 ptr += PageAllocator:PAGESIZE;
             }
         }
-        MemoryIOStream pt3fe = bsRt.createInstance(MemoryIOStream:CLASSNAME);
-        {
-            pt3fe._initBuf(bsPM.allocateZeroedPage(), PageAllocator:PAGESIZE);
-            
-            pt3fe.seek(4 * 0x3ff);
-            pt3fe.printRawInt(Bitset:and(0xB8000, 0xfffff000) + 1);
-        }
         
         MemoryIOStream kernelPD = bsRt.createInstance(MemoryIOStream:CLASSNAME);
         {
@@ -141,19 +140,14 @@ class Startup extends Runtime, RuntimeBuilder {
             kernelPD.printRawInt(Bitset:and(pt3c0.startAddr(), 0xfffff000) + 1);
             
             kernelPD.seek(4 * 0x3fe);
-            kernelPD.printRawInt(Bitset:and(pt3fe.startAddr(), 0xfffff000) + 1);
+            kernelPD.printRawInt(Bitset:and(bsPM.allocateZeroedPage(), 0xfffff000) + 1);
             
             kernelPD.seek(4 * 0x3ff);
             kernelPD.printRawInt(Bitset:and(kernelPD.startAddr(), 0xfffff000) + 1);
         }
         
         // enable paging
-        __pasm__(<"
-             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3 
-             .byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax
-             orl 0x80000001, %eax 
-             .byte 0x0F; .byte 0x22; .byte 0xC0 #//movl %eax, %cr0
-        ">, {"%eax": kernelPD.startAddr()});
+        bsMMU.activate(kernelPD.startAddr());
         
         // initialize kernel heap
         MemoryManager bsMM = bsRt.createInstance(MemoryManager:CLASSNAME);
@@ -171,6 +165,10 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setAllocator(bsMM.allocator());
         rt.setClassStorage(bsRt.getClassStorage());
         
+        // create "heap"-based MMU
+        MMU mmu = rt.createInstance(MMU:CLASSNAME);
+        rt.setMMU(mmu);
+        
         // create "heap"-based memory management
         MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
         mm.initFromMemoryManager(bsMM);
@@ -183,6 +181,7 @@ class Startup extends Runtime, RuntimeBuilder {
         crcs.rebuildClasses();
         
         // create "heap"-based stdOut
+        mmu.map(0xB8000, 0xFFBFF000);
         CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
         screen.init(0xFFBFF000);
         rt.setOut(screen.getFormattedOStream(7));
@@ -196,6 +195,7 @@ class Startup extends Runtime, RuntimeBuilder {
         // cleanup
         bsMR.destroy();
         bsMM.destroy();
+        bsMMU.destroy();
         bi.destroy();
         bsOut.destroy();
         bsScreen.destroy();
@@ -209,26 +209,13 @@ class Startup extends Runtime, RuntimeBuilder {
         // - remap/copy GIDT into Kernel-Space and initiate idt/gdt
         // - remap/copy store into Kernel-Space and register at DynamicClassManager
         // - free startup-pages and copied module-pages to free low memory
-        
-        sys::memory::Address:storeAddress(
-            0xFFC00000 + Bitset:lshift(0x3fe, 12) + Bitset:lshift(0x3fd, 2),
-            Bitset:and(0x10000, 0xfffff000) + 1
-        ); 
-        sys::memory::Address:storeAddress(
-            0xFFC00000 + Bitset:lshift(0x3fe, 12) + Bitset:lshift(0x3fe, 2),
-            Bitset:and(0x11000, 0xfffff000) + 1
-        ); 
-
-/*        
-        // flush paging
-        __pasm__(<"
-             .byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax 
-             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
-        ">); 
-*/
+        mmu.map(0x10000, 0xFFBFD000);
+        mmu.map(0x11000, 0xFFBFE000);
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         ivt._init(Address:cast(0xFFBFE000));
 
+        //mmu.map(0x0, 0xFF7FF000);
+        
         /* reset coprocessors */        
         IOPort:outb(0xf0, 0); //delay();
         IOPort:outb(0xf1, 0); //delay();

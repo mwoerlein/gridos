@@ -1,0 +1,67 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::memory;
+
+use sys::core::Object;
+use sys::core::utils::Bitset;
+use sys::memory::Address;
+use sys::memory::PageAllocator;
+
+class MMU extends Object {
+    int activeDirectory;
+    
+    [] __init() {
+        int cr0 = 0;
+        __pasm__(".byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax", {}, {"%eax": cr0});
+        if (Bitset:has(cr0, 0x80000001)) {
+            __pasm__(".byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax", {}, {"%eax": activeDirectory});
+        } else {
+            activeDirectory = 0;
+        }
+    }
+    
+    [int] isActive() {
+        return this.activeDirectory != 0;
+    }
+
+    [] activate(int pageDirectoryPAddr) {
+        if (pageDirectoryPAddr == 0) {
+            this.rt().err().printCString("invalid page directory to activate");
+            this.rt().out().printNewline();
+            return;
+        }
+        __pasm__(<"
+             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3 
+             .byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax
+             orl 0x80000001, %eax 
+             .byte 0x0F; .byte 0x22; .byte 0xC0 #//movl %eax, %cr0
+        ">, {"%eax": pageDirectoryPAddr});
+        this.activeDirectory = pageDirectoryPAddr;
+    }
+    
+    [] map(int pAddr, int vAddr) {
+        int pdIndex = Bitset:rshift(vAddr, 22);
+        int ptIndex = Bitset:and(Bitset:rshift(vAddr, 12), 0x3ff);
+        int pdEntryAddr = 0xFFFFF000 + 4*pdIndex;
+        int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
+        
+        int pdEntry = Address:loadAddress(pdEntryAddr);
+        if (!Bitset:has(pdEntry, 0x1)) {
+            this.rt().err().printCString("TODO: allocate page table: ").printHex(pdIndex);
+            this.rt().out().printNewline();
+            return;
+        }
+        Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + 0x1); 
+    }
+    
+    [] flushTLB() {
+        __pasm__(<"
+             .byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax 
+             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
+        ">); 
+    }
+    
+}
