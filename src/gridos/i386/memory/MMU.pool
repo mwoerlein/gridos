@@ -72,6 +72,24 @@ class MMU extends Object {
         if (!Bitset:has(ptEntry, 0x1)) {
             return -1;
         }
+        Address:storeAddress(ptEntryAddr, 0); 
+        return Bitset:and(ptEntry, 0xfffff000); 
+    }
+    
+    [int] getPPage(int vAddr) {
+        int pdIndex = Bitset:rshift(vAddr, 22);
+        int ptIndex = Bitset:and(Bitset:rshift(vAddr, 12), 0x3ff);
+        int pdEntryAddr = 0xFFFFF000 + 4*pdIndex;
+        int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
+        
+        int pdEntry = Address:loadAddress(pdEntryAddr);
+        if (!Bitset:has(pdEntry, 0x1)) {
+            return -1;
+        }
+        int ptEntry = Address:loadAddress(ptEntryAddr);
+        if (!Bitset:has(ptEntry, 0x1)) {
+            return -1;
+        }
         return Bitset:and(ptEntry, 0xfffff000); 
     }
     
@@ -82,19 +100,24 @@ class MMU extends Object {
         ">); 
     }
     
-    [] allocatePagesAt(int count, int virtualAddress) {
+    [int] allocatePagesAt(int count, int virtualAddress) {
         int pages = count;
+        int allocated = 0;
         if (info.count >= pages) {
             info.count -= pages;
             int pAddr = Address:offsetAddress(info.self, info.count * PageAllocator:PAGESIZE);
             int vAddr = virtualAddress;
             while (pages-- > 0) {
+                if (this.getPPage(vAddr) != -1) {
+                    return allocated;
+                }
                 this.map(pAddr, vAddr);
                 pAddr += PageAllocator:PAGESIZE;
                 vAddr += PageAllocator:PAGESIZE;
+                allocated++;
             }
-            return;
         }
+        return allocated;
         // TODO: handle page info list
     }
     

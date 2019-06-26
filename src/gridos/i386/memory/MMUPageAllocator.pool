@@ -1,0 +1,42 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::memory;
+
+use sys::memory::Address;
+use sys::memory::MemoryInfo;
+use sys::memory::PageAllocator;
+
+class MMUPageAllocator extends PageAllocator {
+    int topOfHeap;
+    MMU mmu;
+    
+    // methods
+    [] _init(MMU mmu, int topOfHeap) {
+        this.mmu = mmu;
+        this.topOfHeap = topOfHeap;
+    }
+    
+    [int] getTopOfHeap() { return topOfHeap; }
+    
+    [int] isIncreasing() { return 1; }
+    
+    [MemoryInfo] allocatePages(int pages) {
+        if (pages < 1) {
+            return Address:cast(MemoryInfo:NONE);
+        }
+        int allocated = mmu.allocatePagesAt(pages, topOfHeap);
+        if (allocated < 1) {
+            return Address:cast(MemoryInfo:NONE);
+        }
+        MemoryInfo info = Address:cast(topOfHeap);
+        info.buf = topOfHeap;
+        info.len = allocated * PageAllocator:PAGESIZE;
+        info.flags = MemoryInfo:FLAGS_AVAILABLE;
+        info.next = info.prev = info;
+        topOfHeap = Address:offsetAddress(info, info.len);
+        return info;
+    }
+}

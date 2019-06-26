@@ -6,6 +6,7 @@ version = 0.1.0
 namespace gridos::i386;
 
 use gridos::i386::memory::MMU;
+use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StartupRegistry;
 
 use gridos::multiboot2::BootInformation;
@@ -21,6 +22,7 @@ use sys::memory::MemoryIOStream;
 use sys::memory::MemoryManager;
 use sys::memory::MemoryRegistry;
 use sys::memory::PageAllocator;
+use sys::memory::PagedMemoryManager;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
@@ -97,21 +99,17 @@ class Startup extends Runtime, RuntimeBuilder {
         // - mark mbi-page and kernel/modules as used by Kernel/Startup
         
         // initialize kernel heap
-        MemoryManager bsMM = bsRt.createInstance(MemoryManager:CLASSNAME);
-        int kernelHeapPages = 3;
-        bsMMU.allocatePagesAt(kernelHeapPages, 0xF0000000);
-        MemoryInfo kernelHeapInfo = Address:cast(0xF0000000);
-        kernelHeapInfo.buf = 0xF0000000;
-        kernelHeapInfo.len = kernelHeapPages * PageAllocator:PAGESIZE;
-        kernelHeapInfo.flags = MemoryInfo:FLAGS_AVAILABLE;
-        bsMM.initEmpty(kernelHeapInfo, 1, 0);
+        MMUPageAllocator bsMPA = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
+        bsMPA._init(bsMMU, 0xF0000000);
+        PagedMemoryManager bsPMM = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
+        bsPMM.initFromPageAllocator(bsMPA.pageAllocator(), 1);
         
         // create "heap"-based runtime
-        bsRt.setAllocator(bsMM.allocator());
+        bsRt.setAllocator(bsPMM.allocator());
         Startup rt = bsRt.createInstance(Startup:CLASSNAME);
         bsRt.setAllocator(bsAllocator);
         rt.setRt(rt.runtime());
-        rt.setAllocator(bsMM.allocator());
+        rt.setAllocator(bsPMM.allocator());
         rt.setClassStorage(bsRt.getClassStorage());
         
         // create "heap"-based MMU
@@ -119,9 +117,11 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setMMU(mmu);
         
         // create "heap"-based memory management
-        MemoryManager mm = rt.createInstance(MemoryManager:CLASSNAME);
-        mm.initFromMemoryManager(bsMM);
-        rt.setAllocator(mm.allocator());
+        MMUPageAllocator mpa = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
+        mpa._init(mmu, bsMPA.getTopOfHeap());
+        PagedMemoryManager pmm = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
+        pmm.initFromPagedMemoryManager(mpa.pageAllocator(), bsPMM);
+        rt.setAllocator(pmm.allocator());
         
         // TODO: initialize DynamicClassStorage with copies of static classes
         // create "heap"-based class storage
@@ -142,7 +142,8 @@ class Startup extends Runtime, RuntimeBuilder {
         bi.registerModules();
         
         // cleanup
-        bsMM.destroy();
+        bsPMM.destroy();
+        bsMPA.destroy();
         bsMMU.destroy();
         bsSR.destroy();
         bi.destroy();
