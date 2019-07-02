@@ -1,0 +1,62 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::module;
+
+use sys::core::String;
+use sys::memory::MemoryIOStream;
+use sys::store::StorageElement;
+use sys::stream::IStream;
+use sys::stream::OStream;
+
+class Module extends StorageElement {
+
+    cstring PROPERTYNAME_MODULE_ID := "meta.id";
+        
+    int _start;
+    int _contentStart;
+    int _end;
+    
+    [] init(int startAddr, int endAddr) {
+        _start = _contentStart = startAddr;
+        _end = endAddr;
+        this._initStorageElement();
+    }
+    [] __destruct() {
+        this._destructStorageElement();
+    }
+    
+    [int] hasId() {
+        return this.hasCStringProperty(PROPERTYNAME_MODULE_ID);
+    }
+    
+    [String] getId() {
+        return this.getCStringProperty(PROPERTYNAME_MODULE_ID);
+    }
+    
+    [] setId(String id) {
+        String tmp = this.createStringFromCString(PROPERTYNAME_MODULE_ID); 
+        this.setStringProperty(tmp, id);
+        tmp.destroy();
+    }
+
+    [IStream] getContent() {
+        MemoryIOStream s = this.rt().createInstance(MemoryIOStream:CLASSNAME);
+        s._initBuf(_contentStart, _end - _contentStart);
+        return s.istream();
+    }
+    
+    [int] getContentSize() {
+        return _end - _contentStart;
+    }
+    
+    [OStream] dumpToStream(OStream stream, int withProperties) {
+        stream.printChar('[').print(this.getId()).printChar(']').printChar(' ')
+            .printChar('(').printPtr(_contentStart).printChar(':').printPtr(_end).printChar(')')
+            .printNewline(); 
+        if (withProperties) { this.dumpPropertiesToStream(stream); }
+        return stream;
+    }    
+}

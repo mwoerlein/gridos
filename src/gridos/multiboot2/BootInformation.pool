@@ -5,6 +5,8 @@ version = 0.1.0
 */
 namespace gridos::multiboot2;
 
+use gridos::module::ModuleSet;
+
 use gridos::multiboot2::structs::HeaderTagAddress;
 use gridos::multiboot2::structs::MMapEntry;
 use gridos::multiboot2::structs::MultiBootHeader;
@@ -137,13 +139,12 @@ class BootInformation extends Object {
         registry.registerUsedMemory(Address:from(mbi), mbi.size);
     }
     
-    [] registerModules() {
-        OStream out = this.rt().out();
-        out.printPtr(address.load_addr).printChar(':').printPtr(address.bss_end_addr).printChar(' ').printCString(this.getCommandLine()).printNewline();
-        TagModuleListElement cur = modules;
+    [] registerModules(ModuleSet modules) {
+        modules.addModule(this.getCommandLine(), address.load_addr, address.bss_end_addr);
+        TagModuleListElement cur = this.modules;
         while (cur) {
             TagModule module = cur.getModule();
-            out.printPtr(module.mod_start).printChar(':').printPtr(module.mod_end).printChar(' ').printCString(Address:string(module, TagModule:SIZEOF)).printNewline();
+            modules.addModule(Address:string(module, TagModule:SIZEOF), module.mod_start, module.mod_end);
             cur = cur.getNext();
         }
     }

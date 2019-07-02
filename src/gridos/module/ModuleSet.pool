@@ -1,0 +1,82 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::module;
+
+use sys::core::String;
+use sys::core::anycollection::AnyMap;
+
+class ModuleSet extends AnyMap { // HashMap<String, Module>
+
+    [] __init() {
+        this._initAnyMap(5);
+    }
+    
+    [] __destruct() {
+        this._destructAnyMap();
+    }
+    
+    [int] hasModule(String moduleId) {
+        return this.has(moduleId);
+    }
+    [Module] getModule(String moduleId) {
+        return this.get(moduleId);
+    }
+    [int] isStringProperty(String moduleId, String property, String value) {
+        return this.hasModule(moduleId) && this.getModule(moduleId).isStringProperty(property, value);
+    }
+
+    [int] hasCModule(cstring moduleId) {
+        String tmp = this.rt().createInstance(String:CLASSNAME);
+        tmp.assignCString(moduleId);
+        int ret = this.hasModule(tmp);
+        tmp.destroy();
+        return ret;
+    }
+    [Module] getCModule(cstring moduleId) {
+        String tmp = this.rt().createInstance(String:CLASSNAME);
+        tmp.assignCString(moduleId);
+        Module ret = this.getModule(tmp);
+        tmp.destroy();
+        return ret;
+    }
+    [int] isCStringProperty(cstring moduleId, cstring property, cstring value) {
+        return this.hasCModule(moduleId) && this.getCModule(moduleId).isCStringProperty(property, value);
+    }
+    
+    [] addModule(cstring commandline, int startAddr, int endAddr) {
+        // TODO: remove debug
+        this.rt().err().printCString("add module at ").printPtr(startAddr).printChar(':').printPtr(endAddr)
+            .printCString(" with ").printCString(commandline).printNewline();
+            
+        Module module = this.rt().createInstance(Module:CLASSNAME);
+        module.init(startAddr, endAddr);
+        
+        // TODO: parse header
+        // TODO: parse commandline
+        String id = module.createOwnStringFromCString("module-");
+        id.printInt(this.size());
+        module.setId(id);
+        module.setCStringProperty("test1","value1");
+        module.setCStringProperty("test2","value2");
+        
+        if (!module.hasId()) {
+            this.rt().err().printCString("ignore module at ")
+                .printPtr(startAddr).printChar(':').printPtr(endAddr)
+                .printCString(" because of missing module id").printNewline();
+            module.destroy();
+            return;
+        }
+        if (this.has(module.getId())) {
+            this.rt().err().printCString("ignore module at ")
+                .printPtr(startAddr).printChar(':').printPtr(endAddr)
+                .printCString(" because of duplicate module id '").print(module.getId()).printChar('\'').printNewline();
+            module.destroy();
+            return;
+        }
+        this.set(module.getId(), module);
+    }
+    [] destroyModules() {} //freeModules?
+}
