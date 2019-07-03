@@ -6,13 +6,19 @@ version = 0.1.0
 namespace gridos::module;
 
 use sys::core::String;
+use sys::core::anycollection::AnyIterator;
+use sys::core::anycollection::AnyList;
+use sys::core::utils::CommandLineParser;
+use sys::core::utils::CommandLineParserTarget;
 use sys::memory::MemoryIOStream;
+use sys::runtime::Runtime;
 use sys::store::StorageElement;
 use sys::stream::IStream;
 use sys::stream::OStream;
 
-class Module extends StorageElement {
+class Module extends StorageElement, CommandLineParserTarget {
 
+    cstring PROPERTYPREFIX_DEFAULT := "meta.";
     cstring PROPERTYNAME_MODULE_ID := "meta.id";
         
     int _start;
@@ -50,6 +56,44 @@ class Module extends StorageElement {
     
     [int] getContentSize() {
         return _end - _contentStart;
+    }
+    
+    [int] parseCommandline(cstring commandline) {
+        Runtime rt = this.rt();
+        CommandLineParser p = rt.createInstance(CommandLineParser:CLASSNAME);
+        AnyList args = p.split(commandline);
+        AnyIterator ai = args.iterator();
+        int ret = true;
+        if (ai.hasNext()) {
+            this.setId(this.createOwnStringFromString(ai.next()));
+            ret = p.parse(ai, rt.cast(CommandLineParserTarget:CLASSNAME, this));
+        }
+        ai.destroy();
+        args.destroyAll();
+        args.destroy();
+        p.destroy();
+        return ret;
+    }
+    
+    [int] pushCLArgument(String arg) {
+        this.rt().err().printCString("modules do not support arguments! given: ").print(arg).printNewline();
+        return false;
+    }
+    
+    [int] pushCLOption(String opt) {
+        this.rt().err().printCString("modules do not support options! given: ").print(opt).printNewline();
+        return false;
+    }
+    
+    [int] pushCLValueOption(String opt, String val) {
+        String name = this.createStringFromCString(PROPERTYPREFIX_DEFAULT);
+        name.print(opt);
+        String old = this.setStringProperty(name, this.createOwnStringFromString(val));
+        if (old) {
+            old.destroy();
+        }
+        name.destroy();
+        return true;
     }
     
     [OStream] dumpToStream(OStream stream, int withProperties) {
