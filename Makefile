@@ -15,6 +15,7 @@ STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.pbc, $(STORE_PASMS))
 
 STARTUP_SEGMENT = 0x3000
 MODULES_SEGMENT = 0x1000
+GIDT_PAGE = 0xFFBFD
 
 clean:
 	@rm -rf $(BLOCKDIR) $(BUILDDIR) $(PASMDIR) $(BINDIR) $(BOOTLDDIR)/stage1_2_dap.pasm $(BOOTLDDIR)/stage1_4_mbi.pasm
@@ -36,7 +37,7 @@ $(BOOTLDDIR)/stage1_2_dap.pasm: $(BLOCKS) $(MODBUILD)
 	
 $(BOOTLDDIR)/stage1_4_mbi.pasm: $(BLOCKS) $(MODBUILD)
 	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --mainThread=gridos::KernelThread"
-	@$(MODBUILD) -o $@ -l GIDT -c "gidt"
+	@$(MODBUILD) -o $@ -l GIDT -c "gidt --target=$(GIDT_PAGE)000"
 	@$(MODBUILD) -o $@ -l STORE -c "store --debug=1"
 
 $(BLOCKDIR)/startup.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/Startup.pool $(POOLSC)
@@ -45,7 +46,7 @@ $(BLOCKDIR)/startup.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/Startup.pool $(POOL
 
 $(BLOCKDIR)/gidt.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/gidt.pasm $(PASM)
 	@echo "creating $@"
-	@$(PASM) -bo $@ $(SRCDIR)/gridos/i386/gidt.pasm -t 0xFFBFD000
+	@$(PASM) -bo $@ $(SRCDIR)/gridos/i386/gidt.pasm -t $(GIDT_PAGE)000
 
 $(BLOCKDIR)/store.block: $(BLOCKDIR) $(STORE_FILES) $(STORE)
 	@echo "creating $@"

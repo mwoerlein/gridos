@@ -5,12 +5,17 @@ version = 0.1.0
 */
 namespace gridos::i386;
 
+use gridos::i386::memory::MMU;
+use gridos::module::Module;
+
 use sys::core::anycollection::AnyArray;
 use sys::core::Object;
 use sys::runtime::Runtime;
 use sys::stream::OStream;
 
 use sys::memory::Address;
+use sys::memory::MemoryIOStream;
+use sys::memory::PageAllocator;
 
 class InterruptVectorTable extends Object {
 
@@ -22,6 +27,25 @@ class InterruptVectorTable extends Object {
     AnyArray table;
     IgnoreHandler ignore;
     GIDTDescription gidt;
+    
+    [int] initFromModule(Module m, MMU mmu) {
+        if (!m.hasCStringProperty("meta.target")) {
+            this.rt().err().printCString("Invalid static gdt/idt module: missing 'target' property").printNewline();
+            m.dumpToStream(this.rt().out(), 1);
+            return false;
+        }
+        
+        int t = m.getCStringProperty("meta.target").toInt();
+        int pages = PageAllocator:bytes2pages(m.getContentSize());
+        int size = mmu.allocatePagesAt(t, pages) * PageAllocator:PAGESIZE;
+        
+        MemoryIOStream target = this.rt().createInstance(MemoryIOStream:CLASSNAME);
+        target._initBuf(t, size);
+        target.print(m.getContent());
+        target.destroy();
+        this._init(Address:cast(t));
+        return true;
+    }
     
     [] _init(GIDTDescription gidt) {
         Runtime rt = this.rt();

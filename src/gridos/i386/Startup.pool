@@ -169,21 +169,17 @@ class Startup extends Runtime, RuntimeBuilder {
             }
             it.destroy();
         }
-        
-        if (modules.isCStringProperty("module-0", "test1", "value1")) {
-            this.out().printCString("juhu1").printNewline();
-        }
-        if (!modules.isCStringProperty("module-2", "test2", "value1")) {
-            this.out().printCString("juhu2").printNewline();
-        }
         // TODO: analyse modules
-        // - remap/copy GIDT into Kernel-Space and initiate idt/gdt
         // - remap/copy store into Kernel-Space and register at DynamicClassManager
         // - free startup-pages and copied module-pages to free low memory
-        mmu.map(0x10000, 0xFFBFD000);
-        mmu.map(0x11000, 0xFFBFE000);
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
-        ivt._init(Address:cast(0xFFBFE000));
+        if (!modules.hasCModule("gidt")) {
+            this.err().printCString("Missing static gdt/idt module").printNewline();
+            return;
+        }
+        if (!ivt.initFromModule(modules.getCModule("gidt"), mmu)) {
+            return;
+        }
 
         //mmu.map(0x0, 0xFF7FF000);
         
