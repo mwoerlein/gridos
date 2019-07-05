@@ -24,7 +24,6 @@ use sys::memory::Allocator;
 use sys::memory::MemoryInfo;
 use sys::memory::MemoryIOStream;
 use sys::memory::MemoryManager;
-use sys::memory::MemoryRegistry;
 use sys::memory::PageAllocator;
 use sys::memory::PagedMemoryManager;
 use sys::runtime::Runtime;
@@ -94,15 +93,12 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // collect memory information on stack
         StartupRegistry bsSR = bsRt.createInstance(StartupRegistry:CLASSNAME);
-        MemoryRegistry bsMR = bsRt.cast(MemoryRegistry:CLASSNAME, bsSR);
-        bsMR.initEmptyFromAllocator(bsAllocator, 1, 100);
-        bi.registerMemory(bsMR);
+        bsSR.initEmptyFromAllocator(bsAllocator, 1, 100);
+        bi.registerMemory(bsSR.mbRegistry());
         
         // enable paging
         MMU bsMMU = bsRt.createInstance(MMU:CLASSNAME);
-        bsMMU._bootstrap(bsSR.extractFreePages());
-        // TODO: 
-        // - mark mbi-page and kernel/modules as used by Kernel/Startup
+        bsMMU.activate(bsSR.initializeStartupPageDirectory());
         
         // initialize kernel heap
         MMUPageAllocator bsMPA = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
@@ -148,6 +144,9 @@ class Startup extends Runtime, RuntimeBuilder {
         ModuleSet modules = rt.createInstance(ModuleSet:CLASSNAME);
         bi.registerModules(modules);
         rt.setModules(modules);
+        // TODO: free all used pages of bsSR after modules are copied to own pages
+        // TBD: do not free startup-module until switched to dynamic classes...
+        //bsSR.freeUsedPages(mmu);
         
         // cleanup
         bsPMM.destroy();
@@ -158,7 +157,6 @@ class Startup extends Runtime, RuntimeBuilder {
         bsOut.destroy();
         bsScreen.destroy();
         
-        // TODO: free mbi-page
         return rt.runtime();
     }
     

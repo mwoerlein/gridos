@@ -5,41 +5,264 @@ version = 0.1.0
 */
 namespace gridos::i386::memory;
 
+use gridos::multiboot2::MemoryRegistry;
+
 use sys::core::utils::Bitset;
 use sys::memory::Address;
 use sys::memory::MemoryInfo;
-use sys::memory::MemoryRegistry;
+use sys::memory::MemoryManager;
 use sys::memory::PageAllocator;
 
-class StartupRegistry extends MemoryRegistry {
+class StartupRegistry extends MemoryRegistry, MemoryManager {
 
-    [PhysicalFreePageInfo] extractFreePages() {
-        PhysicalFreePageInfo info = null;
+    // registration
+    [] registerAvailableMemory(int mem, int len) {
+        if (len == 0) {
+            return;
+        }
+        if (Address:compare(reserved, reserved.next) || Address:compare(used, used.next)) {
+            this.rt().out().printCString("Ignore available ").printPtr(mem).printChar(':').printPtr(len).printNewline();
+            return;
+        }
+        
+        this._registerToList(available, mem, len, MemoryInfo:FLAGS_AVAILABLE);
+    }
+    
+    [] registerReservedMemory(int mem, int len) {
+        if (len == 0) {
+            return;
+        }
+        int startPage = Bitset:and(mem, 0xFFFFF000);
+        int length = Bitset:and(mem + len + PageAllocator:PAGESIZE - 1, 0xFFFFF000) - startPage;
+        if (Address:sumOverflow(startPage, length)) {
+            length = 0xFFFFFFFF - startPage;
+        }
+        
+        this._removeFromList(available, startPage, length);
+        this._registerToList(reserved, startPage, length, MemoryInfo:FLAGS_USED);
+    }
+    
+    [] registerUsedMemory(int mem, int len) {
+        if (len == 0) {
+            return;
+        }
+        int startPage = Bitset:and(mem, 0xFFFFF000);
+        int length = Bitset:and(mem + len + PageAllocator:PAGESIZE - 1, 0xFFFFF000) - startPage;
+        if (Address:sumOverflow(startPage, length)) {
+            length = 0xFFFFFFFF - startPage;
+        }
+        
+        this._removeFromList(available, startPage, length);
+        this._registerToList(used, startPage, length, MemoryInfo:FLAGS_USED);
+    }
+    
+    
+    [] _registerToList(MemoryInfo list, int mem, int len, int flags) {
+        MemoryInfo info = this._findInfoByPtr(list, mem);
+        if (!Address:equals(info, list) && (Address:compareAddress((info.buf + info.len), mem) >= 0)) {
+            // merge into prev
+            if (Address:compareAddress((mem + len), (info.buf + info.len)) > 0) {
+                info.len = mem + len - info.buf;
+            }
+        } else {
+            // insert new
+            this._appendMemoryInfo(info, this._nextNonEmbeddedInfo(mem, len, flags));
+            info = info.next;
+        }
+        // merge with next
+        while (!Address:equals(info.next, list) && (Address:compareAddress((info.buf + info.len), info.next.buf) >= 0)) {
+            MemoryInfo merged = info.next;
+            info.len = merged.buf + merged.len - info.buf;
+            this._unlinkMemoryInfo(merged);
+            merged.flags = 0;
+        }
+    }
+    
+    [] _removeFromList(MemoryInfo list, int mem, int len) {
+        if (Address:equals(list, list.next)) {
+            return;
+        }
+        
+        int memEnd = mem + len;
+        MemoryInfo first = this._findInfoByPtr(list, mem);
+        MemoryInfo last = this._findInfoByPtr(list, memEnd);
+        
+        if (!Address:equals(first, last)) {
+            // area covers multiple infos
+    
+            // remove fully covered infos    
+            while(!Address:equals(first.next, last)) {
+                MemoryInfo remove = first.next; 
+                this._unlinkMemoryInfo(remove);
+                remove.flags = 0;
+            }
+            
+            if (!Address:equals(first, list)) {
+                int firstEnd = first.buf + first.len;
+                if (Address:compareAddress(firstEnd, mem) < 0) {
+                    // area fully after first info
+                } else if (first.buf == mem) {
+                    // area fully covers first info
+                    this._unlinkMemoryInfo(first);
+                    first.flags = 0;
+                } else {
+                    // area is end of first info
+                    first.len = mem - first.buf;
+                }
+            }
+            
+            int lastEnd = last.buf + last.len;
+            if (Address:compareAddress(lastEnd, memEnd) <= 0) {
+                // area fully covers last info
+                this._unlinkMemoryInfo(last);
+                last.flags = 0;
+            } else {
+                // area is begin of last info
+                last.buf = memEnd;
+                last.len = lastEnd - memEnd;
+            }
+        } else if (!Address:equals(first, list)) {
+            int firstEnd = first.buf + first.len;
+            if (Address:compareAddress(firstEnd, mem) < 0) {
+                // area fully after first info
+            } else if (first.buf == mem) {
+                if (Address:compareAddress(first.len, len) <= 0) {
+                    // area fully covers first info
+                    this._unlinkMemoryInfo(first);
+                    first.flags = 0;
+                } else {
+                    // area is begin of first info
+                    first.buf = memEnd;
+                    first.len = firstEnd - memEnd;
+                }
+            } else if (Address:compareAddress(firstEnd, memEnd) <= 0) {
+                // area is end of first info
+                first.len = mem - first.buf;
+            } else {
+                // area is inside of first info
+                first.len = mem - first.buf;
+                this._appendMemoryInfo(first, this._nextNonEmbeddedInfo(memEnd, firstEnd - memEnd, first.flags));
+            }
+        } else {
+            // area fully before whole list
+        }
+    }
+    
+    // MMU initialization
+    PhysicalFreePageInfo freePages;
+    int pageDirectory;
+    
+    [int] initializeStartupPageDirectory() {
+        if (!this._initializeFreePages() || !this._initializePageDirectory()) {
+            // bailout
+            this.rt().err().printCString("memory initialization failed");
+            this.rt().out().printNewline();
+            return 0;
+        }
+        
+        { // init free page handling
+            int pt = this._getOrCreatePageTable(0x3fe);
+            Address:storeAddress(pt + 4 * 0x3fa, Address:from(freePages.prev) + 0x1);
+            Address:storeAddress(pt + 4 * 0x3fb, Address:from(freePages.self) + 0x1);
+            Address:storeAddress(pt + 4 * 0x3fc, Address:from(freePages.next) + 0x1);
+        }
+        
+        { // init identity mapping of used memory
+            MemoryInfo cur = used.next;
+            while (!Address:equals(cur, used)) {
+                int curPage = cur.buf;
+                int pt = this._getOrCreatePageTable(Bitset:rshift(curPage, 22));
+                // TODO: handle page table overflow
+                int curEntry = pt + 4*Bitset:and(Bitset:rshift(curPage, 12), 0x3ff);
+                int endEntry = pt + 4*Bitset:and(Bitset:rshift(cur.buf + cur.len, 12), 0x3ff);
+                while (curEntry < endEntry) {
+                    Address:storeAddress(curEntry, curPage + 0x1);
+                    curPage += PageAllocator:PAGESIZE;
+                    curEntry += 4;
+                }
+                cur = cur.next;
+            }
+        }
+        return pageDirectory;
+    }
+    
+    [] freeUsedPages(MMU mmu) {
+        MemoryInfo cur = used.next;
+        while (!Address:equals(cur, used)) {
+            mmu.freePagesAt(cur.buf, PageAllocator:bytes2pages(cur.len));
+            cur = cur.next;
+        }
+    }
+    
+    [int] _initializeFreePages() {
+        int ret = false;
         MemoryInfo cur = available.next;
         while (!Address:equals(cur, available)) {
-            int pagesStart = Bitset:rshift(cur.buf + PageAllocator:PAGESIZE - 1 , 12);
+            int startAddr = cur.buf;
+            int pagesStart = Bitset:rshift(cur.buf, 12);
             int pagesEnd = Bitset:rshift(cur.buf + cur.len, 12);
             int pageCount = pagesEnd - pagesStart;
             cur = cur.next;
-            int startAddr = pagesStart * PageAllocator:PAGESIZE;
             
             if (pageCount > 0) {
-                this._removeFromList(available, startAddr, pageCount * PageAllocator:PAGESIZE);
                 PhysicalFreePageInfo fp = Address:cast(startAddr);
                 fp.magic = PhysicalFreePageInfo:MAGIC;
                 fp.self = fp;
                 fp.count = pageCount;
-                if (info.magic != PhysicalFreePageInfo:MAGIC) {
+                if (freePages.magic != PhysicalFreePageInfo:MAGIC) {
                     fp.prev = fp.next = fp;
                 } else {
-                    fp.prev = info;
-                    fp.next = info.next;
+                    fp.prev = freePages;
+                    fp.next = freePages.next;
                     fp.prev.next = fp.next.prev = fp;
                 }
-                info = fp;
+                freePages = fp;
+                ret = true;
             }
         }
-        return info;
+        return ret;
+    }
+    
+    [int] _initializePageDirectory() {
+        // init self referencing page table
+        pageDirectory = this._newPageTable();
+        if (pageDirectory) {
+            Address:storeAddress(pageDirectory + 4 * 0x3ff, pageDirectory + 0x1);
+        }
+        return pageDirectory;
+    }
+    
+    [int] _getOrCreatePageTable(int pdIndex) {
+        int pdEntryAddr = pageDirectory + 4 * pdIndex;
+        int pdEntry = Address:loadAddress(pdEntryAddr);
+        if (Bitset:has(pdEntry, 0x1)) {
+            return Bitset:and(pdEntry, 0xFFFFF000);
+        }
+        int pt = this._newPageTable();
+        if (pt) {
+            Address:storeAddress(pdEntryAddr, pt + 0x1);
+        }
+        return pt;
+    }
+    
+    [int] _newPageTable() {
+        if (freePages.count <= 1) {
+            // bailout
+            this.rt().err().printCString("insufficient free pages");
+            this.rt().out().printNewline();
+            return 0;
+        }
+        freePages.count--;
+        int addr = Address:offsetAddress(freePages.self, freePages.count * PageAllocator:PAGESIZE);
+        
+        // clear page
+        int cur = addr;
+        int end = cur + PageAllocator:PAGESIZE;
+        while (cur < end) {
+            Address:storeAddress(cur, 0);
+            cur += 4;
+        }
+        return addr;
     }
     
 }

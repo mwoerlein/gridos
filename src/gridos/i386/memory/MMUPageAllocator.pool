@@ -27,7 +27,7 @@ class MMUPageAllocator extends PageAllocator {
         if (pages < 1) {
             return Address:cast(MemoryInfo:NONE);
         }
-        int allocated = mmu.allocatePagesAt(pages, topOfHeap);
+        int allocated = mmu.allocatePagesAt(topOfHeap, pages);
         if (allocated < 1) {
             return Address:cast(MemoryInfo:NONE);
         }

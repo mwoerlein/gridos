@@ -1,0 +1,22 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::multiboot2;
+
+use sys::core::Object;
+
+// TODO: convert to interface 
+class MemoryRegistry extends Object {
+    
+    // registration
+    abstract [] registerAvailableMemory(int mem, int len);
+    
+    abstract [] registerReservedMemory(int mem, int len);
+    
+    abstract [] registerUsedMemory(int mem, int len);
+    
+    // TODO: remove with implicit cast
+    [MemoryRegistry] mbRegistry() { return this; }
+}

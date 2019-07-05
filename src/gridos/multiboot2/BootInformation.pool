@@ -19,7 +19,6 @@ use gridos::multiboot2::structs::TagString;
 
 use sys::core::Object;
 use sys::memory::Address;
-use sys::memory::MemoryRegistry;
 use sys::stream::OStream;
 
 class BootInformation extends Object {
