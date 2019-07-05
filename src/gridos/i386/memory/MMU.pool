@@ -53,7 +53,7 @@ class MMU extends Object {
         int pdEntry = Address:loadAddress(pdEntryAddr);
         if (!Bitset:has(pdEntry, 0x1)) {
             Address:storeAddress(pdEntryAddr, this.newPageTable() + 0x1);
-            this.flushTLB(); 
+            this.flushTLB();
         }
         Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + 0x1); 
     }
@@ -74,6 +74,28 @@ class MMU extends Object {
         }
         Address:storeAddress(ptEntryAddr, 0); 
         return Bitset:and(ptEntry, 0xfffff000); 
+    }
+    
+    [] mapPages(int pAddr, int vAddr, int pages) {
+        int curP = pAddr;
+        int curV = vAddr;
+        int c = 0;
+        while (c++ < pages) {
+            this.map(curP, curV);
+            curP += PageAllocator:PAGESIZE;
+            curV += PageAllocator:PAGESIZE;
+        }
+    }
+    
+    [int] unmapPages(int vAddr, int pages) {
+        int ret = this.unmap(vAddr);
+        int curV = vAddr + PageAllocator:PAGESIZE;
+        int c = 1;
+        while (c++ < pages) {
+            this.unmap(curV);
+            curV += PageAllocator:PAGESIZE;
+        }
+        return ret;
     }
     
     [int] getPPage(int vAddr) {

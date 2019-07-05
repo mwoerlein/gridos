@@ -14,8 +14,6 @@ use sys::runtime::Runtime;
 use sys::stream::OStream;
 
 use sys::memory::Address;
-use sys::memory::MemoryIOStream;
-use sys::memory::PageAllocator;
 
 class InterruptVectorTable extends Object {
 
@@ -36,13 +34,7 @@ class InterruptVectorTable extends Object {
         }
         
         int t = m.getCStringProperty("meta.target").toInt();
-        int pages = PageAllocator:bytes2pages(m.getContentSize());
-        int size = mmu.allocatePagesAt(t, pages) * PageAllocator:PAGESIZE;
-        
-        MemoryIOStream target = this.rt().createInstance(MemoryIOStream:CLASSNAME);
-        target._initBuf(t, size);
-        target.print(m.getContent());
-        target.destroy();
+        m.mapAt(mmu, t);
         this._init(Address:cast(t));
         return true;
     }

@@ -139,11 +139,11 @@ class BootInformation extends Object {
     }
     
     [] registerModules(ModuleSet modules) {
-        modules.addModule(this.getCommandLine(), address.load_addr, address.bss_end_addr);
+        modules.addStaticModule(this.getCommandLine(), address.load_addr, address.bss_end_addr - address.load_addr);
         TagModuleListElement cur = this.modules;
         while (cur) {
             TagModule module = cur.getModule();
-            modules.addModule(Address:string(module, TagModule:SIZEOF), module.mod_start, module.mod_end);
+            modules.addRelocatableModule(Address:string(module, TagModule:SIZEOF), module.mod_start, module.mod_end - module.mod_start);
             cur = cur.getNext();
         }
     }

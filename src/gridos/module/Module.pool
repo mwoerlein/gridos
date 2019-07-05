@@ -5,6 +5,8 @@ version = 0.1.0
 */
 namespace gridos::module;
 
+use gridos::i386::memory::MMU;
+
 use sys::core::String;
 use sys::core::anycollection::AnyIterator;
 use sys::core::anycollection::AnyList;
@@ -21,13 +23,18 @@ class Module extends StorageElement, CommandLineParserTarget {
     cstring PROPERTYPREFIX_DEFAULT := "meta.";
     cstring PROPERTYNAME_MODULE_ID := "meta.id";
         
-    int _start;
-    int _contentStart;
-    int _end;
+    int _pPage;
+    int _vPage;
+    int _pages;
+    int _contentOffset;
+    int _contentSize;
     
-    [] init(int startAddr, int endAddr) {
-        _start = _contentStart = startAddr;
-        _end = endAddr;
+    [] init(int pPage, int vPage, int pages, int len) {
+        _pPage = pPage;
+        _vPage = vPage;
+        _pages = pages;
+        _contentOffset = 0;
+        _contentSize = len;
         this._initStorageElement();
     }
     [] __destruct() {
@@ -50,12 +57,28 @@ class Module extends StorageElement, CommandLineParserTarget {
 
     [IStream] getContent() {
         MemoryIOStream s = this.rt().createInstance(MemoryIOStream:CLASSNAME);
-        s._initBuf(_contentStart, _end - _contentStart);
+        s._initBuf(_vPage + _contentOffset, _contentSize);
         return s.istream();
     }
     
     [int] getContentSize() {
-        return _end - _contentStart;
+        return _contentSize;
+    }
+    
+    [int] isAvailable() {
+        return _vPage != 0;
+    }
+    
+    [int] mapAt(MMU mmu, int vPage) {
+        if (vPage == _vPage) {
+            return;
+        }
+        if (_vPage) {
+            mmu.unmapPages(_vPage, _pages);
+        }
+        _vPage = vPage;
+        mmu.mapPages(_pPage, _vPage, _pages);
+        mmu.flushTLB();
     }
     
     [int] parseCommandline(cstring commandline) {
@@ -98,7 +121,7 @@ class Module extends StorageElement, CommandLineParserTarget {
     
     [OStream] dumpToStream(OStream stream, int withProperties) {
         stream.printChar('[').print(this.getId()).printChar(']').printChar(' ')
-            .printChar('(').printPtr(_contentStart).printChar(':').printPtr(_end).printChar(')')
+            .printChar('(').printPtr(_pPage).printChar(':').printPtr(_pPage + _contentOffset + _contentSize).printChar(')')
             .printNewline(); 
         if (withProperties) { this.dumpPropertiesToStream(stream); }
         return stream;

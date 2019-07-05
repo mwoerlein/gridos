@@ -142,10 +142,11 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // create "heap"-based module-descriptions
         ModuleSet modules = rt.createInstance(ModuleSet:CLASSNAME);
+        modules._initModuleSet(mmu);
         bi.registerModules(modules);
         rt.setModules(modules);
         // TODO: free all used pages of bsSR after modules are copied to own pages
-        // TBD: do not free startup-module until switched to dynamic classes...
+        // TBD: do not unmap startup-module until switched to dynamic classes...
         //bsSR.freeUsedPages(mmu);
         
         // cleanup

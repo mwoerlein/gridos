@@ -5,13 +5,20 @@ version = 0.1.0
 */
 namespace gridos::module;
 
+use gridos::i386::memory::MMU;
+
 use sys::core::String;
 use sys::core::anycollection::AnyMap;
+use sys::memory::MemoryIOStream;
+use sys::memory::PageAllocator;
 
 class ModuleSet extends AnyMap { // HashMap<String, Module>
-
-    [] __init() {
+    
+    MMU mmu;
+    
+    [] _initModuleSet(MMU mmu) {
         this._initAnyMap(5);
+        this.mmu = mmu;
     }
     
     [] __destruct() {
@@ -46,28 +53,61 @@ class ModuleSet extends AnyMap { // HashMap<String, Module>
         return this.hasCModule(moduleId) && this.getCModule(moduleId).isCStringProperty(property, value);
     }
     
-    [] addModule(cstring commandline, int startAddr, int endAddr) {
+    [] addRelocatableModule(cstring commandline, int startAddr, int len) {
+        int pages = PageAllocator:bytes2pages(len);
+        int allocated = mmu.allocatePagesAt(0xFF800000, pages);
+        if (allocated != pages) {
+            this.rt().err().printCString("ignore module at ")
+                .printPtr(startAddr).printChar(':').printPtr(startAddr + len)
+                .printCString(" because of invalid relocation: ")
+                .printInt(allocated).printChar('/').printInt(pages)
+                .printNewline();
+            return;
+        }
+        mmu.flushTLB();
+        { // memory copy
+            MemoryIOStream source = this.rt().createInstance(MemoryIOStream:CLASSNAME);
+            MemoryIOStream target = this.rt().createInstance(MemoryIOStream:CLASSNAME);
+            source._initBuf(startAddr, len);
+            target._initBuf(0xFF800000, len);
+            target.print(source);
+            source.destroy();
+            target.destroy();
+        }
+        this._addModule(commandline, mmu.unmapPages(0xFF800000, pages), 0, pages, len);
+    }
+    
+    [] addStaticModule(cstring commandline, int startAddr, int len) {
+        if (startAddr % PageAllocator:PAGESIZE) {
+            this.rt().err().printCString("ignore module at ")
+                .printPtr(startAddr).printChar(':').printPtr(startAddr + len)
+                .printCString(" because of bad page alignment").printNewline();
+        }
+        this._addModule(commandline, startAddr, startAddr, PageAllocator:bytes2pages(len), len);
+    }
+    
+    [] _addModule(cstring commandline, int pPage, int vPage, int pages, int len) {
         Module module = this.rt().createInstance(Module:CLASSNAME);
-        module.init(startAddr, endAddr);
+        module.init(pPage, vPage, pages, len);
         
         // TODO: parse header
         if (!module.parseCommandline(commandline)) {
             this.rt().err().printCString("ignore module at ")
-                .printPtr(startAddr).printChar(':').printPtr(endAddr)
+                .printPtr(pPage).printChar(':').printPtr(pPage + pages * PageAllocator:PAGESIZE)
                 .printCString(" because of invalid commandline").printNewline();
             module.destroy();
             return;
         }
         if (!module.hasId()) {
             this.rt().err().printCString("ignore module at ")
-                .printPtr(startAddr).printChar(':').printPtr(endAddr)
+                .printPtr(pPage).printChar(':').printPtr(pPage + pages * PageAllocator:PAGESIZE)
                 .printCString(" because of missing module id").printNewline();
             module.destroy();
             return;
         }
         if (this.has(module.getId())) {
             this.rt().err().printCString("ignore module at ")
-                .printPtr(startAddr).printChar(':').printPtr(endAddr)
+                .printPtr(pPage).printChar(':').printPtr(pPage + pages * PageAllocator:PAGESIZE)
                 .printCString(" because of duplicate module id '").print(module.getId()).printChar('\'').printNewline();
             module.destroy();
             return;
