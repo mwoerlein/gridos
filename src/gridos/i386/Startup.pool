@@ -26,6 +26,9 @@ use sys::memory::MemoryIOStream;
 use sys::memory::MemoryManager;
 use sys::memory::PageAllocator;
 use sys::memory::PagedMemoryManager;
+use sys::runtime::Class;
+use sys::runtime::ClassStorage;
+use sys::runtime::DynamicListClassStorage;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
@@ -86,6 +89,7 @@ class Startup extends Runtime, RuntimeBuilder {
         bsRt.setOut(bsOut);
         bsRt.setErr(bsOut);
         Allocator bsAllocator := bsRt.getAllocator();
+        ClassStorage bsClassStorage := bsRt.getClassStorage();
         
         BootInformation bi = bsRt.createInstance(BootInformation:CLASSNAME);
         bi.initInfo(context.mbi, context.mbh);
@@ -99,20 +103,29 @@ class Startup extends Runtime, RuntimeBuilder {
         // enable paging
         MMU bsMMU = bsRt.createInstance(MMU:CLASSNAME);
         bsMMU.activate(bsSR.initializeStartupPageDirectory());
+        bsMMU.map(0xB8000, 0xB8000); // remap bsScreen
         
         // initialize kernel heap
         MMUPageAllocator bsMPA = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
         bsMPA._init(bsMMU, 0xF0000000);
         PagedMemoryManager bsPMM = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
         bsPMM.initFromPageAllocator(bsMPA.pageAllocator(), 1);
+
+        // initialize dynamic class storage with copies of static classes
+        DynamicListClassStorage bsDLCS = bsRt.createInstance(DynamicListClassStorage:CLASSNAME);
+        bsClassStorage.transferClasses(bsDLCS, bsPMM.allocator());
         
         // create "heap"-based runtime
         bsRt.setAllocator(bsPMM.allocator());
+        bsRt.setClassStorage(bsDLCS.classStorage());
+        Class classClass = bsRt._createClassClass();
         Startup rt = bsRt.createInstance(Startup:CLASSNAME);
         bsRt.setAllocator(bsAllocator);
+        bsRt.setClassStorage(bsClassStorage);
+        classClass.setRt(rt.runtime());
         rt.setRt(rt.runtime());
         rt.setAllocator(bsPMM.allocator());
-        rt.setClassStorage(bsRt.getClassStorage());
+        rt.setClassStorage(bsDLCS.classStorage());
         rt.setOut(bsOut);
         rt.setErr(bsOut);
         
@@ -121,17 +134,16 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setMMU(mmu);
         
         // create "heap"-based memory management
-        MMUPageAllocator mpa = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
+        MMUPageAllocator mpa = rt.createInstance(MMUPageAllocator:CLASSNAME);
         mpa._init(mmu, bsMPA.getTopOfHeap());
-        PagedMemoryManager pmm = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
+        PagedMemoryManager pmm = rt.createInstance(PagedMemoryManager:CLASSNAME);
         pmm.initFromPagedMemoryManager(mpa.pageAllocator(), bsPMM);
         rt.setAllocator(pmm.allocator());
         
-        // TODO: initialize DynamicClassStorage with copies of static classes
-        // create "heap"-based class storage
-        StaticResolvedClassStorage crcs = rt.createInstance(StaticResolvedClassStorage:CLASSNAME);
-        rt.setClassStorage(crcs.classStorage());
-        crcs.rebuildClasses();
+        // create "heap"-based dynamic class storage
+        DynamicListClassStorage dlcs = rt.createInstance(DynamicListClassStorage:CLASSNAME);
+        bsDLCS.transferClasses(dlcs, null);
+        rt.setClassStorage(dlcs.classStorage());
         
         // create "heap"-based stdOut
         mmu.map(0xB8000, 0xFFBFF000);
@@ -150,6 +162,7 @@ class Startup extends Runtime, RuntimeBuilder {
         //bsSR.freeUsedPages(mmu);
         
         // cleanup
+        bsDLCS.destroy();
         bsPMM.destroy();
         bsMPA.destroy();
         bsMMU.destroy();
@@ -157,6 +170,7 @@ class Startup extends Runtime, RuntimeBuilder {
         bi.destroy();
         bsOut.destroy();
         bsScreen.destroy();
+        mmu.unmap(0xB8000); // unmap bsScreen
         
         return rt.runtime();
     }
