@@ -45,8 +45,12 @@ class Startup extends Runtime, RuntimeBuilder {
     [MMU] getMMU() { return mmu; }
     [] setMMU(MMU mmu) { this.mmu = mmu; }
     
+    StartupRegistry startupRegistry;
+    [StartupRegistry] getStartupRegistry() { return startupRegistry; }
+    [] setStartupRegistry(StartupRegistry startupRegistry) { this.startupRegistry = startupRegistry; }
+    
     // methods
-    __entry__ [] blub(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
+    __entry__ [] phase1(int magic, MultiBootInformation mbi, MultiBootHeader mbh) {
         
         // setup context
         Context context = null;
@@ -63,11 +67,17 @@ class Startup extends Runtime, RuntimeBuilder {
         if (_rt) {
             Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
             if (rt) {
-                // TODO: switch to (virtual) Kernel-Stack
-                // TODO: switch to dynamic loaded class and never return
-                rt.initializeKernel();
+                // switch to (virtual) Kernel-Stack
+                __pasm__("movl 0xFF800000, %esp");
+                // switch to dynamic loaded class and never return
+                rt.phase2();
             }
         }
+    }
+    
+    [] phase2() {
+        startupRegistry.freeUsedPages(mmu);
+        this.initializeKernel();
         while (1) { __pasm__("hlt"); }
     }
     
@@ -118,10 +128,22 @@ class Startup extends Runtime, RuntimeBuilder {
         // create "heap"-based runtime
         bsRt.setAllocator(bsPMM.allocator());
         bsRt.setClassStorage(bsDLCS.classStorage());
-        Class classClass = bsRt._createClassClass();
-        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
+        // TODO: how to instantiate initial classes with new _call_entry values in object handle? 
+        Class bsClassClass = bsRt._createClassClass();
+        Runtime bsRt2 = bsRt.createInstance(Runtime:CLASSNAME);
         bsRt.setAllocator(bsAllocator);
         bsRt.setClassStorage(bsClassStorage);
+        
+        bsClassClass.setRt(bsRt2.runtime());
+        bsRt2.setRt(bsRt2.runtime());
+        bsRt2.setAllocator(bsPMM.allocator());
+        bsRt2.setClassStorage(bsDLCS.classStorage());
+        
+        Class classClass = bsRt2._createClassClass();
+        Startup rt = bsRt2.createInstance(Startup:CLASSNAME);
+        bsRt2.destroy();
+        bsClassClass.destroy();
+        
         classClass.setRt(rt.runtime());
         rt.setRt(rt.runtime());
         rt.setAllocator(bsPMM.allocator());
@@ -157,9 +179,15 @@ class Startup extends Runtime, RuntimeBuilder {
         modules._initModuleSet(mmu);
         bi.registerModules(modules);
         rt.setModules(modules);
-        // TODO: free all used pages of bsSR after modules are copied to own pages
-        // TBD: do not unmap startup-module until switched to dynamic classes...
-        //bsSR.freeUsedPages(mmu);
+        
+        // create "heap"-based startup registry
+        StartupRegistry sr = rt.createInstance(StartupRegistry:CLASSNAME);
+        bsSR.transferTo(sr);
+        rt.setStartupRegistry(sr);
+        
+        // initialize kernel stack
+        int stackPages = 1;
+        mmu.allocatePagesAt(0xFF800000 - stackPages*PageAllocator:PAGESIZE, stackPages);
         
         // cleanup
         bsDLCS.destroy();

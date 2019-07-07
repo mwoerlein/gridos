@@ -192,6 +192,7 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
             mmu.freePagesAt(cur.buf, PageAllocator:bytes2pages(cur.len));
             cur = cur.next;
         }
+        mmu.flushTLB();
     }
     
     [int] _initializeFreePages() {
@@ -265,4 +266,41 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
         return addr;
     }
     
+    // transfer
+    [] transferTo(StartupRegistry target) {
+        // create buffer for non-embedded infos
+        int count = 3;
+        {
+            MemoryInfo cur = reserved.next;
+            while (!Address:equals(cur, reserved)) {
+                count++;
+                cur = cur.next;
+            }
+        }
+        {
+            MemoryInfo cur = used.next;
+            while (!Address:equals(cur, used)) {
+                count++;
+                cur = cur.next;
+            }
+        }
+        
+        target.initEmptyFromAllocator(target.rt().getAllocator(), allocateIncreasing, count);
+    
+        // transfer registered lists to memory manager
+        {
+            MemoryInfo cur = reserved.next;
+            while (!Address:equals(cur, reserved)) {
+                target.registerReservedMemory(cur.buf, cur.len);
+                cur = cur.next;
+            }
+        }
+        {
+            MemoryInfo cur = used.next;
+            while (!Address:equals(cur, used)) {
+                target.registerUsedMemory(cur.buf, cur.len);
+                cur = cur.next;
+            }
+        }
+    }
 }

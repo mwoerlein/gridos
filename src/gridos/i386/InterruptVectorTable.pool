@@ -58,12 +58,16 @@ class InterruptVectorTable extends Object {
     [] insert(int nr, InterruptHandler hdl) { table.set(nr, hdl); }
     
     [] activate() {
+        gidt.ivt = this;
+        // TODO: handle gdt activation in own class
+        __pasm__("call %eax", {"%eax": gidt.activate});
+/*
         __pasm__("cli");
         // TODO: deactivate current active idt
         // TODO: register this in runtime as active
-        gidt.ivt = this;
         __pasm__(".byte 0x0f; .byte 0x01; .byte 0x18  #//lidtl (%eax)", {"%eax": gidt.idt});
         __pasm__("sti");
+*/
     }
     
     [] deactivate() {

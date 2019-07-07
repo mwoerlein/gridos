@@ -10,6 +10,21 @@ __idt_instance: .long 0x0 // filled by gridos
     .long __gridos_idt_48
     .long __gridos_gdt_48
     .long __gridos_gdt_tss
+    .long __gridos_gidt_activate
+    
+__gridos_gidt_activate:
+    cli
+    .byte 0x0f; .byte 0x01; .byte 0x1d  #//lidtl __gridos_idt_48
+    .long __gridos_idt_48
+    .byte 0x0f; .byte 0x01; .byte 0x15  #//lgdtl __gridos_gdt_48
+    .long __gridos_gdt_48
+    .byte 0xea;              #//fjmpl    0x08, __gridos_gidt_activated
+    .long __gridos_gidt_activated
+    .word 0x8
+
+__gridos_gidt_activated:
+    sti
+    ret
 
 __idt_isr_common:
     // store all registers in stack frame
