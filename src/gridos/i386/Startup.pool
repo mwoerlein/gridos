@@ -128,28 +128,19 @@ class Startup extends Runtime, RuntimeBuilder {
         // create "heap"-based runtime
         bsRt.setAllocator(bsPMM.allocator());
         bsRt.setClassStorage(bsDLCS.classStorage());
-        // TODO: how to instantiate initial classes with new _call_entry values in object handle? 
-        Class bsClassClass = bsRt._createClassClass();
-        Runtime bsRt2 = bsRt.createInstance(Runtime:CLASSNAME);
+        Class classClass = bsRt._createClassClass();
+        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
         bsRt.setAllocator(bsAllocator);
         bsRt.setClassStorage(bsClassStorage);
         
-        bsClassClass.setRt(bsRt2.runtime());
-        bsRt2.setRt(bsRt2.runtime());
-        bsRt2.setAllocator(bsPMM.allocator());
-        bsRt2.setClassStorage(bsDLCS.classStorage());
-        
-        Class classClass = bsRt2._createClassClass();
-        Startup rt = bsRt2.createInstance(Startup:CLASSNAME);
-        bsRt2.destroy();
-        bsClassClass.destroy();
-        
-        classClass.setRt(rt.runtime());
-        rt.setRt(rt.runtime());
         rt.setAllocator(bsPMM.allocator());
         rt.setClassStorage(bsDLCS.classStorage());
         rt.setOut(bsOut);
         rt.setErr(bsOut);
+        
+        rt.refreshInstance(classClass);
+        rt.refreshInstance(rt.getClass());
+        rt.refreshInstance(rt);
         
         // create "heap"-based MMU
         MMU mmu = rt.createInstance(MMU:CLASSNAME);
