@@ -204,17 +204,6 @@ class Startup extends Runtime, RuntimeBuilder {
     }
     
     [] initializeKernel() {
-        {
-            AnyIterator it = modules.values();
-            while (it.hasNext()) {
-                Module module = it.next();
-                module.dumpToStream(this.out(), 1);
-            }
-            it.destroy();
-        }
-        // TODO: analyse modules
-        // - remap/copy store into Kernel-Space and register at DynamicClassManager
-        // - free startup-pages and copied module-pages to free low memory
         InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         if (!modules.hasCModule("gidt")) {
             this.err().printCString("Missing static gdt/idt module").printNewline();
