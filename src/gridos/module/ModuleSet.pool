@@ -9,7 +9,7 @@ use gridos::i386::memory::MMU;
 
 use sys::core::String;
 use sys::core::anycollection::AnyMap;
-use sys::memory::MemoryIOStream;
+use sys::memory::Address;
 use sys::memory::PageAllocator;
 
 class ModuleSet extends AnyMap { // HashMap<String, Module>
@@ -65,23 +65,16 @@ class ModuleSet extends AnyMap { // HashMap<String, Module>
             return;
         }
         mmu.flushTLB();
-        { // memory copy
-            MemoryIOStream source = this.rt().createInstance(MemoryIOStream:CLASSNAME);
-            MemoryIOStream target = this.rt().createInstance(MemoryIOStream:CLASSNAME);
-            source._initBuf(startAddr, len);
-            target._initBuf(0xFF800000, len);
-            target.print(source);
-            source.destroy();
-            target.destroy();
-        }
+        Address:copyBytes(startAddr, 0xFF800000, len);
         this._addModule(commandline, mmu.unmapPages(0xFF800000, pages), 0, pages, len);
     }
     
     [] addStaticModule(cstring commandline, int startAddr, int len) {
         if (startAddr % PageAllocator:PAGESIZE) {
-            this.rt().err().printCString("ignore module at ")
+            this.rt().err().printCString("ignore static module at ")
                 .printPtr(startAddr).printChar(':').printPtr(startAddr + len)
                 .printCString(" because of bad page alignment").printNewline();
+            return;
         }
         this._addModule(commandline, startAddr, startAddr, PageAllocator:bytes2pages(len), len);
     }
