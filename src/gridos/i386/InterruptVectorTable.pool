@@ -10,10 +10,9 @@ use gridos::module::Module;
 
 use sys::core::anycollection::AnyArray;
 use sys::core::Object;
+use sys::memory::Address;
 use sys::runtime::Runtime;
 use sys::stream::OStream;
-
-use sys::memory::Address;
 
 class InterruptVectorTable extends Object {
 
@@ -59,15 +58,29 @@ class InterruptVectorTable extends Object {
     
     [] activate() {
         gidt.ivt = this;
-        // TODO: handle gdt activation in own class
-        __pasm__("call %eax", {"%eax": gidt.activate});
-/*
         __pasm__("cli");
         // TODO: deactivate current active idt
         // TODO: register this in runtime as active
         __pasm__(".byte 0x0f; .byte 0x01; .byte 0x18  #//lidtl (%eax)", {"%eax": gidt.idt});
+        
+        // TODO: handle gdt activation in own class
+        __pasm__(<"
+            .byte 0x0f; .byte 0x01; .byte 0x10  #//lgdtl (%eax)
+            movw %cx, %ds
+            movw %cx, %es
+            movw %cx, %fs
+            movw %cx, %gs
+            movw %cx, %ss
+            movl 8(%ebp), %eax
+            addl (_set_cs - _gridos_i386_InterruptVectorTable), %eax
+            pushw %bx
+            pushl %eax
+            .byte 0xff; .byte 0x2c; .byte 0x24  #//ljmp (%esp)
+        _set_cs:
+            addl 6, %esp
+        ">, {"%eax": gidt.gdt, "%ebx": 0x8, "%ecx": 0x10});
+        
         __pasm__("sti");
-*/
     }
     
     [] deactivate() {
