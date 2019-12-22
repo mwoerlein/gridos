@@ -146,9 +146,10 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setMMU(mmu);
         
         // create "heap"-based memory management
-        MMUPageAllocator mpa = rt.createInstance(MMUPageAllocator:CLASSNAME);
-        mpa._init(mmu, bsMPA.getTopOfHeap());
         PagedMemoryManager pmm = rt.createInstance(PagedMemoryManager:CLASSNAME);
+        MMUPageAllocator mpa = rt.createInstance(MMUPageAllocator:CLASSNAME);
+        // get top of heap *after* creating instances on heap via bootstrap page allocator
+        mpa._init(mmu, bsMPA.getTopOfHeap()); 
         pmm.initFromPagedMemoryManager(mpa.pageAllocator(), bsPMM);
         rt.setAllocator(pmm.allocator());
         
