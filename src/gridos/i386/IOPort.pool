@@ -9,12 +9,12 @@ namespace gridos::i386;
 class IOPort {
 
     global [] outb(int port, int b) {
-        __pasm__(".byte 0xEE", {"%edx": port, "%eax": b % 256});
+        __pasm__("outb %al, %dx", {"%edx": port, "%eax": b % 256});
     }
     
     global [int] inb(int port) {
         int ret = 0;
-        __pasm__(".byte 0xEC", {"%edx": port, "%eax": ret}, {"%eax": ret});
+        __pasm__("inb %dx, %al", {"%edx": port, "%eax": ret}, {"%eax": ret});
         return ret;
     }
 }

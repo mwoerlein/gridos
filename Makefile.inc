@@ -1,6 +1,6 @@
 POOLBASEDIR=../pool
 STORE=$(POOLBASEDIR)/bootstrap-pool/bin/storeb
-PASM=$(POOLBASEDIR)/bootstrap-cpp/bin/pbasm
+PASM=$(POOLBASEDIR)/bootstrap-pool/bin/pbasm
 POOLC=$(POOLBASEDIR)/bootstrap-cpp/bin/poolbc
 POOLSC=$(POOLBASEDIR)/bootstrap-cpp/bin/poolbsc
 PC_FLAGS=--classpath ./src --classpath $(POOLBASEDIR)/src --classpath $(POOLBASEDIR)/bootstrap-pool/src

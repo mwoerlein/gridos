@@ -14,10 +14,10 @@ __idt_instance: .long 0x0 // filled by gridos
 __idt_isr_common:
     // store all registers in stack frame
     pushad
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
+    push %ds
+    push %es
+    push %fs
+    push %gs
     
     // ensure kernel segment in all segment registers
     movw %ss, %ax
@@ -37,10 +37,10 @@ __idt_isr_common:
     popl %esp
     
     // restore all registers from stack frame
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
     popad
     // remove interrupt number and error code
     addl 8, %esp
