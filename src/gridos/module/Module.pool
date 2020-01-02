@@ -89,7 +89,7 @@ class Module extends StorageElement, CommandLineParserTarget {
         int ret = true;
         if (ai.hasNext()) {
             this.setId(this.createOwnStringFromString(ai.next()));
-            ret = p.parse(ai, rt.cast(CommandLineParserTarget:CLASSNAME, this));
+            ret = p.parse(ai, this.target());
         }
         ai.destroy();
         args.destroyAll();

@@ -58,19 +58,17 @@ class Startup extends Runtime, RuntimeBuilder {
         context.mbi = mbi;
         context.mbh = mbh;
         
-        Runtime _rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
+        Runtime rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
         
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
         
-        if (_rt) {
-            Startup rt = _rt.cast(Startup:CLASSNAME, _rt);
-            if (rt) {
-                // switch to (virtual) Kernel-Stack
-                __pasm__("movl 0xFF800000, %esp");
-                // switch to dynamic loaded class and never return
-                rt.phase2();
-            }
+        Startup st = rt.cast(Startup:CLASSNAME, rt);
+        if (st) {
+            // switch to (virtual) Kernel-Stack
+            __pasm__("movl 0xFF800000, %esp");
+            // switch to dynamic loaded class and never return
+            st.phase2();
         }
     }
     
