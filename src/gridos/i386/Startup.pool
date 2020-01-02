@@ -63,17 +63,20 @@ class Startup extends Runtime, RuntimeBuilder {
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
         
+        if (!rt) { return; }
         Startup st = rt.cast(Startup:CLASSNAME, rt);
-        if (st) {
-            // switch to (virtual) Kernel-Stack
-            __pasm__("movl 0xFF800000, %esp");
-            // switch to dynamic loaded class and never return
-            st.phase2();
-        }
+        if (!st) { return; }
+        
+        // switch to (virtual) Kernel-Stack
+        __pasm__("movl 0xFF800000, %esp");
+        // switch to dynamic loaded class and never return
+        st.phase2();
     }
     
     [] phase2() {
         startupRegistry.freeUsedPages(mmu);
+        startupRegistry.destroy();
+        startupRegistry = null;
         this.initializeKernel();
         while (1) { __pasm__("hlt"); }
     }
