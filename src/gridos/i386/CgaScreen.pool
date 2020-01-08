@@ -24,11 +24,6 @@ class CgaScreen extends sys::core::Object {
         this.syncCursor();
     }
     
-    [OStream] getFormattedOStream(int format) {
-        CgaFormattedOStream o = this.rt().createInstance(CgaFormattedOStream:CLASSNAME);
-        return o.initOStream(this, format);
-    }
-    
     [] drawCharAt(int c, int format, int x, int y) {
         this.drawCharAtPos(c, format, x + max_x * y);
     }
@@ -39,7 +34,11 @@ class CgaScreen extends sys::core::Object {
         }
         
         int pos = cursor;
-        if (c == '\n') {
+        if (c < 0 || c > 127) {
+            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII to upside down '?'
+            this.drawCharAtPos(168, format, pos++);
+        } else if (c == '\n') {
+            // clear rest of line
             do { this.drawCharAtPos(' ', format, pos++); } while (pos % max_x);
         } else if (c == '\t') {
             do { this.drawCharAtPos(' ', format, pos++); } while (pos % 8);

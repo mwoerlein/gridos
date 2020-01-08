@@ -85,7 +85,9 @@ class Startup extends Runtime, RuntimeBuilder {
         Runtime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
         bsScreen.init(0xB8000);
-        OStream bsOut = bsScreen.getFormattedOStream(15);
+        CgaFOStream bsFOut = bsRt.createInstance(CgaFOStream:CLASSNAME);
+        bsFOut.setForeground(CgaFOStream:BRIGHT_WHITE);
+        OStream bsOut = bsFOut.initOStream(bsScreen);
         
         if (context.magic != BootInformation:BOOTLOADER_MAGIC) {
             bsOut.printCString("Invalid magic number: ").printPtr(context.magic).printNewline();
@@ -163,8 +165,11 @@ class Startup extends Runtime, RuntimeBuilder {
         mmu.map(0xB8000, 0xFFBFF000);
         CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
         screen.init(0xFFBFF000);
-        rt.setOut(screen.getFormattedOStream(7));
-        rt.setErr(screen.getFormattedOStream(12));
+        CgaFOStream out = rt.createInstance(CgaFOStream:CLASSNAME);
+        rt.setOut(out.initOStream(screen));
+        CgaFOStream err = rt.createInstance(CgaFOStream:CLASSNAME);
+        err.setForeground(CgaFOStream:BRIGHT_RED);
+        rt.setErr(err.initOStream(screen));
         
         // create "heap"-based module-descriptions
         ModuleSet modules = rt.createInstance(ModuleSet:CLASSNAME);
