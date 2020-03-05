@@ -38,12 +38,10 @@ class PIC extends Object {
     }
     
     [] finalize(int nr) {
-        if ((nr >= 0) && (nr < 8)) {
-            IOPort:outb(0x20, 0x60 + (nr % 8));
-        } else if ((nr >= 8) && (nr < 16)) {
-            IOPort:outb(0x20, 0x62);
-            IOPort:outb(0xa0, 0x60 + ((nr/8) % 8));
-        }
+        if (nr < 0)  { /* ignore < 0 */ return; }
+        if (nr < 8)  { IOPort:outb(0x20, 0x60 + nr); return; }
+        if (nr < 16) { IOPort:outb(0x20, 0x62); IOPort:outb(0xa0, 0x60 + (nr / 8)); return; }
+        /* ignore >= 16 */ 
     }
     
     [] _storeMask(int mask) {
