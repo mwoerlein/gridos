@@ -96,7 +96,7 @@ class InterruptVectorTable extends Object {
 /*/
     global [] genTable(OStream out) {
         out.printCString(<"
-_gridos_i386_interrupt_InterruptVectorTable_m_call := 112
+_gridos_i386_interrupt_InterruptVectorTable_m_call := 160
 __idt_instance: .long 0
 __idt_table:
     .wordt ((__idt_end - __idt_start) - 1)
