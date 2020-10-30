@@ -75,9 +75,9 @@ Bootloader Module Description Builder.
             return -1;
         }
         
-        int mode = linux::File:MODE_APPEND;
+        int mode = linux::fs::File:MODE_APPEND;
         if (this.hasOption("startup")) {
-            mode = linux::File:MODE_WRITE;
+            mode = linux::fs::File:MODE_WRITE;
         }
         SeekableIOStream outfile = this.openFile(this.getValueOption("output"), mode);
         
@@ -85,7 +85,7 @@ Bootloader Module Description Builder.
         
         if (this.hasValueOption("file")) {
             String after = this.getValueOption("after");
-            SeekableIOStream modfile = this.openFile(this.getValueOption("file"), linux::File:MODE_READ);
+            SeekableIOStream modfile = this.openFile(this.getValueOption("file"), linux::fs::File:MODE_READ);
             int sectors = ((modfile.length() + 511) / 512);
             modfile.destroy();
             outfile.print(label).printCString("_SECTORS := ")._printUHex(sectors, 4).printNewline();
