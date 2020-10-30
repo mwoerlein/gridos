@@ -87,7 +87,7 @@ __mb2_gdt_48:
 __mb2_gdt:
     .long 0; .long 0    # dummy
     
-    .word 0xFFFF        #  4Gb - (0x100000*0x1000 = 4Gb)
+    .word 0xFFFF        # 4Gb - (0x100000*0x1000 = 4Gb)
     .word 0x0000        # base address = 0
     .byte 0; .byte 0x9A # code read/exec
     .byte 0xCF; .byte 0 # granularity = 4096, 386
