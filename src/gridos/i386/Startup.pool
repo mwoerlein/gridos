@@ -27,7 +27,7 @@ use sys::memory::PageAllocator;
 use sys::memory::PagedMemoryManager;
 use sys::runtime::Class;
 use sys::runtime::ClassStorage;
-use sys::runtime::DynamicListClassStorage;
+use sys::runtime::DynamicClassStorage;
 use sys::runtime::Runtime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
@@ -124,19 +124,19 @@ class Startup extends Runtime, RuntimeBuilder {
         bsPMM.initFromPageAllocator(bsMPA.pageAllocator(), 1);
 
         // initialize dynamic class storage with copies of static classes
-        DynamicListClassStorage bsDLCS = bsRt.createInstance(DynamicListClassStorage:CLASSNAME);
-        bsClassStorage.transferClasses(bsDLCS, bsPMM.allocator());
+        DynamicClassStorage bsDCS = bsRt.createInstance(DynamicClassStorage:CLASSNAME);
+        bsClassStorage.transferClasses(bsDCS, bsPMM.allocator());
         
         // create "heap"-based runtime
         bsRt.setAllocator(bsPMM.allocator());
-        bsRt.setClassStorage(bsDLCS.classStorage());
+        bsRt.setClassStorage(bsDCS.classStorage());
         Class classClass = bsRt._createClassClass();
         Startup rt = bsRt.createInstance(Startup:CLASSNAME);
         bsRt.setAllocator(bsAllocator);
         bsRt.setClassStorage(bsClassStorage);
         
         rt.setAllocator(bsPMM.allocator());
-        rt.setClassStorage(bsDLCS.classStorage());
+        rt.setClassStorage(bsDCS.classStorage());
         rt.setOut(bsOut);
         rt.setErr(bsOut);
         
@@ -157,9 +157,9 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setAllocator(pmm.allocator());
         
         // create "heap"-based dynamic class storage
-        DynamicListClassStorage dlcs = rt.createInstance(DynamicListClassStorage:CLASSNAME);
-        bsDLCS.transferClasses(dlcs, null);
-        rt.setClassStorage(dlcs.classStorage());
+        DynamicClassStorage dcs = rt.createInstance(DynamicClassStorage:CLASSNAME);
+        bsDCS.transferClasses(dcs, null);
+        rt.setClassStorage(dcs.classStorage());
         
         // create "heap"-based stdOut
         mmu.map(0xB8000, 0xFFBFF000);
@@ -187,7 +187,7 @@ class Startup extends Runtime, RuntimeBuilder {
         mmu.allocatePagesAt(0xFF800000 - stackPages*PageAllocator:PAGESIZE, stackPages);
         
         // cleanup
-        bsDLCS.destroy();
+        bsDCS.destroy();
         bsPMM.destroy();
         bsMPA.destroy();
         bsMMU.destroy();
