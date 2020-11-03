@@ -19,7 +19,7 @@ MODBUILD=$(BINDIR)/modbuild
 $(IMGDIR) $(BLOCKDIR) $(BUILDDIR) $(BINDIR) $(PASMDIR):
 	@mkdir -p $@
 
-$(BUILDDIR)/%.pbc: $(PASMDIR)/%.pasm $(PASM)
+$(BUILDDIR)/%.p86: $(PASMDIR)/%.pasm $(PASM)
 	@mkdir -p $(dir $@)
 	@$(PASM) -co $@ $<
 

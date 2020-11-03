@@ -209,6 +209,17 @@ class Startup extends Runtime, RuntimeBuilder {
         if (!ivt.initFromModule(modules.getCModule("gidt"), mmu)) {
             return;
         }
+        if (modules.hasCModule("store")) {
+            DynamicClassStorage dcs = this.cast(DynamicClassStorage:CLASSNAME, this.getClassStorage());
+            sys::store::Store store = dcs.createOwn(sys::store::Store:CLASSNAME);
+            Module storeModule = modules.getCModule("store");
+            if (!storeModule.isAvailable()) {
+                storeModule.mapAt(mmu, 0xFF800000); // where to map?
+            }
+            store.setContent(storeModule.getIOStream());
+            dcs.addLoader(store.classDescriptorLoader());
+        }
+        
 
         //mmu.map(0x0, 0xFF7FF000);
         
@@ -225,6 +236,14 @@ class Startup extends Runtime, RuntimeBuilder {
         // TODO: create and initialize kernel runtime
         this.err().printCString("Initialize kernel").printNewline();
         // TODO: run kernel thread and free/destroy startup memory/objects
-        this.createAndRunThread(gridos::KernelThread:CLASSNAME);
+        if (modules.hasCModule("startup")) {
+            sys::core::String mainThread = modules.getCModule("startup").getCStringProperty("meta.mainThread");
+            if (mainThread) {
+                int buf = 0;
+                __pasm__("subl %eax, %esp", {"%eax": mainThread.length() + 1}, {"%esp": buf});
+                this.createAndRunThread(mainThread.toCString(buf));
+                __pasm__("addl %eax, %esp", {"%eax": mainThread.length() + 1});
+            }
+        }
     }
 }

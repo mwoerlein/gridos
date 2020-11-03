@@ -17,6 +17,7 @@ use sys::runtime::Runtime;
 use sys::store::StorageElement;
 use sys::stream::IStream;
 use sys::stream::OStream;
+use sys::stream::SeekableIOStream;
 
 class Module extends StorageElement, CommandLineParserTarget {
 
@@ -53,6 +54,12 @@ class Module extends StorageElement, CommandLineParserTarget {
         String tmp = this.createStringFromCString(PROPERTYNAME_MODULE_ID); 
         this.setStringProperty(tmp, id);
         tmp.destroy();
+    }
+
+    [SeekableIOStream] getIOStream() {
+        MemoryIOStream s = this.rt().createInstance(MemoryIOStream:CLASSNAME);
+        s._initBuf(_vPage, _contentSize + _contentOffset);
+        return s.iostream();
     }
 
     [IStream] getContent() {

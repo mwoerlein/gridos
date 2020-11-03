@@ -11,7 +11,7 @@ LOADER_PARTS = settings stage0 stage1_1_start stage1_2_dap stage1_3_mid stage1_4
 LOADER_PASMS = $(patsubst %,$(BOOTLDDIR)/%.pasm, $(LOADER_PARTS))
 
 STORE_PASMS = $(shell find $(PASMDIR)/ -type f -name '*.pasm')
-STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.pbc, $(STORE_PASMS))
+STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.p86, $(STORE_PASMS))
 
 STARTUP_SEGMENT = 0x3000
 MODULES_SEGMENT = 0x1000
@@ -50,7 +50,7 @@ $(BLOCKDIR)/gidt.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/gidt.pasm $(PASM)
 
 $(BLOCKDIR)/store.block: $(BLOCKDIR) $(STORE_FILES) $(STORE)
 	@echo "creating $@"
-	@$(STORE) -o $@ -a 512 $(STORE_FILES) 
+	@$(STORE) -io $@ -a 512 $(STORE_FILES) 
 
 kernelthread: $(PASMDIR) $(POOLC)
 	@$(POOLC) $(PC_FLAGS) --output $(PASMDIR) gridos::KernelThread -r
