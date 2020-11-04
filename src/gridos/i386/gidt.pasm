@@ -607,3 +607,4 @@ __gridos_gdt_tss:
     .long 0x02; .long 0    # dummy
     .long 0x03; .long 0    # dummy
     # ...
+.align 512

@@ -63,7 +63,7 @@ loader_halt:
  */
 load_dap_list:
     cmpw %ax, %bx
-    jb load_dap_list_end
+    jbe load_dap_list_end
     call load_sectors
     addw 16, %ax
     jmp load_dap_list

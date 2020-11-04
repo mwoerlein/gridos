@@ -86,7 +86,11 @@ Bootloader Module Description Builder.
         if (this.hasValueOption("file")) {
             String after = this.getValueOption("after");
             SeekableIOStream modfile = this.openFile(this.getValueOption("file"), linux::fs::File:MODE_READ);
-            int sectors = ((modfile.length() + 511) / 512);
+            int length = modfile.length();
+            int sectors = ((length + 511) / 512);
+            if (sectors * 512 != length) {
+                this.rt().err().printCString("Not aligned module detected: ").print(this.getValueOption("file")).printNewline();
+            }
             modfile.destroy();
             outfile.print(label).printCString("_SECTORS := ")._printUHex(sectors, 4).printNewline();
             outfile.print(label).printCString("_LBA     := (").print(after).printCString("_LBA + ").print(after).printCString("_SECTORS)").printNewline();
