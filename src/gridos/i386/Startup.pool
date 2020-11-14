@@ -239,10 +239,7 @@ class Startup extends Runtime, RuntimeBuilder {
         if (modules.hasCModule("startup")) {
             sys::core::String mainThread = modules.getCModule("startup").getCStringProperty("meta.mainThread");
             if (mainThread) {
-                int buf = 0;
-                __pasm__("subl %eax, %esp", {"%eax": mainThread.length() + 1}, {"%esp": buf});
-                this.createAndRunThread(mainThread.toCString(buf));
-                __pasm__("addl %eax, %esp", {"%eax": mainThread.length() + 1});
+                this.createAndRunThread(mainThread.toCString());
             }
         }
     }
