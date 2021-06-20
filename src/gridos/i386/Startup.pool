@@ -121,7 +121,7 @@ class Startup extends Runtime, RuntimeBuilder {
         MMUPageAllocator bsMPA = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
         bsMPA._init(bsMMU, 0xF0000000);
         PagedMemoryManager bsPMM = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
-        bsPMM.initFromPageAllocator(bsMPA.pageAllocator(), 1);
+        bsPMM.setMinimalPageAllocation(16).initFromPageAllocator(bsMPA.pageAllocator(), 1);
 
         // initialize dynamic class storage with copies of static classes
         DynamicClassStorage bsDCS = bsRt.createInstance(DynamicClassStorage:CLASSNAME);
