@@ -13,7 +13,7 @@ use sys::core::String;
 class KernelThread extends sys::core::Thread {
 
     // methods
-    [] run() {
+    [int] run() {
         sys::runtime::Runtime rt = this.rt();
         
         
@@ -55,6 +55,7 @@ class KernelThread extends sys::core::Thread {
         
         rt.err().printCString("add more implementation");
         out.printNewline();
+        return 0;
     }
     
     [int] fibo(int i) {

@@ -66,11 +66,11 @@ class InterruptVectorTable extends Object {
         // TODO: handle gdt activation in own class
         __pasm__(<"
             .byte 0x0f; .byte 0x01; .byte 0x10  #//lgdtl (%eax)
-            movw %cx, %ds
-            movw %cx, %es
-            movw %cx, %fs
-            movw %cx, %gs
-            movw %cx, %ss
+            movw %dx, %ds
+            movw %dx, %es
+            movw %dx, %fs
+            movw %dx, %gs
+            movw %dx, %ss
             movl 8(%ebp), %eax
             addl (_set_cs - _gridos_i386_InterruptVectorTable), %eax
             pushw %bx
@@ -78,7 +78,7 @@ class InterruptVectorTable extends Object {
             .byte 0xff; .byte 0x2c; .byte 0x24  #//ljmp (%esp)
         _set_cs:
             addl 6, %esp
-        ">, {"%eax": gidt.gdt, "%ebx": 0x8, "%ecx": 0x10});
+        ">, {"%eax": gidt.gdt, "%ebx": 0x8, "%edx": 0x10}, {"%eax": null});
         
         __pasm__("sti");
     }

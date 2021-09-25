@@ -39,7 +39,7 @@ Bootloader Module Description Builder.
       -c <text> --cmdline <text>    The command line to use for mbi.
       -f <file> --file <file>       The module to build dap information for.
       -a <label> --after <label>    Current module follows this module in the bootimage. (Default: LOADER)
-      -t <addr> --segment <addr>    Bootloader loads module to this segment. If not set, the module will be placed after "after"
+      -t <addr> --segment <addr>    Bootloader loads module to this segment. If not set, the module will be placed after 'after'
 ">);
         this.registerOptionAlias('h', "help")
             .registerOptionAlias('s', "startup")

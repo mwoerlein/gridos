@@ -269,7 +269,7 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
     // transfer
     [] transferTo(StartupRegistry target) {
         // create buffer for non-embedded infos
-        int count = 3;
+        int count = MEMORY_LISTS;
         {
             MemoryInfo cur = reserved.next;
             while (!Address:equals(cur, reserved)) {

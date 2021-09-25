@@ -7,11 +7,12 @@ namespace gridos::module;
 
 use gridos::i386::memory::MMU;
 
+use command::CommandLineParser;
+use command::CommandLineParserTarget;
+
 use sys::core::String;
 use sys::core::anycollection::AnyIterator;
 use sys::core::anycollection::AnyList;
-use sys::core::utils::CommandLineParser;
-use sys::core::utils::CommandLineParserTarget;
 use sys::memory::MemoryIOStream;
 use sys::runtime::Runtime;
 use sys::store::StorageElement;
@@ -76,7 +77,7 @@ class Module extends StorageElement, CommandLineParserTarget {
         return _vPage != 0;
     }
     
-    [int] mapAt(MMU mmu, int vPage) {
+    [] mapAt(MMU mmu, int vPage) {
         if (vPage == _vPage) {
             return;
         }
