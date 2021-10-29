@@ -1,0 +1,21 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::Object;
+
+class TickHandler extends Object {
+
+    abstract [] call();
+    [] initFrequency(int baseFrequency, int divider) {}
+    
+    TickHandler next;
+    [TickHandler] getNext() { return this.next; }
+    [TickHandler] setNext(TickHandler next) { this.next = next; return this; }
+    
+    // TODO: remove with implicit cast
+    [TickHandler] handler() { return this; }
+}

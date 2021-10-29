@@ -1,0 +1,46 @@
+/*[meta]
+mimetype = text/x-pool
+author = Mars Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::Object;
+
+class DebugTickHandler extends TickHandler {
+
+    CgaScreen screen;
+    int ticks;
+    int ticksDivider;
+    int step;
+    int x;
+    int y;
+    
+    [DebugTickHandler] init(CgaScreen screen, int x, int y) {
+        this.screen = screen;
+        this.step = 0;
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+    
+    [] initFrequency(int baseFrequency, int divider) {
+        ticks = ticksDivider = baseFrequency / divider / 8;
+    }
+
+    [] call() {
+        if (ticks-- <= 0) {
+            ticks = ticksDivider;
+            int s = step;
+            if (s == 0) { screen.drawCharAt( '|', 1, x, y); }
+            if (s == 1) { screen.drawCharAt( '/', 1, x, y); }
+            if (s == 2) { screen.drawCharAt( '-', 1, x, y); }
+            if (s == 3) { screen.drawCharAt('\\', 1, x, y); }
+            if (s == 4) { screen.drawCharAt( '|', 2, x, y); }
+            if (s == 5) { screen.drawCharAt( '/', 2, x, y); }
+            if (s == 6) { screen.drawCharAt( '-', 2, x, y); }
+            if (s == 7) { screen.drawCharAt('\\', 2, x, y); }
+            step = (s+1) % 8;
+        }
+    }
+}
