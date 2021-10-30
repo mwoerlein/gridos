@@ -41,6 +41,11 @@ class Keyboard extends InterruptHandler {
             while (w--) { } // sleep awhile
             this.reboot();
         }
+            
+        if (scancode == 0xbb) { // F1 release
+            [int sec, int nsec] = this.rt().getClock().getTimestamp();
+            this.rt().out().printCString("clock second: ").printInt(sec).printNewline();
+        }
         
         this.rt().out()
             .printCString("scan code ").printHex(scancode)

@@ -1,0 +1,49 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::core::Object;
+use sys::time::Clock;
+
+class TickClock extends TickHandler, Clock {
+    
+    int sec;
+    int nsec;
+    int nsecPerTick;
+
+    [] initFrequency(int baseFrequency, int divider) {
+        sec = nsec = 0;
+        // divider / base * NSEC_PER_SEC == ns/tick
+        __pasm__ (<"
+            mull %ebx // %edx:%eax => NSEC_PER_SEC * divider
+            divl %ecx // %eax => NSEC_PER_SEC * divider / baseFrequency, %edx => remainder
+        ">, {"%eax": divider, "%ebx": Clock:NSEC_PER_SEC, "%ecx": baseFrequency}, {"%eax": nsecPerTick, "%edx": null});
+    }
+    
+    [] call() {
+        nsec += nsecPerTick;
+        if (nsec > Clock:NSEC_PER_SEC) {
+            ++sec;
+            nsec -= Clock:NSEC_PER_SEC;
+        }
+    }
+    
+    [int, int] getTimestamp() {
+        return [sec, nsec];
+    }
+    
+    [] sleep(int sec, int nsec) {
+        int s = this.sec + sec;
+        int n = this.nsec + nsec;
+        if (n > Clock:NSEC_PER_SEC) {
+            ++s;
+            n -= Clock:NSEC_PER_SEC;
+        }
+        while (this.sec < s || (this.sec == s && this.nsec < n)) {
+            __pasm__("hlt"); // wait for next tick
+        }
+    }
+}

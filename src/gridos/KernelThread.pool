@@ -53,6 +53,22 @@ class KernelThread extends sys::core::Thread {
             i.destroy();
         }
         
+        if (rt.hasClock()) {
+            sys::time::Clock clock = rt.getClock();
+            int i = 5;
+            {
+                [int sec, int nsec] = clock.getTimestamp();
+                out.printInt(sec).printChar(':').printInt(nsec).printNewline();
+            }
+            while (i-- > 0) {
+                clock.sleep(12, 0);
+                {
+                    [int sec, int nsec] = clock.getTimestamp();
+                    out.printInt(sec).printChar(':').printInt(nsec).printNewline();
+                }
+            }
+        }
+        
         rt.err().printCString("add more implementation");
         out.printNewline();
         return 0;

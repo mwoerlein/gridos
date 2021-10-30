@@ -240,15 +240,14 @@ class Startup extends Runtime, RuntimeBuilder {
         pit.plugin(pic, ivt);
         ivt.activate();
         
+        /* activate runtime clock */
+        TickClock clock := this.createInstance(TickClock:CLASSNAME);
+        pit.registerHandler(clock.handler());
+        this.setClock(clock.clock());
+        
         {
-            DebugTickHandler dth1 = this.createInstance(DebugTickHandler:CLASSNAME);
-            pit.registerHandler(dth1.init(this.getScreen(), 79, 24).handler());
-            DebugTickHandler dth2 = this.createInstance(DebugTickHandler:CLASSNAME);
-            pit.registerHandler(dth2.init(this.getScreen(),  0,  0).handler());
-            DebugTickHandler dth3 = this.createInstance(DebugTickHandler:CLASSNAME);
-            pit.registerHandler(dth3.init(this.getScreen(), 79,  0).handler());
-            DebugTickHandler dth4 = this.createInstance(DebugTickHandler:CLASSNAME);
-            pit.registerHandler(dth4.init(this.getScreen(),  0, 24).handler());
+            DebugTickHandler dth = this.createInstance(DebugTickHandler:CLASSNAME);
+            pit.registerHandler(dth.init(this.getScreen(), 79, 24).handler());
         }
         
         // TODO: create and initialize kernel runtime
