@@ -20,17 +20,22 @@ class PIT extends InterruptHandler {
         handlers = null;
     }
     
+    [] __destruct() {
+        // destroy all TickHandler?
+    }
+    
     [] plugin(PIC pic, InterruptVectorTable ivt) {
         this.pic = pic;
         this.ivt = ivt;
         ivt.insert(InterruptVectorTable:TIMER, this.handler());
-        pic.activate(PIC:TIMER);
-        // program PIT0
+        // program PIT0 to reload interval
         __pasm__("cli");
         IOPort:outb(0x43, 0x34);            // channel 0, lobyte/hibyte, rate generator
         IOPort:outb(0x40, reloadValue);     // set low byte of PIT reload value
         IOPort:outb(0x40, reloadValue/256); // set high byte of PIT reload value
         __pasm__("sti");
+        // activate interrupts after correct interval was initiated
+        pic.activate(PIC:TIMER);
     }
     
     [] registerHandler(TickHandler h) {
