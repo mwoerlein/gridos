@@ -6,6 +6,7 @@ version = 0.1.0
 namespace gridos::i386;
 
 use gridos::i386::memory::MMU;
+use gridos::i386::process::ProcessManager;
 
 class Runtime extends sys::runtime::Runtime {
     
@@ -16,5 +17,9 @@ class Runtime extends sys::runtime::Runtime {
     CgaScreen screen;
     [CgaScreen] getScreen() { return screen; }
     [] setScreen(CgaScreen screen) { this.screen = screen; }
+    
+    ProcessManager processManager;
+    [ProcessManager] getProcessManager() { return processManager; }
+    [] setProcessManager(ProcessManager processManager) { this.processManager = processManager; }
     
 }

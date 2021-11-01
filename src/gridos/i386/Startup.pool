@@ -8,6 +8,8 @@ namespace gridos::i386;
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StartupRegistry;
+use gridos::i386::process::ProcessControlBlock;
+use gridos::i386::process::ProcessManager;
 
 use gridos::module::Module;
 use gridos::module::ModuleSet;
@@ -224,6 +226,11 @@ class Startup extends Runtime, RuntimeBuilder {
         IOPort:outb(0xf0, 0); //delay();
         IOPort:outb(0xf1, 0); //delay();
         
+        /* init kernel thread/process */
+        ProcessManager pm = this.createInstance(ProcessManager:CLASSNAME);
+        pm.init(mmu);
+        this.setProcessManager(pm);
+        
         /* activate keyboard and interrupts */
         PIC pic = this.createInstance(PIC:CLASSNAME);
         Keyboard kbd = this.createInstance(Keyboard:CLASSNAME);
@@ -248,7 +255,12 @@ class Startup extends Runtime, RuntimeBuilder {
         if (modules.hasCModule("startup")) {
             sys::core::String mainThread = modules.getCModule("startup").getCStringProperty("meta.mainThread");
             if (mainThread) {
-                this.createAndRunThread(mainThread.toCString());
+                pm.createProcess(mainThread.toCString());
+                pm.createProcess(mainThread.toCString());
+                while (1) {
+                    pm.switchToNext(this.out());
+                    clock.sleep(5, 0);
+                }
             }
         }
     }

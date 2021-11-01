@@ -20,7 +20,7 @@
  * +----- 0xFF800000 -----+ (0x3FE:0x000)
  * | reserved (Remapped-Modules, shared, HW, ...)
  * | ...
- * +----- 0xFFBF9000 -----+ (0x3FE:0x3F9) owner: MMU
+ * +----- 0xFFBF0000 -----+ (0x3FE:0x3F0) owner: MMU
  * | page management
  * +----- 0xFFBFD000 -----+ (0x3FE:0x3FD) owner: InterruptVectorTable
  * | IDT/GDT/TSS

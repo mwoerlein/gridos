@@ -25,9 +25,9 @@ class MMU extends Object {
         info = Address:cast(0xFFBFB000);
     }
     
-    [int] isActive() {
-        return this.activeDirectory != 0;
-    }
+    [int] isActive() { return this.activeDirectory != 0; }
+    [int] getActiveDirectory() { return this.activeDirectory; }
+    [] setActiveDirectory(int pageDirectoryPAddr) { this.activeDirectory = pageDirectoryPAddr; }
 
     [] activate(int pageDirectoryPAddr) {
         if (pageDirectoryPAddr == 0) {
@@ -156,6 +156,38 @@ class MMU extends Object {
         // clear new page table
         Address:setBytes(0xFFBF9000, PageAllocator:PAGESIZE, 0);
         return this.unmap(0xFFBF9000);
+    }
+    
+    [int, int] newThreadPageDirectoryAndKernelStack() {
+        // allocate thread kernel stack page, new page directory, and page tables for userspace and stack page 
+        this.allocatePagesAt(0xFFBF0000, 4);
+        int pd = this.getPPage(0xFFBF0000);
+        int pt0 = this.getPPage(0xFFBF1000);
+        int ptStack = this.getPPage(0xFFBF2000);
+        int stack = this.getPPage(0xFFBF3000);
+        
+        // setup page tables
+        Address:setBytes(0xFFBF1000, PageAllocator:PAGESIZE, 0);
+        Address:setBytes(0xFFBF2000, PageAllocator:PAGESIZE, 0);
+        // add stack page
+        Address:storeAddress(0xFFBF2000 + 4*0x3FF, stack + 0x1);
+        
+        // setup page directory
+        // clear user space mapping
+        Address:setBytes(0xFFBF0000, 4*0x3C0, 0);
+        // keep kernel space mapping
+        Address:copyBytes(0xFFFFF000 + 4*0x3C0, 0xFFBF0000 + 4*0x3C0, 4*0x40);
+        // add new page tables
+        Address:storeAddress(0xFFBF0000 + 4*0x0, pt0 + 0x1);
+        Address:storeAddress(0xFFBF0000 + 4*0x3BF, ptStack + 0x1);
+        Address:storeAddress(0xFFBF0000 + 4*0x3FF, pd + 0x1);
+        
+        // unmap page directory and tables
+        this.unmap(0xFFBF0000);
+        this.unmap(0xFFBF1000);
+        this.unmap(0xFFBF2000);
+        // keep kernel stack mapped and return address to be filled by caller
+        return [pd, 0xFFBF3000];
     }
     
 }

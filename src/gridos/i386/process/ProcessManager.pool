@@ -1,0 +1,153 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::process;
+
+use gridos::i386::memory::MMU;
+use sys::memory::Address;
+use sys::memory::PageAllocator;
+
+class ProcessManager extends sys::core::Object {
+
+    ProcessControlBlock currentPCB;
+    ProcessControlBlock first;
+    ProcessControlBlock last;
+    int pidCounter;
+    MMU mmu;
+    
+    [ProcessControlBlock] init(MMU mmu) {
+        this.mmu = mmu;
+        first = last = currentPCB = this._newPCB(mmu.getActiveDirectory());
+        last.next = first;
+        return currentPCB;
+    }
+    
+    [] switchToNext(sys::stream::OStream debug) {
+        debug.printCString("switch from ").printInt(currentPCB.pid).printCString(" to ").printInt(currentPCB.next.pid).printNewline();
+        this.switchTo(currentPCB.next);
+        debug.printCString("back in ").printInt(currentPCB.pid).printNewline();
+    }
+    
+    [] switchTo(ProcessControlBlock nextPCB) {
+        //Save previous task's state
+        //Notes:
+        //  For cdecl; EAX, EBX, and EDX are already saved by the caller and don't need to be saved again
+        //  EIP is already saved on the stack by the caller's "CALL" instruction
+        //  The task isn't able to change CR3 so it doesn't need to be saved
+        //  Segment registers are constants (while running kernel code) so they don't need to be saved
+        /* 
+        //Not yet required without register allocation. pushad/popad already stores everything into stack frame 
+        __pasm__(<"
+            pushl %ecx
+            pushl %esi
+            pushl %edi
+        ">);
+        */
+        
+        // Save ESP for previous task's kernel stack in the thread's TCB
+        __pasm__(<"
+            pushl %ebp
+            movl %esp, %eax
+        ">, {}, {"%eax": currentPCB.topOfStack});
+        currentPCB = nextPCB;
+        // switch stack pointer/base pointer and page directory at once
+        __pasm__(<"
+            movl %ebx, %esp
+            .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
+            popl %ebp
+        ">, {"%eax": nextPCB.pageDirectoryPAddr, "%ebx": nextPCB.topOfStack});
+        mmu.setActiveDirectory(nextPCB.pageDirectoryPAddr);
+        
+        //Restore next task's state
+        /*
+        //Not yet required without register allocation. pushad/popad already stores everything into stack frame
+        __pasm__(<"
+            popl %edi
+            popl %esi
+            popl %ecx
+        ">);
+        */
+    }
+    
+    [ProcessControlBlock] createProcess(cstring threadClassname) {
+        int setup_entry = 0;
+        __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_entry, %eax", {}, {"%eax": setup_entry});
+        
+        [int pageDirectoryPAddr, int mappedStack] = mmu.newThreadPageDirectoryAndKernelStack();
+        ProcessControlBlock pbc = this._newPCB(pageDirectoryPAddr);
+
+        int tos = mappedStack + PageAllocator:PAGESIZE;
+        int ebpBase = 0xF0000000 - tos;
+        
+        // fake stack frame of called _setup_entry
+        Address:storeString(tos-=4, threadClassname); // argument
+        Address:store(tos-=4, this);
+        Address:store(tos-=4, this.getClass().getDesc());
+        Address:storeAddress(tos-=4, 0x0); // %eip
+        Address:storeAddress(tos-=4, 0xF0000000); // %ebp
+        int ebpSetup = ebpBase + tos;
+        
+        // fake stack frame with _setup_entry as caller of switchTo 
+        Address:store(tos-=4, pbc);
+        Address:store(tos-=4, this);
+        Address:store(tos-=4, this.getClass().getDesc());
+        Address:storeAddress(tos-=4, setup_entry); // %eip
+        Address:storeAddress(tos-=4, ebpSetup); // %ebp
+        int ebpSwitch = ebpBase + tos;
+        // local/temporal variables of switchTo
+        tos-=0x18;
+        // pushad 
+        Address:storeAddress(tos-=4, 0x0); // %eax
+        Address:storeAddress(tos-=4, 0x0); // %ecx
+        Address:storeAddress(tos-=4, 0x0); // %edx
+        Address:storeAddress(tos-=4, 0x0); // %ebx
+        Address:storeAddress(tos-=4, 0x0); // %esp
+        Address:storeAddress(tos-=4, ebpSwitch); // %ebp
+        Address:storeAddress(tos-=4, 0x0); // %esi
+        Address:storeAddress(tos-=4, 0x0); // %edi
+        // stored task state
+        /*
+        //Not yet required without register allocation. pushad/popad already stores everything into stack frame
+        Address:storeAddress(tos-=4, 0); // %ecx
+        Address:storeAddress(tos-=4, 0); // %esi
+        Address:storeAddress(tos-=4, 0); // %edi
+        */
+        Address:storeAddress(tos-=4, ebpSwitch); // %ebp
+        
+        mmu.unmap(mappedStack);
+        
+        pbc.topOfStack = ebpBase + tos;
+        pbc.next = first;
+        return last = last.next = pbc;
+    }
+    
+    [] _setup_entry(cstring threadClassname) {
+        __pasm__(<"
+            _cr_mo_setup_entry := (_setup_entry - _gridos_i386_process_ProcessManager)
+            _setup_entry:
+        ">);
+        this._setupNewProcess(threadClassname);
+    }
+    
+    [] _setupNewProcess(cstring threadClassname) {
+        this.rt().out()
+            .printCString("setup new process ").printInt(currentPCB.pid)
+            .printCString(" via ").print(this)
+            .printCString(" with class '").printCString(threadClassname).printChar('\'')
+            .printNewline();
+        // TODO: setup ProcessRuntime, create and run thread (in userland), and cleanup/exit process if thread returns 
+        this.rt().createAndRunThread(threadClassname);
+        while (1) { __pasm__("hlt"); }
+    }
+    
+    [ProcessControlBlock] _newPCB(int pageDirectoryPAddr) {
+        // TODO: handle PCB alloc/free correctly/efficiently
+        ProcessControlBlock pcb = Address:cast(this.rt().getAllocator().allocate(ProcessControlBlock:SIZEOF).buf);
+        pcb.pid = ++pidCounter;
+        pcb.pageDirectoryPAddr = pageDirectoryPAddr;
+        return pcb;
+    }
+    
+}
