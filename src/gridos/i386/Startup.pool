@@ -28,7 +28,7 @@ use sys::memory::PagedMemoryManager;
 use sys::runtime::Class;
 use sys::runtime::ClassStorage;
 use sys::runtime::DynamicClassStorage;
-use sys::runtime::Runtime;
+use sys::runtime::Runtime as SysRuntime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
 use sys::stream::OStream;
@@ -39,14 +39,6 @@ class Startup extends Runtime, RuntimeBuilder {
     ModuleSet modules;
     [ModuleSet] getModules() { return modules; }
     [] setModules(ModuleSet modules) { this.modules = modules; }
-    
-    MMU mmu;
-    [MMU] getMMU() { return mmu; }
-    [] setMMU(MMU mmu) { this.mmu = mmu; }
-    
-    CgaScreen screen;
-    [CgaScreen] getScreen() { return screen; }
-    [] setScreen(CgaScreen screen) { this.screen = screen; }
     
     StartupRegistry startupRegistry;
     [StartupRegistry] getStartupRegistry() { return startupRegistry; }
@@ -62,7 +54,7 @@ class Startup extends Runtime, RuntimeBuilder {
         context.mbi = mbi;
         context.mbh = mbh;
         
-        Runtime rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
+        SysRuntime rt = Startup:_bootstrap(Startup:CLASSNAME, 0x3000, context);
         
         // free context
         __pasm__("addl %eax, %esp", {"%eax": Context:SIZEOF});
@@ -85,8 +77,8 @@ class Startup extends Runtime, RuntimeBuilder {
         while (1) { __pasm__("hlt"); }
     }
     
-    [Runtime] _buildRuntime(Context context) {
-        Runtime bsRt := this.rt();
+    [SysRuntime] _buildRuntime(Context context) {
+        SysRuntime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
         bsScreen.init(0xB8000);
         CgaFOStream bsFOut = bsRt.createInstance(CgaFOStream:CLASSNAME);
