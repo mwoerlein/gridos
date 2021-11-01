@@ -64,7 +64,6 @@ class ModuleSet extends AnyMap { // HashMap<String, Module>
                 .printNewline();
             return;
         }
-        mmu.flushTLB();
         Address:copyBytes(startAddr, 0xFF800000, len);
         this._addModule(commandline, mmu.unmapPages(0xFF800000, pages), 0, pages, len);
     }

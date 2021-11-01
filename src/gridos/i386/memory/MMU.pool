@@ -129,16 +129,14 @@ class MMU extends Object {
             info.count -= pages;
             int pAddr = Address:offsetAddress(info.self, info.count * PageAllocator:PAGESIZE);
             int vAddr = virtualAddress;
-            while (pages-- > 0) {
-                if (this.getPPage(vAddr) != -1) {
-                    return allocated;
-                }
+            while (pages-- > 0 && (this.getPPage(vAddr) == -1)) {
                 this.map(pAddr, vAddr);
                 pAddr += PageAllocator:PAGESIZE;
                 vAddr += PageAllocator:PAGESIZE;
                 allocated++;
             }
         }
+        this.flushTLB();
         return allocated;
         // TODO: handle page info list
     }
@@ -155,11 +153,8 @@ class MMU extends Object {
     
     [int] newPageTable() {
         this.allocatePagesAt(0xFFBF9000, 1);
-        int addr = 0xFFBF9000;
-        while (addr < 0xFFBFA000) {
-            Address:storeAddress(addr, 0);
-            addr += 4;
-        }
+        // clear new page table
+        Address:setBytes(0xFFBF9000, PageAllocator:PAGESIZE, 0);
         return this.unmap(0xFFBF9000);
     }
     

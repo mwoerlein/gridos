@@ -10,11 +10,16 @@ class IgnoreHandler extends InterruptHandler {
 
     [] call(int nr, int errorCode) {
         if (nr < 32) {
-            this.rt().err()
-                .printCString(this.getName(nr))
+            sys::stream::OStream err = this.rt().err();
+            err.printCString(this.getName(nr))
                 .printCString(" (int ").printInt(nr)
-                .printCString(" err ").printInt(errorCode)
-                .printCString(") => halting").printNewline();
+                .printCString(" err ").printInt(errorCode);
+            if (nr == 14) {
+                int cr2 = 0;
+                __pasm__("movl %cr2, %eax",{},{"%eax": cr2});
+                err.printCString(" cr2 ").printPtr(cr2);
+            }
+            err.printCString(") => halting").printNewline();
             while (true) { __pasm__ ("hlt"); }
         }
         this.rt().out()

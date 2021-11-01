@@ -160,6 +160,9 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
             return 0;
         }
         
+        // add page table 0x0 to allow reboot easy identity mapping
+        this._getOrCreatePageTable(0x0);
+        
         { // init free page handling
             int pt = this._getOrCreatePageTable(0x3fe);
             Address:storeAddress(pt + 4 * 0x3fa, Address:from(freePages.prev) + 0x1);
