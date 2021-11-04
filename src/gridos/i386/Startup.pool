@@ -219,9 +219,6 @@ class Startup extends Runtime, RuntimeBuilder {
             dcs.addLoader(store.classDescriptorLoader());
         }
         
-
-        //mmu.map(0x0, 0xFF7FF000);
-        
         /* reset coprocessors */        
         IOPort:outb(0xf0, 0); //delay();
         IOPort:outb(0xf1, 0); //delay();
@@ -253,10 +250,10 @@ class Startup extends Runtime, RuntimeBuilder {
         this.err().printCString("Initialize kernel").printNewline();
         // TODO: run kernel thread and free/destroy startup memory/objects
         if (modules.hasCModule("startup")) {
-            sys::core::String mainThread = modules.getCModule("startup").getCStringProperty("meta.mainThread");
-            if (mainThread) {
-                pm.createProcess(mainThread.toCString());
-                pm.createProcess(mainThread.toCString());
+            sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
+            if (taskClassname) {
+                pm.createProcess(taskClassname.toCString());
+                pm.createProcess(taskClassname.toCString());
                 while (1) {
                     pm.switchToNext(this.out());
                     clock.sleep(5, 0);

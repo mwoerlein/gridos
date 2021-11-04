@@ -31,7 +31,7 @@ class ProcessManager extends sys::core::Object {
     }
     
     [] switchTo(ProcessControlBlock nextPCB) {
-        //Save previous task's state
+        //Save previous thread's state
         //Notes:
         //  For cdecl; EAX, EBX, and EDX are already saved by the caller and don't need to be saved again
         //  EIP is already saved on the stack by the caller's "CALL" instruction
@@ -46,7 +46,7 @@ class ProcessManager extends sys::core::Object {
         ">);
         */
         
-        // Save ESP for previous task's kernel stack in the thread's TCB
+        // Save ESP for previous thread's kernel stack
         __pasm__(<"
             pushl %ebp
             movl %esp, %eax
@@ -71,7 +71,7 @@ class ProcessManager extends sys::core::Object {
         */
     }
     
-    [ProcessControlBlock] createProcess(cstring threadClassname) {
+    [ProcessControlBlock] createProcess(cstring taskClassname) {
         int setup_entry = 0;
         __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_entry, %eax", {}, {"%eax": setup_entry});
         
@@ -82,7 +82,7 @@ class ProcessManager extends sys::core::Object {
         int ebpBase = 0xF0000000 - tos;
         
         // fake stack frame of called _setup_entry
-        Address:storeString(tos-=4, threadClassname); // argument
+        Address:storeString(tos-=4, taskClassname); // argument
         Address:store(tos-=4, this);
         Address:store(tos-=4, this.getClass().getDesc());
         Address:storeAddress(tos-=4, 0x0); // %eip
@@ -123,22 +123,22 @@ class ProcessManager extends sys::core::Object {
         return last = last.next = pbc;
     }
     
-    [] _setup_entry(cstring threadClassname) {
+    [] _setup_entry(cstring taskClassname) {
         __pasm__(<"
             _cr_mo_setup_entry := (_setup_entry - _gridos_i386_process_ProcessManager)
             _setup_entry:
         ">);
-        this._setupNewProcess(threadClassname);
+        this._setupNewProcess(taskClassname);
     }
     
-    [] _setupNewProcess(cstring threadClassname) {
+    [] _setupNewProcess(cstring taskClassname) {
         this.rt().out()
             .printCString("setup new process ").printInt(currentPCB.pid)
             .printCString(" via ").print(this)
-            .printCString(" with class '").printCString(threadClassname).printChar('\'')
+            .printCString(" with class '").printCString(taskClassname).printChar('\'')
             .printNewline();
-        // TODO: setup ProcessRuntime, create and run thread (in userland), and cleanup/exit process if thread returns 
-        this.rt().createAndRunThread(threadClassname);
+        // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
+        this.rt().createAndRunTask(taskClassname);
         while (1) { __pasm__("hlt"); }
     }
     

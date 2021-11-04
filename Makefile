@@ -20,7 +20,7 @@ GIDT_PAGE = 0xFFBFD
 clean:
 	@rm -rf $(BLOCKDIR) $(BUILDDIR) $(PASMDIR) $(BINDIR) $(BOOTLDDIR)/stage1_2_dap.pasm $(BOOTLDDIR)/stage1_4_mbi.pasm
 
-bootdisk: kernelthread $(IMGDIR)/bootdisk.img
+bootdisk: sampletask $(IMGDIR)/bootdisk.img
 
 $(IMGDIR)/bootdisk.img: $(IMGDIR) $(BOOTBLOCKS)
 	@echo "creating $@"
@@ -36,7 +36,7 @@ $(BOOTLDDIR)/stage1_2_dap.pasm: $(BLOCKS) $(MODBUILD)
 	@$(MODBUILD) -o $@ -l STORE -f $(BLOCKDIR)/store.block -a GIDT
 	
 $(BOOTLDDIR)/stage1_4_mbi.pasm: $(BLOCKS) $(MODBUILD)
-	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --mainThread=gridos::KernelThread"
+	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --runTask=gridos::SampleTask"
 	@$(MODBUILD) -o $@ -l GIDT -c "gidt --target=$(GIDT_PAGE)000"
 	@$(MODBUILD) -o $@ -l STORE -c "store --debug=1"
 
@@ -52,8 +52,8 @@ $(BLOCKDIR)/store.block: $(BLOCKDIR) $(STORE_FILES) $(STORE)
 	@echo "creating $@"
 	@$(STORE) -io $@ -a 512 $(STORE_FILES) 
 
-kernelthread: $(PASMDIR) $(POOLC)
-	@$(POOLC) $(PC_FLAGS) --output $(PASMDIR) gridos::KernelThread -r
+sampletask: $(PASMDIR) $(POOLC)
+	@$(POOLC) $(PC_FLAGS) --output $(PASMDIR) gridos::SampleTask -r
  
 $(MODBUILD): $(BINDIR) $(BOOTLDDIR)/command/ModuleBuilder.pool
 	@echo "creating $@"
