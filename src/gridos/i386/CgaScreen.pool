@@ -34,10 +34,7 @@ class CgaScreen extends sys::core::Object {
         }
         
         int pos = cursor;
-        if (c < 0 || c > 127) {
-            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII to upside down '?'
-            this.drawCharAtPos(168, format, pos++);
-        } else if (c == '\n') {
+        if (c == '\n') {
             // clear rest of line
             do { this.drawCharAtPos(' ', format, pos++); } while (pos % max_x);
         } else if (c == '\t') {
@@ -84,7 +81,12 @@ class CgaScreen extends sys::core::Object {
     }
     
     [] drawCharAtPos(int c, int format, int pos) {
-        Address:storeWord(cga_ram + 2*pos, c + 256*format);
+        if (c < 0 || c > 127) {
+            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII-7 to upside down '?'
+            Address:storeWord(cga_ram + 2*pos, 168 + 256*format);
+        } else {
+            Address:storeWord(cga_ram + 2*pos, c + 256*format);
+        }
     }
     
     [] copyCharAtPos(int src, int dest) {
