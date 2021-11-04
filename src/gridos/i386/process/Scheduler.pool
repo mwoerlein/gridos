@@ -1,0 +1,101 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::process;
+
+use gridos::i386::memory::MMU;
+use gridos::i386::memory::StackBuilder;
+
+class Scheduler extends sys::core::Object {
+
+    Thread currentThread;
+    MMU mmu;
+    
+    [Scheduler] setMMU(MMU mmu) { this.mmu = mmu; return this; }
+    [Scheduler] setCurrentThread(Thread currentThread) { this.currentThread = currentThread; return this; }
+    
+    [] schedule() {
+        this.rt().out().printCString("switch from ").printInt(currentThread.getPid())
+            .printCString(" to ").printInt(currentThread.getNext().getPid()).printNewline();
+        this.switchTo(currentThread.getNext());
+        this.rt().out().printCString("back in ").printInt(currentThread.getPid()).printNewline();
+    }
+    
+    [] switchTo(Thread nextThread) {
+        //Save previous thread's state
+        //Notes:
+        //  For cdecl; EAX, EBX, and EDX are already saved by the caller and don't need to be saved again
+        //  EIP is already saved on the stack by the caller's "CALL" instruction
+        //  The task isn't able to change CR3 so it doesn't need to be saved
+        //  Segment registers are constants (while running kernel code) so they don't need to be saved
+        /* 
+        //Not yet required without register allocation. pushad/popad already stores everything into stack frame 
+        __pasm__(<"
+            pushl %ecx
+            pushl %esi
+            pushl %edi
+        ">);
+        */
+        
+        // Save EBP/ESP for previous thread's kernel stack
+        int esp = 0;
+        __pasm__(<"
+            pushl %ebp
+        ">, {}, {"%esp": esp});
+        currentThread.setTopOfStack(esp);
+        currentThread = nextThread;
+        // switch stack pointer/base pointer and page directory at once
+        __pasm__(<"
+            movl %ebx, %esp
+            movl %cr3, %ebx         #// ebx = previous task's virtual address space
+            cmpl %eax, %ebx         #// Does the virtual address space need to being changed?
+            je _pm_switch_done_vas  #// no, virtual address space is the same, so don't reload it and cause TLB flushes
+            movl %eax, %cr3         #// yes, load the next task's virtual address space
+        _pm_switch_done_vas:
+            popl %ebp
+        ">, {"%eax": nextThread.getPageDirectoryPAddr(), "%ebx": nextThread.getTopOfStack()}, {"%ebx": null, "%ebp": esp});
+        mmu.refreshActiveDirectory();
+        
+        //Restore next task's state
+        /*
+        //Not yet required without register allocation. pushad/popad already stores everything into stack frame
+        __pasm__(<"
+            popl %edi
+            popl %esi
+            popl %ecx
+        ">);
+        */
+    }
+    
+    [] setupStackFrameForSwitchTo(StackBuilder sb, int returnAddress, Thread thread) {
+        {   // fake stack frame with returnAddress as caller of switchTo 
+            int basePtr = sb.getTopOfStack();
+            sb.pushPtr(thread);             // argument
+            sb.buildMethodCallEntry(this, this.getClass(), returnAddress, basePtr);
+        }
+        {
+            int basePtr = sb.getTopOfStack();
+            // local/temporal variables of switchTo
+            sb.skip(0x1c);
+            // pushad 
+            sb.pushAddress(0x0); // %eax
+            sb.pushAddress(0x0); // %ecx
+            sb.pushAddress(0x0); // %edx
+            sb.pushAddress(0x0); // %ebx
+            sb.pushAddress(0x0); // %esp
+            sb.pushAddress(basePtr); // %ebp
+            sb.pushAddress(0x0); // %esi
+            sb.pushAddress(0x0); // %edi
+            // stored task state
+            /*
+            //Not yet required without register allocation. pushad/popad already stores everything into stack frame
+            sb.pushAddress(0x0); // %ecx
+            sb.pushAddress(0x0); // %esi
+            sb.pushAddress(0x0); // %edi
+            */
+            sb.pushAddress(basePtr); // %ebp
+        }
+    }
+}

@@ -1,0 +1,40 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::memory;
+
+use sys::memory::Address;
+use sys::memory::PageAllocator;
+
+class StackBuilder extends sys::core::Object {
+
+    int firstPage;
+    int pages;
+    int offset;
+    int tos;
+    
+    [StackBuilder] init(int firstPage, int pages, int offset) {
+        this.firstPage = firstPage;
+        this.pages = pages;
+        this.offset = offset;
+        this.tos = firstPage + pages*PageAllocator:PAGESIZE;
+    }
+    
+    [] pushPtr(__any__ val) { Address:store(tos-=4, val); }
+    [] pushAddress(int val) { Address:storeAddress(tos-=4, val); }
+    [] pushString(cstring val) { Address:storeString(tos-=4, val); }
+    [] skip(int bytes) { tos-=bytes; }
+    [int] getTopOfStack() { return tos + offset; }
+    
+    [int] buildMethodCallEntry(__any__ inst, sys::runtime::Class cls, int returnAddr, int basePtr) {
+        Address:store(tos-=4, inst);
+        Address:store(tos-=4, cls.getDesc());
+        Address:storeAddress(tos-=4, returnAddr);  // %eip
+        Address:storeAddress(tos-=4, basePtr); // %ebp
+    }
+    
+    [] unmap(MMU mmu) { mmu.unmapPages(firstPage, pages); }
+    
+}
