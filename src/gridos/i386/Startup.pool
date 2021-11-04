@@ -8,7 +8,6 @@ namespace gridos::i386;
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StartupRegistry;
-use gridos::i386::process::ProcessControlBlock;
 use gridos::i386::process::ProcessManager;
 
 use gridos::module::Module;

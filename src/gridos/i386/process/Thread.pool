@@ -1,0 +1,27 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::process;
+
+
+class Thread extends sys::core::Object {
+
+    Process process;
+    int topOfStack;
+    
+    Thread next;
+    
+    [Thread] setProcess(Process p) { this.process = p; return this; }
+    [Process] getProcess() { return this.process; }
+    [int] getPid() { return this.process.getPid(); }
+    [int] getPageDirectoryPAddr() { return this.process.getPageDirectoryPAddr(); }
+    
+    [Thread] setTopOfStack(int tos) { this.topOfStack = tos; return this; }
+    [int] getTopOfStack() { return this.topOfStack; }
+    
+    [Thread] setNext(Thread n) { this.next = n; return this; }
+    [Thread] getNext() { return this.next; }
+    
+}

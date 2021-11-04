@@ -11,26 +11,27 @@ use sys::memory::PageAllocator;
 
 class ProcessManager extends sys::core::Object {
 
-    ProcessControlBlock currentPCB;
-    ProcessControlBlock first;
-    ProcessControlBlock last;
+    Thread currentThread;
+    Thread first;
+    Thread last;
     int pidCounter;
     MMU mmu;
     
-    [ProcessControlBlock] init(MMU mmu) {
+    [Thread] init(MMU mmu) {
         this.mmu = mmu;
-        first = last = currentPCB = this._newPCB(mmu.getActiveDirectory());
-        last.next = first;
-        return currentPCB;
+        Thread t = this._newThread(mmu.getActiveDirectory());
+        t.setNext(t);
+        return first = last = currentThread = t;
     }
     
     [] switchToNext(sys::stream::OStream debug) {
-        debug.printCString("switch from ").printInt(currentPCB.pid).printCString(" to ").printInt(currentPCB.next.pid).printNewline();
-        this.switchTo(currentPCB.next);
-        debug.printCString("back in ").printInt(currentPCB.pid).printNewline();
+        debug.printCString("switch from ").printInt(currentThread.getPid())
+            .printCString(" to ").printInt(currentThread.getNext().getPid()).printNewline();
+        this.switchTo(currentThread.getNext());
+        debug.printCString("back in ").printInt(currentThread.getPid()).printNewline();
     }
     
-    [] switchTo(ProcessControlBlock nextPCB) {
+    [] switchTo(Thread nextThread) {
         //Save previous thread's state
         //Notes:
         //  For cdecl; EAX, EBX, and EDX are already saved by the caller and don't need to be saved again
@@ -46,19 +47,24 @@ class ProcessManager extends sys::core::Object {
         ">);
         */
         
-        // Save ESP for previous thread's kernel stack
+        // Save EBP/ESP for previous thread's kernel stack
+        int esp = 0;
         __pasm__(<"
             pushl %ebp
-            movl %esp, %eax
-        ">, {}, {"%eax": currentPCB.topOfStack});
-        currentPCB = nextPCB;
+        ">, {}, {"%esp": esp});
+        currentThread.setTopOfStack(esp);
+        currentThread = nextThread;
         // switch stack pointer/base pointer and page directory at once
         __pasm__(<"
             movl %ebx, %esp
-            .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
+            movl %cr3, %ebx         #// ebx = previous task's virtual address space
+            cmpl %eax, %ebx         #// Does the virtual address space need to being changed?
+            je _pm_switch_done_vas  #// no, virtual address space is the same, so don't reload it and cause TLB flushes
+            movl %eax, %cr3         #// yes, load the next task's virtual address space
+        _pm_switch_done_vas:
             popl %ebp
-        ">, {"%eax": nextPCB.pageDirectoryPAddr, "%ebx": nextPCB.topOfStack});
-        mmu.setActiveDirectory(nextPCB.pageDirectoryPAddr);
+        ">, {"%eax": nextThread.getPageDirectoryPAddr(), "%ebx": nextThread.getTopOfStack()}, {"%ebx": null});
+        mmu.refreshActiveDirectory();
         
         //Restore next task's state
         /*
@@ -71,12 +77,12 @@ class ProcessManager extends sys::core::Object {
         */
     }
     
-    [ProcessControlBlock] createProcess(cstring taskClassname) {
+    [Process] createProcess(cstring taskClassname) {
         int setup_entry = 0;
         __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_entry, %eax", {}, {"%eax": setup_entry});
         
         [int pageDirectoryPAddr, int mappedStack] = mmu.newThreadPageDirectoryAndKernelStack();
-        ProcessControlBlock pbc = this._newPCB(pageDirectoryPAddr);
+        Thread thread = this._newThread(pageDirectoryPAddr);
 
         int tos = mappedStack + PageAllocator:PAGESIZE;
         int ebpBase = 0xF0000000 - tos;
@@ -90,7 +96,7 @@ class ProcessManager extends sys::core::Object {
         int ebpSetup = ebpBase + tos;
         
         // fake stack frame with _setup_entry as caller of switchTo 
-        Address:store(tos-=4, pbc);
+        Address:store(tos-=4, thread);
         Address:store(tos-=4, this);
         Address:store(tos-=4, this.getClass().getDesc());
         Address:storeAddress(tos-=4, setup_entry); // %eip
@@ -118,9 +124,10 @@ class ProcessManager extends sys::core::Object {
         
         mmu.unmap(mappedStack);
         
-        pbc.topOfStack = ebpBase + tos;
-        pbc.next = first;
-        return last = last.next = pbc;
+        thread.setTopOfStack(ebpBase + tos).setNext(first);
+        last.setNext(thread);
+        last = thread;
+        return thread.getProcess();
     }
     
     [] _setup_entry(cstring taskClassname) {
@@ -128,26 +135,23 @@ class ProcessManager extends sys::core::Object {
             _cr_mo_setup_entry := (_setup_entry - _gridos_i386_process_ProcessManager)
             _setup_entry:
         ">);
-        this._setupNewProcess(taskClassname);
+        this._setupNewThread(taskClassname);
     }
     
-    [] _setupNewProcess(cstring taskClassname) {
-        this.rt().out()
-            .printCString("setup new process ").printInt(currentPCB.pid)
-            .printCString(" via ").print(this)
-            .printCString(" with class '").printCString(taskClassname).printChar('\'')
+    [] _setupNewThread(cstring taskClassname) {
+        this.rt().err()
+            .printCString("setup new thread in process ").printInt(currentThread.getPid())
+            .printCString(" for class '").printCString(taskClassname).printChar('\'')
+            //.printCString(" via ").print(this)
             .printNewline();
         // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
         this.rt().createAndRunTask(taskClassname);
         while (1) { __pasm__("hlt"); }
     }
     
-    [ProcessControlBlock] _newPCB(int pageDirectoryPAddr) {
-        // TODO: handle PCB alloc/free correctly/efficiently
-        ProcessControlBlock pcb = Address:cast(this.rt().getAllocator().allocate(ProcessControlBlock:SIZEOF).buf);
-        pcb.pid = ++pidCounter;
-        pcb.pageDirectoryPAddr = pageDirectoryPAddr;
-        return pcb;
+    [Thread] _newThread(int pageDirectoryPAddr) {
+        Process p = this.rt().createInstance(Process:CLASSNAME);
+        return p.setPid(++pidCounter).setPageDirectoryPAddr(pageDirectoryPAddr)._newThread();
     }
     
 }

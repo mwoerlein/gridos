@@ -1,0 +1,25 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::process;
+
+
+class Process extends sys::core::Object {
+
+    int pid;
+    int pageDirectoryPAddr;
+
+    [Process] setPid(int pid) { this.pid = pid; return this; }
+    [int] getPid() { return this.pid; }
+
+    [Process] setPageDirectoryPAddr(int pAddr) { this.pageDirectoryPAddr = pAddr; return this; }
+    [int] getPageDirectoryPAddr() { return this.pageDirectoryPAddr; }
+    
+    [Thread] _newThread() {
+        Thread t = this.createOwn(Thread:CLASSNAME);
+        return t.setProcess(this);
+    }
+    
+}

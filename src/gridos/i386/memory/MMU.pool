@@ -16,9 +16,9 @@ class MMU extends Object {
     
     [] __init() {
         int cr0 = 0;
-        __pasm__(".byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax", {}, {"%eax": cr0});
+        __pasm__("movl %cr0, %eax", {}, {"%eax": cr0});
         if (Bitset:has(cr0, 0x80000001)) {
-            __pasm__(".byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax", {}, {"%eax": activeDirectory});
+            this.refreshActiveDirectory();
         } else {
             activeDirectory = 0;
         }
@@ -27,7 +27,9 @@ class MMU extends Object {
     
     [int] isActive() { return this.activeDirectory != 0; }
     [int] getActiveDirectory() { return this.activeDirectory; }
-    [] setActiveDirectory(int pageDirectoryPAddr) { this.activeDirectory = pageDirectoryPAddr; }
+    [] refreshActiveDirectory() {
+        __pasm__("movl %cr3, %eax", {}, {"%eax": this.activeDirectory});
+    }
 
     [] activate(int pageDirectoryPAddr) {
         if (pageDirectoryPAddr == 0) {
@@ -36,12 +38,19 @@ class MMU extends Object {
             return;
         }
         __pasm__(<"
-             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3 
-             .byte 0x0F; .byte 0x20; .byte 0xC0 #//movl %cr0, %eax
+             movl %eax, %cr3 
+             movl %cr0, %eax
              orl 0x80000001, %eax 
-             .byte 0x0F; .byte 0x22; .byte 0xC0 #//movl %eax, %cr0
+             movl %eax, %cr0
         ">, {"%eax": pageDirectoryPAddr});
         this.activeDirectory = pageDirectoryPAddr;
+    }
+    
+    [] flushTLB() {
+        __pasm__(<"
+             movl %cr3, %eax 
+             movl %eax, %cr3
+        ">, {}, {"%eax": null}); 
     }
     
     [] map(int pAddr, int vAddr) {
@@ -113,13 +122,6 @@ class MMU extends Object {
             return -1;
         }
         return Bitset:and(ptEntry, 0xfffff000); 
-    }
-    
-    [] flushTLB() {
-        __pasm__(<"
-             .byte 0x0F; .byte 0x20; .byte 0xD8 #//movl %cr3, %eax 
-             .byte 0x0F; .byte 0x22; .byte 0xD8 #//movl %eax, %cr3
-        ">, {}, {"%eax": null}); 
     }
     
     [int] allocatePagesAt(int virtualAddress, int count) {
