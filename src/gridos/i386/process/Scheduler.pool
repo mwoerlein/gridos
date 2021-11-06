@@ -29,10 +29,7 @@ class Scheduler extends sys::core::Object {
     }
     
     [] schedule() {
-        this.rt().out().printCString("switch from ").printInt(currentThread.getPid())
-            .printCString(" to ").printInt(currentThread.getNext().getPid()).printNewline();
         this.switchTo(currentThread.getNext());
-        this.rt().out().printCString("back in ").printInt(currentThread.getPid()).printNewline();
     }
     
     [] switchTo(Thread nextThread) {
@@ -67,7 +64,7 @@ class Scheduler extends sys::core::Object {
             movl %eax, %cr3         #// yes, load the next task's virtual address space
         _pm_switch_done_vas:
             popl %ebp
-        ">, {"%eax": nextThread.getPageDirectoryPAddr(), "%ebx": nextThread.getTopOfStack()}, {"%ebx": null, "%ebp": esp});
+        ">, {"%eax": nextThread.getPageDirectoryPAddr(), "%ebx": nextThread.getTopOfStack()}, {"%ebx": null});
         mmu.refreshActiveDirectory();
         
         //Restore next task's state

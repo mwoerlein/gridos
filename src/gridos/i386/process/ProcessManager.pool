@@ -26,29 +26,43 @@ class ProcessManager extends sys::core::Object {
     }
     
     [Process] createProcess(cstring taskClassname) {
+        [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(0xF0000000);
+        Process process := this._newProcess(pageDirectoryPAddr);
+        scheduler.addReadyThread(this.setupThread(process._newThread(), sb, taskClassname));
+        sb.unmap(mmu);
+        sb.destroy();
+        return process;
+    }
+    
+    [Process] _newProcess(int pageDirectoryPAddr) {
+        Process p = this.rt().createInstance(Process:CLASSNAME);
+        if (last) {
+            p.setNext(first);
+            last.setNext(p);
+            last = p;
+        } else {
+            first = last = p.setNext(p);
+        }
+        return p.setPid(++pidCounter).setPageDirectoryPAddr(pageDirectoryPAddr);
+    }
+    
+    [Thread] setupThread(Thread thread, StackBuilder sb, cstring taskClassname) {
         int setup_entry = 0;
         __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_entry, %eax", {}, {"%eax": setup_entry});
         
-        [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(0xF0000000);
-        Process process := this._newProcess(pageDirectoryPAddr);
-        Thread thread := process._newThread();
-        
-        { // fake stack frame of called _setup_entry
+        { // fake stack frame for _setupEntry
             int basePtr = sb.getTopOfStack();
-            sb.pushString(taskClassname);   // argument
-            sb.pushPtr(thread);             // argument
+            sb.pushString(taskClassname);   // second argument
+            sb.pushPtr(thread);             // first argument
             sb.buildMethodCallEntry(this, this.getClass(), 0, basePtr);
         }
         scheduler.setupStackFrameForSwitchTo(sb, setup_entry, thread);
         
         thread.setTopOfStack(sb.getTopOfStack());
-        sb.unmap(mmu);
-        sb.destroy();
-        scheduler.addReadyThread(thread);
-        return process;
+        return thread;
     }
     
-    [] _setup_entry(Thread thread, cstring taskClassname) {
+    [] _setupEntry(Thread thread, cstring taskClassname) {
         __pasm__(<"
             _cr_mo_setup_entry := (_setup_entry - _gridos_i386_process_ProcessManager)
             _setup_entry:
@@ -65,18 +79,6 @@ class ProcessManager extends sys::core::Object {
         // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
         this.rt().createAndRunTask(taskClassname);
         while (1) { __pasm__("hlt"); }
-    }
-    
-    [Process] _newProcess(int pageDirectoryPAddr) {
-        Process p = this.rt().createInstance(Process:CLASSNAME);
-        if (last) {
-            p.setNext(first);
-            last.setNext(p);
-            last = p;
-        } else {
-            first = last = p.setNext(p);
-        }
-        return p.setPid(++pidCounter).setPageDirectoryPAddr(pageDirectoryPAddr);
     }
     
 }

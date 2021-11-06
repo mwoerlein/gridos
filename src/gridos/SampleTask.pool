@@ -18,7 +18,6 @@ class SampleTask extends sys::core::Task {
         
         
         sys::stream::OStream out = rt.out();
-/*        
         {
             //rt.createAndRunTask(my::simple::B:CLASSNAME);
         }
@@ -52,16 +51,15 @@ class SampleTask extends sys::core::Task {
             }
             i.destroy();
         }
-*/        
         if (rt.hasClock()) {
             sys::time::Clock clock = rt.getClock();
-            int i = 2;
+            int i = 5;
             {
                 [int sec, int nsec] = clock.getTimestamp();
                 out.printInt(sec).printChar(':').printInt(nsec).printNewline();
             }
             while (i-- > 0) {
-                clock.sleep(2, 0);
+                clock.sleep(6, 0);
                 {
                     [int sec, int nsec] = clock.getTimestamp();
                     out.printInt(sec).printChar(':').printInt(nsec).printNewline();
