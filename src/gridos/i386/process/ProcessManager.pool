@@ -13,16 +13,15 @@ class ProcessManager extends sys::core::Object {
     MMU mmu;
     Scheduler scheduler;
     
-    Thread first;
-    Thread last;
+    Process first;
+    Process last;
     int pidCounter;
     
     [ProcessManager] init(Scheduler scheduler, MMU mmu) {
         this.scheduler = scheduler;
         this.mmu = mmu;
-        Thread t = this._newProcess(mmu.getActiveDirectory())._newThread();
-        first = last = t.setNext(t);
-        scheduler.setCurrentThread(t);
+        Process p = this._newProcess(mmu.getActiveDirectory());
+        scheduler.setInitialThread(p._newThread());
         return this;
     }
     
@@ -42,11 +41,10 @@ class ProcessManager extends sys::core::Object {
         }
         scheduler.setupStackFrameForSwitchTo(sb, setup_entry, thread);
         
-        thread.setTopOfStack(sb.getTopOfStack()).setNext(first);
-        last.setNext(thread);
-        last = thread;
+        thread.setTopOfStack(sb.getTopOfStack());
         sb.unmap(mmu);
         sb.destroy();
+        scheduler.addReadyThread(thread);
         return process;
     }
     
@@ -71,6 +69,13 @@ class ProcessManager extends sys::core::Object {
     
     [Process] _newProcess(int pageDirectoryPAddr) {
         Process p = this.rt().createInstance(Process:CLASSNAME);
+        if (last) {
+            p.setNext(first);
+            last.setNext(p);
+            last = p;
+        } else {
+            first = last = p.setNext(p);
+        }
         return p.setPid(++pidCounter).setPageDirectoryPAddr(pageDirectoryPAddr);
     }
     

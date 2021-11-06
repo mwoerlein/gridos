@@ -5,7 +5,6 @@ version = 0.1.0
 */
 namespace gridos;
 
-use gridos::i386::Runtime as I386Runtime;
 use sys::core::Boolean;
 use sys::core::Character;
 use sys::core::Integer;
@@ -19,7 +18,7 @@ class SampleTask extends sys::core::Task {
         
         
         sys::stream::OStream out = rt.out();
-        
+/*        
         {
             //rt.createAndRunTask(my::simple::B:CLASSNAME);
         }
@@ -53,24 +52,23 @@ class SampleTask extends sys::core::Task {
             }
             i.destroy();
         }
-        
+*/        
         if (rt.hasClock()) {
             sys::time::Clock clock = rt.getClock();
-            int i = 5;
+            int i = 2;
             {
                 [int sec, int nsec] = clock.getTimestamp();
                 out.printInt(sec).printChar(':').printInt(nsec).printNewline();
             }
             while (i-- > 0) {
-                clock.sleep(6, 0);
+                clock.sleep(2, 0);
                 {
                     [int sec, int nsec] = clock.getTimestamp();
                     out.printInt(sec).printChar(':').printInt(nsec).printNewline();
                 }
             }
-            I386Runtime irt := rt.cast(I386Runtime:CLASSNAME, rt);
-            while (irt) {
-                irt.yield();
+            while (true) {
+                rt.yield();
                 clock.sleep(10, 0);
             }
         }

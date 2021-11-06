@@ -10,11 +10,23 @@ use gridos::i386::memory::StackBuilder;
 
 class Scheduler extends sys::core::Object {
 
-    Thread currentThread;
     MMU mmu;
     
+    Thread currentThread;
+    Thread first;
+    Thread last;
+    
     [Scheduler] setMMU(MMU mmu) { this.mmu = mmu; return this; }
-    [Scheduler] setCurrentThread(Thread currentThread) { this.currentThread = currentThread; return this; }
+    [Scheduler] setInitialThread(Thread thread) {
+        currentThread = first = last = thread.setNext(thread);
+        return this;
+    }
+    [Scheduler] addReadyThread(Thread thread) {
+        thread.setNext(first);
+        last.setNext(thread);
+        last = thread;
+        return this;
+    }
     
     [] schedule() {
         this.rt().out().printCString("switch from ").printInt(currentThread.getPid())
