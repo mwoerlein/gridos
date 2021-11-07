@@ -43,8 +43,7 @@ class Keyboard extends InterruptHandler {
         }
             
         if (scancode == 0xbb) { // F1 release
-            [int sec, int nsec] = this.rt().getClock().getTimestamp();
-            this.rt().out().printCString("clock second: ").printInt(sec).printNewline();
+            this.rt().out().printCString("clock: ").print(this.rt().getClock()).printNewline();
         }
         
         this.rt().out()

@@ -54,16 +54,10 @@ class SampleTask extends sys::core::Task {
         if (rt.hasClock()) {
             sys::time::Clock clock = rt.getClock();
             int i = 5;
-            {
-                [int sec, int nsec] = clock.getTimestamp();
-                out.printInt(sec).printChar(':').printInt(nsec).printNewline();
-            }
+            out.print(clock).printNewline();
             while (i-- > 0) {
                 clock.sleep(6, 0);
-                {
-                    [int sec, int nsec] = clock.getTimestamp();
-                    out.printInt(sec).printChar(':').printInt(nsec).printNewline();
-                }
+                out.print(clock).printNewline();
             }
             while (true) {
                 rt.yield();

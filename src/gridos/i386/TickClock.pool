@@ -6,44 +6,38 @@ version = 0.1.0
 namespace gridos::i386;
 
 use sys::core::Object;
+use sys::stream::OStream;
 use sys::time::Clock;
+use sys::time::Timestamp;
 
 class TickClock extends TickHandler, Clock {
     
-    int sec;
-    int nsec;
+    Timestamp ts;
     int nsecPerTick;
 
     [] initFrequency(int baseFrequency, int divider) {
-        sec = nsec = 0;
+        ts = this.createOwn(Timestamp:CLASSNAME);
+        ts.setTime(0, 0);
         // divider / base * NSEC_PER_SEC == ns/tick
         __pasm__ (<"
             mull %ebx // %edx:%eax => NSEC_PER_SEC * divider
             divl %ecx // %eax => NSEC_PER_SEC * divider / baseFrequency, %edx => remainder
-        ">, {"%eax": divider, "%ebx": Clock:NSEC_PER_SEC, "%ecx": baseFrequency}, {"%eax": nsecPerTick, "%edx": null});
+        ">, {"%eax": divider, "%ebx": Timestamp:NSEC_PER_SEC, "%ecx": baseFrequency}, {"%eax": nsecPerTick, "%edx": null});
     }
     
-    [] call() {
-        nsec += nsecPerTick;
-        if (nsec > Clock:NSEC_PER_SEC) {
-            ++sec;
-            nsec -= Clock:NSEC_PER_SEC;
-        }
-    }
+    [] call() { ts.addTime(0, nsecPerTick); }
     
-    [int, int] getTimestamp() {
-        return [sec, nsec];
-    }
+    [int, int] getTime() { [int s, int ns] := ts.getTime(); return [s, ns]; }
     
     [] sleep(int sec, int nsec) {
-        int s = this.sec + sec;
-        int n = this.nsec + nsec;
-        if (n > Clock:NSEC_PER_SEC) {
-            ++s;
-            n -= Clock:NSEC_PER_SEC;
-        }
-        while (this.sec < s || (this.sec == s && this.nsec < n)) {
+        [int tss, int tsns] := ts.getTime(); 
+        [int s, int ns] := Timestamp:addTimes(tss, tsns, sec, nsec);
+        while (ts.compareTime(s, ns) < 0) {
             __pasm__("hlt"); // wait for next tick
         }
+    }
+    
+    [OStream] printToStream(OStream stream) {
+        return stream.print(ts);
     }
 }
