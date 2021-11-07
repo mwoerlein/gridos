@@ -241,6 +241,7 @@ class Startup extends Runtime, RuntimeBuilder {
         TickClock clock := this.createInstance(TickClock:CLASSNAME);
         pit.registerHandler(clock.handler());
         this.setClock(clock.clock());
+        scheduler.setClock(clock.clock());
         
         {
             DebugTickHandler dth = this.createInstance(DebugTickHandler:CLASSNAME);

@@ -5,18 +5,41 @@ version = 0.1.0
 */
 namespace gridos::i386::process;
 
+use sys::runtime::Process as SysProcess;
+use sys::runtime::Thread as SysThread;
+use sys::time::Timestamp;
 
-class Thread extends sys::core::Object {
+class Thread extends SysThread {
 
     Process process;
+    Timestamp cpuTS;
     int topOfStack;
-    
     Thread next;
     
-    [Thread] setProcess(Process p) { this.process = p; return this; }
-    [Process] getProcess() { return this.process; }
+    [Thread] init(Process p) {
+        this.process = p;
+        cpuTS = this.createOwn(Timestamp:CLASSNAME);
+        cpuTS.setTime(0, 0);
+        return this; 
+    }
+    
+    [SysProcess] getProcess() { return this.process.process(); }
     [int] getPid() { return this.process.getPid(); }
     [int] getPageDirectoryPAddr() { return this.process.getPageDirectoryPAddr(); }
+    
+    [int, int] getCPUTime() { [int s, int n] := cpuTS.getTime(); return [s, n]; }
+    [] addCPUTime(int sec, int nsec) {
+        cpuTS.addTime(sec, nsec);
+        process.addCPUTime(sec, nsec);
+    }
+    
+    [int] getStatus() {
+        // TODO #24
+        return SysThread:STATUS_READY;
+    }
+    [] awaitTermination() {
+        // TODO #24
+    }
     
     [Thread] setTopOfStack(int tos) { this.topOfStack = tos; return this; }
     [int] getTopOfStack() { return this.topOfStack; }

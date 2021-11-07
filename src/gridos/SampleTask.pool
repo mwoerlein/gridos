@@ -15,6 +15,7 @@ class SampleTask extends sys::core::Task {
     // methods
     [int] run() {
         sys::runtime::Runtime rt = this.rt();
+        sys::runtime::Thread thread = rt.getCurrentThread();
         
         
         sys::stream::OStream out = rt.out();
@@ -61,6 +62,7 @@ class SampleTask extends sys::core::Task {
             }
             while (true) {
                 rt.yield();
+                out.print(thread).printNewline();
                 clock.sleep(10, 0);
             }
         }

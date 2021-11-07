@@ -43,7 +43,7 @@ class ProcessManager extends sys::core::Object {
         } else {
             first = last = p.setNext(p);
         }
-        return p.setPid(++pidCounter).setPageDirectoryPAddr(pageDirectoryPAddr);
+        return p.init(++pidCounter, pageDirectoryPAddr);
     }
     
     [Thread] setupThread(Thread thread, StackBuilder sb, cstring taskClassname) {

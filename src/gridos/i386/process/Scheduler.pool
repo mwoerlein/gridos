@@ -7,16 +7,26 @@ namespace gridos::i386::process;
 
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::StackBuilder;
+use sys::time::Clock;
+use sys::time::Timestamp;
 
 class Scheduler extends sys::core::Object {
 
+    Clock clock;
     MMU mmu;
     
     Thread currentThread;
     Thread first;
     Thread last;
+    Timestamp lastTS;
     
     [Scheduler] setMMU(MMU mmu) { this.mmu = mmu; return this; }
+    [Scheduler] setClock(Clock clock) {
+        this.clock = clock;
+        lastTS = this.createOwn(Timestamp:CLASSNAME);
+        lastTS.setClock(clock);
+        return this;
+    }
     [Scheduler] setInitialThread(Thread thread) {
         currentThread = first = last = thread.setNext(thread);
         return this;
@@ -28,7 +38,15 @@ class Scheduler extends sys::core::Object {
         return this;
     }
     
+    [Thread] getCurrentThread() { return currentThread; }
+    
+    [] updateTS() {
+        [int deltaS, int deltaNS] = lastTS.updateToClock(clock);
+        currentThread.addCPUTime(deltaS, deltaNS);
+    }
+    
     [] schedule() {
+        this.updateTS();
         this.switchTo(currentThread.getNext());
     }
     
