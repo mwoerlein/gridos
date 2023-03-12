@@ -160,9 +160,12 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setClassStorage(dcs.classStorage());
         
         // create "heap"-based stdOut
-        mmu.map(0xB8000, 0xFFBFF000);
         CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
-        screen.init(0xFFBFF000);
+        mmu.mapPages(0xB8000, 0xFFBE8000, 8);
+        screen.init(0xFFBE8000);
+        //screen.to80x25();
+        screen.to80x50();
+        //screen.to90x60();
         CgaFOStream out = rt.createInstance(CgaFOStream:CLASSNAME);
         rt.setOut(out.initOStream(screen));
         CgaFOStream err = rt.createInstance(CgaFOStream:CLASSNAME);
@@ -243,9 +246,10 @@ class Startup extends Runtime, RuntimeBuilder {
         this.setClock(clock.clock());
         scheduler.setClock(clock.clock());
         
+        CgaScreen screen = this.getScreen();
         {
             DebugTickHandler dth = this.createInstance(DebugTickHandler:CLASSNAME);
-            pit.registerHandler(dth.init(this.getScreen(), 79, 24).handler());
+            pit.registerHandler(dth.init(screen, screen.getMaxX()-1, screen.getMaxY()-1).handler());
         }
         
         // TODO: create and initialize kernel runtime

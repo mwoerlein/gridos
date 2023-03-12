@@ -17,4 +17,16 @@ class IOPort {
         __pasm__("inb %dx, %al", {"%edx": port, "%eax": ret}, {"%eax": ret});
         return ret;
     }
+    
+    global [] indexedOutb(int idxPort, int idx, int dataPort, int b) {
+        __pasm__("outb %al, %dx", {"%edx": idxPort, "%eax": idx % 256});
+        __pasm__("outb %al, %dx", {"%edx": dataPort, "%eax": b % 256});
+    }
+    
+    global [int] indexedInb(int idxPort, int idx, int dataPort) {
+        int ret = 0;
+        __pasm__("outb %al, %dx", {"%edx": idxPort, "%eax": idx % 256});
+        __pasm__("inb %dx, %al", {"%edx": dataPort, "%eax": ret}, {"%eax": ret});
+        return ret;
+    }
 }

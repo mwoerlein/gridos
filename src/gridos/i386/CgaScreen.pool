@@ -11,18 +11,23 @@ use sys::stream::OStream;
 class CgaScreen extends sys::core::Object {
     
     // private
-    int max_x := 80;
-    int max_y := 25;
-    int max_pos := 2000; //80 * 25;
-    
+    int max_x;
+    int max_y;
+    int max_pos;
     int cga_ram;
     int cursor;
     
     // public
     [] init(int cga_ram) {
         this.cga_ram = cga_ram;
+        this.max_x = 80;
+        this.max_y = 25;
+        this.max_pos = 80 * 25;
         this.syncCursor();
     }
+    
+    [int] getMaxX() { return max_x; }
+    [int] getMaxY() { return max_y; }
     
     [] drawCharAt(int c, int format, int x, int y) {
         this.drawCharAtPos(c, format, x + max_x * y);
@@ -66,17 +71,13 @@ class CgaScreen extends sys::core::Object {
     int _IO_INDEX := 0x3d4;
     int _IO_DATA := 0x3d5;
     [] syncCursor() {
-        IOPort:outb(_IO_INDEX, 14);
-        this.cursor = IOPort:inb(_IO_DATA) * 256;
-        IOPort:outb(_IO_INDEX, 15);
-        this.cursor += IOPort:inb(_IO_DATA);
+        this.cursor = IOPort:indexedInb(_IO_INDEX, 14, _IO_DATA) * 256;
+        this.cursor += IOPort:indexedInb(_IO_INDEX, 15, _IO_DATA);
     }
     
     [] setCursor(int cursor) {
-        IOPort:outb(_IO_INDEX, 14);
-        IOPort:outb(_IO_DATA, cursor / 256);
-        IOPort:outb(_IO_INDEX, 15);
-        IOPort:outb(_IO_DATA, cursor);
+        IOPort:indexedOutb(_IO_INDEX, 14, _IO_DATA, cursor / 256);
+        IOPort:indexedOutb(_IO_INDEX, 15, _IO_DATA, cursor);
         this.cursor = cursor;
     }
     
@@ -91,5 +92,29 @@ class CgaScreen extends sys::core::Object {
     
     [] copyCharAtPos(int src, int dest) {
         Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
+    }
+    
+    [] to80x25() {
+        this.max_x = 80;
+        this.max_y = 25;
+        this.max_pos = 80 * 25;
+        VGA:to80x25Text();
+        VGA:toFont16(cga_ram);
+    }
+    
+    [] to80x50() {
+        this.max_x = 80;
+        this.max_y = 50;
+        this.max_pos = 80 * 50;
+        VGA:to80x50Text();
+        VGA:toFont8(cga_ram);
+    }
+    
+    [] to90x60() {
+        this.max_x = 90;
+        this.max_y = 60;
+        this.max_pos = 90 * 60;
+        VGA:to90x60Text();
+        VGA:toFont8(cga_ram);
     }
 }
