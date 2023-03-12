@@ -681,6 +681,16 @@ class VGA {
         IOPort:indexedOutb(GC_INDEX, 6, GC_DATA, gc6);
     }
     
+    global [int] getCursor() {
+        return IOPort:indexedInb(CRTC_INDEX, 14, CRTC_DATA) * 256
+            + IOPort:indexedInb(CRTC_INDEX, 15, CRTC_DATA);
+    }
+    
+    global [] setCursor(int cursor) {
+        IOPort:indexedOutb(CRTC_INDEX, 14, CRTC_DATA, cursor / 256);
+        IOPort:indexedOutb(CRTC_INDEX, 15, CRTC_DATA, cursor);
+    }
+    
     // private
     int SEQ_INDEX := 0x3c4;
     int SEQ_DATA := 0x3c5;

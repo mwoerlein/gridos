@@ -23,7 +23,7 @@ class CgaScreen extends sys::core::Object {
         this.max_x = 80;
         this.max_y = 25;
         this.max_pos = 80 * 25;
-        this.syncCursor();
+        this.cursor = VGA:getCursor();
     }
     
     [int] getMaxX() { return max_x; }
@@ -57,41 +57,14 @@ class CgaScreen extends sys::core::Object {
             pos -= max_x;
         }
         
-        this.setCursor(pos);
+        VGA:setCursor(cursor = pos);
     }
     
     [] clear(int format) {
         int pos = 0;
         while (pos < max_pos) { this.drawCharAtPos(' ', format, pos++); }
         
-        this.setCursor(0);
-    }
-    
-    // private
-    int _IO_INDEX := 0x3d4;
-    int _IO_DATA := 0x3d5;
-    [] syncCursor() {
-        this.cursor = IOPort:indexedInb(_IO_INDEX, 14, _IO_DATA) * 256;
-        this.cursor += IOPort:indexedInb(_IO_INDEX, 15, _IO_DATA);
-    }
-    
-    [] setCursor(int cursor) {
-        IOPort:indexedOutb(_IO_INDEX, 14, _IO_DATA, cursor / 256);
-        IOPort:indexedOutb(_IO_INDEX, 15, _IO_DATA, cursor);
-        this.cursor = cursor;
-    }
-    
-    [] drawCharAtPos(int c, int format, int pos) {
-        if (c < 0 || c > 127) {
-            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII-7 to upside down '?'
-            Address:storeWord(cga_ram + 2*pos, 168 + 256*format);
-        } else {
-            Address:storeWord(cga_ram + 2*pos, c + 256*format);
-        }
-    }
-    
-    [] copyCharAtPos(int src, int dest) {
-        Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
+        VGA:setCursor(cursor = 0);
     }
     
     [] to80x25() {
@@ -116,5 +89,19 @@ class CgaScreen extends sys::core::Object {
         this.max_pos = 90 * 60;
         VGA:to90x60Text();
         VGA:toFont8(cga_ram);
+    }
+
+    // private
+    [] drawCharAtPos(int c, int format, int pos) {
+        if (c < 0 || c > 127) {
+            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII-7 to upside down '?'
+            Address:storeWord(cga_ram + 2*pos, 168 + 256*format);
+        } else {
+            Address:storeWord(cga_ram + 2*pos, c + 256*format);
+        }
+    }
+    
+    [] copyCharAtPos(int src, int dest) {
+        Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
     }
 }
