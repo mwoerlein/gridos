@@ -10,6 +10,8 @@ use sys::stream::OStream;
 
 class CgaFOStream extends FOStream {
     
+    int DEFAULT_FORMAT := 7;
+     
     CgaScreen screen;
     int format;
     
@@ -24,7 +26,7 @@ class CgaFOStream extends FOStream {
     }
     
     [int] _format(int fg, int bg) {
-        int f = 16 * this._color(bg, 0) + this._color(fg, 7);
+        int f = 16 * this._color(bg, 0) + this._color(fg, DEFAULT_FORMAT);
         if (fg >= 10 || bg >= 10) { f += 8; } // bright
         return f;
     }
