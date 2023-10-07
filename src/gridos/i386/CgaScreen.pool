@@ -6,102 +6,192 @@ version = 0.1.0
 namespace gridos::i386;
 
 use sys::memory::Address;
+use sys::stream::FOStream;
 use sys::stream::OStream;
 
-class CgaScreen extends sys::core::Object {
+class CgaScreen extends sys::tui::Screen {
+    
+    int DEFAULT_FORMAT := 7;
     
     // private
-    int max_x;
-    int max_y;
-    int max_pos;
-    int cga_ram;
-    int cursor;
+    int cgaRam;
     
     // public
-    [] init(int cga_ram) {
-        this.cga_ram = cga_ram;
-        this.max_x = 80;
-        this.max_y = 25;
-        this.max_pos = 80 * 25;
-        this.cursor = VGA:getCursor();
+    [] init(int cgaRam) {
+        this.cgaRam = cgaRam;
+        this._initScreen(80, 25, VGA:getCursor());
     }
     
-    [int] getMaxX() { return max_x; }
-    [int] getMaxY() { return max_y; }
-    
-    [] drawCharAt(int c, int format, int x, int y) {
-        this.drawCharAtPos(c, format, x + max_x * y);
+    [] drawFCharAt(int c, int fg, int bg, int x, int y) {
+        this.drawCharAtPos(c, _format(fg, bg), x + maxX * y);
     }
     
-    [] drawChar(int c, int format) {
+    [] drawFChar(int c, int fg, int bg){
         if (c == 0 || c == '\r') {
             return;
         }
-        
+        int format = _format(fg, bg);
         int pos = cursor;
         if (c == '\n') {
             // clear rest of line
-            do { this.drawCharAtPos(' ', format, pos++); } while (pos % max_x);
+            do { this.drawCharAtPos(' ', format, pos++); } while (pos % maxX);
         } else if (c == '\t') {
             do { this.drawCharAtPos(' ', format, pos++); } while (pos % 8);
         } else {
             this.drawCharAtPos(c, format, pos++);
         }
         
-        if (pos >= max_pos) {
+        if (pos >= maxPos) {
             // end of screen => scroll up
             int p1 = 0;
-            int p2 = max_x;
-            while (p2 < max_pos) { this.copyCharAtPos(p2++, p1++); }
-            while (p1 < max_pos) { this.drawCharAtPos(' ', format, p1++); }
-            pos -= max_x;
+            int p2 = maxX;
+            while (p2 < maxPos) { this.copyCharAtPos(p2++, p1++); }
+            while (p1 < maxPos) { this.drawCharAtPos(' ', format, p1++); }
+            pos -= maxX;
         }
         
         VGA:setCursor(cursor = pos);
     }
     
-    [] clear(int format) {
+    [] drawFBoxCharAt(int bc, int fg, int bg, int x, int y) {
+        this.drawFCharAt(CgaScreen:_getBoxChar(bc), fg, bg, x, y);
+    }
+    
+    [] drawFBoxChar(int bc, int fg, int bg) {
+        this.drawFChar(CgaScreen:_getBoxChar(bc), fg, bg);
+    }
+    
+    [] clear() {
+        this.clearF(FOStream:DEFAULT, FOStream:DEFAULT);
+    }
+    
+    [] clearF(int fg, int bg) {
+        int format = _format(fg, bg);
         int pos = 0;
-        while (pos < max_pos) { this.drawCharAtPos(' ', format, pos++); }
+        while (pos < maxPos) { this.drawCharAtPos(' ', format, pos++); }
         
         VGA:setCursor(cursor = 0);
     }
     
     [] to80x25() {
-        this.max_x = 80;
-        this.max_y = 25;
-        this.max_pos = 80 * 25;
+        this._initScreen(80, 25, this.cursor);
         VGA:to80x25Text();
-        VGA:toFont16(cga_ram);
+        VGA:toFont16(cgaRam);
     }
     
     [] to80x50() {
-        this.max_x = 80;
-        this.max_y = 50;
-        this.max_pos = 80 * 50;
+        this._initScreen(80, 50, this.cursor);
         VGA:to80x50Text();
-        VGA:toFont8(cga_ram);
+        VGA:toFont8(cgaRam);
     }
     
     [] to90x60() {
-        this.max_x = 90;
-        this.max_y = 60;
-        this.max_pos = 90 * 60;
+        this._initScreen(90, 60, this.cursor);
         VGA:to90x60Text();
-        VGA:toFont8(cga_ram);
+        VGA:toFont8(cgaRam);
     }
 
     // private
+    
+    [int] _format(int fg, int bg) {
+        int f = 16 * this._color(bg, 0) + this._color(fg, DEFAULT_FORMAT);
+        if (fg >= 10 || bg >= 10) { f += 8; } // bright
+        return f;
+    }
+    
+    [int] _color(int foColor, int defaultFormat) {
+        if (foColor == FOStream:DEFAULT) { return defaultFormat; }
+        int base = foColor % 10;
+        if (base == FOStream:BLACK) { return 0; }
+        else if (base == FOStream:RED) { return 4; }
+        else if (base == FOStream:GREEN) { return 2; }
+        else if (base == FOStream:YELLOW) { return 6; }
+        else if (base == FOStream:BLUE) { return 1; }
+        else if (base == FOStream:MAGENTA) { return 5; }
+        else if (base == FOStream:CYAN) { return 3; }
+        else if (base == FOStream:WHITE) { return 7; }
+        return defaultFormat;
+    }
+    
     [] drawCharAtPos(int c, int format, int pos) {
         if (c < 0 || c > 127) {
-            // default charset of graphic cards is DOS-Latin-1 => convert non ASCII-7 to upside down '?'
-            Address:storeWord(cga_ram + 2*pos, 168 + 256*format);
+            // default charset of graphic cards is DOS-Latin-1
+            if (c >= 179 && c <= 218) {
+                // => keep box chars for window line drawing
+                Address:storeWord(cgaRam + 2*pos, c + 256*format);
+            } else {
+                // => convert other non ASCII-7 to upside down '?'
+                Address:storeWord(cgaRam + 2*pos, 168 + 256*format);
+            }
         } else {
-            Address:storeWord(cga_ram + 2*pos, c + 256*format);
+            Address:storeWord(cgaRam + 2*pos, c + 256*format);
         }
     }
     
     [] copyCharAtPos(int src, int dest) {
-        Address:copyWord(cga_ram + 2*src, cga_ram + 2*dest);
+        Address:copyWord(cgaRam + 2*src, cgaRam + 2*dest);
+    }
+    
+    global [int] _getBoxChar(int bc) {
+        int ret = 0;
+        __pasm__("movl 8(%ebp), %eax; movb _cga_offset_box_char_map(%eax, %ebx, 1), %dl", {"%ebx": bc, "%edx": 0}, {"%edx": ret});
+        return ret;
+    }
+    
+    __naked__ [] _box_char_map() {
+        __pasm__(<"
+        _cga_offset_box_char_map := (_cga_box_char_map - _gridos_i386_CgaScreen)
+        _cga_box_char_map:
+           .byte 0x00 //              0;
+           .byte 0xB3 // BOX_VS   :=  1;
+           .byte 0xC4 // BOX_HS   :=  2;
+           .byte 0xBA // BOX_VD   :=  3;
+           .byte 0xCD // BOX_HD   :=  4;
+           .byte 0x00 //              5;
+           .byte 0x00 //              6;
+           .byte 0x00 //              7;
+           .byte 0x00 //              8;
+           .byte 0x00 //              9;
+           .byte 0x00 //             10;
+           .byte 0xDA // BOX_DSRS := 11;
+           .byte 0xBF // BOX_DSLS := 12;
+           .byte 0xC2 // BOX_DSHS := 13;
+           .byte 0xC0 // BOX_USRS := 14;
+           .byte 0xD9 // BOX_USLS := 15;
+           .byte 0xC1 // BOX_USHS := 16;
+           .byte 0xC3 // BOX_VSRS := 17;
+           .byte 0xB4 // BOX_VSLS := 18;
+           .byte 0xC5 // BOX_VSHS := 19;
+           .byte 0x00 //             20;
+           .byte 0xC9 // BOX_DDRD := 21;
+           .byte 0xBB // BOX_DDLD := 22;
+           .byte 0xCB // BOX_DDHD := 23;
+           .byte 0xC8 // BOX_UDRD := 24;
+           .byte 0xBC // BOX_UDLD := 25;
+           .byte 0xCA // BOX_UDHD := 26;
+           .byte 0xCC // BOX_VDRD := 27;
+           .byte 0xB9 // BOX_VDLD := 28;
+           .byte 0xCE // BOX_VDHD := 29;
+           .byte 0x00 //             30;
+           .byte 0xD6 // BOX_DDRS := 31;
+           .byte 0xB7 // BOX_DDLS := 32;
+           .byte 0xD2 // BOX_DDHS := 33;
+           .byte 0xD3 // BOX_UDRS := 34;
+           .byte 0xBD // BOX_UDLS := 35;
+           .byte 0xD0 // BOX_UDHS := 36;
+           .byte 0xC7 // BOX_VDRS := 37;
+           .byte 0xB6 // BOX_VDLS := 38;
+           .byte 0xD7 // BOX_VDHS := 39;
+           .byte 0x00 //             40;
+           .byte 0xD5 // BOX_DSRD := 41;
+           .byte 0xB8 // BOX_DSLD := 42;
+           .byte 0xD1 // BOX_DSHD := 43;
+           .byte 0xD4 // BOX_USRD := 44;
+           .byte 0xBE // BOX_USLD := 45;
+           .byte 0xCF // BOX_USHD := 46;
+           .byte 0xC6 // BOX_VSRD := 47;
+           .byte 0xB5 // BOX_VSLD := 48;
+           .byte 0xD8 // BOX_VSHD := 49;
+        ">);
     }
 }

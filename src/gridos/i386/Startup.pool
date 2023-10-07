@@ -33,6 +33,7 @@ use sys::runtime::DynamicClassStorage;
 use sys::runtime::Runtime as SysRuntime;
 use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
+use sys::stream::FOStream;
 use sys::stream::OStream;
 
 class Startup extends Runtime, RuntimeBuilder {
@@ -83,9 +84,7 @@ class Startup extends Runtime, RuntimeBuilder {
         SysRuntime bsRt := this.rt();
         CgaScreen bsScreen = bsRt.createInstance(CgaScreen:CLASSNAME);
         bsScreen.init(0xB8000);
-        CgaFOStream bsFOut = bsRt.createInstance(CgaFOStream:CLASSNAME);
-        bsFOut.setForeground(CgaFOStream:BRIGHT_WHITE);
-        OStream bsOut = bsFOut.initOStream(bsScreen);
+        OStream bsOut = bsScreen.createOStream(FOStream:BRIGHT_WHITE, FOStream:DEFAULT);
         
         if (context.magic != BootInformation:BOOTLOADER_MAGIC) {
             bsOut.printCString("Invalid magic number: ").printPtr(context.magic).printNewline();
@@ -163,11 +162,8 @@ class Startup extends Runtime, RuntimeBuilder {
         CgaScreen screen = rt.createInstance(CgaScreen:CLASSNAME);
         mmu.mapPages(0xB8000, 0xFFBE8000, 8);
         screen.init(0xFFBE8000);
-        CgaFOStream out = rt.createInstance(CgaFOStream:CLASSNAME);
-        rt.setOut(out.initOStream(screen));
-        CgaFOStream err = rt.createInstance(CgaFOStream:CLASSNAME);
-        err.setForeground(CgaFOStream:BRIGHT_RED);
-        rt.setErr(err.initOStream(screen));
+        rt.setOut(screen.createOStream(FOStream:DEFAULT, FOStream:DEFAULT));
+        rt.setErr(screen.createOStream(FOStream:BRIGHT_RED, FOStream:DEFAULT));
         rt.setScreen(screen);
         
         // create "heap"-based module-descriptions
@@ -192,7 +188,6 @@ class Startup extends Runtime, RuntimeBuilder {
         bsMMU.destroy();
         bsSR.destroy();
         bi.destroy();
-        bsOut.destroy();
         bsScreen.destroy();
         mmu.unmap(0xB8000); // unmap bsScreen
         
@@ -228,7 +223,7 @@ class Startup extends Runtime, RuntimeBuilder {
         //screen.to80x25();
         //screen.to80x50();
         screen.to90x60();
-        screen.clear(CgaFOStream:DEFAULT_FORMAT);
+        screen.clear();
         
         /* init kernel thread/process */
         Scheduler scheduler = this.createInstance(Scheduler:CLASSNAME);

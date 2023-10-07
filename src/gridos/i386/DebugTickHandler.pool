@@ -6,6 +6,7 @@ version = 0.1.0
 namespace gridos::i386;
 
 use sys::core::Object;
+use sys::stream::FOStream;
 
 class DebugTickHandler extends TickHandler {
 
@@ -32,14 +33,14 @@ class DebugTickHandler extends TickHandler {
         if (ticks-- <= 0) {
             ticks = ticksDivider;
             int s = step;
-            if (s == 0) { screen.drawCharAt( '|', 1, x, y); }
-            if (s == 1) { screen.drawCharAt( '/', 1, x, y); }
-            if (s == 2) { screen.drawCharAt( '-', 1, x, y); }
-            if (s == 3) { screen.drawCharAt('\\', 1, x, y); }
-            if (s == 4) { screen.drawCharAt( '|', 2, x, y); }
-            if (s == 5) { screen.drawCharAt( '/', 2, x, y); }
-            if (s == 6) { screen.drawCharAt( '-', 2, x, y); }
-            if (s == 7) { screen.drawCharAt('\\', 2, x, y); }
+            if (s == 0) { screen.drawFCharAt( '|', FOStream:BLUE , FOStream:DEFAULT, x, y); }
+            if (s == 1) { screen.drawFCharAt( '/', FOStream:BLUE , FOStream:DEFAULT, x, y); }
+            if (s == 2) { screen.drawFCharAt( '-', FOStream:BLUE , FOStream:DEFAULT, x, y); }
+            if (s == 3) { screen.drawFCharAt('\\', FOStream:BLUE , FOStream:DEFAULT, x, y); }
+            if (s == 4) { screen.drawFCharAt( '|', FOStream:GREEN, FOStream:DEFAULT, x, y); }
+            if (s == 5) { screen.drawFCharAt( '/', FOStream:GREEN, FOStream:DEFAULT, x, y); }
+            if (s == 6) { screen.drawFCharAt( '-', FOStream:GREEN, FOStream:DEFAULT, x, y); }
+            if (s == 7) { screen.drawFCharAt('\\', FOStream:GREEN, FOStream:DEFAULT, x, y); }
             step = (s+1) % 8;
         }
     }
