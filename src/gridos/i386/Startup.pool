@@ -35,6 +35,8 @@ use sys::runtime::RuntimeBuilder;
 use sys::runtime::StaticResolvedClassStorage;
 use sys::stream::FOStream;
 use sys::stream::OStream;
+use sys::tui::WindowManager;
+use sys::tui::Screen;
 
 class Startup extends Runtime, RuntimeBuilder {
     
@@ -223,7 +225,7 @@ class Startup extends Runtime, RuntimeBuilder {
         //screen.to80x25();
         //screen.to80x50();
         screen.to90x60();
-        screen.clear();
+        screen.clear(FOStream:DEFAULT, FOStream:DEFAULT);
         
         /* init kernel thread/process */
         Scheduler scheduler = this.createInstance(Scheduler:CLASSNAME);
@@ -252,12 +254,31 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // TODO: create and initialize kernel runtime
         this.err().printCString("Initialize kernel").printNewline();
+        
+        WindowManager wm = this.createOwn(WindowManager:CLASSNAME);
+        [Screen vs1, Screen vs2, Screen vs3] = wm._init(screen.screen()).split3Tiled();
+        
+        vs1.clear(FOStream:BRIGHT_YELLOW, FOStream:BLUE);
+        vs2.clear(FOStream:BLACK, FOStream:WHITE);
+        vs3.clear(FOStream:DEFAULT, FOStream:DEFAULT);
+        
+        this.setOut(vs3.createOStream(FOStream:DEFAULT, FOStream:DEFAULT));
+        this.setErr(vs3.createOStream(FOStream:BRIGHT_RED, FOStream:DEFAULT));
+        
         // TODO: run kernel thread and free/destroy startup memory/objects
         if (modules.hasCModule("startup")) {
             sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
             if (taskClassname) {
-                pm.createProcess(taskClassname.toCString());
-                pm.createProcess(taskClassname.toCString());
+                pm.createProcess(
+                    taskClassname.toCString(),
+                    vs1.createOStream(FOStream:BRIGHT_YELLOW, FOStream:BLUE),
+                    vs1.createOStream(FOStream:BRIGHT_RED, FOStream:BLUE)
+                );
+                pm.createProcess(
+                    taskClassname.toCString(),
+                    vs2.createOStream(FOStream:BLACK, FOStream:WHITE),
+                    vs2.createOStream(FOStream:BRIGHT_RED, FOStream:WHITE)
+                );
                 while (1) {
                     this.yield();
                     clock.sleep(5, 0);

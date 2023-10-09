@@ -8,6 +8,9 @@ namespace gridos::i386::process;
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::StackBuilder;
 
+use sys::runtime::Runtime;
+use sys::stream::OStream;
+
 class ProcessManager extends sys::core::Object {
 
     MMU mmu;
@@ -20,22 +23,23 @@ class ProcessManager extends sys::core::Object {
     [ProcessManager] init(Scheduler scheduler, MMU mmu) {
         this.scheduler = scheduler;
         this.mmu = mmu;
-        Process p = this._newProcess(mmu.getActiveDirectory());
+        Process p = this._newProcess(this.rt(), mmu.getActiveDirectory());
         scheduler.setInitialThread(p._newThread());
         return this;
     }
     
-    [Process] createProcess(cstring taskClassname) {
+    [Process] createProcess(cstring taskClassname, OStream out, OStream err) {
         [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(0xF0000000);
-        Process process := this._newProcess(pageDirectoryPAddr);
+        Runtime rt = this.rt().cloneRuntime(); rt.setOut(out); rt.setErr(err);
+        Process process := this._newProcess(rt, pageDirectoryPAddr);
         scheduler.addReadyThread(this.setupThread(process._newThread(), sb, taskClassname));
         sb.unmap(mmu);
         sb.destroy();
         return process;
     }
     
-    [Process] _newProcess(int pageDirectoryPAddr) {
-        Process p = this.rt().createInstance(Process:CLASSNAME);
+    [Process] _newProcess(Runtime rt, int pageDirectoryPAddr) {
+        Process p = rt.createInstance(Process:CLASSNAME);
         if (last) {
             p.setNext(first);
             last.setNext(p);
@@ -77,7 +81,7 @@ class ProcessManager extends sys::core::Object {
             //.printCString(" via ").print(this)
             .printNewline();
         // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
-        this.rt().createAndRunTask(taskClassname);
+        thread.rt().createAndRunTask(taskClassname);
         while (1) { __pasm__("hlt"); }
     }
     

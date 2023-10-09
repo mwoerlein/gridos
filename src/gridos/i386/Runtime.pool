@@ -8,9 +8,10 @@ namespace gridos::i386;
 use gridos::i386::memory::MMU;
 use gridos::i386::process::ProcessManager;
 use gridos::i386::process::Scheduler;
+use sys::runtime::Runtime as SysRuntime;
 use sys::runtime::Thread as SysThread;
 
-class Runtime extends sys::runtime::Runtime {
+class Runtime extends SysRuntime {
     
     MMU mmu;
     [MMU] getMMU() { return mmu; }
@@ -31,4 +32,14 @@ class Runtime extends sys::runtime::Runtime {
     [SysThread] getCurrentThread() { return scheduler.getCurrentThread().thread(); }
     [] yield () { scheduler.schedule(); }
     
+    [SysRuntime] cloneRuntime() {
+        return this._initFromI386Runtime(this.createInstance(Runtime:CLASSNAME)).runtime();
+    }
+    
+    [Runtime] _initFromI386Runtime(Runtime clone) {
+        this._initFromRuntime(clone.runtime());
+        clone.setScheduler(this.getScheduler());
+        clone.setProcessManager(this.getProcessManager());
+        return clone;
+    }
 }

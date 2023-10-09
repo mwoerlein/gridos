@@ -61,11 +61,7 @@ class CgaScreen extends sys::tui::Screen {
         this.drawFChar(CgaScreen:_getBoxChar(bc), fg, bg);
     }
     
-    [] clear() {
-        this.clearF(FOStream:DEFAULT, FOStream:DEFAULT);
-    }
-    
-    [] clearF(int fg, int bg) {
+    [] clear(int fg, int bg) {
         int format = _format(fg, bg);
         int pos = 0;
         while (pos < maxPos) { this.drawCharAtPos(' ', format, pos++); }

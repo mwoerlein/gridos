@@ -10,6 +10,8 @@ use sys::core::Character;
 use sys::core::Integer;
 use sys::core::String;
 
+use sys::stream::FOStream;
+
 class SampleTask extends sys::core::Task {
 
     // methods
@@ -19,6 +21,7 @@ class SampleTask extends sys::core::Task {
         
         
         sys::stream::OStream out = rt.out();
+        FOStream fout = rt.cast(FOStream:CLASSNAME, out);
         {
             //rt.createAndRunTask(my::simple::B:CLASSNAME);
         }
@@ -52,12 +55,22 @@ class SampleTask extends sys::core::Task {
             }
             i.destroy();
         }
+        if (fout) {
+            fout.printSampleBoxDD();
+            fout.printSampleBoxSS();
+            fout.printSampleBoxSD();
+            fout.printSampleBoxDS();
+            fout.printSampleBoxSODI();
+            fout.printSampleBoxDOSI();
+        } else {
+            rt.err().printCString("fout not found").printNewline();
+        }
         if (rt.hasClock()) {
             sys::time::Clock clock = rt.getClock();
-            int i = 5;
+            int i = 3;
             out.print(clock).printNewline();
             while (i-- > 0) {
-                clock.sleep(6, 0);
+                clock.sleep(2, 0);
                 out.print(clock).printNewline();
             }
             while (true) {
