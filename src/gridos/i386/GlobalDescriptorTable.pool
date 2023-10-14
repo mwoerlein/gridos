@@ -1,0 +1,169 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+use sys::memory::Address;
+use sys::memory::MemoryIOStream;
+use sys::memory::MemoryInfo;
+use sys::core::utils::Bitset;
+
+class GlobalDescriptorTable extends sys::core::Object {
+    
+    MemoryInfo _info;
+    int _gdtDesc;
+    int _tssArray;
+    int _tssElements;
+    
+    [GlobalDescriptorTable] _init(int numberOfTss) {
+        sys::runtime::Runtime rt = this.rt();
+        int gdtSize = (5 + numberOfTss) * 8;
+        // align gdt correctly: It is wise to align the GDT on an 8 bytes boundary, because Intel says so :) (see section 3.5.1 of 3A).
+        MemoryInfo info = rt.getAllocator().allocate(gdtSize + numberOfTss * TSSEntry:SIZEOF + 16 /*pseudo-descriptor and alignment buffer*/);
+        Address:setBytes(info.buf, info.len, 0);
+        
+        int gdtStartAddr = Bitset:and(info.buf, -8) + 16;
+        MemoryIOStream gdt = rt.createInstance(MemoryIOStream:CLASSNAME);
+        gdt._initBuf(gdtStartAddr-6, gdtSize+6);
+         
+        gdt
+            .printRawWord(gdtSize)
+            .printRawInt(gdtStartAddr); 
+        
+        // 0x00: dummy entry to prevent uninitialized usages
+        gdt
+            .printRawInt(0)
+            .printRawInt(0);
+        // 0x08: ring 0 - code segment
+        gdt
+            .printRawWord(0xFFFF)                 // 4Gb - (0x100000*0x1000 = 4Gb)
+            .printRawWord(0x0000).printRawByte(0) // base address = 0
+            .printRawByte(0x9A)                   // code read/exec, ring 0
+            .printRawByte(0xCF)                   // granularity = 4096, 386 (+5th nibble of limit)
+            .printRawByte(0);                     // base high
+        // 0x10: ring 0 - data segment
+        gdt
+            .printRawWord(0xFFFF)                 // 4Gb - (0x100000*0x1000 = 4Gb)
+            .printRawWord(0x0000).printRawByte(0) // base address = 0
+            .printRawByte(0x92)                   // code read/write, ring 0
+            .printRawByte(0xCF)                   // granularity = 4096, 386 (+5th nibble of limit)
+            .printRawByte(0);                     // base high
+        // 0x18: ring 3 - code segment
+        gdt
+            .printRawWord(0xFFFF)                 // 4Gb - (0x100000*0x1000 = 4Gb)
+            .printRawWord(0x0000).printRawByte(0) // base address = 0
+            .printRawByte(0xFA)                   // code read/exec, ring 3
+            .printRawByte(0xCF)                   // granularity = 4096, 386 (+5th nibble of limit)
+            .printRawByte(0);                     // base high
+        // 0x20: ring 3 - data segment
+        gdt
+            .printRawWord(0xFFFF)                 // 4Gb - (0x100000*0x1000 = 4Gb)
+            .printRawWord(0x0000).printRawByte(0) // base address = 0
+            .printRawByte(0xF2)                   // code read/write, ring 3
+            .printRawByte(0xCF)                   // granularity = 4096, 386 (+5th nibble of limit)
+            .printRawByte(0);                     // base high
+        // TODO: restrict 5th nibble to E for ring 3 to prevent kernel memory access, after strict system-call separation for userland exists
+         
+        int i = 0;
+        int entryAddress = gdtStartAddr + gdtSize;
+        while (i < numberOfTss) {
+            TSSEntry entry = Address:cast(entryAddress);
+            // initialize tss entry
+            entry.esp0 = 0;
+            entry.ss0 = 0x10;
+            // create gdt entry
+            gdt
+                .printRawWord(TSSEntry:SIZEOF)          // limit
+                .printRawByte(entryAddress / 0x1)       // base
+                .printRawByte(entryAddress / 0x100)     // base
+                .printRawByte(entryAddress / 0x10000)   // base
+                .printRawByte(0x89)                     // tss
+                .printRawByte(0x00)                     // flags (+5th nibble of limit)
+                .printRawByte(entryAddress / 0x1000000);// base
+            
+            i++;
+            entryAddress += TSSEntry:SIZEOF;
+        }
+        
+        gdt.destroy();
+        
+        this._info = info;
+        this._gdtDesc = gdtStartAddr - 6;
+        this._tssArray = gdtStartAddr + gdtSize;
+        this._tssElements = numberOfTss;
+        return this;
+    }
+    
+    [] __destruct() {
+        if (_info) {
+            this.rt().getAllocator().free(_info);
+        }
+    }
+    
+    [GlobalDescriptorTable] activate() {
+        __pasm__(<"
+            cli
+            movl 0xFFBE8000, %ecx
+            movw 0x0261, 12(%ecx) // 'a'
+            .byte 0x0f; .byte 0x01; .byte 0x10  // lgdtl (%eax)
+            
+            // ensure kernel segment in all segment registers
+            movw %dx, %ds
+            movw %dx, %es
+            movw %dx, %fs
+            movw %dx, %gs
+            movw %dx, %ss
+            
+            // use ljmp to set cs
+            movl 8(%ebp), %eax
+            addl (_gdt_set_cs - _gridos_i386_GlobalDescriptorTable), %eax
+            pushw %bx
+            pushl %eax
+            .byte 0xff; .byte 0x2c; .byte 0x24  // ljmp (%esp)
+        _gdt_set_cs:
+            addl 6, %esp
+            sti
+        ">, {"%eax": _gdtDesc, "%ebx": 0x08, "%edx": 0x10}, {"%eax": null});
+        return this;
+    }
+    
+    [GlobalDescriptorTable] activateTSS(int tssNumber) {
+        __pasm__(".byte 0x0f; .byte 0x00; .byte 0xD8  // ltr %ax", {"%eax": (5+tssNumber) * 8});
+        return this;
+    }
+    
+    [GlobalDescriptorTable] setKernelStack(int tssNumber, int topOfStack) {
+        TSSEntry entry = Address:cast(_tssArray + tssNumber * TSSEntry:SIZEOF);
+        entry.esp0 = topOfStack;
+        return this;
+    }
+    
+    [] toUserMode() {
+        __pasm__(<"
+            cli
+            // ensure user segment in all segment registers
+            movw 0x23, %ax
+            movw %ax, %ds
+            movw %ax, %es
+            movw %ax, %fs
+            movw %ax, %gs
+            // %cs and %ss are set by iret
+            
+            // setup iret stack frame
+            movl %esp, %eax
+            pushl 0x23  // data selector (with bottom 2 bits set for ring 3)
+            pushl %eax  // current esp
+            pushfl      // eflags
+            orl 0x200, (%esp) // set FI-Flag to enable interrupts with iret 
+            pushl 0x1B  // code selector (with bottom 2 bits set for ring 3)
+            movl 8(%ebp), %eax
+            addl (_gdt_to_user_mode - _gridos_i386_GlobalDescriptorTable), %eax
+            pushl %eax  // instruction address to return to
+            iret
+            
+        _gdt_to_user_mode:
+        ">, {}, {"%eax": null});
+    }
+}

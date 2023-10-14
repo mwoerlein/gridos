@@ -1,0 +1,38 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386;
+
+
+struct TSSEntry {
+	int prev_tss; // The previous TSS - with hardware task switching these form a kind of backward linked list.
+	int esp0;     // The stack pointer to load when changing to kernel mode.
+	int ss0;      // The stack segment to load when changing to kernel mode.
+	// Everything below here is unused.
+	int esp1; // esp and ss 1 and 2 would be used when switching to rings 1 or 2.
+	int ss1;
+	int esp2;
+	int ss2;
+	int cr3;
+	int eip;
+	int eflags;
+	int eax;
+	int ecx;
+	int edx;
+	int ebx;
+	int esp;
+	int ebp;
+	int esi;
+	int edi;
+	int es;
+	int cs;
+	int ss;
+	int ds;
+	int fs;
+	int gs;
+	int ldt;
+	int trap_iomap_base;
+}
+

@@ -197,11 +197,13 @@ class Startup extends Runtime, RuntimeBuilder {
     }
     
     [] initializeKernel() {
-        InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         if (!modules.hasCModule("gidt")) {
             this.err().printCString("Missing static gdt/idt module").printNewline();
             return;
         }
+        GlobalDescriptorTable gdt = this.createInstance(GlobalDescriptorTable:CLASSNAME);
+        gdt._init(1);
+        InterruptVectorTable ivt = this.createInstance(InterruptVectorTable:CLASSNAME);
         if (!ivt.initFromModule(modules.getCModule("gidt"), mmu)) {
             return;
         }
@@ -239,7 +241,21 @@ class Startup extends Runtime, RuntimeBuilder {
         kbd.plugin(pic, ivt);
         PIT pit = this.createInstance(PIT:CLASSNAME);
         pit.plugin(pic, ivt);
+        
+        /* setup gdt/tss/ivt */
+        gdt.activate().activateTSS(0);
         ivt.activate();
+        
+        /*
+        {
+            sys::memory::MemoryInfo ks = getAllocator().allocate(0x1000);
+            out.printChar('?').printNewline();
+            gdt.setKernelStack(0, ks.buf+0xF00);
+            gdt.toUserMode();
+            out.printChar('!').printNewline();
+            while (1) { __pasm__("hlt"); } // sollte in einen GP(0) laufen
+        }
+        //*/
         
         /* activate runtime clock */
         TickClock clock := this.createInstance(TickClock:CLASSNAME);
