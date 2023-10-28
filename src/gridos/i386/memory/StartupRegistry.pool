@@ -165,9 +165,9 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
         
         { // init free page handling
             int pt = this._getOrCreatePageTable(0x3fe);
-            Address:storeAddress(pt + 4 * 0x3fa, Address:from(freePages.prev) + 0x1);
-            Address:storeAddress(pt + 4 * 0x3fb, Address:from(freePages.self) + 0x1);
-            Address:storeAddress(pt + 4 * 0x3fc, Address:from(freePages.next) + 0x1);
+            Address:storeAddress(pt + 4 * 0x3fa, Address:from(freePages.prev) + MMU:ACCESS_BITS);
+            Address:storeAddress(pt + 4 * 0x3fb, Address:from(freePages.self) + MMU:ACCESS_BITS);
+            Address:storeAddress(pt + 4 * 0x3fc, Address:from(freePages.next) + MMU:ACCESS_BITS);
         }
         
         { // init identity mapping of used memory
@@ -179,7 +179,7 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
                 int curEntry = pt + 4*Bitset:and(Bitset:rshift(curPage, 12), 0x3ff);
                 int endEntry = pt + 4*Bitset:and(Bitset:rshift(cur.buf + cur.len, 12), 0x3ff);
                 while (curEntry < endEntry) {
-                    Address:storeAddress(curEntry, curPage + 0x1);
+                    Address:storeAddress(curEntry, curPage + MMU:ACCESS_BITS);
                     curPage += PageAllocator:PAGESIZE;
                     curEntry += 4;
                 }
@@ -231,7 +231,7 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
         // init self referencing page table
         pageDirectory = this._newPageTable();
         if (pageDirectory) {
-            Address:storeAddress(pageDirectory + 4 * 0x3ff, pageDirectory + 0x1);
+            Address:storeAddress(pageDirectory + 4 * 0x3ff, pageDirectory + MMU:ACCESS_BITS);
         }
         return pageDirectory;
     }
@@ -239,12 +239,12 @@ class StartupRegistry extends MemoryRegistry, MemoryManager {
     [int] _getOrCreatePageTable(int pdIndex) {
         int pdEntryAddr = pageDirectory + 4 * pdIndex;
         int pdEntry = Address:loadAddress(pdEntryAddr);
-        if (Bitset:has(pdEntry, 0x1)) {
+        if (Bitset:has(pdEntry, MMU:PRESENT_BIT)) {
             return Bitset:and(pdEntry, 0xFFFFF000);
         }
         int pt = this._newPageTable();
         if (pt) {
-            Address:storeAddress(pdEntryAddr, pt + 0x1);
+            Address:storeAddress(pdEntryAddr, pt + MMU:ACCESS_BITS);
         }
         return pt;
     }

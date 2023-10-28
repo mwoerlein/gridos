@@ -11,6 +11,12 @@ use sys::memory::Address;
 use sys::memory::PageAllocator;
 
 class MMU extends Object {
+    int PRESENT_BIT := 0x1;
+    int READ_WRITE_BIT := 0x2;
+    int USER_SUPERUSER_BIT := 0x4;
+
+    int ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
+
     int activeDirectory;
     PhysicalFreePageInfo info;
     
@@ -60,11 +66,11 @@ class MMU extends Object {
         int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
         
         int pdEntry = Address:loadAddress(pdEntryAddr);
-        if (!Bitset:has(pdEntry, 0x1)) {
-            Address:storeAddress(pdEntryAddr, this.newPageTable() + 0x1);
+        if (!Bitset:has(pdEntry, MMU:PRESENT_BIT)) {
+            Address:storeAddress(pdEntryAddr, this.newPageTable() + MMU:ACCESS_BITS);
             this.flushTLB();
         }
-        Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + 0x1); 
+        Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + MMU:ACCESS_BITS); 
     }
     
     [int] unmap(int vAddr) {
@@ -74,11 +80,11 @@ class MMU extends Object {
         int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
         
         int pdEntry = Address:loadAddress(pdEntryAddr);
-        if (!Bitset:has(pdEntry, 0x1)) {
+        if (!Bitset:has(pdEntry, MMU:PRESENT_BIT)) {
             return -1;
         }
         int ptEntry = Address:loadAddress(ptEntryAddr);
-        if (!Bitset:has(ptEntry, 0x1)) {
+        if (!Bitset:has(ptEntry, MMU:PRESENT_BIT)) {
             return -1;
         }
         Address:storeAddress(ptEntryAddr, 0); 
@@ -114,11 +120,11 @@ class MMU extends Object {
         int ptEntryAddr = 0xFFC00000 + Bitset:lshift(pdIndex, 12) + 4*ptIndex;
         
         int pdEntry = Address:loadAddress(pdEntryAddr);
-        if (!Bitset:has(pdEntry, 0x1)) {
+        if (!Bitset:has(pdEntry, MMU:PRESENT_BIT)) {
             return -1;
         }
         int ptEntry = Address:loadAddress(ptEntryAddr);
-        if (!Bitset:has(ptEntry, 0x1)) {
+        if (!Bitset:has(ptEntry, MMU:PRESENT_BIT)) {
             return -1;
         }
         return Bitset:and(ptEntry, 0xfffff000); 
@@ -176,7 +182,7 @@ class MMU extends Object {
         Address:setBytes(0xFFBF1000, PageAllocator:PAGESIZE, 0);
         Address:setBytes(0xFFBF2000, PageAllocator:PAGESIZE, 0);
         // add stack page
-        Address:storeAddress(0xFFBF2000 + 4*stackPtIndex, stack + 0x1);
+        Address:storeAddress(0xFFBF2000 + 4*stackPtIndex, stack + MMU:ACCESS_BITS);
         
         // setup page directory
         // clear user space mapping
@@ -184,9 +190,9 @@ class MMU extends Object {
         // keep kernel space mapping
         Address:copyBytes(0xFFFFF000 + 4*0x3C0, 0xFFBF0000 + 4*0x3C0, 4*0x40);
         // add new page tables
-        Address:storeAddress(0xFFBF0000 + 4*0x0, zeroPt + 0x1);
-        Address:storeAddress(0xFFBF0000 + 4*stackPdIndex, stackPt + 0x1);
-        Address:storeAddress(0xFFBF0000 + 4*0x3FF, pd + 0x1);
+        Address:storeAddress(0xFFBF0000 + 4*0x0, zeroPt + MMU:ACCESS_BITS);
+        Address:storeAddress(0xFFBF0000 + 4*stackPdIndex, stackPt + MMU:ACCESS_BITS);
+        Address:storeAddress(0xFFBF0000 + 4*0x3FF, pd + MMU:ACCESS_BITS);
         
         // unmap page directory and tables
         this.unmap(0xFFBF0000);
