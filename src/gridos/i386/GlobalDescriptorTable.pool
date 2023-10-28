@@ -75,13 +75,13 @@ class GlobalDescriptorTable extends sys::core::Object {
             entry.ss0 = 0x10;
             // create gdt entry
             gdt
-                .printRawWord(TSSEntry:SIZEOF)          // limit
-                .printRawByte(entryAddress / 0x1)       // base
-                .printRawByte(entryAddress / 0x100)     // base
-                .printRawByte(entryAddress / 0x10000)   // base
-                .printRawByte(0x89)                     // tss
-                .printRawByte(0x00)                     // flags (+5th nibble of limit)
-                .printRawByte(entryAddress / 0x1000000);// base
+                .printRawWord(TSSEntry:SIZEOF)                  // limit
+                .printRawByte(Bitset:rshift(entryAddress, 0))   // base
+                .printRawByte(Bitset:rshift(entryAddress, 8))   // base
+                .printRawByte(Bitset:rshift(entryAddress, 16))  // base
+                .printRawByte(0x89)                             // tss
+                .printRawByte(0x00)                             // flags (+5th nibble of limit)
+                .printRawByte(Bitset:rshift(entryAddress, 24)); // base
             
             i++;
             entryAddress += TSSEntry:SIZEOF;
@@ -105,8 +105,6 @@ class GlobalDescriptorTable extends sys::core::Object {
     [GlobalDescriptorTable] activate() {
         __pasm__(<"
             cli
-            movl 0xFFBE8000, %ecx
-            movw 0x0261, 12(%ecx) // 'a'
             .byte 0x0f; .byte 0x01; .byte 0x10  // lgdtl (%eax)
             
             // ensure kernel segment in all segment registers
