@@ -9,6 +9,7 @@ use sys::runtime::Process as SysProcess;
 use sys::runtime::Thread as SysThread;
 use sys::time::Timestamp;
 
+// TODO: split into kernel and user mode thread representations
 class Thread extends SysThread {
 
     Process process;
