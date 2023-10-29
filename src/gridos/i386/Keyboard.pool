@@ -30,7 +30,7 @@ class Keyboard extends InterruptHandler {
         pic.activate(PIC:KEYBOARD);
     }
     
-    [] call(int nr, int errorCode) {
+    [StackFrame] call(StackFrame frame) {
         int scancode = IOPort:inb(0x60);
         pic.finalize(PIC:KEYBOARD);
         
@@ -48,8 +48,10 @@ class Keyboard extends InterruptHandler {
         
         this.rt().out()
             .printCString("scan code ").printHex(scancode)
-            .printCString(" error code ").printHex(errorCode)
+            .printCString(" error code ").printHex(frame.error)
             .printNewline();
+        
+        return frame;
     }
     
     [] reboot() {

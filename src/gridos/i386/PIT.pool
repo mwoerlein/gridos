@@ -43,12 +43,13 @@ class PIT extends InterruptHandler {
         handlers = h.setNext(handlers);
     }
     
-    [] call(int nr, int errorCode) {
+    [StackFrame] call(StackFrame frame) {
         TickHandler h = handlers;
         while (h) {
             h.call();
             h = h.getNext();
         }
         pic.finalize(PIC:TIMER);
+        return frame;
     }
 }

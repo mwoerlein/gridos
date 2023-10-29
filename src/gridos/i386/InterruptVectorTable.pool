@@ -71,8 +71,7 @@ class InterruptVectorTable extends Object {
     
     [StackFrame] call(StackFrame frame) {
         InterruptHandler ih = table.get(frame.interrupt);
-        ih.call(frame.interrupt, frame.error);
-        return frame;
+        return ih.call(frame);
     }
     
 /*/

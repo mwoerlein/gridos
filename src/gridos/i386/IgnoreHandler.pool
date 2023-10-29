@@ -8,7 +8,9 @@ namespace gridos::i386;
 
 class IgnoreHandler extends InterruptHandler {
 
-    [] call(int nr, int errorCode) {
+    [StackFrame] call(StackFrame frame) {
+        int nr := frame.interrupt;
+        int errorCode := frame.error;
         if (nr < 32) {
             sys::stream::OStream err = this.rt().err();
             err.printCString(this.getName(nr))
@@ -26,30 +28,31 @@ class IgnoreHandler extends InterruptHandler {
             .printCString("(int ").printInt(nr)
             .printCString(" err ").printInt(errorCode)
             .printCString(") => ignored").printNewline();
+        return frame;
     }
     
     [cstring] getName(int nr) {
-        if (nr ==  0) { return "Divide-by-zero"; }
-        if (nr ==  1) { return "Debug"; }
-        if (nr ==  2) { return "NMI"; }
-        if (nr ==  3) { return "Breakpoint"; }
-        if (nr ==  4) { return "Overflow"; }
-        if (nr ==  5) { return "Bound Range Exceeded"; }
-        if (nr ==  6) { return "Invalid Opcode"; }
-        if (nr ==  7) { return "Device Not Available"; }
-        if (nr ==  8) { return "Double Fault"; }
-        if (nr ==  9) { return "Coprocessor Segment Overrun"; }
-        if (nr == 10) { return "Invalid TSS"; }
-        if (nr == 11) { return "Segment Not Present"; }
-        if (nr == 12) { return "Stack-Segment Fault"; }
-        if (nr == 13) { return "General Protection Fault"; }
-        if (nr == 14) { return "Page Fault"; }
-        if (nr == 16) { return "x87 Floating-Point Exception"; }
-        if (nr == 17) { return "Alignment Check"; }
-        if (nr == 18) { return "Machine Check"; }
-        if (nr == 19) { return "SIMD Floating-Point Exception"; }
-        if (nr == 20) { return "Virtualization Exception"; }
-        if (nr == 30) { return "Security Exception"; }
+        if (nr ==  0) { return "Divide-by-zero"; }                // A
+        if (nr ==  1) { return "Debug"; }                         // B
+        if (nr ==  2) { return "NMI"; }                           // C
+        if (nr ==  3) { return "Breakpoint"; }                    // D
+        if (nr ==  4) { return "Overflow"; }                      // E
+        if (nr ==  5) { return "Bound Range Exceeded"; }          // F
+        if (nr ==  6) { return "Invalid Opcode"; }                // G
+        if (nr ==  7) { return "Device Not Available"; }          // H
+        if (nr ==  8) { return "Double Fault"; }                  // I
+        if (nr ==  9) { return "Coprocessor Segment Overrun"; }   // J
+        if (nr == 10) { return "Invalid TSS"; }                   // K
+        if (nr == 11) { return "Segment Not Present"; }           // L
+        if (nr == 12) { return "Stack-Segment Fault"; }           // M
+        if (nr == 13) { return "General Protection Fault"; }      // N
+        if (nr == 14) { return "Page Fault"; }                    // O
+        if (nr == 16) { return "x87 Floating-Point Exception"; }  // Q
+        if (nr == 17) { return "Alignment Check"; }               // R
+        if (nr == 18) { return "Machine Check"; }                 // S
+        if (nr == 19) { return "SIMD Floating-Point Exception"; } // T
+        if (nr == 20) { return "Virtualization Exception"; }      // U
+        if (nr == 30) { return "Security Exception"; }            // 
         return "Reserved";
     }
 }

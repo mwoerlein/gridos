@@ -10,7 +10,7 @@ use sys::core::Object;
 // TODO: convert to interface 
 class InterruptHandler extends Object {
 
-    abstract [] call(int nr, int errorCode);
+    abstract [StackFrame] call(StackFrame frame);
     
     // TODO: remove with implicit cast
     [InterruptHandler] handler() { return this;}
