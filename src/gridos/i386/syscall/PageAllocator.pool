@@ -1,0 +1,19 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::syscall;
+
+use sys::memory::MemoryInfo;
+
+class PageAllocator extends sys::memory::PageAllocator {
+
+    // methods
+    [MemoryInfo] allocatePages(int pages) {
+        return SysCall:allocateUserHeapPages(pages);
+    }
+    
+    [int] isIncreasing() { return 1; }
+    
+}

@@ -20,6 +20,7 @@ class InterruptVectorTable extends Object {
     
     int TIMER := 32;
     int KEYBOARD := 33;
+    int SYSCALL := 50;
     
     AnyArray table;
     IgnoreHandler ignore;

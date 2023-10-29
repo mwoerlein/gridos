@@ -10,6 +10,7 @@ use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StartupRegistry;
 use gridos::i386::process::ProcessManager;
 use gridos::i386::process::Scheduler;
+use gridos::i386::syscall::Handler as SysCallHandler;
 
 use gridos::module::Module;
 use gridos::module::ModuleSet;
@@ -135,6 +136,7 @@ class Startup extends Runtime, RuntimeBuilder {
         bsRt.setClassStorage(bsClassStorage);
         
         rt.setAllocator(bsPMM.allocator());
+        rt.setPageAllocator(bsMPA.pageAllocator());
         rt.setClassStorage(bsDCS.classStorage());
         rt.setOut(bsOut);
         rt.setErr(bsOut);
@@ -154,6 +156,7 @@ class Startup extends Runtime, RuntimeBuilder {
         mpa._init(mmu, bsMPA.getTopOfHeap()); 
         pmm.initFromPagedMemoryManager(mpa.pageAllocator(), bsPMM);
         rt.setAllocator(pmm.allocator());
+        rt.setPageAllocator(mpa.pageAllocator());
         
         // create "heap"-based dynamic class storage
         DynamicClassStorage dcs = rt.createInstance(DynamicClassStorage:CLASSNAME);
@@ -241,6 +244,9 @@ class Startup extends Runtime, RuntimeBuilder {
         kbd.plugin(pic, ivt);
         PIT pit = this.createInstance(PIT:CLASSNAME);
         pit.plugin(pic, ivt);
+        
+        SysCallHandler syscall = this.createInstance(SysCallHandler:CLASSNAME);
+        syscall.plugin(ivt);
         
         /* setup gdt/tss/ivt */
         gdt.activate().activateTSS(0);

@@ -1,0 +1,17 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::syscall;
+
+use sys::stream::OStream;
+
+class ErrStream extends OStream {
+
+    [OStream] printChar(int c) {
+        SysCall:writeErrChar(c);
+        return this.ostream();
+    }
+    
+}

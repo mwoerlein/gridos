@@ -1,0 +1,115 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::syscall;
+
+use gridos::i386::InterruptHandler;
+use gridos::i386::InterruptVectorTable;
+use gridos::i386::StackFrame;
+use gridos::i386::process::Process as I386Process;
+use gridos::i386::Runtime as I386Runtime;
+
+use sys::memory::Address;
+use sys::memory::MemoryInfo;
+use sys::memory::PageAllocator;
+use sys::runtime::Thread as SysThread;
+use sys::runtime::Runtime;
+use sys::stream::OStream;
+use sys::time::Timestamp;
+
+class Handler extends InterruptHandler {
+
+    [] plugin(InterruptVectorTable ivt) {
+        ivt.insert(InterruptVectorTable:SYSCALL, this.handler());
+    }
+    
+    [I386Process] getCurrentProcess() {
+        Runtime rt = this.rt();
+        SysThread t = rt.getCurrentThread();
+        if (!t) { return null; }
+        I386Process p = rt.cast(I386Process:CLASSNAME, t.getProcess());
+        return p;
+    }
+
+    [I386Runtime] getRuntime() {
+        Runtime rt = this.rt();
+        I386Runtime ret = rt.cast(I386Runtime:CLASSNAME, rt);
+        return ret;
+    }
+
+    [StackFrame] call(StackFrame frame) {
+        if (frame.eax == SysCall:SC_WRITE_OUT_CHAR) {
+            OStream out = this.rt().err();
+            I386Process p = this.getCurrentProcess();
+            if (p) { out = p.getOut(); }
+            out.printChar(frame.ebx);
+            return frame;
+        }
+        
+        if (frame.eax == SysCall:SC_WRITE_ERR_CHAR) {
+            OStream out = this.rt().err();
+            I386Process p = this.getCurrentProcess();
+            if (p) { out = p.getErr(); }
+            out.printChar(frame.ebx);
+            return frame;
+        }
+        
+        if (frame.eax == SysCall:SC_ALLOCATE_USER_HEAP_PAGES) {
+            int pages = frame.ebx;
+            frame.ebx = MemoryInfo:NONE;
+            I386Process p = this.getCurrentProcess();
+            if (p) {
+                // TODO: call correct page allocator
+                this.rt().err().printCString("try to allocate pages via SysCall: ").printInt(pages).printNewline();
+                I386Runtime rt = this.getRuntime();
+                if (rt) {
+                    PageAllocator pa = rt.getPageAllocator();
+                    if (pa) {
+                        MemoryInfo info = pa.allocatePages(pages);
+                        frame.ebx = Address:from(info); 
+                    }
+                }
+            }
+            return frame;
+        }
+        
+        if (frame.eax == SysCall:SC_SLEEP) {
+            int sec := frame.ebx;
+            int nsec := frame.ecx;
+            Timestamp:formatToStream(this.rt().err().printCString("sleep via SysCall: "), sec, nsec).printNewline();
+            SysThread t = this.rt().getCurrentThread();
+            if (t) {
+                if (sec == 0 && nsec == 0) {
+                    t.rt().yield();
+                } else {
+                    t.rt().sleep(sec, nsec);
+                }
+            }
+            return frame;
+        }
+        
+        if (frame.eax == SysCall:SC_GET_TIME) {
+            frame.ebx = 0;
+            frame.ecx = 0;
+            sys::time::Clock clock = this.rt().getClock();
+            if (clock) {
+                [int s, int n] := clock.getTime();
+                frame.ebx = s;
+                frame.ecx = n;
+            }
+            Timestamp:formatToStream(this.rt().err().printCString("getTime via SysCall: "), frame.ebx, frame.ecx).printNewline();
+            return frame;
+        }
+        
+        OStream debug = this.rt().err();
+        debug.printCString("SysCall")
+            .printCString(" %eax:").printPtr(frame.eax)
+            .printCString(" %ebx:").printPtr(frame.ebx)
+            .printCString(" %ecx:").printPtr(frame.ecx)
+            .printCString(" %edx:").printPtr(frame.edx)
+            .printNewline();
+        return frame;
+    }
+}

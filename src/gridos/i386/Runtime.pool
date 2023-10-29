@@ -10,12 +10,17 @@ use gridos::i386::process::ProcessManager;
 use gridos::i386::process::Scheduler;
 use sys::runtime::Runtime as SysRuntime;
 use sys::runtime::Thread as SysThread;
+use sys::memory::PageAllocator;
 
 class Runtime extends SysRuntime {
     
     MMU mmu;
     [MMU] getMMU() { return mmu; }
     [] setMMU(MMU mmu) { this.mmu = mmu; }
+    
+    PageAllocator pageAllocator;
+    [PageAllocator] getPageAllocator() { return pageAllocator; }
+    [] setPageAllocator(PageAllocator pageAllocator) { this.pageAllocator = pageAllocator; }
     
     CgaScreen screen;
     [CgaScreen] getScreen() { return screen; }

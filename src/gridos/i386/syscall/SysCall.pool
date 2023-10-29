@@ -1,0 +1,44 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::syscall;
+
+use sys::memory::Address;
+use sys::memory::MemoryInfo;
+
+class SysCall {
+
+    int SC_WRITE_OUT_CHAR           := 0x01;
+    int SC_WRITE_ERR_CHAR           := 0x02;
+    int SC_ALLOCATE_USER_HEAP_PAGES := 0x03;
+    int SC_SLEEP                    := 0x04;
+    int SC_GET_TIME                 := 0x05;
+
+    global [] writeOutChar(int c) {
+        __pasm__("int 50", {"%eax": SysCall:SC_WRITE_OUT_CHAR, "%ebx": c}, {});
+    }
+    
+    global [] writeErrChar(int c) {
+        __pasm__("int 50", {"%eax": SysCall:SC_WRITE_ERR_CHAR, "%ebx": c}, {});
+    }
+    
+    global [MemoryInfo] allocateUserHeapPages(int pages) {
+        MemoryInfo ret = null;
+        __pasm__("int 50", {"%eax": SysCall:SC_ALLOCATE_USER_HEAP_PAGES, "%ebx": pages}, {"%ebx": ret});
+        return ret;
+    }
+
+    global [] sleep(int sec, int nsec) {
+        __pasm__("int 50", {"%eax": SysCall:SC_SLEEP, "%ebx": sec, "%ecx": nsec}, {});
+    }
+    
+    global [int, int] getTime() {
+        int sec = 0;
+        int nsec = 0;
+        __pasm__("int 50", {"%eax": SysCall:SC_GET_TIME}, {"%ebx": sec, "%ecx": nsec});
+        return [sec, nsec];
+    }
+    
+}

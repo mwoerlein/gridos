@@ -8,6 +8,11 @@ namespace gridos::i386::process;
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::StackBuilder;
 
+use gridos::i386::syscall::OutStream;
+use gridos::i386::syscall::ErrStream;
+use gridos::i386::syscall::Clock;
+use gridos::i386::syscall::PageAllocator;
+
 use sys::runtime::Runtime;
 use sys::stream::OStream;
 
@@ -81,6 +86,21 @@ class ProcessManager extends sys::core::Object {
             .printCString(" for class '").printCString(taskClassname).printChar('\'')
             //.printCString(" via ").print(this)
             .printNewline();
+        //*
+        Runtime trt = thread.rt();
+        OutStream out = trt.createInstance(OutStream:CLASSNAME);
+        ErrStream err = trt.createInstance(ErrStream:CLASSNAME);
+        PageAllocator pa = trt.createInstance(PageAllocator:CLASSNAME);
+        Clock clock = trt.createInstance(Clock:CLASSNAME);
+        trt.setOut(out.ostream());
+        trt.setErr(err.ostream());
+        trt.setClock(clock.clock());
+        
+        PagedMemoryManager ppm = trt.createInstance(PagedMemoryManager:CLASSNAME);
+        ppm.initFromPageAllocator(pa.pageAllocator(), 1);
+        trt.setAllocator(ppm.allocator());
+        
+        //*/
         // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
         thread.rt().createAndRunTask(taskClassname);
         while (1) { __pasm__("hlt"); }
