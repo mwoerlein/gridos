@@ -55,7 +55,7 @@ class ModuleSet extends AnyMap { // HashMap<String, Module>
     
     [] addRelocatableModule(cstring commandline, int startAddr, int len) {
         int pages = PageAllocator:bytes2pages(len);
-        int allocated = mmu.allocatePagesAt(0xFF800000, pages);
+        int allocated = mmu.allocatePagesAt(MMU:MODULES_MAPPING, pages);
         if (allocated != pages) {
             this.rt().err().printCString("ignore module at ")
                 .printPtr(startAddr).printChar(':').printPtr(startAddr + len)
@@ -64,8 +64,8 @@ class ModuleSet extends AnyMap { // HashMap<String, Module>
                 .printNewline();
             return;
         }
-        Address:copyBytes(startAddr, 0xFF800000, len);
-        this._addModule(commandline, mmu.unmapPages(0xFF800000, pages), 0, pages, len);
+        Address:copyBytes(startAddr, MMU:MODULES_MAPPING, len);
+        this._addModule(commandline, mmu.unmapPages(MMU:MODULES_MAPPING, pages), 0, pages, len);
     }
     
     [] addStaticModule(cstring commandline, int startAddr, int len) {

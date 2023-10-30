@@ -69,8 +69,8 @@ class Startup extends Runtime, RuntimeBuilder {
         Startup st = rt.cast(Startup:CLASSNAME, rt);
         if (!st) { return; }
         
-        // switch to (virtual) Kernel-Stack
-        __pasm__("movl 0xFF800000, %esp");
+        // switch to (virtual) Kernel-Global-Stack
+        __pasm__("movl %eax, %esp", {"%eax": MMU:AFTER_KERNEL_SHARED_STACK}, {});
         // switch to dynamic loaded class and never return
         st.phase2();
     }
@@ -119,7 +119,7 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // initialize kernel heap
         MMUPageAllocator bsMPA = bsRt.createInstance(MMUPageAllocator:CLASSNAME);
-        bsMPA._init(bsMMU, 0xF0000000);
+        bsMPA._init(bsMMU, MMU:START_KERNEL_SHARED_HEAP);
         PagedMemoryManager bsPMM = bsRt.createInstance(PagedMemoryManager:CLASSNAME);
         bsPMM.setMinimalPageAllocation(16).initFromPageAllocator(bsMPA.pageAllocator(), 1);
 
@@ -184,7 +184,7 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // initialize kernel stack
         int stackPages = 1;
-        mmu.allocatePagesAt(0xFF800000 - stackPages*PageAllocator:PAGESIZE, stackPages);
+        mmu.allocatePagesAt(MMU:AFTER_KERNEL_SHARED_STACK - stackPages*PageAllocator:PAGESIZE, stackPages);
         
         // cleanup
         bsDCS.destroy();
@@ -215,7 +215,8 @@ class Startup extends Runtime, RuntimeBuilder {
             sys::store::Store store = dcs.createOwn(sys::store::Store:CLASSNAME);
             Module storeModule = modules.getCModule("store");
             if (!storeModule.isAvailable()) {
-                storeModule.mapAt(mmu, 0xFF800000); // where to map?
+                storeModule.mapAt(mmu, MMU:AFTER_KERNEL_SHARED_STACK); // where to map permanently?
+//                storeModule.mapAt(mmu, MMU:MODULES_MAPPING); // compiler segfault with correct constant???
             }
             store.setContent(storeModule.getIOStream());
             dcs.addLoader(store.classDescriptorLoader());

@@ -36,7 +36,7 @@ class ProcessManager extends sys::core::Object {
     }
     
     [Process] createProcess(cstring taskClassname, OStream out, OStream err) {
-        [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(0xF0000000);
+        [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(MMU:AFTER_KERNEL_LOCAL_STACKS);
         Runtime rt = this.rt().cloneRuntime(); rt.setOut(out); rt.setErr(err);
         Process process := this._newProcess(rt, pageDirectoryPAddr, out, err);
         scheduler.addReadyThread(this.setupThread(process._newThread(), sb, taskClassname));

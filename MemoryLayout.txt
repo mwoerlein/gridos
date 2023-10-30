@@ -10,13 +10,20 @@
  * | ^^^ User-Stack              owner: Thread
  * +----------------------+ ^^^ User-Space
  * +----- 0xF0000000 -----+ (0x3C0:0x000)
- * +----------------------+ vvv Kernel-Space
- * | vvv Kernel-Heap             owner: (Kernel-)MemoryManager/Allocator
+ * +----------------------+ vvv Kernel-Space (local)
+ * | vvv Kernel-Local-Heap       owner: (Kernel-)MemoryManager/Allocator?
+ * +
+ * | 
+ * +
+ * | ^^^ Kernel-Local-Stacks     owner: (Kernel-)Thread?
+ * +----- 0xF8000000 -----+ (0x3E0:0x000)
+ * +----------------------+ vvv Kernel-Space (shared)
+ * | vvv Kernel-Shared-Heap      owner: (Kernel-)MemoryManager/Allocator?
  * | (Ring 0-Classes/-Objects, ...)
  * +
  * | 
  * +
- * | ^^^ Kernel-Stack            owner: (Kernel-)Thread
+ * | ^^^ Kernel-Shared-Stack     owner: (Kernel-)Thread?
  * +----- 0xFF800000 -----+ (0x3FE:0x000)
  * | reserved (Remapped-Modules, shared, HW, ...)
  * | ...
@@ -28,10 +35,11 @@
  * | IDT/GDT/TSS
  * | ISR entries
  * | reserved
+ * +----------------------+ ^^^ Kernel-Space (shared)
  * +----- 0xFFC00000 -----+ (0x3FF:0x000) owner: MMU
  * | Page Tables
  * | ...
  * +----- 0xFFFFF000 -----+ (0x3FF:0x3FF) owner: MMU
  * | Page Directory 
- * +----------------------+ ^^^ Kernel-Space
+ * +----------------------+ ^^^ Kernel-Space (local)
  */
