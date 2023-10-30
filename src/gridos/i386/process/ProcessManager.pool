@@ -13,6 +13,7 @@ use gridos::i386::syscall::ErrStream;
 use gridos::i386::syscall::Clock;
 use gridos::i386::syscall::PageAllocator;
 
+use sys::memory::PagedMemoryManager;
 use sys::runtime::Runtime;
 use sys::stream::OStream;
 
@@ -94,7 +95,7 @@ class ProcessManager extends sys::core::Object {
         Clock clock = trt.createInstance(Clock:CLASSNAME);
         trt.setOut(out.ostream());
         trt.setErr(err.ostream());
-        trt.setClock(clock.clock());
+        //trt.setClock(clock.clock());
         
         PagedMemoryManager ppm = trt.createInstance(PagedMemoryManager:CLASSNAME);
         ppm.initFromPageAllocator(pa.pageAllocator(), 1);

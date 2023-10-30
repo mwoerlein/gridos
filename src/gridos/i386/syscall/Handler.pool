@@ -79,6 +79,8 @@ class Handler extends InterruptHandler {
             int sec := frame.ebx;
             int nsec := frame.ecx;
             Timestamp:formatToStream(this.rt().err().printCString("sleep via SysCall: "), sec, nsec).printNewline();
+            // TODO: #24 only activate sleep/yield by suspending threads, do not use TickClock busy waiting in syscalls 
+            /*
             SysThread t = this.rt().getCurrentThread();
             if (t) {
                 if (sec == 0 && nsec == 0) {
@@ -87,6 +89,7 @@ class Handler extends InterruptHandler {
                     t.rt().sleep(sec, nsec);
                 }
             }
+            */
             return frame;
         }
         
