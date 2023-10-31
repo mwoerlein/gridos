@@ -10,6 +10,7 @@ use gridos::i386::InterruptVectorTable;
 use gridos::i386::StackFrame;
 use gridos::i386::process::Process as I386Process;
 use gridos::i386::Runtime as I386Runtime;
+use gridos::i386::sys::SysCall;
 
 use sys::memory::Address;
 use sys::memory::MemoryInfo;

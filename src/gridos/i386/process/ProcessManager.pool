@@ -9,10 +9,10 @@ use gridos::i386::memory::MMU;
 use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StackBuilder;
 
-use gridos::i386::syscall::OutStream;
-use gridos::i386::syscall::ErrStream;
-use gridos::i386::syscall::Clock;
-use gridos::i386::syscall::PageAllocator;
+use gridos::i386::sys::OutStream;
+use gridos::i386::sys::ErrStream;
+use gridos::i386::sys::Clock;
+use gridos::i386::sys::PageAllocator;
 
 use sys::memory::PagedMemoryManager;
 use sys::runtime::Runtime;

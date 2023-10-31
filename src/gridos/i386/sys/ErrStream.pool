@@ -3,14 +3,14 @@ mimetype = text/x-pool
 author = Marc Woerlein <marc.woerlein@gmx.de>
 version = 0.1.0
 */
-namespace gridos::i386::syscall;
+namespace gridos::i386::sys;
 
 use sys::stream::OStream;
 
-class OutStream extends OStream {
+class ErrStream extends OStream {
 
     [OStream] printChar(int c) {
-        SysCall:writeOutChar(c);
+        SysCall:writeErrChar(c);
         return this.ostream();
     }
     

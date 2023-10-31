@@ -3,7 +3,7 @@ mimetype = text/x-pool
 author = Marc Woerlein <marc.woerlein@gmx.de>
 version = 0.1.0
 */
-namespace gridos::i386::syscall;
+namespace gridos::i386::sys;
 
 use sys::memory::Address;
 use sys::memory::MemoryInfo;
