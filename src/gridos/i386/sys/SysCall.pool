@@ -7,6 +7,7 @@ namespace gridos::i386::sys;
 
 use sys::memory::Address;
 use sys::memory::MemoryInfo;
+use sys::runtime::Thread as SysThread;
 
 class SysCall {
 
@@ -15,6 +16,7 @@ class SysCall {
     int SC_ALLOCATE_USER_HEAP_PAGES := 0x03;
     int SC_SLEEP                    := 0x04;
     int SC_GET_TIME                 := 0x05;
+    int SC_GET_CURRENT_THREAD       := 0x06;
 
     global [] writeOutChar(int c) {
         __pasm__("int 50", {"%eax": SysCall:SC_WRITE_OUT_CHAR, "%ebx": c}, {});
@@ -39,6 +41,12 @@ class SysCall {
         int nsec = 0;
         __pasm__("int 50", {"%eax": SysCall:SC_GET_TIME}, {"%ebx": sec, "%ecx": nsec});
         return [sec, nsec];
+    }
+    
+    global [SysThread] getCurrentThread() {
+        SysThread ret = null;
+        __pasm__("int 50", {"%eax": SysCall:SC_GET_CURRENT_THREAD}, {"%ebx": ret});
+        return ret;
     }
     
 }

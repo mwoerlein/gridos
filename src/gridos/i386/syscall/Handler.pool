@@ -8,6 +8,8 @@ namespace gridos::i386::syscall;
 use gridos::i386::InterruptHandler;
 use gridos::i386::InterruptVectorTable;
 use gridos::i386::StackFrame;
+use gridos::i386::process::Scheduler;
+use gridos::i386::process::Thread as I386Thread;
 use gridos::i386::process::Process as I386Process;
 use gridos::i386::Runtime as I386Runtime;
 use gridos::i386::sys::SysCall;
@@ -27,33 +29,30 @@ class Handler extends InterruptHandler {
     }
     
     [I386Process] getCurrentProcess() {
-        Runtime rt = this.rt();
-        SysThread t = rt.getCurrentThread();
-        if (!t) { return null; }
-        I386Process p = rt.cast(I386Process:CLASSNAME, t.getProcess());
-        return p;
-    }
-
-    [I386Runtime] getRuntime() {
-        Runtime rt = this.rt();
-        I386Runtime ret = rt.cast(I386Runtime:CLASSNAME, rt);
-        return ret;
+        I386Runtime rt = this.rt().cast(I386Runtime:CLASSNAME, this.rt());
+        if (!rt) { return null; }
+        Scheduler s = rt.getScheduler();
+        if (!s) { return null; }
+        return s.getCurrentThread().getKernelProcess();
     }
 
     [StackFrame] call(StackFrame frame) {
+        Runtime ksRt = this.rt();
+        OStream debug = ksRt.err();
+        
         if (frame.eax == SysCall:SC_WRITE_OUT_CHAR) {
-            OStream out = this.rt().err();
+            OStream out = debug;
             I386Process p = this.getCurrentProcess();
-            if (p) { out = p.getOut(); }
+            if (p) { out = p.getKernelRuntime().out(); }
             out.printChar(frame.ebx);
             return frame;
         }
         
         if (frame.eax == SysCall:SC_WRITE_ERR_CHAR) {
-            OStream out = this.rt().err();
+            OStream err = debug;
             I386Process p = this.getCurrentProcess();
-            if (p) { out = p.getErr(); }
-            out.printChar(frame.ebx);
+            if (p) { err = p.getKernelRuntime().err(); }
+            err.printChar(frame.ebx);
             return frame;
         }
         
@@ -74,35 +73,33 @@ class Handler extends InterruptHandler {
         if (frame.eax == SysCall:SC_SLEEP) {
             int sec := frame.ebx;
             int nsec := frame.ecx;
-            Timestamp:formatToStream(this.rt().err().printCString("sleep via SysCall: "), sec, nsec).printNewline();
-            // TODO: #24 only activate sleep/yield by suspending threads, do not use TickClock busy waiting in syscalls 
-            /*
-            SysThread t = this.rt().getCurrentThread();
-            if (t) {
-                if (sec == 0 && nsec == 0) {
-                    t.rt().yield();
-                } else {
-                    t.rt().sleep(sec, nsec);
-                }
+            if (sec == 0 && nsec == 0) {
+                ksRt.yield();
+            } else {
+                ksRt.sleep(sec, nsec);
             }
-            */
             return frame;
         }
         
         if (frame.eax == SysCall:SC_GET_TIME) {
             frame.ebx = 0;
             frame.ecx = 0;
-            sys::time::Clock clock = this.rt().getClock();
+            sys::time::Clock clock = ksRt.getClock();
             if (clock) {
                 [int s, int n] := clock.getTime();
                 frame.ebx = s;
                 frame.ecx = n;
             }
-            Timestamp:formatToStream(this.rt().err().printCString("getTime via SysCall: "), frame.ebx, frame.ecx).printNewline();
             return frame;
         }
         
-        this.rt().err().printCString("unknown SysCall")
+        if (frame.eax == SysCall:SC_GET_CURRENT_THREAD) {
+            SysThread thread = ksRt.getCurrentThread();
+            frame.ebx = Address:from(thread);
+            return frame;
+        }
+        
+        debug.printCString("unknown SysCall")
             .printCString(" %eax:").printPtr(frame.eax)
             .printCString(" %ebx:").printPtr(frame.ebx)
             .printCString(" %ecx:").printPtr(frame.ecx)

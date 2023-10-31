@@ -5,35 +5,46 @@ version = 0.1.0
 */
 namespace gridos::i386::process;
 
+use gridos::i386::sys::Thread as UserThread;
+
 use sys::runtime::Process as SysProcess;
 use sys::runtime::Thread as SysThread;
 use sys::time::Timestamp;
 
-// TODO: split into kernel and user mode thread representations
-class Thread extends SysThread {
+class Thread extends sys::core::Object {
 
     Process process;
+    UserThread userThread;
+    
     Timestamp cpuTS;
     int topOfStack;
     Thread next;
     
-    [Thread] init(Process p) {
+    [Thread] _initStart(Process p) {
         this.process = p;
-        cpuTS = this.createOwn(Timestamp:CLASSNAME);
-        cpuTS.setTime(0, 0);
-        return this; 
+        return this;
     }
     
-    [SysProcess] getProcess() { return this.process.process(); }
+    [Thread] _initFinish() {
+        sys::runtime::Runtime urt = this.process.getUserRuntime();
+        this.cpuTS = this.own(urt.createInstance(Timestamp:CLASSNAME));
+        this.cpuTS.setTime(0, 0);
+        this.userThread = this.own(urt.createInstance(UserThread:CLASSNAME));
+        this.userThread._initThread(this.process.getUserProcess(), this.cpuTS);
+        return this;
+    }
+    
     [Process] getKernelProcess() { return this.process; }
-    [int] getPid() { return this.process.getPid(); }
-    [int] getPageDirectoryPAddr() { return this.process.getPageDirectoryPAddr(); }
+    [UserThread] getUserThread() { return this.userThread; }
     
     [int, int] getCPUTime() { [int s, int n] := cpuTS.getTime(); return [s, n]; }
     [] addCPUTime(int sec, int nsec) {
         cpuTS.addTime(sec, nsec);
         process.addCPUTime(sec, nsec);
     }
+    
+    [int] getPid() { return this.process.getPid(); }
+    [int] getPageDirectoryPAddr() { return this.process.getPageDirectoryPAddr(); }
     
     [int] getStatus() {
         // TODO #24

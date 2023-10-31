@@ -1,0 +1,30 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::sys;
+
+use sys::runtime::Process as SysProcess;
+use sys::runtime::Thread as SysThread;
+use sys::time::Timestamp;
+
+class Process extends SysProcess {
+
+    int pid;
+    Timestamp cpuTS;
+    
+    [Process] _initProcess(int pid, Timestamp cpuTS) {
+        this.pid = pid;
+        this.cpuTS = cpuTS;
+        return this;
+    }
+    
+    [int] getPid() { return pid; }
+    [int, int] getCPUTime() { [int s, int n] := cpuTS.getTime(); return [s, n]; }
+    
+    [SysThread] startThreadForTask(cstring name) {
+        // TODO #30
+        return null;
+    }
+}

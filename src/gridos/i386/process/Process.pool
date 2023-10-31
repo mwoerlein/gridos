@@ -5,6 +5,8 @@ version = 0.1.0
 */
 namespace gridos::i386::process;
 
+use gridos::i386::sys::Process as UserProcess;
+
 use sys::memory::PageAllocator;
 use sys::runtime::Runtime;
 use sys::runtime::Process as SysProcess;
@@ -12,51 +14,56 @@ use sys::runtime::Thread as SysThread;
 use sys::stream::OStream;
 use sys::time::Timestamp;
 
-// TODO: split into kernel and user mode process representations
-class Process extends SysProcess {
+class Process extends sys::core::Object {
 
     int pid;
     Timestamp cpuTS;
+    UserProcess userProcess;
+    
     int pageDirectoryPAddr;
+    Runtime kernelRuntime;
+    Runtime userRuntime;
+    PageAllocator userPageAllocator;
+    
     Process next;
-    OStream out;
-    OStream err;
-    PageAllocator pa;
 
-    [Process] init(int pid, int pAddr, OStream out, OStream err) {
+    [Process] _initStart(int pid, int pAddr) {
         this.pid = pid;
         this.pageDirectoryPAddr = pAddr;
-        cpuTS = this.createOwn(Timestamp:CLASSNAME);
-        cpuTS.setTime(0, 0);
-        this.out = out;
-        this.err = err;
         return this; 
     }
     
+    [Process] _initFinish(Runtime krt, Runtime urt, PageAllocator pa) {
+        this.kernelRuntime = krt;
+        this.userRuntime = urt;
+        this.userPageAllocator = pa;
+        
+        this.cpuTS = this.own(urt.createInstance(Timestamp:CLASSNAME));
+        this.cpuTS.setTime(0, 0);
+        this.userProcess = this.own(urt.createInstance(UserProcess:CLASSNAME));
+        this.userProcess._initProcess(pid, this.cpuTS);
+        return this;
+    }
+    
     [int] getPid() { return this.pid; }
+    [UserProcess] getUserProcess() { return this.userProcess; }
 
     [int, int] getCPUTime() { [int s, int n] := cpuTS.getTime(); return [s, n]; }
     [] addCPUTime(int sec, int nsec) { cpuTS.addTime(sec, nsec); }
     
     [int] getPageDirectoryPAddr() { return this.pageDirectoryPAddr; }
     
-    [OStream] getOut() { return out; }
-    [OStream] getErr() { return err; }
+    [Runtime] getKernelSharedRuntime() { return this.rt(); }
+    [Runtime] getKernelRuntime() { return kernelRuntime; }
+    [Runtime] getUserRuntime() { return userRuntime; }
+    [PageAllocator] getUserPageAllocator() { return this.userPageAllocator; }
     
-    [Process] setRuntimes(Runtime krt, Runtime urt, PageAllocator pa) { this.pa = pa; return this; }
-    [PageAllocator] getUserPageAllocator() { return this.pa; }
-
     [Process] setNext(Process n) { this.next = n; return this; }
     [Process] getNext() { return this.next; }
     
     [SysThread] startThreadForTask(cstring name) {
         // TODO #30
         return null;
-    }
-    
-    [Thread] _newThread() {
-        Thread t = this.createOwn(Thread:CLASSNAME);
-        return t.init(this);
     }
     
 }

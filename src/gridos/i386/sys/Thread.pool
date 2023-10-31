@@ -1,0 +1,34 @@
+/*[meta]
+mimetype = text/x-pool
+author = Marc Woerlein <marc.woerlein@gmx.de>
+version = 0.1.0
+*/
+namespace gridos::i386::sys;
+
+use sys::runtime::Process as SysProcess;
+use sys::runtime::Thread as SysThread;
+use sys::time::Timestamp;
+
+class Thread extends SysThread {
+
+    Process process;
+    Timestamp cpuTS;
+    
+    [Thread] _initThread(Process process, Timestamp cpuTS) {
+        this.process = process;
+        this.cpuTS = cpuTS;
+        return this; 
+    }
+    
+    [SysProcess] getProcess() { return process.process(); }
+    [int, int] getCPUTime() { [int s, int n] := cpuTS.getTime(); return [s, n]; }
+    
+    [int] getStatus() {
+        // TODO #24
+        return SysThread:STATUS_READY;
+    }
+    
+    [] awaitTermination() {
+        // TODO #24
+    }
+}

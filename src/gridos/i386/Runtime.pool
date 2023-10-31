@@ -34,7 +34,7 @@ class Runtime extends SysRuntime {
     [Scheduler] getScheduler() { return scheduler; }
     [] setScheduler(Scheduler scheduler) { this.scheduler = scheduler; }
     
-    [SysThread] getCurrentThread() { return scheduler.getCurrentThread().thread(); }
+    [SysThread] getCurrentThread() { return scheduler.getCurrentThread().getUserThread().thread(); }
     [] yield () { scheduler.schedule(); }
     
     [SysRuntime] cloneRuntime() {

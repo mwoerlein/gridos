@@ -30,24 +30,106 @@ class ProcessManager extends sys::core::Object {
     [ProcessManager] init(Scheduler scheduler, MMU mmu) {
         this.scheduler = scheduler;
         this.mmu = mmu;
+        // setup initial kernel process/thread
         Runtime rt = this.rt();
-        Process p = this._newProcess(rt, mmu.getActiveDirectory(), rt.out(), rt.err());
-        scheduler.setInitialThread(p._newThread());
+        Process process = this._newProcess(mmu.getActiveDirectory());
+        Thread thread = process.createOwn(Thread:CLASSNAME);
+        thread._initStart(process);
+        process._initFinish(rt, rt, null);
+        thread._initFinish();
+        scheduler.setInitialThread(thread);
         return this;
     }
     
     [Process] createProcess(cstring taskClassname, OStream out, OStream err) {
         [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(MMU:AFTER_KERNEL_LOCAL_STACKS);
-        Runtime rt = this.rt().cloneRuntime(); rt.setOut(out); rt.setErr(err);
-        Process process := this._newProcess(rt, pageDirectoryPAddr, out, err);
-        scheduler.addReadyThread(this.setupThread(process._newThread(), sb, taskClassname));
+        
+        Process process := this._newProcess(pageDirectoryPAddr);
+        Thread thread := this.setupNewProcess(process, sb, taskClassname, out, err);
+        
+        scheduler.addReadyThread(thread);
         sb.unmap(mmu);
         sb.destroy();
         return process;
     }
+    
+    [Process] _newProcess(int pageDirectoryPAddr) {
+        Process p = this.rt().createInstance(Process:CLASSNAME);
+        if (last) {
+            p.setNext(first);
+            last.setNext(p);
+            last = p;
+        } else {
+            first = last = p.setNext(p);
+        }
+        return p._initStart(++pidCounter, pageDirectoryPAddr);
+    }
+    
+    [Thread] setupNewProcess(Process process, StackBuilder sb, cstring taskClassname, OStream out, OStream err) {
+        Thread thread = process.createOwn(Thread:CLASSNAME);
+        thread._initStart(process);
+        
+        { // fake stack frame for __setupProcess
+            int basePtr = sb.getTopOfStack();
+            sb.pushPtr(err);                // fifth argument
+            sb.pushPtr(out);                // forth argument
+            sb.pushString(taskClassname);   // third argument
+            sb.pushPtr(thread);             // second argument
+            sb.pushPtr(process);            // first argument
+            sb.buildMethodCallEntry(this, this.getClass(), 0, basePtr);
+        }
+        scheduler.setupStackFrameForSwitchTo(sb, this.__getSetupProcessEntry(), thread);
+        
+        thread.setTopOfStack(sb.getTopOfStack());
+        return thread;
+    }
+    
+    [Thread] setupNewThread(Thread thread, StackBuilder sb, cstring taskClassname) {
+        { // fake stack frame for __setupThread
+            int basePtr = sb.getTopOfStack();
+            sb.pushString(taskClassname);   // second argument
+            sb.pushPtr(thread);             // first argument
+            sb.buildMethodCallEntry(this, this.getClass(), 0, basePtr);
+        }
+        scheduler.setupStackFrameForSwitchTo(sb, this.__getSetupThreadEntry(), thread);
+        
+        thread.setTopOfStack(sb.getTopOfStack());
+        return thread;
+    }
+    
+    [int] __getSetupProcessEntry() {
+        int entry = 0;
+        __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_process_entry, %eax", {}, {"%eax": entry});
+        return entry;
+    }
+    
+    [] __setupProcess(Process process, Thread thread, cstring taskClassname, OStream out, OStream err) {
+        __pasm__("_cr_mo_setup_process_entry := (_setup_process_entry - _gridos_i386_process_ProcessManager); _setup_process_entry:");
+        this._setupProcess(process, out, err);
+        this._setupThread(thread, taskClassname);
+    }
 
-    // must be called with active process page directory but still in kernel mode!     
-    [Runtime] initProcess(Process process) {
+    [int] __getSetupThreadEntry() {
+        int entry = 0;
+        __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_thread_entry, %eax", {}, {"%eax": entry});
+        return entry;
+    }
+    
+    [] __setupThread(Thread thread, cstring taskClassname) {
+        __pasm__(<"
+            _cr_mo_setup_thread_entry := (_setup_thread_entry - _gridos_i386_process_ProcessManager)
+            _setup_thread_entry:
+        ">);
+        this._setupThread(thread, taskClassname);
+    }
+    
+    [] _setupProcess(Process process, OStream out, OStream err) {
+        this.rt().err()
+            .printCString("setup new process ").printInt(process.getPid())
+            .printCString(" via ").print(this)
+            .print(out).print(err)
+            .printNewline();
+        
         Runtime ksRt := process.rt();
         // bootstrap kernel runtime for new process
         MMUPageAllocator tmpKernelMPA = ksRt.createInstance(MMUPageAllocator:CLASSNAME);
@@ -60,9 +142,8 @@ class ProcessManager extends sys::core::Object {
             // use shared classes and clock
             kernelRt.setClassStorage(ksRt.getClassStorage());
             kernelRt.setClock(ksRt.getClock());
-            // TODO: use process out/err
-            kernelRt.setOut(ksRt.out()); 
-            kernelRt.setErr(ksRt.err());
+            kernelRt.setOut(out); 
+            kernelRt.setErr(err);
             kernelRt.setAllocator(tmpKernelPMM.allocator());
             
             // recreate allocator within kernel local runtime
@@ -71,7 +152,7 @@ class ProcessManager extends sys::core::Object {
             // get top of heap *after* creating instances on heap via temporary page allocator
             kernelMPA._init(mmu, tmpKernelMPA.getTopOfHeap());
             kernelPMM.initFromPagedMemoryManager(kernelMPA.pageAllocator(), tmpKernelPMM);
-            kernelPMM.setMinimalPageAllocation(1).initFromPageAllocator(tmpKernelMPA.pageAllocator(), 1);
+            kernelPMM.setMinimalPageAllocation(10).initFromPageAllocator(tmpKernelMPA.pageAllocator(), 1);
             kernelRt.setAllocator(kernelPMM.allocator());
         }
         tmpKernelPMM.destroy();
@@ -108,54 +189,18 @@ class ProcessManager extends sys::core::Object {
         }
         tmpUserPMM.destroy();
         // setup process        
-        process.setRuntimes(kernelRt, userRt, userMPA.pageAllocator());
-        return userRt;
+        process._initFinish(kernelRt, userRt, userMPA.pageAllocator());
     }
     
-    [Process] _newProcess(Runtime rt, int pageDirectoryPAddr, OStream out, OStream err) {
-        Process p = rt.createInstance(Process:CLASSNAME);
-        if (last) {
-            p.setNext(first);
-            last.setNext(p);
-            last = p;
-        } else {
-            first = last = p.setNext(p);
-        }
-        return p.init(++pidCounter, pageDirectoryPAddr, out, err);
-    }
-    
-    [Thread] setupThread(Thread thread, StackBuilder sb, cstring taskClassname) {
-        int setup_entry = 0;
-        __pasm__("movl 8(%ebp), %eax; addl _cr_mo_setup_entry, %eax", {}, {"%eax": setup_entry});
-        
-        { // fake stack frame for _setupEntry
-            int basePtr = sb.getTopOfStack();
-            sb.pushString(taskClassname);   // second argument
-            sb.pushPtr(thread);             // first argument
-            sb.buildMethodCallEntry(this, this.getClass(), 0, basePtr);
-        }
-        scheduler.setupStackFrameForSwitchTo(sb, setup_entry, thread);
-        
-        thread.setTopOfStack(sb.getTopOfStack());
-        return thread;
-    }
-    
-    [] _setupEntry(Thread thread, cstring taskClassname) {
-        __pasm__(<"
-            _cr_mo_setup_entry := (_setup_entry - _gridos_i386_process_ProcessManager)
-            _setup_entry:
-        ">);
-        this._setupNewThread(thread, taskClassname);
-    }
-    
-    [] _setupNewThread(Thread thread, cstring taskClassname) {
+    [] _setupThread(Thread thread, cstring taskClassname) {
         this.rt().err()
             .printCString("setup new thread in process ").printInt(thread.getPid())
             .printCString(" for class '").printCString(taskClassname).printChar('\'')
             //.printCString(" via ").print(this)
             .printNewline();
         
-        Runtime userRt := this.initProcess(thread.getKernelProcess());
+        thread._initFinish();
+        Runtime userRt := thread.getKernelProcess().getUserRuntime();
         // TODO: init/prepare user thread stack
         
         // TODO: switch to user mode and user thread stack
