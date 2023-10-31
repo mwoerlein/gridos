@@ -5,6 +5,8 @@ version = 0.1.0
 */
 namespace gridos::i386::process;
 
+use sys::memory::PageAllocator;
+use sys::runtime::Runtime;
 use sys::runtime::Process as SysProcess;
 use sys::runtime::Thread as SysThread;
 use sys::stream::OStream;
@@ -19,6 +21,7 @@ class Process extends SysProcess {
     Process next;
     OStream out;
     OStream err;
+    PageAllocator pa;
 
     [Process] init(int pid, int pAddr, OStream out, OStream err) {
         this.pid = pid;
@@ -39,6 +42,9 @@ class Process extends SysProcess {
     
     [OStream] getOut() { return out; }
     [OStream] getErr() { return err; }
+    
+    [Process] setRuntimes(Runtime krt, Runtime urt, PageAllocator pa) { this.pa = pa; return this; }
+    [PageAllocator] getUserPageAllocator() { return this.pa; }
 
     [Process] setNext(Process n) { this.next = n; return this; }
     [Process] getNext() { return this.next; }

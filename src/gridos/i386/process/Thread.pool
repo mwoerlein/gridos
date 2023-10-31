@@ -25,6 +25,7 @@ class Thread extends SysThread {
     }
     
     [SysProcess] getProcess() { return this.process.process(); }
+    [Process] getKernelProcess() { return this.process; }
     [int] getPid() { return this.process.getPid(); }
     [int] getPageDirectoryPAddr() { return this.process.getPageDirectoryPAddr(); }
     

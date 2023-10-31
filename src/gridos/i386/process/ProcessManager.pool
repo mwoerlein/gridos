@@ -6,6 +6,7 @@ version = 0.1.0
 namespace gridos::i386::process;
 
 use gridos::i386::memory::MMU;
+use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StackBuilder;
 
 use gridos::i386::syscall::OutStream;
@@ -43,6 +44,72 @@ class ProcessManager extends sys::core::Object {
         sb.unmap(mmu);
         sb.destroy();
         return process;
+    }
+
+    // must be called with active process page directory but still in kernel mode!     
+    [Runtime] initProcess(Process process) {
+        Runtime ksRt := process.rt();
+        // bootstrap kernel runtime for new process
+        MMUPageAllocator tmpKernelMPA = ksRt.createInstance(MMUPageAllocator:CLASSNAME);
+        tmpKernelMPA._init(mmu, MMU:START_KERNEL_LOCAL_HEAP);
+        PagedMemoryManager tmpKernelPMM = ksRt.createInstance(PagedMemoryManager:CLASSNAME);
+        tmpKernelPMM.setMinimalPageAllocation(1).initFromPageAllocator(tmpKernelMPA.pageAllocator(), 1);
+        // TODO: which class should be used for kernel runtime?
+        Runtime kernelRt = ksRt.createInstanceAt(Runtime:CLASSNAME, tmpKernelPMM.allocator());
+        {
+            // use shared classes and clock
+            kernelRt.setClassStorage(ksRt.getClassStorage());
+            kernelRt.setClock(ksRt.getClock());
+            // TODO: use process out/err
+            kernelRt.setOut(ksRt.out()); 
+            kernelRt.setErr(ksRt.err());
+            kernelRt.setAllocator(tmpKernelPMM.allocator());
+            
+            // recreate allocator within kernel local runtime
+            MMUPageAllocator kernelMPA = kernelRt.createInstance(MMUPageAllocator:CLASSNAME);
+            PagedMemoryManager kernelPMM = kernelRt.createInstance(PagedMemoryManager:CLASSNAME);
+            // get top of heap *after* creating instances on heap via temporary page allocator
+            kernelMPA._init(mmu, tmpKernelMPA.getTopOfHeap());
+            kernelPMM.initFromPagedMemoryManager(kernelMPA.pageAllocator(), tmpKernelPMM);
+            kernelPMM.setMinimalPageAllocation(1).initFromPageAllocator(tmpKernelMPA.pageAllocator(), 1);
+            kernelRt.setAllocator(kernelPMM.allocator());
+        }
+        tmpKernelPMM.destroy();
+        tmpKernelMPA.destroy();
+        
+        // bootstrap user runtime for new process
+        MMUPageAllocator userMPA = kernelRt.createInstance(MMUPageAllocator:CLASSNAME);
+        userMPA._init(mmu, MMU:START_USER_HEAP);
+        PagedMemoryManager tmpUserPMM = ksRt.createInstance(PagedMemoryManager:CLASSNAME);
+        // TODO: adjust user page allocation to increase performance 
+        tmpUserPMM.setMinimalPageAllocation(1).initFromPageAllocator(userMPA.pageAllocator(), 1);
+        Runtime userRt = kernelRt.createInstanceAt(Runtime:CLASSNAME, tmpUserPMM.allocator());
+        {
+            userRt.setAllocator(tmpUserPMM.allocator());
+            // TODO: setup user class storage and refresh instances
+            userRt.setClassStorage(kernelRt.getClassStorage());
+            // temporary use of kernel instances until correct ones are generated
+            userRt.setClock(kernelRt.getClock());
+            userRt.setOut(kernelRt.out()); 
+            userRt.setErr(kernelRt.err());
+            
+            // create/use syscall instances
+            OutStream out = userRt.createInstance(OutStream:CLASSNAME);
+            ErrStream err = userRt.createInstance(ErrStream:CLASSNAME);
+            Clock clock = userRt.createInstance(Clock:CLASSNAME);
+            PageAllocator pa = userRt.createInstance(PageAllocator:CLASSNAME);
+            PagedMemoryManager pmm = userRt.createInstance(PagedMemoryManager:CLASSNAME);
+            pmm.initFromPagedMemoryManager(pa.pageAllocator(), tmpUserPMM);
+            
+            userRt.setOut(out.ostream());
+            userRt.setErr(err.ostream());
+            userRt.setClock(clock.clock());
+            userRt.setAllocator(pmm.allocator());
+        }
+        tmpUserPMM.destroy();
+        // setup process        
+        process.setRuntimes(kernelRt, userRt, userMPA.pageAllocator());
+        return userRt;
     }
     
     [Process] _newProcess(Runtime rt, int pageDirectoryPAddr, OStream out, OStream err) {
@@ -87,24 +154,18 @@ class ProcessManager extends sys::core::Object {
             .printCString(" for class '").printCString(taskClassname).printChar('\'')
             //.printCString(" via ").print(this)
             .printNewline();
-        //*
-        Runtime trt = thread.rt();
-        OutStream out = trt.createInstance(OutStream:CLASSNAME);
-        ErrStream err = trt.createInstance(ErrStream:CLASSNAME);
-        PageAllocator pa = trt.createInstance(PageAllocator:CLASSNAME);
-        Clock clock = trt.createInstance(Clock:CLASSNAME);
-        trt.setOut(out.ostream());
-        trt.setErr(err.ostream());
-        //trt.setClock(clock.clock());
         
-        PagedMemoryManager ppm = trt.createInstance(PagedMemoryManager:CLASSNAME);
-        ppm.initFromPageAllocator(pa.pageAllocator(), 1);
-        trt.setAllocator(ppm.allocator());
+        Runtime userRt := this.initProcess(thread.getKernelProcess());
+        // TODO: init/prepare user thread stack
         
-        //*/
-        // TODO: setup ProcessRuntime, create and run thread/task (in userland), and cleanup/exit process/thread if task returns 
-        thread.rt().createAndRunTask(taskClassname);
-        while (1) { __pasm__("hlt"); }
+        // TODO: switch to user mode and user thread stack
+        userRt.createAndRunTask(taskClassname);
+        // TODO: cleanup/exit process/thread if task returns
+        //scheduler.terminateThread(thread);
+        while (1) {
+            userRt.yield();
+            userRt.sleep(5,0); // wait some time
+        }
     }
     
 }

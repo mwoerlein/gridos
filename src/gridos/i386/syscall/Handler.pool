@@ -61,15 +61,10 @@ class Handler extends InterruptHandler {
             frame.ebx = MemoryInfo:NONE;
             I386Process p = this.getCurrentProcess();
             if (p) {
-                // TODO: call correct page allocator
-                this.rt().err().printCString("try to allocate pages via SysCall: ").printInt(pages).printNewline();
-                I386Runtime rt = this.getRuntime();
-                if (rt) {
-                    PageAllocator pa = rt.getPageAllocator();
-                    if (pa) {
-                        MemoryInfo info = pa.allocatePages(pages);
-                        frame.ebx = Address:from(info); 
-                    }
+                PageAllocator pa = p.getUserPageAllocator();
+                if (pa) {
+                    MemoryInfo info = pa.allocatePages(pages);
+                    frame.ebx = Address:from(info); 
                 }
             }
             return frame;
@@ -106,8 +101,7 @@ class Handler extends InterruptHandler {
             return frame;
         }
         
-        OStream debug = this.rt().err();
-        debug.printCString("SysCall")
+        this.rt().err().printCString("unknown SysCall")
             .printCString(" %eax:").printPtr(frame.eax)
             .printCString(" %ebx:").printPtr(frame.ebx)
             .printCString(" %ecx:").printPtr(frame.ecx)
