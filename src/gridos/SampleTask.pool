@@ -19,9 +19,15 @@ class SampleTask extends sys::core::Task {
         sys::runtime::Runtime rt = this.rt();
         sys::runtime::Thread thread = rt.getCurrentThread();
         
-        
         sys::stream::OStream out = rt.out();
+        sys::stream::OStream err = rt.err();
         FOStream fout = rt.cast(FOStream:CLASSNAME, out);
+        {
+            err.print(this).printNewline();
+            err.print(this.getClass()).printNewline();
+            err.print(rt).printNewline();
+            err.print(thread).printNewline();
+        }
         {
             //rt.createAndRunTask(my::simple::B:CLASSNAME);
         }
@@ -63,7 +69,18 @@ class SampleTask extends sys::core::Task {
             fout.printSampleBoxSODI();
             fout.printSampleBoxDOSI();
         } else {
-            rt.err().printCString("fout not found").printNewline();
+            err.printCString("fout not found").printNewline();
+        }
+        {
+            sys::memory::MemoryInfo info1 = rt.getAllocator().allocate(0x1000);
+            sys::memory::MemoryInfo info2 = rt.getAllocator().allocate(0x1000);
+            sys::memory::MemoryInfo info3 = rt.getAllocator().allocate(0x1000);
+            out.printPtr(info1.buf).printNewline();
+            out.printPtr(info2.buf).printNewline();
+            out.printPtr(info3.buf).printNewline();
+            rt.getAllocator().free(info3);
+            rt.getAllocator().free(info2);
+            rt.getAllocator().free(info1);
         }
         if (rt.hasClock()) {
             sys::time::Clock clock = rt.getClock();
@@ -80,7 +97,7 @@ class SampleTask extends sys::core::Task {
             }
         }
         
-        rt.err().printCString("add more implementation");
+        err.printCString("add more implementation");
         out.printNewline();
         return 0;
     }
