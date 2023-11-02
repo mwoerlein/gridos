@@ -11,7 +11,6 @@ use gridos::module::Module;
 use sys::core::anycollection::AnyArray;
 use sys::core::Object;
 use sys::memory::Address;
-use sys::runtime::Runtime;
 use sys::stream::OStream;
 
 class InterruptVectorTable extends Object {
@@ -40,7 +39,7 @@ class InterruptVectorTable extends Object {
     }
     
     [] _init(GIDTDescription gidt) {
-        Runtime rt = this.rt();
+        sys::runtime::Runtime rt = this.rt();
         ignore = rt.createInstance(IgnoreHandler:CLASSNAME);
         table = rt.createInstance(AnyArray:CLASSNAME);
         table.initWith(TABLE_SIZE, ignore.handler());
@@ -72,6 +71,28 @@ class InterruptVectorTable extends Object {
     
     [StackFrame] call(StackFrame frame) {
         InterruptHandler ih = table.get(frame.interrupt);
+        if (ih.enforceKernelThreadStack()) {
+            // switch to thread kernel space, if necessary
+            int topOfStack = 0;
+            __pasm__("movl %esp, %eax",{},{"%eax": topOfStack});
+            if (Address:compareAddress(topOfStack, MMU:AFTER_KERNEL_LOCAL_STACKS) > 0) {
+                int bytesToCopy = MMU:AFTER_KERNEL_SHARED_STACK - topOfStack;
+                // only switches from user space to kernel mode are using the shared kernel stack
+                // system calls/interrupts during kernel mode, stays on the same stack
+                // therefore everytime we need an explicitly switch, we can start a fresh kernel stack as it is the first entry
+                // TODO #30: determine correct stack of current thread
+                int topOfThreadStack = MMU:AFTER_KERNEL_LOCAL_STACKS - bytesToCopy;
+                int stackOffset = topOfThreadStack - topOfStack;
+                // copy shared stack to kernel thread stack, adjust current frame and switch to kernel thread stack
+                {
+                    Address:copyBytes(topOfStack, topOfThreadStack, bytesToCopy);
+                    __pasm__("addl %eax, %esp; addl %eax, 8(%esp); addl %eax, 12(%esp); addl %eax, %ebp",{"%eax": stackOffset},{});
+                }
+                // adjust pointer to stack
+                frame = Address:offset(frame, stackOffset);
+                frame._esp += stackOffset;
+            }
+        }
         return ih.call(frame);
     }
     

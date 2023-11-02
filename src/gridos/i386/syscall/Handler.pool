@@ -24,6 +24,8 @@ use sys::time::Timestamp;
 
 class Handler extends InterruptHandler {
 
+    [int] enforceKernelThreadStack() { return true; }
+    
     [] plugin(InterruptVectorTable ivt) {
         ivt.insert(InterruptVectorTable:SYSCALL, this.handler());
     }
@@ -35,8 +37,16 @@ class Handler extends InterruptHandler {
         if (!s) { return null; }
         return s.getCurrentThread().getKernelProcess();
     }
-
+    
     [StackFrame] call(StackFrame frame) {
+        // allow interrupts during system calls
+        __pasm__("sti");
+        StackFrame ret = this._call(frame);
+        __pasm__("cli");
+        return ret;
+    }
+    
+    [StackFrame] _call(StackFrame frame) {
         Runtime ksRt = this.rt();
         OStream debug = ksRt.err();
         

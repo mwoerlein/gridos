@@ -11,6 +11,7 @@ use sys::core::Object;
 class InterruptHandler extends Object {
 
     abstract [StackFrame] call(StackFrame frame);
+    [int] enforceKernelThreadStack() { return false; }
     
     // TODO: remove with implicit cast
     [InterruptHandler] handler() { return this;}

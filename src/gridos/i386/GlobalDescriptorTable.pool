@@ -132,7 +132,7 @@ class GlobalDescriptorTable extends sys::core::Object {
         return this;
     }
     
-    [GlobalDescriptorTable] setKernelStack(int tssNumber, int topOfStack) {
+    [GlobalDescriptorTable] setISRStack(int tssNumber, int topOfStack) {
         TSSEntry entry = Address:cast(_tssArray + tssNumber * TSSEntry:SIZEOF);
         entry.esp0 = topOfStack;
         return this;

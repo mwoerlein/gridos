@@ -18,13 +18,13 @@ class MMU extends Object {
     int ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
     
     int START_USER_HEAP := 0x00001000;
-    int AFTER_USER_STACKS := MMU:START_KERNEL_LOCAL_HEAP;
+    int AFTER_USER_STACKS := 0xF0000000; //MMU:START_KERNEL_LOCAL_HEAP; // compiler segfault with correct constant???
     int START_KERNEL_LOCAL_HEAP := 0xF0000000;
-    int AFTER_KERNEL_LOCAL_STACKS := MMU:START_KERNEL_SHARED_HEAP;
+    int AFTER_KERNEL_LOCAL_STACKS := 0xF8000000; //MMU:START_KERNEL_SHARED_HEAP; // compiler segfault with correct constant???
     int START_KERNEL_SHARED_HEAP := 0xF8000000;
     int AFTER_KERNEL_SHARED_STACK := 0xFF800000;
     
-    int MODULES_MAPPING := MMU:AFTER_KERNEL_SHARED_STACK;
+    int MODULES_MAPPING := 0xFF800000; //MMU:AFTER_KERNEL_SHARED_STACK; // compiler segfault with correct constant???
     
     int START_KERNEL_PT_INDEX := 0x3C0; //(START_KERNEL_LOCAL_HEAP >> 12)
     int START_KERNEL_SHARED_PT_INDEX := 0x3E0; //(START_KERNEL_SHARED_HEAP >> 12)
@@ -142,6 +142,10 @@ class MMU extends Object {
             return -1;
         }
         return Bitset:and(ptEntry, 0xfffff000); 
+    }
+    
+    [int] allocateStackPagesAt(int virtualAddress, int count) {
+        return this.allocatePagesAt(virtualAddress - count * PageAllocator:PAGESIZE, count);
     }
     
     [int] allocatePagesAt(int virtualAddress, int count) {

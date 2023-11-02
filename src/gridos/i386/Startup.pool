@@ -70,7 +70,7 @@ class Startup extends Runtime, RuntimeBuilder {
         if (!st) { return; }
         
         // switch to (virtual) Kernel-Global-Stack
-        __pasm__("movl %eax, %esp", {"%eax": MMU:AFTER_KERNEL_SHARED_STACK}, {});
+        __pasm__("movl %eax, %esp", {"%eax": MMU:AFTER_KERNEL_LOCAL_STACKS}, {});
         // switch to dynamic loaded class and never return
         st.phase2();
     }
@@ -182,9 +182,8 @@ class Startup extends Runtime, RuntimeBuilder {
         bsSR.transferTo(sr);
         rt.setStartupRegistry(sr);
         
-        // initialize kernel stack
-        int stackPages = 1;
-        mmu.allocatePagesAt(MMU:AFTER_KERNEL_SHARED_STACK - stackPages*PageAllocator:PAGESIZE, stackPages);
+        // initialize kernel stack (placed for init-thread)
+        mmu.allocateStackPagesAt(MMU:AFTER_KERNEL_LOCAL_STACKS, 1);
         
         // cleanup
         bsDCS.destroy();
@@ -215,8 +214,7 @@ class Startup extends Runtime, RuntimeBuilder {
             sys::store::Store store = dcs.createOwn(sys::store::Store:CLASSNAME);
             Module storeModule = modules.getCModule("store");
             if (!storeModule.isAvailable()) {
-                storeModule.mapAt(mmu, MMU:AFTER_KERNEL_SHARED_STACK); // where to map permanently?
-//                storeModule.mapAt(mmu, MMU:MODULES_MAPPING); // compiler segfault with correct constant???
+                storeModule.mapAt(mmu, MMU:MODULES_MAPPING); // where to map permanently?
             }
             store.setContent(storeModule.getIOStream());
             dcs.addLoader(store.classDescriptorLoader());
@@ -237,7 +235,7 @@ class Startup extends Runtime, RuntimeBuilder {
         Scheduler scheduler = this.createInstance(Scheduler:CLASSNAME);
         this.setScheduler(scheduler.setMMU(mmu));
         ProcessManager pm = this.createInstance(ProcessManager:CLASSNAME);
-        this.setProcessManager(pm.init(scheduler, mmu));
+        this.setProcessManager(pm.init(scheduler, mmu, gdt));
         
         /* activate keyboard and interrupts */
         PIC pic = this.createInstance(PIC:CLASSNAME);
@@ -249,6 +247,13 @@ class Startup extends Runtime, RuntimeBuilder {
         SysCallHandler syscall = this.createInstance(SysCallHandler:CLASSNAME);
         syscall.plugin(ivt);
         
+        // prepare isr-stack
+        {
+            // TODO #28: prepare stacks for each cpu
+            int isrStack = MMU:AFTER_KERNEL_SHARED_STACK;
+            mmu.allocateStackPagesAt(isrStack, 64);
+            gdt.setISRStack(0, isrStack);
+        }
         /* setup gdt/tss/ivt */
         gdt.activate().activateTSS(0);
         ivt.activate();

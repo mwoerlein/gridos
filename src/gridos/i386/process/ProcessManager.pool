@@ -22,12 +22,14 @@ class ProcessManager extends sys::core::Object {
 
     MMU mmu;
     Scheduler scheduler;
+    GlobalDescriptorTable gdt;
     
     Process first;
     Process last;
     int pidCounter;
     
-    [ProcessManager] init(Scheduler scheduler, MMU mmu) {
+    [ProcessManager] init(Scheduler scheduler, MMU mmu, GlobalDescriptorTable gdt) {
+        this.gdt = gdt;
         this.scheduler = scheduler;
         this.mmu = mmu;
         // setup initial kernel process/thread
@@ -200,16 +202,28 @@ class ProcessManager extends sys::core::Object {
             .printNewline();
         
         thread._initFinish();
-        Runtime userRt := thread.getKernelProcess().getUserRuntime();
-        // TODO: init/prepare user thread stack
         
-        // TODO: switch to user mode and user thread stack
-        userRt.createAndRunTask(taskClassname);
-        // TODO: cleanup/exit process/thread if task returns
-        //scheduler.terminateThread(thread);
-        while (1) {
-            userRt.yield();
-            userRt.sleep(5,0); // wait some time
+        {
+            // prepare user thread stack
+            int userTopOfStack = MMU:AFTER_USER_STACKS; // TODO #30: determine correct stack
+            mmu.allocateStackPagesAt(userTopOfStack, 1);
+            // switch to user thread stack and store kernel thread stack for syscall entries
+            __pasm__("movl %eax, %esp", {"%eax": userTopOfStack});
+            // switch to user mode
+            gdt.toUserMode();
+        }
+        {
+            // create and run task in userland
+            Runtime userRt := thread.getKernelProcess().getUserRuntime();
+            userRt.createAndRunTask(taskClassname);
+            
+            // there is no way back to kernel mode => never return!
+            // TODO: cleanup/exit process/thread if task returns
+            //scheduler.terminateThread(thread);
+            while (1) {
+                userRt.yield();
+                userRt.sleep(5,0); // wait some time
+            }
         }
     }
     

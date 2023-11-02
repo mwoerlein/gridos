@@ -356,7 +356,7 @@ __idt_start:
   .wordt __idt_isr_47;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_47  >> 16)
   .wordt __idt_isr_48;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_48  >> 16)
   .wordt __idt_isr_49;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_49  >> 16)
-  .wordt __idt_isr_50;  .word 0x0008; .word 0xEF00; .wordt (__idt_isr_50  >> 16)
+  .wordt __idt_isr_50;  .word 0x0008; .word 0xEE00; .wordt (__idt_isr_50  >> 16)
   .wordt __idt_isr_51;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_51  >> 16)
   .wordt __idt_isr_52;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_52  >> 16)
   .wordt __idt_isr_53;  .word 0x0008; .word 0x8e00; .wordt (__idt_isr_53  >> 16)
