@@ -5,6 +5,8 @@ version = 0.1.0
 */
 namespace gridos::i386::process;
 
+use gridos::i386::GlobalDescriptorTable;
+
 use gridos::i386::memory::MMU;
 use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StackBuilder;

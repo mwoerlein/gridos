@@ -83,10 +83,20 @@ class InterruptVectorTable extends Object {
                 // TODO #30: determine correct stack of current thread
                 int topOfThreadStack = MMU:AFTER_KERNEL_LOCAL_STACKS - bytesToCopy;
                 int stackOffset = topOfThreadStack - topOfStack;
-                // copy shared stack to kernel thread stack, adjust current frame and switch to kernel thread stack
                 {
+                    // copy shared stack to kernel thread stack
                     Address:copyBytes(topOfStack, topOfThreadStack, bytesToCopy);
-                    __pasm__("addl %eax, %esp; addl %eax, 8(%esp); addl %eax, 12(%esp); addl %eax, %ebp",{"%eax": stackOffset},{});
+                    __pasm__(
+                        <"
+                            // switch to kernel stack
+                            addl %eax, %ebp
+                            addl %eax, %esp
+                            // adjust kernel stack frame (pushad/popad of entry/exit block)
+                            addl %eax, 8(%esp)
+                            addl %eax, 12(%esp)
+                        ">,
+                        {"%eax": stackOffset}
+                    );
                 }
                 // adjust pointer to stack
                 frame = Address:offset(frame, stackOffset);
