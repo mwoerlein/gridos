@@ -4,7 +4,7 @@ all: clean bootdisk
 
 include ./Makefile.inc
 
-BLOCKS=$(BLOCKDIR)/startup.block $(BLOCKDIR)/gidt.block $(BLOCKDIR)/store.block
+BLOCKS=$(BLOCKDIR)/startup.block $(BLOCKDIR)/gidt.block $(BLOCKDIR)/store.block $(BLOCKDIR)/sampletask.block
 BOOTBLOCKS=$(BLOCKDIR)/i386_loader.block $(BLOCKS)
 
 LOADER_PARTS = settings stage0 stage1_1_start stage1_2_dap stage1_3_mid stage1_4_mbi stage1_5_end
@@ -13,7 +13,10 @@ LOADER_PASMS = $(patsubst %,$(BOOTLDDIR)/%.pasm, $(LOADER_PARTS))
 STORE_PASMS = $(shell find $(PASMDIR)/ -type f -name '*.pasm')
 STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.p86, $(STORE_PASMS))
 
-STARTUP_SEGMENT = 0x3000
+I386_SYS_SRCS =$(shell find $(SRCDIR)/gridos/i386/sys -type f -name '*.pool')
+USER_RT_CLASSES = $(patsubst $(SRCDIR)/gridos/i386/sys/%.pool, gridos::i386::sys::%, $(I386_SYS_SRCS)) sys::memory::PagedMemoryManager sys::runtime::DynamicClassStorage sys::store::Store
+
+STARTUP_SEGMENT = 0x5000
 MODULES_SEGMENT = 0x1000
 GIDT_PAGE = 0xFFBFD
 
@@ -34,11 +37,13 @@ $(BOOTLDDIR)/stage1_2_dap.pasm: $(BLOCKS) $(MODBUILD)
 	@$(MODBUILD) -so $@ -l STARTUP -f $(BLOCKDIR)/startup.block -t $(STARTUP_SEGMENT)
 	@$(MODBUILD) -o $@ -l GIDT -f $(BLOCKDIR)/gidt.block -a STARTUP -t $(MODULES_SEGMENT)
 	@$(MODBUILD) -o $@ -l STORE -f $(BLOCKDIR)/store.block -a GIDT
+	@$(MODBUILD) -o $@ -l SAMPLETASK -f $(BLOCKDIR)/sampletask.block -a STORE
 	
 $(BOOTLDDIR)/stage1_4_mbi.pasm: $(BLOCKS) $(MODBUILD)
-	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --runTask=gridos::SampleTask"
+	@$(MODBUILD) -so $@ -l STARTUP -c "startup --test=0 --debug=2 --runTask=gridos::SampleTask --runModule=sampletask"
 	@$(MODBUILD) -o $@ -l GIDT -c "gidt --target=$(GIDT_PAGE)000"
 	@$(MODBUILD) -o $@ -l STORE -c "store --debug=1"
+	@$(MODBUILD) -o $@ -l SAMPLETASK -c "sampletask --runTask=gridos::SampleTask"
 
 $(BLOCKDIR)/startup.block: $(BLOCKDIR) $(SRCDIR)/gridos/i386/Startup.pool $(POOLSC)
 	@echo "creating $@"
@@ -52,6 +57,14 @@ $(BLOCKDIR)/store.block: $(BLOCKDIR) $(STORE_FILES) $(STORE)
 	@echo "creating $@"
 	@$(STORE) -io $@ -a 512 $(STORE_FILES) 
 
+$(BLOCKDIR)/sampletask.block: $(SRCDIR)/gridos/SampleTask.pool $(POOLC)
+	@echo "creating $@"
+	@rm -rf $(TMPDIR)
+	@mkdir -p $(TMPDIR)
+	@$(POOLC) $(PC_FLAGS) --output $(TMPDIR) gridos::SampleTask $(USER_RT_CLASSES) -Br
+	@$(STORE) -io $@ -a 512 `find $(TMPDIR)/ -type f -name '*.p86'`
+	@rm -rf $(TMPDIR)
+ 
 sampletask: $(PASMDIR) $(POOLC)
 	@$(POOLC) $(PC_FLAGS) --output $(PASMDIR) gridos::SampleTask -r
  

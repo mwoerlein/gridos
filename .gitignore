@@ -5,6 +5,7 @@
 /block/
 /build/
 /pasm/
+/tmp/
 
 /bootloader/i386/stage1_2_dap.pasm
 /bootloader/i386/stage1_4_mbi.pasm

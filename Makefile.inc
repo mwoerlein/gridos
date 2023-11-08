@@ -12,6 +12,7 @@ IMGDIR=./img
 PASMDIR=./pasm
 SRCDIR=./src
 BINDIR=./bin
+TMPDIR=./tmp
 
 MODBUILD=$(BINDIR)/modbuild
 
