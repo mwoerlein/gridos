@@ -223,7 +223,7 @@ class Startup extends Runtime, RuntimeBuilder {
         Scheduler scheduler = this.createInstance(Scheduler:CLASSNAME);
         this.setScheduler(scheduler.setMMU(mmu));
         ProcessManager pm = this.createInstance(ProcessManager:CLASSNAME);
-        this.setProcessManager(pm.init(scheduler, mmu, gdt));
+        this.setProcessManager(pm.init(scheduler, mmu));
         
         /* activate keyboard and interrupts */
         PIC pic = this.createInstance(PIC:CLASSNAME);
@@ -245,17 +245,6 @@ class Startup extends Runtime, RuntimeBuilder {
         /* setup gdt/tss/ivt */
         gdt.activate().activateTSS(0);
         ivt.activate();
-        
-        /*
-        {
-            sys::memory::MemoryInfo ks = getAllocator().allocate(0x1000);
-            out.printChar('?').printNewline();
-            gdt.setKernelStack(0, ks.buf+0xF00);
-            gdt.toUserMode();
-            out.printChar('!').printNewline();
-            while (1) { __pasm__("hlt"); } // sollte in einen GP(0) laufen
-        }
-        //*/
         
         /* activate runtime clock */
         TickClock clock := this.createInstance(TickClock:CLASSNAME);
@@ -298,7 +287,7 @@ class Startup extends Runtime, RuntimeBuilder {
             sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
             if (taskClassname) {
                 pm.createProcess(
-                    taskClassname.toCString(),
+                    taskClassname,
                     vs2.createOStream(FOStream:BLACK, FOStream:WHITE),
                     vs2.createOStream(FOStream:BRIGHT_RED, FOStream:WHITE)
                 );

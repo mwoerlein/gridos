@@ -144,10 +144,6 @@ class MMU extends Object {
         return Bitset:and(ptEntry, 0xfffff000); 
     }
     
-    [int] allocateStackPagesAt(int virtualAddress, int count) {
-        return this.allocatePagesAt(virtualAddress - count * PageAllocator:PAGESIZE, count);
-    }
-    
     [int] allocatePagesAt(int virtualAddress, int count) {
         int pages = count;
         int allocated = 0;
@@ -165,6 +161,22 @@ class MMU extends Object {
         this.flushTLB();
         return allocated;
         // TODO: handle page info list
+    }
+    
+    [int] allocateStackPagesAt(int virtualAddress, int count) {
+        return this.allocatePagesAt(virtualAddress - count * PageAllocator:PAGESIZE, count);
+    }
+    
+    [StackBuilder] allocateStackBuilderAt(int virtualAddress, int count) {
+        int vAddr = virtualAddress - count * PageAllocator:PAGESIZE;
+        int allocated = this.allocatePagesAt(vAddr, count);
+        if (allocated != count) {
+            if (allocated > 0) { this.freePagesAt(vAddr, allocated); }
+            return null;
+        }
+        StackBuilder sb = this.rt().createInstance(StackBuilder:CLASSNAME);
+        sb.init(vAddr, count, 0);
+        return sb;
     }
     
     [] freePagesAt(int virtualAddress, int count) {

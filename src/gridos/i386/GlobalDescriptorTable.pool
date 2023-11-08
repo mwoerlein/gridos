@@ -137,31 +137,4 @@ class GlobalDescriptorTable extends sys::core::Object {
         entry.esp0 = topOfStack;
         return this;
     }
-    
-    [] toUserMode() {
-        __pasm__(<"
-            cli
-            // ensure user segment in all segment registers
-            movw 0x23, %ax
-            movw %ax, %ds
-            movw %ax, %es
-            movw %ax, %fs
-            movw %ax, %gs
-            // %cs and %ss are set by iret
-            
-            // setup iret stack frame
-            movl %esp, %eax
-            pushl 0x23  // data selector (with bottom 2 bits set for ring 3)
-            pushl %eax  // current esp
-            pushfl      // eflags
-            orl 0x200, (%esp) // set FI-Flag to enable interrupts with iret 
-            pushl 0x1B  // code selector (with bottom 2 bits set for ring 3)
-            movl 8(%ebp), %eax
-            addl (_gdt_to_user_mode - _gridos_i386_GlobalDescriptorTable), %eax
-            pushl %eax  // instruction address to return to
-            iret
-            
-        _gdt_to_user_mode:
-        ">, {}, {"%eax": null});
-    }
 }

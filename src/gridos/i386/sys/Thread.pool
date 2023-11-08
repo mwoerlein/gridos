@@ -5,6 +5,7 @@ version = 0.1.0
 */
 namespace gridos::i386::sys;
 
+use sys::core::String;
 use sys::runtime::Process as SysProcess;
 use sys::runtime::Thread as SysThread;
 use sys::time::Timestamp;
@@ -13,10 +14,14 @@ class Thread extends SysThread {
 
     Process process;
     Timestamp cpuTS;
+    String taskClassname;
     
-    [Thread] _initThread(Process process, Timestamp cpuTS) {
+    [Thread] _initThread(Process process, Timestamp cpuTS, cstring tcn) {
         this.process = process;
         this.cpuTS = cpuTS;
+        // copy class name into user heap
+        this.taskClassname = this.createOwn(String:CLASSNAME);
+        this.taskClassname.printCString(tcn);
         return this; 
     }
     
@@ -31,4 +36,29 @@ class Thread extends SysThread {
     [] awaitTermination() {
         // TODO #24
     }
+    
+    [int] _getUserEntry() {
+        int entry = 0;
+        __pasm__("movl 8(%ebp), %eax; addl _cr_mo_thread_user_entry, %eax", {}, {"%eax": entry});
+        return entry;
+    }
+    
+    [] _userEntry() {
+        __pasm__("_cr_mo_thread_user_entry := (_thread_user_entry - _gridos_i386_sys_Thread); _thread_user_entry:");
+        // only a simple method call, to create fully functional stackframe with temporal variables, if required
+        this._createAndRunTask();
+    }
+        
+    [] _createAndRunTask() {
+        sys::runtime::Runtime userRt := this.rt();
+        userRt.createAndRunTask(taskClassname.toCString());
+        
+        // there is no way back to kernel mode => never return!
+        // TODO: cleanup/exit process/thread if task returns
+        while (1) {
+            userRt.yield();
+            userRt.sleep(5,0); // wait some time
+        }
+    }
+    
 }

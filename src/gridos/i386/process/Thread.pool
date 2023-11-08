@@ -25,12 +25,12 @@ class Thread extends sys::core::Object {
         return this;
     }
     
-    [Thread] _initFinish() {
+    [Thread] _initFinish(cstring taskClassname) {
         sys::runtime::Runtime urt = this.process.getUserRuntime();
         this.cpuTS = this.own(urt.createInstance(Timestamp:CLASSNAME));
         this.cpuTS.setTime(0, 0);
         this.userThread = this.own(urt.createInstance(UserThread:CLASSNAME));
-        this.userThread._initThread(this.process.getUserProcess(), this.cpuTS);
+        this.userThread._initThread(this.process.getUserProcess(), this.cpuTS, taskClassname);
         return this;
     }
     
