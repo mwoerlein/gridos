@@ -89,6 +89,12 @@ class Module extends StorageElement, CommandLineParserTarget {
         mmu.flushTLB();
     }
     
+    [] unmap(MMU mmu) {
+        if (_vPage) {
+            mmu.unmapPages(_vPage, _pages);
+        }
+    }
+    
     [int] parseCommandline(cstring commandline) {
         Runtime rt = this.rt();
         CommandLineParser p = rt.createInstance(CommandLineParser:CLASSNAME);

@@ -283,22 +283,31 @@ class Startup extends Runtime, RuntimeBuilder {
         
         // TODO: run kernel thread and free/destroy startup memory/objects
         if (modules.hasCModule("startup")) {
-            sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
-            if (taskClassname) {
-                pm.createProcess(
-                    taskClassname.toCString(),
+            // init process
+            gridos::i386::process::Thread startupThread = scheduler.getCurrentThread();
+            // module process
+            sys::core::String taskModulename = modules.getCModule("startup").getCStringProperty("meta.runModule");
+            if (taskModulename) {
+                pm.createProcessFromModule(
+                    modules.getModule(taskModulename),
                     vs1.createOStream(FOStream:BRIGHT_YELLOW, FOStream:BLUE),
                     vs1.createOStream(FOStream:BRIGHT_RED, FOStream:BLUE)
                 );
+            }
+            // task process
+            sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
+            if (taskClassname) {
                 pm.createProcess(
                     taskClassname.toCString(),
                     vs2.createOStream(FOStream:BLACK, FOStream:WHITE),
                     vs2.createOStream(FOStream:BRIGHT_RED, FOStream:WHITE)
                 );
-                while (1) {
-                    this.yield();
-                    clock.sleep(5, 0);
-                }
+            }
+            // loop
+            while (1) {
+                this.yield();
+                out.print(startupThread).printNewline();
+                clock.sleep(5, 0);
             }
         }
     }

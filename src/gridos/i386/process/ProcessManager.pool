@@ -16,7 +16,11 @@ use gridos::i386::sys::ErrStream;
 use gridos::i386::sys::Clock;
 use gridos::i386::sys::PageAllocator;
 
+use gridos::module::Module;
+
 use sys::memory::PagedMemoryManager;
+use sys::runtime::ClassStorage;
+use sys::runtime::DynamicClassStorage;
 use sys::runtime::Runtime;
 use sys::stream::OStream;
 
@@ -49,7 +53,22 @@ class ProcessManager extends sys::core::Object {
         [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(MMU:AFTER_KERNEL_LOCAL_STACKS);
         
         Process process := this._newProcess(pageDirectoryPAddr);
-        Thread thread := this.setupNewProcess(process, sb, taskClassname, out, err);
+        Thread thread := this.setupNewProcess(process, sb, null, out, err, taskClassname);
+        
+        scheduler.addReadyThread(thread);
+        sb.unmap(mmu);
+        sb.destroy();
+        return process;
+    }
+    
+    [Process] createProcessFromModule(Module module, OStream out, OStream err) {
+        sys::core::String taskClassname = module.getCStringProperty("meta.runTask");
+        if (!taskClassname) { return null; }
+        
+        [int pageDirectoryPAddr, StackBuilder sb] = mmu.newThreadPageDirectoryAndKernelStack(MMU:AFTER_KERNEL_LOCAL_STACKS);
+        
+        Process process := this._newProcess(pageDirectoryPAddr);
+        Thread thread := this.setupNewProcess(process, sb, module, out, err, taskClassname.toCString());
         
         scheduler.addReadyThread(thread);
         sb.unmap(mmu);
@@ -69,17 +88,18 @@ class ProcessManager extends sys::core::Object {
         return p._initStart(++pidCounter, pageDirectoryPAddr);
     }
     
-    [Thread] setupNewProcess(Process process, StackBuilder sb, cstring taskClassname, OStream out, OStream err) {
+    [Thread] setupNewProcess(Process process, StackBuilder sb, Module module, OStream out, OStream err, cstring taskClassname) {
         Thread thread = process.createOwn(Thread:CLASSNAME);
         thread._initStart(process);
         
         { // fake stack frame for __setupProcess
             int basePtr = sb.getTopOfStack();
-            sb.pushPtr(err);                // fifth argument
-            sb.pushPtr(out);                // forth argument
-            sb.pushString(taskClassname);   // third argument
-            sb.pushPtr(thread);             // second argument
-            sb.pushPtr(process);            // first argument
+            sb.pushString(taskClassname);   // task name
+            sb.pushPtr(thread);             // thread
+            sb.pushPtr(err);                // err
+            sb.pushPtr(out);                // out
+            sb.pushPtr(module);             // module
+            sb.pushPtr(process);            // process
             sb.buildMethodCallEntry(this, this.getClass(), 0, basePtr);
         }
         scheduler.setupStackFrameForSwitchTo(sb, this.__getSetupProcessEntry(), thread);
@@ -107,9 +127,9 @@ class ProcessManager extends sys::core::Object {
         return entry;
     }
     
-    [] __setupProcess(Process process, Thread thread, cstring taskClassname, OStream out, OStream err) {
+    [] __setupProcess(Process process, Module module, OStream out, OStream err, Thread thread, cstring taskClassname) {
         __pasm__("_cr_mo_setup_process_entry := (_setup_process_entry - _gridos_i386_process_ProcessManager); _setup_process_entry:");
-        this._setupProcess(process, out, err);
+        this._setupProcess(process, module, out, err);
         this._setupThread(thread, taskClassname);
     }
 
@@ -127,9 +147,13 @@ class ProcessManager extends sys::core::Object {
         this._setupThread(thread, taskClassname);
     }
     
-    [] _setupProcess(Process process, OStream out, OStream err) {
-        this.rt().err()
-            .printCString("setup new process ").printInt(process.getPid())
+    [] _setupProcess(Process process, Module module, OStream out, OStream err) {
+        OStream debug = this.rt().err();
+        debug.printCString("setup new process ").printInt(process.getPid());
+        if (module) {
+            debug.printCString(" for module '").print(module.getId()).printChar('\'');
+        }
+        debug
             .printCString(" via ").print(this)
             .print(out).print(err)
             .printNewline();
@@ -165,14 +189,39 @@ class ProcessManager extends sys::core::Object {
         // bootstrap user runtime for new process
         MMUPageAllocator userMPA = kernelRt.createInstance(MMUPageAllocator:CLASSNAME);
         userMPA._init(mmu, MMU:START_USER_HEAP);
-        PagedMemoryManager tmpUserPMM = ksRt.createInstance(PagedMemoryManager:CLASSNAME);
+        PagedMemoryManager tmpUserPMM = kernelRt.createInstance(PagedMemoryManager:CLASSNAME);
         // TODO: adjust user page allocation to increase performance 
         tmpUserPMM.setMinimalPageAllocation(1).initFromPageAllocator(userMPA.pageAllocator(), 1);
-        Runtime userRt = kernelRt.createInstanceAt(Runtime:CLASSNAME, tmpUserPMM.allocator());
-        {
+        
+        Runtime userRt = null;
+        if (module) {
+            // preload process classes into user class storage at user heap
+            DynamicClassStorage tmpUserClassStorage = kernelRt.createInstance(DynamicClassStorage:CLASSNAME);
+            {
+                int moduleWasUnavailable := !module.isAvailable();
+                if (moduleWasUnavailable) { module.mapAt(mmu, 0xF7000000); } // where to map temporary?
+                sys::store::Store store = tmpUserClassStorage.createOwn(sys::store::Store:CLASSNAME);
+                store.setContent(module.getIOStream());
+                store.loadAllClassDesc(tmpUserClassStorage, tmpUserPMM.allocator());
+                store.destroy();
+                if (moduleWasUnavailable) { module.unmap(mmu); }
+            }
+            
+            // create user runtime on user heap with user classes
+            userRt = kernelRt.createSelfcontainedRuntime(Runtime:CLASSNAME, tmpUserPMM.allocator(), tmpUserClassStorage.classStorage());
+            
+            // rebuild user class storage in user runtime
+            DynamicClassStorage dcs = userRt.createInstance(DynamicClassStorage:CLASSNAME);
+            tmpUserClassStorage.transferClasses(dcs, null);
+            userRt.setClassStorage(dcs.classStorage());
+            
+            tmpUserClassStorage.destroy();
+        } else {
+            userRt = kernelRt.createInstanceAt(Runtime:CLASSNAME, tmpUserPMM.allocator());
             userRt.setAllocator(tmpUserPMM.allocator());
-            // TODO: setup user class storage and refresh instances
             userRt.setClassStorage(kernelRt.getClassStorage());
+        }
+        {
             // temporary use of kernel instances until correct ones are generated
             userRt.setClock(kernelRt.getClock());
             userRt.setOut(kernelRt.out()); 
@@ -183,6 +232,7 @@ class ProcessManager extends sys::core::Object {
             ErrStream err = userRt.createInstance(ErrStream:CLASSNAME);
             Clock clock = userRt.createInstance(Clock:CLASSNAME);
             PageAllocator pa = userRt.createInstance(PageAllocator:CLASSNAME);
+            // rebuild user heap management in user runtime
             PagedMemoryManager pmm = userRt.createInstance(PagedMemoryManager:CLASSNAME);
             pmm.initFromPagedMemoryManager(pa.pageAllocator(), tmpUserPMM);
             
