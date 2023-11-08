@@ -128,22 +128,10 @@ class Startup extends Runtime, RuntimeBuilder {
         bsClassStorage.transferClasses(bsDCS, bsPMM.allocator());
         
         // create "heap"-based runtime
-        bsRt.setAllocator(bsPMM.allocator());
-        bsRt.setClassStorage(bsDCS.classStorage());
-        Class classClass = bsRt._createClassClass();
-        Startup rt = bsRt.createInstance(Startup:CLASSNAME);
-        bsRt.setAllocator(bsAllocator);
-        bsRt.setClassStorage(bsClassStorage);
-        
-        rt.setAllocator(bsPMM.allocator());
+        Startup rt = bsRt.createSelfcontainedRuntime(Startup:CLASSNAME, bsPMM.allocator(), bsDCS.classStorage());
         rt.setPageAllocator(bsMPA.pageAllocator());
-        rt.setClassStorage(bsDCS.classStorage());
         rt.setOut(bsOut);
         rt.setErr(bsOut);
-        
-        rt.refreshInstance(classClass);
-        rt.refreshInstance(rt.getClass());
-        rt.refreshInstance(rt);
         
         // create "heap"-based MMU
         MMU mmu = rt.createInstance(MMU:CLASSNAME);
