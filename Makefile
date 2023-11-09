@@ -13,10 +13,7 @@ LOADER_PASMS = $(patsubst %,$(BOOTLDDIR)/%.pasm, $(LOADER_PARTS))
 STORE_PASMS = $(shell find $(PASMDIR)/ -type f -name '*.pasm')
 STORE_FILES = $(patsubst $(PASMDIR)/%.pasm, $(BUILDDIR)/%.p86, $(STORE_PASMS))
 
-I386_SYS_SRCS =$(shell find $(SRCDIR)/gridos/i386/sys -type f -name '*.pool')
-USER_RT_CLASSES = $(patsubst $(SRCDIR)/gridos/i386/sys/%.pool, gridos::i386::sys::%, $(I386_SYS_SRCS)) sys::memory::PagedMemoryManager sys::runtime::DynamicClassStorage sys::store::Store
-
-STARTUP_SEGMENT = 0x5000
+STARTUP_SEGMENT = 0x4000
 MODULES_SEGMENT = 0x1000
 GIDT_PAGE = 0xFFBFD
 
@@ -61,7 +58,7 @@ $(BLOCKDIR)/sampletask.block: $(SRCDIR)/gridos/SampleTask.pool $(POOLC)
 	@echo "creating $@"
 	@rm -rf $(TMPDIR)
 	@mkdir -p $(TMPDIR)
-	@$(POOLC) $(PC_FLAGS) --output $(TMPDIR) gridos::SampleTask $(USER_RT_CLASSES) -Br
+	@$(POOLC) $(PC_FLAGS) --output $(TMPDIR) gridos::SampleTask -Br
 	@$(STORE) -io $@ -a 512 `find $(TMPDIR)/ -type f -name '*.p86'`
 	@rm -rf $(TMPDIR)
  

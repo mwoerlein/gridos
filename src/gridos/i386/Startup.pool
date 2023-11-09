@@ -282,17 +282,10 @@ class Startup extends Runtime, RuntimeBuilder {
                     vs1.createOStream(FOStream:BRIGHT_YELLOW, FOStream:BLUE),
                     vs1.createOStream(FOStream:BRIGHT_RED, FOStream:BLUE)
                 );
-                pm.createProcessFromModule(
-                    modules.getModule(taskModulename),
-                    vs2.createOStream(FOStream:BLACK, FOStream:WHITE),
-                    vs2.createOStream(FOStream:BRIGHT_RED, FOStream:WHITE)
-                );
             }
             // task process
             sys::core::String taskClassname = modules.getCModule("startup").getCStringProperty("meta.runTask");
-            // just process creation from modules loads user classes into user space
-            // => this process does not work with restricted kernel space access, yet 
-            if (taskClassname && false) {
+            if (taskClassname) {
                 pm.createProcess(
                     taskClassname,
                     vs2.createOStream(FOStream:BLACK, FOStream:WHITE),
