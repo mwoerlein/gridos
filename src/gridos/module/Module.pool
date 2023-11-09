@@ -92,6 +92,7 @@ class Module extends StorageElement, CommandLineParserTarget {
     [] unmap(MMU mmu) {
         if (_vPage) {
             mmu.unmapPages(_vPage, _pages);
+            _vPage = 0;
         }
     }
     
