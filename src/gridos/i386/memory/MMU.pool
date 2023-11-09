@@ -15,7 +15,8 @@ class MMU extends Object {
     int PRESENT_BIT := 0x1;
     int READ_WRITE_BIT := 0x2;
     int USER_SUPERUSER_BIT := 0x4;
-    int ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
+    int KERNEL_ACCESS_BITS := MMU:PRESENT_BIT;
+    int USER_ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
     
     int START_USER_HEAP := 0x00001000;
     int AFTER_USER_STACKS := 0xF0000000; //MMU:START_KERNEL_LOCAL_HEAP; // compiler segfault with correct constant???
@@ -74,6 +75,11 @@ class MMU extends Object {
     }
     
     [] map(int pAddr, int vAddr) {
+        int accessBits = MMU:KERNEL_ACCESS_BITS;
+        if (Address:compareAddress(vAddr, AFTER_USER_STACKS) < 0) {
+            accessBits = MMU:USER_ACCESS_BITS;
+        }
+        
         int pdIndex = Bitset:rshift(vAddr, 22);
         int ptIndex = Bitset:and(Bitset:rshift(vAddr, 12), 0x3ff);
         int pdEntryAddr = 0xFFFFF000 + 4*pdIndex;
@@ -81,10 +87,10 @@ class MMU extends Object {
         
         int pdEntry = Address:loadAddress(pdEntryAddr);
         if (!Bitset:has(pdEntry, MMU:PRESENT_BIT)) {
-            Address:storeAddress(pdEntryAddr, this.newPageTable() + MMU:ACCESS_BITS);
+            Address:storeAddress(pdEntryAddr, this.newPageTable() + accessBits);
             this.flushTLB();
         }
-        Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + MMU:ACCESS_BITS); 
+        Address:storeAddress(ptEntryAddr, Bitset:and(pAddr, 0xfffff000) + accessBits); 
     }
     
     [int] unmap(int vAddr) {
@@ -212,7 +218,7 @@ class MMU extends Object {
         Address:setBytes(0xFFBF1000, PageAllocator:PAGESIZE, 0);
         Address:setBytes(0xFFBF2000, PageAllocator:PAGESIZE, 0);
         // add stack page
-        Address:storeAddress(0xFFBF2000 + 4*stackPtIndex, stack + MMU:ACCESS_BITS);
+        Address:storeAddress(0xFFBF2000 + 4*stackPtIndex, stack + MMU:KERNEL_ACCESS_BITS);
         
         // setup page directory
         // clear user space mapping
@@ -224,9 +230,9 @@ class MMU extends Object {
             4*(MMU:AFTER_KERNEL_SHARED_PT_INDEX - MMU:START_KERNEL_SHARED_PT_INDEX)
         );
         // add new page tables
-        Address:storeAddress(0xFFBF0000 + 4*0x0, zeroPt + MMU:ACCESS_BITS);
-        Address:storeAddress(0xFFBF0000 + 4*stackPdIndex, stackPt + MMU:ACCESS_BITS);
-        Address:storeAddress(0xFFBF0000 + 4*0x3FF, pd + MMU:ACCESS_BITS);
+        Address:storeAddress(0xFFBF0000 + 4*0x0, zeroPt + MMU:USER_ACCESS_BITS);
+        Address:storeAddress(0xFFBF0000 + 4*stackPdIndex, stackPt + MMU:KERNEL_ACCESS_BITS);
+        Address:storeAddress(0xFFBF0000 + 4*0x3FF, pd + MMU:KERNEL_ACCESS_BITS);
         
         // unmap page directory and tables
         this.unmap(0xFFBF0000);
