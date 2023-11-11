@@ -12,25 +12,29 @@ use sys::memory::PageAllocator;
 
 class MMU extends Object {
     
-    int PRESENT_BIT := 0x1;
-    int READ_WRITE_BIT := 0x2;
-    int USER_SUPERUSER_BIT := 0x4;
-    int KERNEL_ACCESS_BITS := MMU:PRESENT_BIT;
-    int USER_ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
+    global int PRESENT_BIT := 0x1;
+    global int READ_WRITE_BIT := 0x2;
+    global int USER_SUPERUSER_BIT := 0x4;
+    global int KERNEL_ACCESS_BITS := MMU:PRESENT_BIT;
+    global int USER_ACCESS_BITS := MMU:PRESENT_BIT + MMU:READ_WRITE_BIT + MMU:USER_SUPERUSER_BIT;
     
-    int START_USER_HEAP := 0x00001000;
-    int AFTER_USER_STACKS := 0xF0000000; //MMU:START_KERNEL_LOCAL_HEAP; // compiler segfault with correct constant???
-    int START_KERNEL_LOCAL_HEAP := 0xF0000000;
-    int AFTER_KERNEL_LOCAL_STACKS := 0xF8000000; //MMU:START_KERNEL_SHARED_HEAP; // compiler segfault with correct constant???
-    int START_KERNEL_SHARED_HEAP := 0xF8000000;
-    int AFTER_KERNEL_SHARED_STACK := 0xFF800000;
+    global int USER_STACK_PAGES := 4;
+    global int KERNEL_LOCAL_STACK_PAGES := 4;
+    global int KERNEL_SHARED_STACK_PAGES := 16;
     
-    int MODULES_MAPPING := 0xFF800000; //MMU:AFTER_KERNEL_SHARED_STACK; // compiler segfault with correct constant???
+    global int START_USER_HEAP := 0x00001000;
+    global int AFTER_USER_STACKS := 0xF0000000; //MMU:START_KERNEL_LOCAL_HEAP; // compiler segfault with correct constant???
+    global int START_KERNEL_LOCAL_HEAP := 0xF0000000;
+    global int AFTER_KERNEL_LOCAL_STACKS := 0xF8000000; //MMU:START_KERNEL_SHARED_HEAP; // compiler segfault with correct constant???
+    global int START_KERNEL_SHARED_HEAP := 0xF8000000;
+    global int AFTER_KERNEL_SHARED_STACK := 0xFF800000;
     
-    int START_KERNEL_PT_INDEX := 0x3C0; //(START_KERNEL_LOCAL_HEAP >> 12)
-    int START_KERNEL_SHARED_PT_INDEX := 0x3E0; //(START_KERNEL_SHARED_HEAP >> 12)
-    int AFTER_KERNEL_SHARED_PT_INDEX := 0x3FF;
-    int AFTER_KERNEL_PT_INDEX := 0x400;
+    global int MODULES_MAPPING := 0xFF800000; //MMU:AFTER_KERNEL_SHARED_STACK; // compiler segfault with correct constant???
+    
+    global int START_KERNEL_PT_INDEX := 0x3C0; //(START_KERNEL_LOCAL_HEAP >> 12)
+    global int START_KERNEL_SHARED_PT_INDEX := 0x3E0; //(START_KERNEL_SHARED_HEAP >> 12)
+    global int AFTER_KERNEL_SHARED_PT_INDEX := 0x3FF;
+    global int AFTER_KERNEL_PT_INDEX := 0x400;
     
     int activeDirectory;
     PhysicalFreePageInfo info;
@@ -169,8 +173,8 @@ class MMU extends Object {
         // TODO: handle page info list
     }
     
-    [int] allocateStackPagesAt(int virtualAddress, int count) {
-        return this.allocatePagesAt(virtualAddress - count * PageAllocator:PAGESIZE, count);
+    [int] allocateStackPagesAt(int virtualAddress, int count, int skip) {
+        return this.allocatePagesAt(virtualAddress - (count + skip) * PageAllocator:PAGESIZE, count);
     }
     
     [StackBuilder] allocateStackBuilderAt(int virtualAddress, int count) {

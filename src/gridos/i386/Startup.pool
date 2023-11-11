@@ -171,7 +171,7 @@ class Startup extends Runtime, RuntimeBuilder {
         rt.setStartupRegistry(sr);
         
         // initialize kernel stack (placed for init-thread)
-        mmu.allocateStackPagesAt(MMU:AFTER_KERNEL_LOCAL_STACKS, 1);
+        mmu.allocateStackPagesAt(MMU:AFTER_KERNEL_LOCAL_STACKS, MMU:KERNEL_LOCAL_STACK_PAGES, 0);
         
         // cleanup
         bsDCS.destroy();
@@ -239,7 +239,7 @@ class Startup extends Runtime, RuntimeBuilder {
         {
             // TODO #28: prepare stacks for each cpu
             int isrStack = MMU:AFTER_KERNEL_SHARED_STACK;
-            mmu.allocateStackPagesAt(isrStack, 64);
+            mmu.allocateStackPagesAt(isrStack, MMU:KERNEL_SHARED_STACK_PAGES, 0);
             gdt.setISRStack(0, isrStack);
         }
         /* setup gdt/tss/ivt */

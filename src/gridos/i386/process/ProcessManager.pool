@@ -156,6 +156,9 @@ class ProcessManager extends sys::core::Object {
         
         Runtime ksRt := process.rt();
         
+        // increase kernel stack
+        mmu.allocateStackPagesAt(MMU:AFTER_KERNEL_LOCAL_STACKS, MMU:KERNEL_LOCAL_STACK_PAGES-1, 1);
+        
         // prepare kernel heap management
         MMUPageAllocator tmpKernelMPA = ksRt.createInstance(MMUPageAllocator:CLASSNAME);
         tmpKernelMPA._init(mmu, MMU:START_KERNEL_LOCAL_HEAP);
@@ -309,7 +312,7 @@ class ProcessManager extends sys::core::Object {
         
         // prepare user thread stack
         {
-            StackBuilder sb = mmu.allocateStackBuilderAt(MMU:AFTER_USER_STACKS, 1); // TODO #30: determine correct stack
+            StackBuilder sb = mmu.allocateStackBuilderAt(MMU:AFTER_USER_STACKS, MMU:USER_STACK_PAGES); // TODO #30: determine correct stack
             
              // fake stack frame for __setupThread
             int basePtr = sb.getTopOfStack();
