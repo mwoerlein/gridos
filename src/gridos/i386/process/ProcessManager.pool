@@ -127,7 +127,7 @@ class ProcessManager extends sys::core::Object {
     
     [] __setupProcess(Process process, Module module, OStream out, OStream err, Thread thread, cstring tcn) {
         __pasm__("_cr_mo_setup_process_entry := (_setup_process_entry - _gridos_i386_process_ProcessManager); _setup_process_entry:");
-        this._setupProcess(process, module, out, err);
+        this._setupProcess(process, module, out, err, tcn);
         this._setupThread(thread, tcn);
     }
 
@@ -145,7 +145,7 @@ class ProcessManager extends sys::core::Object {
         this._setupThread(thread, tcn);
     }
     
-    [] _setupProcess(Process process, Module module, OStream out, OStream err) {
+    [] _setupProcess(Process process, Module module, OStream out, OStream err, cstring tcn) {
         OStream debug = this.rt().err();
         debug.printCString("setup new process ").printInt(process.getPid());
         if (module) { debug.printCString(" for module '").print(module.getId()).printChar('\''); }
@@ -216,46 +216,17 @@ class ProcessManager extends sys::core::Object {
             
             // load required classes 
             {
-                // TODO: determine relevant classes automatically/by compiler/.. 
-                // common requirements for core::runtime::Runtime
-                tmpUserClassStorage.getClassDesc("sys::core::Character");
-                tmpUserClassStorage.getClassDesc("sys::core::Object");
-                tmpUserClassStorage.getClassDesc("sys::core::String");
-                tmpUserClassStorage.getClassDesc("sys::core::Task");
-                tmpUserClassStorage.getClassDesc("sys::core::utils::Bitset");
-                tmpUserClassStorage.getClassDesc("sys::memory::Address");
-                tmpUserClassStorage.getClassDesc("sys::memory::Allocator");
-                tmpUserClassStorage.getClassDesc("sys::memory::MemoryIOStream");
-                tmpUserClassStorage.getClassDesc("sys::runtime::ClassDescriptorLoader");
-                tmpUserClassStorage.getClassDesc("sys::runtime::Class");
-                tmpUserClassStorage.getClassDesc("sys::runtime::ClassStorage");
-                tmpUserClassStorage.getClassDesc("sys::runtime::DynamicClassStorage");
-                tmpUserClassStorage.getClassDesc("sys::runtime::Process");
-                tmpUserClassStorage.getClassDesc("sys::runtime::Runtime");
-                tmpUserClassStorage.getClassDesc("sys::runtime::Thread");
-                tmpUserClassStorage.getClassDesc("sys::stream::IStream");
-                tmpUserClassStorage.getClassDesc("sys::stream::OStream");
-                tmpUserClassStorage.getClassDesc("sys::stream::SeekableIOStream");
-                tmpUserClassStorage.getClassDesc("sys::time::Clock");
-                tmpUserClassStorage.getClassDesc("sys::time::Timestamp");
+                tmpUserClassStorage.preloadClassDesc(tcn);
                 
-                // further requirements for user runtime
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::Clock");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::ErrStream");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::OutStream");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::PageAllocator");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::Process");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::SysCall");
-                tmpUserClassStorage.getClassDesc("gridos::i386::sys::Thread");
-                tmpUserClassStorage.getClassDesc("sys::memory::MemoryManager");
-                tmpUserClassStorage.getClassDesc("sys::memory::PageAllocator");
-                tmpUserClassStorage.getClassDesc("sys::memory::PagedMemoryManager");
-                
-                // further requirements for gridos::SampleTask
-                tmpUserClassStorage.getClassDesc("gridos::SampleTask");
-                tmpUserClassStorage.getClassDesc("sys::core::Boolean");
-                tmpUserClassStorage.getClassDesc("sys::core::Integer");
-                tmpUserClassStorage.getClassDesc("sys::stream::FOStream");
+                // TODO: create UserRuntimeBuilder (or similar) to combine all user runtime requirements into one class to preload
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Clock");
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::ErrStream");
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::OutStream");
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::PageAllocator");
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Process");
+                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Thread");
+                tmpUserClassStorage.preloadClassDesc("sys::memory::PagedMemoryManager");
+                //debug.printCString("loaded classes: ").printInt(tmpUserClassStorage.size()).printNewline();
             }
             
             if (moduleWasUnavailable) { module.unmap(mmu); }
