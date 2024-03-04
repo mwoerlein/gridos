@@ -9,10 +9,7 @@ use gridos::i386::memory::MMU;
 use gridos::i386::memory::MMUPageAllocator;
 use gridos::i386::memory::StackBuilder;
 
-use gridos::i386::sys::OutStream;
-use gridos::i386::sys::ErrStream;
-use gridos::i386::sys::Clock;
-use gridos::i386::sys::PageAllocator;
+use gridos::i386::sys::SysCall;
 use gridos::i386::sys::Thread as UserThread;
 
 use gridos::module::Module;
@@ -217,15 +214,7 @@ class ProcessManager extends sys::core::Object {
             // load required classes 
             {
                 tmpUserClassStorage.preloadClassDesc(tcn);
-                
-                // TODO: create UserRuntimeBuilder (or similar) to combine all user runtime requirements into one class to preload
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Clock");
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::ErrStream");
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::OutStream");
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::PageAllocator");
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Process");
-                tmpUserClassStorage.preloadClassDesc("gridos::i386::sys::Thread");
-                tmpUserClassStorage.preloadClassDesc("sys::memory::PagedMemoryManager");
+                tmpUserClassStorage.preloadClassDesc(SysCall:CLASSNAME);
                 //debug.printCString("loaded classes: ").printInt(tmpUserClassStorage.size()).printNewline();
             }
             
@@ -233,36 +222,8 @@ class ProcessManager extends sys::core::Object {
         }
         
         // bootstrap user runtime for new process
-        Runtime userRt = null;
-        {        
-            // create user runtime on user heap with user classes
-            userRt = kernelRt.createSelfcontainedRuntime(Runtime:CLASSNAME, tmpUserPMM.allocator(), tmpUserClassStorage.classStorage());
-            
-            // rebuild user class storage in user runtime
-            DynamicClassStorage dcs = userRt.createInstance(DynamicClassStorage:CLASSNAME);
-            tmpUserClassStorage.transferClasses(dcs, null);
-            userRt.setClassStorage(dcs.classStorage());
-            
-            // temporary use of kernel instances until correct ones are generated
-            userRt.setClock(kernelRt.getClock());
-            userRt.setOut(kernelRt.out()); 
-            userRt.setErr(kernelRt.err());
-            
-            // create/use syscall instances
-            OutStream out = userRt.createInstance(OutStream:CLASSNAME);
-            ErrStream err = userRt.createInstance(ErrStream:CLASSNAME);
-            Clock clock = userRt.createInstance(Clock:CLASSNAME);
-            PageAllocator pa = userRt.createInstance(PageAllocator:CLASSNAME);
-            
-            // rebuild user heap management in user runtime
-            PagedMemoryManager pmm = userRt.createInstance(PagedMemoryManager:CLASSNAME);
-            pmm.initFromPagedMemoryManager(pa.pageAllocator(), tmpUserPMM);
-            
-            userRt.setOut(out.ostream());
-            userRt.setErr(err.ostream());
-            userRt.setClock(clock.clock());
-            userRt.setAllocator(pmm.allocator());
-        }
+        Runtime userRt = SysCall:createUserRuntime(kernelRt, tmpUserPMM, tmpUserClassStorage);
+        
         tmpUserClassStorage.destroy();
         tmpUserPMM.destroy();
         
