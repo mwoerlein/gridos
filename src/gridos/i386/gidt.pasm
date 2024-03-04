@@ -5,7 +5,7 @@ author = Marc Woerlein <marc.woerlein@gmx.de>
 version = 0.1.0
 */
 .code32
-_gridos_i386_interrupt_InterruptVectorTable_m_call := 168
+_gridos_i386_interrupt_InterruptVectorTable_m_call := 0xc0
 __idt_instance: .long 0x0 // filled by gridos
     .long __gridos_idt_48
     .long __gridos_gdt_48
