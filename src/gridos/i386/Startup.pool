@@ -199,7 +199,7 @@ class Startup extends Runtime, RuntimeBuilder {
         }
         if (modules.hasCModule("store")) {
             DynamicClassStorage dcs = this.cast(DynamicClassStorage:CLASSNAME, this.getClassStorage());
-            sys::store::Store store = dcs.createOwn(sys::store::Store:CLASSNAME);
+            pool::storage::Store store = dcs.createOwn(pool::storage::Store:CLASSNAME);
             Module storeModule = modules.getCModule("store");
             if (!storeModule.isAvailable()) {
                 storeModule.mapAt(mmu, MMU:MODULES_MAPPING); // where to map permanently?

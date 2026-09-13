@@ -15,7 +15,7 @@ use sys::core::anycollection::AnyIterator;
 use sys::core::anycollection::AnyList;
 use sys::memory::MemoryIOStream;
 use sys::runtime::Runtime;
-use sys::store::StorageElement;
+use sys::storage::StorageElement;
 use sys::stream::IStream;
 use sys::stream::OStream;
 use sys::stream::SeekableIOStream;
@@ -103,7 +103,7 @@ class Module extends StorageElement, CommandLineParserTarget {
         AnyIterator ai = args.iterator();
         int ret = true;
         if (ai.hasNext()) {
-            this.setId(this.createOwnStringFromString(ai.next()));
+            this.setId(this.createOwnString(ai.next()));
             ret = p.parse(ai, this.target());
         }
         ai.destroy();
@@ -126,7 +126,7 @@ class Module extends StorageElement, CommandLineParserTarget {
     [int] pushCLValueOption(String opt, String val) {
         String name = this.createStringFromCString(PROPERTYPREFIX_DEFAULT);
         name.print(opt);
-        String old = this.setStringProperty(name, this.createOwnStringFromString(val));
+        String old = this.setStringProperty(name, this.createOwnString(val));
         if (old) {
             old.destroy();
         }

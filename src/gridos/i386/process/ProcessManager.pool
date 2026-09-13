@@ -200,7 +200,7 @@ class ProcessManager extends sys::core::Object {
             
             // use module as primary class source, if given 
             if (module) {
-                sys::store::Store store = tmpUserClassStorage.createOwn(sys::store::Store:CLASSNAME);
+                pool::storage::Store store = tmpUserClassStorage.createOwn(pool::storage::Store:CLASSNAME);
                 store.setContent(module.getIOStream()).setAllocator(tmpUserPMM.allocator());
                 tmpUserClassStorage.addLoader(store.classDescriptorLoader());
             }
