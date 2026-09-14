@@ -204,7 +204,7 @@ class Startup extends Runtime, RuntimeBuilder {
             if (!storeModule.isAvailable()) {
                 storeModule.mapAt(mmu, MMU:MODULES_MAPPING); // where to map permanently?
             }
-            store.setContent(storeModule.getIOStream());
+            store._initFromStream(storeModule.getIOStream());
             dcs.addLoader(store.classDescriptorLoader());
         }
         

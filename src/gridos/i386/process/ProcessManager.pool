@@ -126,6 +126,8 @@ class ProcessManager extends sys::core::Object {
         __pasm__("_cr_mo_setup_process_entry := (_setup_process_entry - _gridos_i386_process_ProcessManager); _setup_process_entry:");
         this._setupProcess(process, module, out, err, tcn);
         this._setupThread(thread, tcn);
+        // _setupThread should never return, if we reach this code, something seriously failed
+        this.__setupProcessFailed(process, thread, module, out, err, tcn);
     }
 
     [int] __getSetupThreadEntry() {
@@ -201,7 +203,8 @@ class ProcessManager extends sys::core::Object {
             // use module as primary class source, if given 
             if (module) {
                 pool::storage::Store store = tmpUserClassStorage.createOwn(pool::storage::Store:CLASSNAME);
-                store.setContent(module.getIOStream()).setAllocator(tmpUserPMM.allocator());
+                store._initFromStream(module.getIOStream());
+                store.setAllocator(tmpUserPMM.allocator());
                 tmpUserClassStorage.addLoader(store.classDescriptorLoader());
             }
             // fallback to kernel classes (i.e. for specific runtime setup)  
@@ -281,6 +284,13 @@ class ProcessManager extends sys::core::Object {
             {"%ebx": userThread._getUserEntry(), "%ecx": topOfUserStack },
             {"%eax": null }
         );
+    }
+
+    [] __setupProcessFailed(Process process, Thread thread, Module module, OStream out, OStream err, cstring tcn) {
+        OStream debug = this.rt().err();
+        debug.printCString("failed to setup process ").print(process).printNewline();
+        scheduler.sleep(10, 0);
+        debug.printCString("TODO: terminate process ").printInt(process.getPid()).printNewline();
     }
     
 }
